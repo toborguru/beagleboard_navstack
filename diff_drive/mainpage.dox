@@ -1,0 +1,29 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b diff_drive is a node which can convert ros navigation messages 
+to and from shaft encoder counts for a differentially steered robot with 
+speed control. 
+
+<!-- 
+Twist messages are converted into encoder pulse commands (ticks/sec), and 
+encoder pulses are converted and published as Odometry messages.
+-->
+
+
+\section codeapi Code API
+
+<!--
+Provide links to specific auto-generated API documentation within your
+package that is of particular interest to a reader. Doxygen will
+document pretty much every part of your code, so do your best here to
+point the reader to the actual API.
+
+If your codebase is fairly large or has different sets of APIs, you
+should use the doxygen 'group' tag to keep these APIs together. For
+example, the roscpp documentation has 'libros' group.
+-->
+
+
+*/

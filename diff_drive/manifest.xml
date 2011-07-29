@@ -1,0 +1,15 @@
+<package>
+  <description brief="diff_drive">
+
+     diff_drive
+
+  </description>
+  <author>Sawyer Larkin (SJL)</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>www.therobotguy.com</url>
+
+  <depend package="nav_msgs"/> 
+</package>
+
+
