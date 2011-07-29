@@ -1,0 +1,2 @@
+This project is intended to allow the beagleboard to use the ROS (Robot 
+Operating System) to control a differentially steered robot with shaft encoders.
