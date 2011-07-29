@@ -25,6 +25,7 @@ TwistEndpoint::TwistEndpoint()
  */
 TwistEndpoint::~TwistEndpoint()
 {
+  Unsubscribe();
 }
 
 /** Spawns the worker thread to connect and subscribe to ROS topic. 

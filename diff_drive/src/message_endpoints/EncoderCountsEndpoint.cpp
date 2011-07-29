@@ -25,7 +25,8 @@ EncoderCountsEndpoint::EncoderCountsEndpoint()
 /** Destructor
  */
 EncoderCountsEndpoint::~EncoderCountsEndpoint()
-{
+{ 
+  Unsubscribe();
 }
 
 /** Spawns the worker thread to connect and subscribe to ROS topic. 
