@@ -24,9 +24,15 @@ EncoderCountsReader::EncoderCountsReader()
 EncoderCountsReader::EncoderCountsReader( IExternalBusEndpoint *p_external_bus )
                     : _stop_requested( false ), 
                       _running( false ),
+                      _block_for_request( true ),
                       _p_external_bus( p_external_bus ) 
 {
   _encoder_counts_listeners.reserve(1);
+}
+
+EncoderCountsReader::~EncoderCountsReader()
+{
+  StopReading();
 }
 
 /** Sets the bus to send the request to.
@@ -72,7 +78,7 @@ void EncoderCountsReader::StopReading()
   }
 }
 
-/** Worker thread to regularly generate BusRequests to read the current enocder 
+/** Worker thread to regularly generate BusRequests to read the current encoder 
  *  counts from the robot.
  */
 void EncoderCountsReader::ReadEncoderCounts() 
@@ -80,7 +86,6 @@ void EncoderCountsReader::ReadEncoderCounts()
   ReadEncodersRequest bus_request;
   diff_drive::EncoderCounts encoder_counts;
 
-  ros::Time::init();
   ros::Rate r( 10.0 );
 
   while ( ! _stop_requested ) 
@@ -110,24 +115,21 @@ void EncoderCountsReader::ReadEncoderCounts()
         }
       }
 
-      // Request should be Locked at this point
-      if ( bus_request.IsLocked() )
-      {
-        // Now copy the data out
-        encoder_counts = bus_request.GetEncoderCounts();
+      //printf( "After while, Locked: %d\n", bus_request.IsLocked() );
 
-        bus_request.Unlock();
+      // Now copy the data out
+      encoder_counts = bus_request.GetEncoderCounts();
 
-        NotifyEncoderCountsListeners( encoder_counts );
+      //ROS_ERROR(  "Encoder Counts Reader1: Period: %.3f Actual: %.3f L: %d R: %d S: %d Dt: %d", 
+      //    r.expectedCycleTime().toSec(), r.cycleTime().toSec(), encoder_counts.left_count,
+      //    encoder_counts.right_count, encoder_counts.stasis_count, encoder_counts.dt_ms );
+      bus_request.Unlock();
 
-        ROS_DEBUG(  "Encoder Counts Reader: Period: %.3f Actual: %.3f L: %d R: %d S: %d Dt: %d", 
-                    r.expectedCycleTime().toSec(), r.cycleTime().toSec(), encoder_counts.left_count,
-                    encoder_counts.right_count, encoder_counts.stasis_count, encoder_counts.dt_ms );
-      }
-      else
-      {
-        ROS_ERROR( "Encoder Counts Reader: Bus Request object is NOT LOCKED!" );
-      }
+      NotifyEncoderCountsListeners( encoder_counts );
+
+      ROS_DEBUG(  "Encoder Counts Reader: Period: %.3f Actual: %.3f L: %d R: %d S: %d Dt: %d", 
+          r.expectedCycleTime().toSec(), r.cycleTime().toSec(), encoder_counts.left_count,
+          encoder_counts.right_count, encoder_counts.stasis_count, encoder_counts.dt_ms );
     }
     else
     {

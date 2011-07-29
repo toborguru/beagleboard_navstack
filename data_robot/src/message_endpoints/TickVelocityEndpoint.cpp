@@ -25,6 +25,7 @@ TickVelocityEndpoint::TickVelocityEndpoint()
  */
 TickVelocityEndpoint::~TickVelocityEndpoint()
 {
+  Unsubscribe();
 }
 
 /** Spawns the worker thread to connect and subscribe to ROS topic. 
@@ -76,7 +77,7 @@ void TickVelocityEndpoint::NewTickVelocityReceived( const diff_drive::TickVeloci
  */
 void TickVelocityEndpoint::ReceiveTickVelocityMessages()
 {
-  ros::Subscriber tick_velocity_subscriber = _tick_velocity_node.subscribe( "cmd_vel", 
+  ros::Subscriber tick_velocity_subscriber = _tick_velocity_node.subscribe( "cmd_ticks", 
                                                             1, 
                                                             &TickVelocityEndpoint::NewTickVelocityReceived,
                                                             this );

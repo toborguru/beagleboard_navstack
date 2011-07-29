@@ -96,6 +96,7 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
   double x;
   double y;
   double theta;
+  double old_theta;
   double linear;
   double angular;
 
@@ -104,10 +105,14 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
   {
     _p_base_model->ConvertCounts( &delta_position, &velocities, counts );
 
+    old_theta = tf::getYaw(last_position.pose.pose.orientation);
+
+    theta = old_theta + (delta_position.theta / 2);
+
     // Integrate the incoming data
-    x = last_position.pose.pose.position.x + delta_position.x;
-    y = last_position.pose.pose.position.y + delta_position.y;
-    theta = tf::getYaw(last_position.pose.pose.orientation) + delta_position.theta;
+    x = last_position.pose.pose.position.x + (delta_position.linear * cos( theta ));
+    y = last_position.pose.pose.position.y + (delta_position.linear * sin( theta ));
+    theta = old_theta + delta_position.theta;
     linear = velocities.linear;
     angular = velocities.angular;
 

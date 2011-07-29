@@ -4,8 +4,8 @@ add_library(
   EncoderCountsEndpoint.cpp
   TickVelocityEndpoint.cpp
   I2CBusEndpoint.cpp
-  i2c-api.c
   Crc8.c
+  i2c-api.c
 )
 
 target_link_libraries(

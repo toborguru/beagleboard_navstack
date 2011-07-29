@@ -28,7 +28,7 @@
 
 #include <inttypes.h>
 
-#if defined( __cplusplus )
+#ifdef __cplusplus 
 extern "C"
 {
 #endif
@@ -42,7 +42,7 @@ uint8_t Crc8( uint8_t crc, uint8_t data );
 uint8_t Crc8Block( uint8_t crc, uint8_t *data, uint8_t len );
 
 
-#if defined( __cplusplus )
+#ifdef __cplusplus 
 }
 #endif
 

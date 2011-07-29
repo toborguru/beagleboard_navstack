@@ -73,6 +73,9 @@ struct BusRequestReceiver : public data_robot_core::IExternalBusEndpoint
 TEST(EncoderCountsReaderTests, canStartAndStopEncoderCountsReader) 
 {
   // Establish Context
+
+  ros::Time::init();
+
   EncoderCountsReader encoder_counts_reader;
   EncoderCountsReceiver encoder_counts_receiver;
   BusRequestReceiver bus_request_receiver;

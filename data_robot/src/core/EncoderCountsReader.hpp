@@ -14,8 +14,9 @@ class EncoderCountsReader
 {
 public:
   EncoderCountsReader();
-
   EncoderCountsReader( IExternalBusEndpoint *p_external_bus );
+  
+  ~EncoderCountsReader();
 
   void BeginReading();
   void StopReading();

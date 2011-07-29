@@ -24,18 +24,18 @@
 // ---- Include Files -------------------------------------------------------
 
 #include <string.h>
+#include <stdio.h>
 #include <errno.h>
 
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
 #include "i2c-api.h"
 
-//#include "Crc8.h"
+#include "Crc8.h"
+
 //#include "DumpMem.h"
 //#include "Log.h"
 
-#define LogDebug  ROS_DEBUG
-#define LogError  ROS_ERROR
+#define LogDebug  printf
+#define LogError  printf
 
 // ---- Public Variables ----------------------------------------------------
 
@@ -192,7 +192,7 @@ int I2cTransfer
         }
         if ( gUseCrc )
         {
-            crc = Crc8Block( crc, &wrBuf[ 1 ], wrLen );
+            // SJL TODO crc = Crc8Block( crc, &wrBuf[ 1 ], wrLen );
 
             if ( rdLen == 0 )
             {
@@ -263,7 +263,7 @@ int I2cTransfer
 
         if ( gUseCrc )
         {
-            crc = Crc8Block( crc, &rdBuf[ 0 ], rdLen + rdBlock );
+            // SJL TODO crc = Crc8Block( crc, &rdBuf[ 0 ], rdLen + rdBlock );
 
             if ( crc != rdBuf[ rdLen + rdBlock ] )
             {

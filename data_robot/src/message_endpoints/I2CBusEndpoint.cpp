@@ -8,10 +8,7 @@
 
 #include "I2CBusEndpoint.hpp"
 
-extern "C"
-{
-  #include "i2c-api.h"
-}
+#include "i2c-api.h"
 
 using namespace data_robot_core;
  
@@ -38,6 +35,7 @@ I2CBusEndpoint::I2CBusEndpoint( const char* dev_name )
  */
 I2CBusEndpoint::~I2CBusEndpoint()
 {
+  Close();
 }
 
 /** Opens the previously set device.
@@ -66,6 +64,11 @@ int I2CBusEndpoint::Open( const char* dev_name )
     ret_val = 0;
   }
 
+  if (! _running)
+  {
+    StartProcessingThread();
+  }
+
   return ret_val;
 }
 
@@ -73,6 +76,11 @@ int I2CBusEndpoint::Open( const char* dev_name )
  */
 void I2CBusEndpoint::Close()
 {
+  if ( _running )
+  {
+    StopProcessingThread();
+  }
+
   if ( _i2c_fd >= 0 )
   {
     close(_i2c_fd);

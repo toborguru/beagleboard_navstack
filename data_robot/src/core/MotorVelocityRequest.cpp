@@ -15,7 +15,9 @@ namespace data_robot_core
 MotorVelocityRequest::MotorVelocityRequest( bool is_blockable, bool is_lockable )
                     : BusRequest( is_blockable, is_lockable )
 {
-  uint16_t address = TICK_VELOCITY_ADDRESS;
+  uint16_t address;
+
+  address = BB_TRAINER + ( TICK_VELOCITY_OFFSET << 8 );
 
   SetAddress( (uint8_t*)&address, ADDRESS_SIZE );
   SetRequestType( REQUEST_WRITE );

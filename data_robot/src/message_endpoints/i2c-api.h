@@ -24,10 +24,14 @@
 #if !defined( I2C_API_H )
 #define I2C_API_H
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
 // ---- Include Files -------------------------------------------------------
 
 #include <inttypes.h>
-#include <linux/i2c.h>
+#include <linux/i2c-dev.h>
 
 // ---- Constants and Types -------------------------------------------------
 
@@ -142,6 +146,10 @@ int I2cSendBytes
     uint8_t *wrData,        ///< Pointer to data to write.
     uint8_t  wrLen          ///< Number of bytes to write.
 );
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif  // I2C_API_H
 

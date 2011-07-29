@@ -86,8 +86,8 @@ void  BusRequest::Unlock()
 {
   if ( _p_lock_mutex != NULL )
   {
-    pthread_mutex_unlock( _p_lock_mutex );
     _is_locked = false;
+    pthread_mutex_unlock( _p_lock_mutex );
   }
 }
 
@@ -128,6 +128,7 @@ void  BusRequest::Block()
     pthread_cond_wait( _p_block_cond, _p_lock_mutex );
    
     // We have been released!
+    _is_locked = true; 
     _is_blocked = false;
 
     // If we had to lock ourself then unlock
