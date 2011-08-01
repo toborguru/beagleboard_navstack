@@ -115,14 +115,9 @@ void EncoderCountsReader::ReadEncoderCounts()
         }
       }
 
-      //printf( "After while, Locked: %d\n", bus_request.IsLocked() );
-
       // Now copy the data out
       encoder_counts = bus_request.GetEncoderCounts();
 
-      //ROS_ERROR(  "Encoder Counts Reader1: Period: %.3f Actual: %.3f L: %d R: %d S: %d Dt: %d", 
-      //    r.expectedCycleTime().toSec(), r.cycleTime().toSec(), encoder_counts.left_count,
-      //    encoder_counts.right_count, encoder_counts.stasis_count, encoder_counts.dt_ms );
       bus_request.Unlock();
 
       NotifyEncoderCountsListeners( encoder_counts );

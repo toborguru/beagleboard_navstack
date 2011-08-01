@@ -277,8 +277,6 @@ BaseDistance_T  BaseModel::CountsToDistance(  diff_drive::EncoderCounts counts,
   average_distance = ( left_distance + right_distance ) / 2.0;
 
   delta_position.theta = CalculateDeltaTheta( left_distance, right_distance, geometry.wheel_base );
-  delta_position.x = CalculateDeltaX( average_distance, delta_position.theta );
-  delta_position.y = CalculateDeltaY( average_distance, delta_position.theta );
   delta_position.linear = average_distance;
   delta_position.stasis = stasis_distance;
 
@@ -355,36 +353,6 @@ double BaseModel::CalculateDeltaTheta(  const double left_distance,
                                         const double wheel_base ) const
 {
   return ( right_distance - left_distance ) / wheel_base;
-}
-
-/** Returns the change in forward distance based on distance traveled by each wheel.
- *
- *  Note: As per Tom Brown of UI Urbana-Champaign delta_theta / 2.0 is used for distance
- *  estimations.
- *
- *  @param average_distance Sum of the left and right drive wheel distances / 2.
- *  @param delta_theta      Estimated change in angle during this traversal.
- *  @returns                The estimated change in position along the X axis.
- */
-double BaseModel::CalculateDeltaX(  const double average_distance,
-                                    const double delta_theta ) const
-{
-  return average_distance * cos( delta_theta / 2.0 );
-}
-
-/** Returns the change in sideways distance based on distance traveled by each wheel.
- *
- *  Note: As per Tom Brown of UI Urbana-Champaign delta_theta / 2.0 is used for distance
- *  estimations.
- *
- *  @param average_distance Sum of the left and right drive wheel distances / 2.
- *  @param delta_theta      Estimated change in angle during this traversal.
- *  @returns                The estimated change in position along the Y axis.
- */
-double BaseModel::CalculateDeltaY(  const double average_distance,
-                                    const double delta_theta ) const
-{
-  return average_distance * sin( delta_theta / 2.0 );
 }
 
 /** Returns the linear distance in meters for a given number of encoder ticks.

@@ -10,8 +10,6 @@ namespace diff_drive_core
 { 
   typedef struct
   {
-    double x;       // meters
-    double y;       // meters
     double theta;   // radians
     double linear;  // meters
     double stasis;  // meters

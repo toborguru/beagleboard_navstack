@@ -96,6 +96,7 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
   double x;
   double y;
   double theta;
+  double dist_theta;
   double old_theta;
   double linear;
   double angular;
@@ -107,12 +108,17 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
 
     old_theta = tf::getYaw(last_position.pose.pose.orientation);
 
-    theta = old_theta + (delta_position.theta / 2);
+    // Note: As per Tom Brown of UI Urbana-Champaign delta_theta / 2.0 is used for distance
+    // estimations.
+    dist_theta = old_theta + (delta_position.theta / 2);
 
     // Integrate the incoming data
-    x = last_position.pose.pose.position.x + (delta_position.linear * cos( theta ));
-    y = last_position.pose.pose.position.y + (delta_position.linear * sin( theta ));
+    x = last_position.pose.pose.position.x + (delta_position.linear * cos( dist_theta ));
+    y = last_position.pose.pose.position.y + (delta_position.linear * sin( dist_theta ));
+
+    // Then the full turn estimate is reported
     theta = old_theta + delta_position.theta;
+
     linear = velocities.linear;
     angular = velocities.angular;
 

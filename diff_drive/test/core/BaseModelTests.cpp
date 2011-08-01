@@ -56,8 +56,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 1.0, distance.x );
-  ASSERT_FLOAT_EQ( 0.0, distance.y );
+  ASSERT_FLOAT_EQ( 1.0, distance.linear );
   ASSERT_FLOAT_EQ( 0.0, distance.theta );
   ASSERT_FLOAT_EQ( 10.0, velocity.linear );
   ASSERT_FLOAT_EQ( 0.0, velocity.angular );
@@ -70,8 +69,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 1.0, distance.x );
-  ASSERT_FLOAT_EQ( 0.0, distance.y );
+  ASSERT_FLOAT_EQ( 1.0, distance.linear );
   ASSERT_FLOAT_EQ( 0.0, distance.theta );
   ASSERT_FLOAT_EQ( 2.0, velocity.linear );
   ASSERT_FLOAT_EQ( 0.0, velocity.angular );
@@ -84,8 +82,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 0.0, distance.x );
-  ASSERT_FLOAT_EQ( 0.0, distance.y );
+  ASSERT_FLOAT_EQ( 0.0, distance.linear );
   ASSERT_FLOAT_EQ( 1.0, distance.theta );
   ASSERT_FLOAT_EQ( 0.0, velocity.linear );
   ASSERT_FLOAT_EQ( 10.0, velocity.angular );
@@ -122,8 +119,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 0.0, distance.x );
-  ASSERT_FLOAT_EQ( 0.0, distance.y );
+  ASSERT_FLOAT_EQ( 0.0, distance.linear );
   ASSERT_FLOAT_EQ( -1.0, distance.theta );
   ASSERT_FLOAT_EQ( 0.0, velocity.linear );
   ASSERT_FLOAT_EQ( -10.0, velocity.angular );
@@ -144,7 +140,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
 // Define the unit test to verify Base Model calibrated dead reckoning
 TEST( BaseModelTests, canCalculateDeadReckoningCalibrated )
 {
-  double x1, y1, theta1, x2, y2, theta2;
+  double x1, theta1, x2, theta2;
   // Establish Context
   BaseModel base_model( 0.5 / M_PI, 100, 0.5, 0.95);
   diff_drive::EncoderCounts counts; 
@@ -159,8 +155,7 @@ TEST( BaseModelTests, canCalculateDeadReckoningCalibrated )
 
   base_model.ConvertCounts( &distance, &velocity, counts );
   
-  x1 = distance.x;
-  y1 = distance.y;
+  x1 = distance.linear;
   theta1 = distance.theta;
   
   counts.left_count = -205;
@@ -169,8 +164,7 @@ TEST( BaseModelTests, canCalculateDeadReckoningCalibrated )
 
   base_model.ConvertCounts( &distance, &velocity, counts );
   
-  x2 = distance.x;
-  y2 = distance.y;
+  x2 = distance.linear;
   theta2 = distance.theta;
 
 #if 0
@@ -185,11 +179,9 @@ TEST( BaseModelTests, canCalculateDeadReckoningCalibrated )
 
   // Assert
   ASSERT_NEAR( 2.0, x1, 0.01 );
-  ASSERT_NEAR( 0.0, y1, 0.01 );
   ASSERT_NEAR( 0.0, theta1, 0.01 );
 
   ASSERT_NEAR( 0.0, x2, 0.01 );
-  ASSERT_NEAR( 0.0, y2, 0.01 );
   ASSERT_NEAR( 8.0, theta2, 0.01 );
 }
 
