@@ -17,12 +17,12 @@ namespace diff_drive_core
     public:
       EncoderCountsReader();
 
-      EncoderCountsReader( IEncoderCountsEndpoint& encoderEndpoint );
       ~EncoderCountsReader();
  
       void Attach( IOdometryListener& odometryListener );
 
       void Connect( IEncoderCountsEndpoint& encoderEndpoint );
+      void Disconnect();
 
       void OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoderCounts );
  

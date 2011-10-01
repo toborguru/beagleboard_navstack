@@ -17,21 +17,24 @@ namespace diff_drive_core_test_core
 struct OdometryReceiver : public diff_drive_core::IOdometryListener
 {
   OdometryReceiver()
-    : _countOfOdometrysReceived(0) 
+    : _count_of_odometrys_received(0) 
   { }
 
-  int _countOfOdometrysReceived;
+  int _count_of_odometrys_received;
 
   void OnOdometryAvailableEvent(const nav_msgs::Odometry& odometry)
   {
-    _countOfOdometrysReceived++;
+    _count_of_odometrys_received++;
 
     // Output the laser scan seq number to the terminal; this isn't the
     // unit test, but merely a helpful means to show what's going on.
-    std::cout << "Odometry sent to OdometryReceiver with x, y of: " 
-              << odometry.pose.pose.position.x 
+    /*
+    std::cout << "Odometry sent to OdometryReceiver with x: " 
+              << odometry.pose.pose.position.x
+              << ", y: "
               << odometry.pose.pose.position.y 
               << std::endl;
+    */
   }
 };
 
@@ -92,9 +95,11 @@ TEST( EncoderCountsReaderTests, canSendCountsAndReceiveOdometry )
   countGenerator.AddTicks(new_counts);
   countGenerator.AddTicks(new_counts);
 
+  encoderCountsReader.Disconnect();
+
   // Assert
 
-  // Check the results of adding four counts
-  EXPECT_TRUE(odometryReceiver._countOfOdometrysReceived == 4);
+  // tCheck the results of adding four counts
+  EXPECT_TRUE(odometryReceiver._count_of_odometrys_received == 4);
 }
 }

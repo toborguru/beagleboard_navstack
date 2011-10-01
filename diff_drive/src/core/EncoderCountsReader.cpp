@@ -20,18 +20,8 @@ EncoderCountsReader::EncoderCountsReader()
   _odometryListeners.reserve(1);
 }
 
-/** Constructor which automatically connects to the endpoint 
- *  @p encoderEndpoint.
- */
-EncoderCountsReader::EncoderCountsReader( IEncoderCountsEndpoint& encoderEndpoint ) 
-{
-  _odometryListeners.reserve(1);
-  Connect( encoderEndpoint );
-}
-
 EncoderCountsReader::~EncoderCountsReader()
 {
-  _p_encoderCountsEndpoint->Unsubscribe();
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
@@ -49,6 +39,13 @@ void EncoderCountsReader::Connect( IEncoderCountsEndpoint& encoderEndpoint )
   _p_encoderCountsEndpoint = &encoderEndpoint;
   _p_encoderCountsEndpoint->Attach(*this);
   _p_encoderCountsEndpoint->Subscribe();
+}
+
+/** Connect a message endpoint to receive encoder count messages.
+*/
+void EncoderCountsReader::Disconnect()
+{
+  _p_encoderCountsEndpoint->Unsubscribe();
 }
 
 /** Callback for IEncoderCountsListener

@@ -12,9 +12,9 @@ class IEncoderCountsEndpoint
 public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
   virtual ~IEncoderCountsEndpoint() {}
-  virtual void Subscribe();
-  virtual void Unsubscribe();
-  virtual void Attach( IEncoderCountsListener& encoderCountsListener ); 
+  virtual void Subscribe() = 0;
+  virtual void Unsubscribe() = 0;
+  virtual void Attach( IEncoderCountsListener& encoderCountsListener ) = 0; 
 };
 }
 

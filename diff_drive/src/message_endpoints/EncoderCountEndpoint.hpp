@@ -14,8 +14,6 @@ namespace diff_drive_message_endpoints
       EncoderCountEndpoint();
       ~EncoderCountEndpoint();
  
-      diff_drive_core::EncoderCount_t RequestEncoderCounts();
- 
     private:
   };
 }
