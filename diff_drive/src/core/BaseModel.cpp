@@ -39,6 +39,7 @@ BaseModel::BaseModel( double    wheel_radius,
             _delta_x(0.0),
             _delta_y(0.0),
             _delta_theta(0.0),
+            _delta_stasis(0.0),
             _linear_velocity(0.0),
             _angular_velocity(0.0),
             _stasis_velocity(0.0)
@@ -53,7 +54,6 @@ void BaseModel::NewEncoderCounts(const diff_drive::EncoderCounts new_counts)
 {
   double left_distance;
   double right_distance;
-  double stasis_distance;
   double average_distance;
   double seconds;
 
@@ -75,11 +75,12 @@ void BaseModel::NewEncoderCounts(const diff_drive::EncoderCounts new_counts)
 
   if ( _stasis_ticks > 0 )
   {
-    stasis_distance = CalculateDistance( new_counts.stasis_count, _ticks_per_meter );
-    _stasis_velocity = CalculateVelocity( stasis_distance, seconds );
+    _delta_stasis = CalculateDistance( new_counts.stasis_count, _stasis_ticks_per_meter );
+    _stasis_velocity = CalculateVelocity( _delta_stasis, seconds );
   }
   else
   {
+    _delta_stasis = 0.0;
     _stasis_velocity = 0.0;
   }
 }
@@ -90,20 +91,28 @@ void BaseModel::NewEncoderCounts(const diff_drive::EncoderCounts new_counts)
 diff_drive::TickVelocity BaseModel::VelocityToTicks(double linear_vel, double angular_vel) const
 {
   diff_drive::TickVelocity new_velocity;
-  double left_correction;
-  double right_correction;
+  double linear_ticks;
+  double angular_ticks;
+  double left_corrected;
+  double right_corrected;
 
-  new_velocity.linear_ticks_sec = (int16_t)(linear_vel * _ticks_per_meter);
-  
-  left_correction = new_velocity.linear_ticks_sec * RIGHT_IN_LEFT_OUT_CORRECTION;
-  right_correction = new_velocity.linear_ticks_sec * LEFT_IN_RIGHT_OUT_CORRECTION;
+  linear_ticks = linear_vel * _ticks_per_meter;
+  angular_ticks = angular_vel * _ticks_per_radian;
+                                            
 
-  new_velocity.angular_ticks_sec = (int16_t)( (angular_vel * _ticks_per_radian) 
-                                              + right_correction - left_correction );
+  left_corrected = ( linear_ticks - (angular_ticks / 2.0) )
+                    * RIGHT_IN_LEFT_OUT_CORRECTION;
+
+  right_corrected = ( linear_ticks + ( angular_ticks / 2.0) )
+                     * LEFT_IN_RIGHT_OUT_CORRECTION;
+                     
+  new_velocity.linear_ticks_sec = (int)( (right_corrected + left_corrected) / 2.0 );
+  new_velocity.angular_ticks_sec = (int)( right_corrected - left_corrected );
 
 #if 0
-  std::cout << "Left Cor: " << left_correction 
-            << " Right Cor: " << right_correction 
+  std::cout << "Left Cor: " << left_corrected 
+            << " Right Cor: " << right_corrected 
+            << " Lin Ticks: " << new_velocity.linear_ticks_sec
             << " Ang Ticks: " << new_velocity.angular_ticks_sec
             << std::endl;
 #endif
@@ -142,6 +151,17 @@ double BaseModel::GetDeltaY() const
 double BaseModel::GetDeltaTheta() const
 {
   return _delta_theta;
+}
+
+/** Returns the current estimate of the change in Stasis position in meters
+ *  based on the last received encoder counts.
+ *
+ *  Please note that integration is _not_ performed, this value represents 
+ *  only the distance traveled during the latest encoder counts.
+ */
+double BaseModel::GetDeltaStasis() const
+{
+  return _delta_stasis;
 }
 
 /** Returns the linear velocity calculated from the latest set of encoder counts,

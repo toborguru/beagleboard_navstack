@@ -38,7 +38,7 @@ TEST( BaseModelTests, canCalculateGeometryProperties )
 }
 
 // Define the unit test to verify Base Model calculated dead reckoning
-TEST( BaseModelTests, canCalculateUncalibratedDeadReckoning )
+TEST( BaseModelTests, canCalculateDeadReckoning )
 {
   // Establish Context
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
@@ -121,6 +121,7 @@ TEST( BaseModelTests, canCalculateUncalibratedDeadReckoning )
 // Define the unit test to verify Base Model calibrated dead reckoning
 TEST( BaseModelTests, canCalculateCalibratedDeadReckoning )
 {
+  double x1, y1, theta1, x2, y2, theta2;
   // Establish Context
   BaseModel base_model( 0.5 / M_PI, 100, 0.5, 0.95);
   diff_drive::EncoderCounts counts; 
@@ -131,18 +132,39 @@ TEST( BaseModelTests, canCalculateCalibratedDeadReckoning )
   counts.dt_ms = 100;
 
   base_model.NewEncoderCounts( counts );
+  
+  x1 = base_model.GetDeltaX();
+  y1 = base_model.GetDeltaY();
+  theta1 = base_model.GetDeltaTheta();
+  
+  counts.left_count = -205;
+  counts.right_count = 195;
+  counts.dt_ms = 100;
+
+  base_model.NewEncoderCounts( counts );
+  
+  x2 = base_model.GetDeltaX();
+  y2 = base_model.GetDeltaY();
+  theta2 = base_model.GetDeltaTheta();
 
 #if 0
-  std::cout << "X: " << base_model.GetDeltaX()
-            << " Y: " << base_model.GetDeltaY()
-            << " Theta: " << base_model.GetDeltaTheta()
+  std::cout << "X1: " << x1
+            << " Y1: " << y1
+            << " Theta1: " << theta1
+            << " X2: " << x2
+            << " Y2: " << y2
+            << " Theta2: " << theta2
             << std::endl;
 #endif
 
   // Assert
-  ASSERT_NEAR( 2.0, base_model.GetDeltaX(), 0.01 );
-  ASSERT_NEAR( 0.0, base_model.GetDeltaY(), 0.01 );
-  ASSERT_NEAR(0.0, base_model.GetDeltaTheta(), 0.01 );
+  ASSERT_NEAR( 2.0, x1, 0.01 );
+  ASSERT_NEAR( 0.0, y1, 0.01 );
+  ASSERT_NEAR( 0.0, theta1, 0.01 );
+
+  ASSERT_NEAR( 0.0, x2, 0.01 );
+  ASSERT_NEAR( 0.0, y2, 0.01 );
+  ASSERT_NEAR( 8.0, theta2, 0.01 );
 }
 
 // Define the unit test to verify Base Model tick velocities
@@ -182,11 +204,10 @@ TEST( BaseModelTests, canCalculateCalibratedTickVelocities )
   ASSERT_EQ( -5.0, ticks.angular_ticks_sec );
 
   // Act
-  ticks = base_model.VelocityToTicks( 0.0, 1.0 );
+  ticks = base_model.VelocityToTicks( 0.0, 8.0 );
 
   // Assert
-  ASSERT_EQ( 0, ticks.linear_ticks_sec );
-  ASSERT_EQ( 50, ticks.angular_ticks_sec );
-
+  ASSERT_EQ( -5, ticks.linear_ticks_sec );
+  ASSERT_EQ( 400, ticks.angular_ticks_sec );
 }
 }

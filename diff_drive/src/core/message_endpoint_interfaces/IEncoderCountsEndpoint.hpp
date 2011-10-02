@@ -1,4 +1,4 @@
-// IEncoderCountEndpoint.hpp
+// IEncoderCountsEndpoint.hpp
 
 #ifndef GUARD_IEncoderCountsEndpoint
 #define GUARD_IEncoderCountsEndpoint
@@ -14,8 +14,8 @@ public:
   virtual ~IEncoderCountsEndpoint() {}
   virtual void Subscribe() = 0;
   virtual void Unsubscribe() = 0;
-  virtual void Attach( IEncoderCountsListener& encoderCountsListener ) = 0; 
+  virtual void Attach( IEncoderCountsListener& encoder_counts_listener ) = 0; 
 };
 }
 
-#endif /* GUARD_IEncoderCountEndpoint */
+#endif /* GUARD_IEncoderCountsEndpoint */

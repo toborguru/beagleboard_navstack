@@ -8,79 +8,169 @@
  *
  *  @copyright GNU Public License Version 2.
  */
- 
+
+#include <cmath>
+
+#include "tf/transform_datatypes.h"
+
 #include "EncoderCountsReader.hpp"
 
 namespace diff_drive_core
 {
+/** This covariance matrix is used by default with estimated values.
+ */
+static const double OdometryCovariance[36] = 
+{
+  1e-9, 1e-9, 0.0,  0.0,  0.0,  1e-9,
+  1e-9, 1e-9, 0.0,  0.0,  0.0,  1e-9,
+  0.0,  0.0,  1e6,  0.0,  0.0,  0.0,
+  0.0,  0.0,  0.0,  1e6,  0.0,  0.0,
+  0.0,  0.0,  0.0,  0.0,  1e6,  0.0,
+  1e-9, 1e-9, 0.0,  0.0,  0.0,  1e-9
+};
+
+/** If we have reason to believe there was significant slip (ie stasis 
+ *  wheel does not match the drive wheel) then we reduce our certainties.
+ */
+static const double OdometryCovarianceLow[36] = 
+{
+  1e-1, 1e-1, 0.0,  0.0,  0.0,  1e-1,
+  1e-1, 1e-1, 0.0,  0.0,  0.0,  1e-1,
+  0.0,  0.0,  1e6,  0.0,  0.0,  0.0,
+  0.0,  0.0,  0.0,  1e6,  0.0,  0.0,
+  0.0,  0.0,  0.0,  0.0,  1e6,  0.0,
+  1e-1, 1e-1, 0.0,  0.0,  0.0,  1e-1
+};
+
 /** Default constructor.
  */
 EncoderCountsReader::EncoderCountsReader()
+                   : _p_base_model(NULL)
 {
-  _odometryListeners.reserve(1);
-}
+  _odometry_listeners.reserve(1);
 
-EncoderCountsReader::~EncoderCountsReader()
-{
+  _current_position.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
  *  odometry messages when they are available.
  */
-void EncoderCountsReader::Attach(IOdometryListener& odometryListener) 
+void EncoderCountsReader::Attach(IOdometryListener& odometry_listener) 
 {
-  _odometryListeners.push_back(&odometryListener);
+  _odometry_listeners.push_back(&odometry_listener);
 }
 
-/** Connect a message endpoint to receive encoder count messages.
-*/
-void EncoderCountsReader::Connect( IEncoderCountsEndpoint& encoderEndpoint )
+/** Sets the BaseModel object to use for ticks to SI conversion.
+ */
+void EncoderCountsReader::SetBaseModel( BaseModel& base_model )
 {
-  _p_encoderCountsEndpoint = &encoderEndpoint;
-  _p_encoderCountsEndpoint->Attach(*this);
-  _p_encoderCountsEndpoint->Subscribe();
-}
-
-/** Connect a message endpoint to receive encoder count messages.
-*/
-void EncoderCountsReader::Disconnect()
-{
-  _p_encoderCountsEndpoint->Unsubscribe();
+  _p_base_model = &base_model;
 }
 
 /** Callback for IEncoderCountsListener
-*/
-void EncoderCountsReader::OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoderCounts )
+ */
+void EncoderCountsReader::OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts )
 {
-  _currentPosition = CountsReceived( encoderCounts, _currentPosition ); 
+  _current_position = CountsReceived( encoder_counts, _current_position ); 
 
-  NotifyOdometryListeners( _currentPosition );
+  NotifyOdometryListeners( _current_position );
 }
 
-/** Updates */
+/** This function uses the BaseModel class to translate encoder counts into SI
+ *  Units and integrates the delta motions into an estimated speed and position.
+ *
+ *  If a stasis wheel is in use than the covariance estimates are drastically
+ *  reduced if the Linear and Stasis velocities do not match.
+ *
+ */
 nav_msgs::Odometry EncoderCountsReader::CountsReceived( const diff_drive::EncoderCounts counts, 
-                                                        const nav_msgs::Odometry lastPosition ) 
+                                                        const nav_msgs::Odometry last_position ) 
 {
-  int i = 0;
+  nav_msgs::Odometry new_position;
 
-    nav_msgs::Odometry newPosition;
+  const double (*p_covariance)[36];
 
-    // Run base model here
+  double x;
+  double y;
+  double theta;
+  double linear;
+  double angular;
 
-    // Just set some data
-    newPosition.pose.pose.position.x = (float)( counts.left_count );
-    newPosition.pose.pose.position.y = (float)( counts.right_count );
+  // Run base model here
+  if (_p_base_model != NULL)
+  {
+    _p_base_model->NewEncoderCounts( counts );
 
-    return newPosition;
+    // Integrate the incoming data
+    x = last_position.pose.pose.position.x + _p_base_model->GetDeltaX();
+    y = last_position.pose.pose.position.y + _p_base_model->GetDeltaY();
+    theta = tf::getYaw(last_position.pose.pose.orientation) + _p_base_model->GetDeltaTheta();
+    linear = _p_base_model->GetLinearVelocity();
+    angular = _p_base_model->GetAngularVelocity();
+
+    if ( _p_base_model->GetStasisTicks() > 0 )
+    {
+      p_covariance = &OdometryCovariance;
+    }
+    else
+    {
+      p_covariance = &OdometryCovariance;
+    }
+  }
+  else
+  {
+    x = 0.0;
+    y = 0.0;
+    theta = 0.0;
+    linear = 0.0;
+    angular = 0.0;
+
+    p_covariance = &OdometryCovarianceLow;
+  }
+
+#if 0
+  std::cout << "X: " << x
+            << " Y: " << y
+            << " Theta: " << theta
+            << std::endl;
+#endif
+
+  // Set the Header data
+  new_position.header.stamp = counts.reading_time;
+
+  // Set the Pose data
+  new_position.pose.pose.position.x = x;
+  new_position.pose.pose.position.y = y;
+  new_position.pose.pose.position.z = 0.0;
+
+  new_position.pose.pose.orientation = tf::createQuaternionMsgFromYaw(theta);
+
+  // Set the Twist data
+  new_position.twist.twist.linear.x = linear;
+  new_position.twist.twist.linear.y = 0.0;
+  new_position.twist.twist.linear.z = 0.0;
+
+  new_position.twist.twist.angular.x = 0.0;
+  new_position.twist.twist.angular.y = 0.0;
+  new_position.twist.twist.angular.z = angular;
+
+  // Set the covariance data
+  for (int i = 0; i < 36; i++)
+  {
+    new_position.pose.covariance[i] = *p_covariance[i];
+    new_position.twist.covariance[i] = *p_covariance[i];
+  }
+  
+  return new_position;
 }
 
 /** Calls the callback function for all registered odometry listeners.
  */  
 void EncoderCountsReader::NotifyOdometryListeners(const nav_msgs::Odometry& odometry)
 {
-  for (int i= 0; i < _odometryListeners.size(); i++) 
+  for (int i= 0; i < _odometry_listeners.size(); i++) 
   {
-      _odometryListeners[i]->OnOdometryAvailableEvent(odometry);
+      _odometry_listeners[i]->OnOdometryAvailableEvent(odometry);
   }
 }
 }

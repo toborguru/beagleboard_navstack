@@ -9,6 +9,7 @@ rosbuild_add_executable(
   diff_drive_tests
   TestRunner.cpp
   ./core/EncoderCountsReaderTests.cpp
+  ./core/TwistReaderTests.cpp
   ./core/BaseModelTests.cpp
 #  ./application_services/OdometryReportingServiceTests.cpp
 #  ./message_endpoints/OdometryEndpointTests.cpp

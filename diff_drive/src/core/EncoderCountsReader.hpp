@@ -3,12 +3,14 @@
 #ifndef GUARD_EncoderCountsReader
 #define GUARD_EncoderCountsReader
  
-#include <pthread.h>
 #include <vector>
+
 #include "nav_msgs/Odometry.h"
 #include "diff_drive/EncoderCounts.h"
+
+#include "BaseModel.hpp"
 #include "IOdometryListener.hpp"
-#include "IEncoderCountsEndpoint.hpp"
+#include "IEncoderCountsListener.hpp"
 
 namespace diff_drive_core
 {
@@ -17,25 +19,23 @@ namespace diff_drive_core
     public:
       EncoderCountsReader();
 
-      ~EncoderCountsReader();
- 
-      void Attach( IOdometryListener& odometryListener );
+      void Attach( IOdometryListener& odometry_listener );
 
-      void Connect( IEncoderCountsEndpoint& encoderEndpoint );
-      void Disconnect();
+      void SetBaseModel( BaseModel& base_model );
 
-      void OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoderCounts );
+      void OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts );
  
     private:
       nav_msgs::Odometry CountsReceived( const diff_drive::EncoderCounts counts,
-                                         const nav_msgs::Odometry lastPosition );
+                                         const nav_msgs::Odometry last_position );
 
       void NotifyOdometryListeners(const nav_msgs::Odometry& odometry);
  
-      std::vector<IOdometryListener*> _odometryListeners;
+      std::vector<IOdometryListener*> _odometry_listeners;
   
-      IEncoderCountsEndpoint*  _p_encoderCountsEndpoint;      
-      nav_msgs::Odometry      _currentPosition;
+      nav_msgs::Odometry _current_position;
+
+      BaseModel* _p_base_model;
   };
 }
 

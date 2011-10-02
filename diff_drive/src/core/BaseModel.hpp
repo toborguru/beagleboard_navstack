@@ -26,6 +26,7 @@ namespace diff_drive_core
       double    GetDeltaX() const;
       double    GetDeltaY() const;
       double    GetDeltaTheta() const;
+      double    GetDeltaStasis() const;
 
       double    GetLinearVelocity() const;
       double    GetAngularVelocity() const;
@@ -99,6 +100,7 @@ namespace diff_drive_core
       double    _delta_x;           // meters
       double    _delta_y;           // meters 
       double    _delta_theta;       // radians
+      double    _delta_stasis;      // meters
      
       double    _linear_velocity;   // meters/sec
       double    _angular_velocity;  // radians/sec
