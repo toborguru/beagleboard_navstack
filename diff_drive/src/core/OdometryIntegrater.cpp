@@ -13,7 +13,7 @@
 
 #include "tf/transform_datatypes.h"
 
-#include "EncoderCountsReader.hpp"
+#include "OdometryIntegrater.hpp"
 
 namespace diff_drive_core
 {
@@ -44,7 +44,7 @@ static const double OdometryCovarianceLow[36] =
 
 /** Default constructor.
  */
-EncoderCountsReader::EncoderCountsReader()
+OdometryIntegrater::OdometryIntegrater()
                    : _p_base_model(NULL)
 {
   _odometry_listeners.reserve(1);
@@ -55,23 +55,23 @@ EncoderCountsReader::EncoderCountsReader()
 /** Provides a call-back mechanism for objects interested in receiving 
  *  odometry messages when they are available.
  */
-void EncoderCountsReader::Attach(IOdometryListener& odometry_listener) 
+void OdometryIntegrater::Attach(IOdometryListener& odometry_listener) 
 {
   _odometry_listeners.push_back(&odometry_listener);
 }
 
 /** Sets the BaseModel object to use for ticks to SI conversion.
  */
-void EncoderCountsReader::SetBaseModel( BaseModel& base_model )
+void OdometryIntegrater::SetBaseModel( BaseModel& base_model )
 {
   _p_base_model = &base_model;
 }
 
 /** Callback for IEncoderCountsListener
  */
-void EncoderCountsReader::OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts )
+void OdometryIntegrater::OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts )
 {
-  _current_position = CountsReceived( encoder_counts, _current_position ); 
+  _current_position = AddNewCounts( encoder_counts, _current_position ); 
 
   NotifyOdometryListeners( _current_position );
 }
@@ -83,8 +83,8 @@ void EncoderCountsReader::OnEncoderCountsAvailableEvent( const diff_drive::Encod
  *  reduced if the Linear and Stasis velocities do not match.
  *
  */
-nav_msgs::Odometry EncoderCountsReader::CountsReceived( const diff_drive::EncoderCounts counts, 
-                                                        const nav_msgs::Odometry last_position ) 
+nav_msgs::Odometry OdometryIntegrater::AddNewCounts( const diff_drive::EncoderCounts counts, 
+                                                     const nav_msgs::Odometry last_position ) 
 {
   nav_msgs::Odometry new_position;
 
@@ -99,7 +99,7 @@ nav_msgs::Odometry EncoderCountsReader::CountsReceived( const diff_drive::Encode
   // Run base model here
   if (_p_base_model != NULL)
   {
-    _p_base_model->NewEncoderCounts( counts );
+    _p_base_model->ConvertCounts( counts );
 
     // Integrate the incoming data
     x = last_position.pose.pose.position.x + _p_base_model->GetDeltaX();
@@ -166,7 +166,7 @@ nav_msgs::Odometry EncoderCountsReader::CountsReceived( const diff_drive::Encode
 
 /** Calls the callback function for all registered odometry listeners.
  */  
-void EncoderCountsReader::NotifyOdometryListeners(const nav_msgs::Odometry& odometry)
+void OdometryIntegrater::NotifyOdometryListeners(const nav_msgs::Odometry& odometry)
 {
   for (int i= 0; i < _odometry_listeners.size(); i++) 
   {

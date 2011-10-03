@@ -1,7 +1,7 @@
-// EncoderCountsReader.hpp
+// OdometryIntegrater.hpp
  
-#ifndef GUARD_EncoderCountsReader
-#define GUARD_EncoderCountsReader
+#ifndef GUARD_OdometryIntegrater
+#define GUARD_OdometryIntegrater
  
 #include <vector>
 
@@ -14,10 +14,10 @@
 
 namespace diff_drive_core
 {
-  class EncoderCountsReader : public IEncoderCountsListener
+  class OdometryIntegrater : public IEncoderCountsListener
   {
     public:
-      EncoderCountsReader();
+      OdometryIntegrater();
 
       void Attach( IOdometryListener& odometry_listener );
 
@@ -26,7 +26,7 @@ namespace diff_drive_core
       void OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts );
  
     private:
-      nav_msgs::Odometry CountsReceived( const diff_drive::EncoderCounts counts,
+      nav_msgs::Odometry AddNewCounts( const diff_drive::EncoderCounts counts,
                                          const nav_msgs::Odometry last_position );
 
       void NotifyOdometryListeners(const nav_msgs::Odometry& odometry);
@@ -39,4 +39,4 @@ namespace diff_drive_core
   };
 }
 
-#endif /* GUARD_EncoderCountsReader */
+#endif /* GUARD_OdometryIntegrater */

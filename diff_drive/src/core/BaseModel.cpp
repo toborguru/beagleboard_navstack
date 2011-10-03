@@ -48,9 +48,10 @@ BaseModel::BaseModel( double    wheel_radius,
 }
 
 /** Updates the current model state with new encoder counts.
+ *
  *  @param  new_counts  Contains the newly received encoder counts.
  */
-void BaseModel::NewEncoderCounts(const diff_drive::EncoderCounts new_counts)
+void BaseModel::ConvertCounts(const diff_drive::EncoderCounts new_counts)
 {
   double left_distance;
   double right_distance;
@@ -88,7 +89,7 @@ void BaseModel::NewEncoderCounts(const diff_drive::EncoderCounts new_counts)
 /** Accepts an desired linear and angular velocity and returns the velocities
  *  in ticks/sec. This function does not alter the current model state.
  */
-diff_drive::TickVelocity BaseModel::VelocityToTicks(double linear_vel, double angular_vel) const
+diff_drive::TickVelocity BaseModel::VelocityToTicks( const double linear_vel, const double angular_vel ) const
 {
   diff_drive::TickVelocity new_velocity;
   double linear_ticks;

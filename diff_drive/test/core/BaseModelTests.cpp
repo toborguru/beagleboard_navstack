@@ -49,7 +49,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = 100;
   counts.dt_ms = 100;
 
-  base_model.NewEncoderCounts( counts );
+  base_model.ConvertCounts( counts );
 
   // Assert
   ASSERT_FLOAT_EQ( 1.0, base_model.GetDeltaX() );
@@ -63,7 +63,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = 25;
   counts.dt_ms = 100;
 
-  base_model.NewEncoderCounts( counts );
+  base_model.ConvertCounts( counts );
 
   // Assert
   ASSERT_FLOAT_EQ( 0.0, base_model.GetDeltaX() );
@@ -77,7 +77,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = 125;
   counts.dt_ms = 100;
 
-  base_model.NewEncoderCounts( counts );
+  base_model.ConvertCounts( counts );
 
   // Assert
   ASSERT_FLOAT_EQ( 1.0, base_model.GetDeltaTheta() );
@@ -89,7 +89,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = -25;
   counts.dt_ms = 100;
 
-  base_model.NewEncoderCounts( counts );
+  base_model.ConvertCounts( counts );
 
   // Assert
   ASSERT_FLOAT_EQ( 0.0, base_model.GetDeltaX() );
@@ -103,19 +103,12 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = -125;
   counts.dt_ms = 100;
 
-  base_model.NewEncoderCounts( counts );
+  base_model.ConvertCounts( counts );
 
   // Assert
   ASSERT_FLOAT_EQ( -1.0, base_model.GetDeltaTheta() );
   ASSERT_FLOAT_EQ( -10.0, base_model.GetLinearVelocity() );
   ASSERT_FLOAT_EQ( -10.0, base_model.GetAngularVelocity() );
-
-  // Act
-  counts.left_count = 205;
-  counts.right_count = 195;
-  counts.dt_ms = 100;
-
-  base_model.NewEncoderCounts( counts );
 }
 
 // Define the unit test to verify Base Model calibrated dead reckoning
@@ -131,7 +124,7 @@ TEST( BaseModelTests, canCalculateCalibratedDeadReckoning )
   counts.right_count = 195;
   counts.dt_ms = 100;
 
-  base_model.NewEncoderCounts( counts );
+  base_model.ConvertCounts( counts );
   
   x1 = base_model.GetDeltaX();
   y1 = base_model.GetDeltaY();
@@ -141,7 +134,7 @@ TEST( BaseModelTests, canCalculateCalibratedDeadReckoning )
   counts.right_count = 195;
   counts.dt_ms = 100;
 
-  base_model.NewEncoderCounts( counts );
+  base_model.ConvertCounts( counts );
   
   x2 = base_model.GetDeltaX();
   y2 = base_model.GetDeltaY();

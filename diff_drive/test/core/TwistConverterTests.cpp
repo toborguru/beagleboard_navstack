@@ -1,5 +1,5 @@
 /** @file
- * Unit test for TwistReader class.
+ * Unit test for TwistConverter class.
  *
  * @author Sawyer Larkin (SJL toborguru)
  */
@@ -8,7 +8,7 @@
 
 #include "geometry_msgs/Twist.h"
 
-#include "TwistReader.hpp"
+#include "TwistConverter.hpp"
 #include "ITickVelocityListener.hpp"
 #include "ITwistEndpoint.hpp"
 #include "BaseModel.hpp"
@@ -85,16 +85,16 @@ struct TwistGenerator : public diff_drive_core::ITwistEndpoint
 };
 
 // Define the unit test to verify ability to listen for Ticks and generate TickVelocity
-TEST( TwistReaderTests, canSendTwistAndReceiveTickVelocity ) 
+TEST( TwistConverterTests, canSendTwistAndReceiveTickVelocity ) 
 {
   // Establish Context
-  TwistReader twist_reader;
+  TwistConverter twist_conveter;
   TwistGenerator twist_generator;
   TickVelocityReceiver tick_velocity_receiver;
   geometry_msgs::Twist new_twist;
 
-  twist_reader.Attach(tick_velocity_receiver);
-  twist_generator.Attach(twist_reader);
+  twist_conveter.Attach(tick_velocity_receiver);
+  twist_generator.Attach(twist_conveter);
 
   // Act
   new_twist.linear.x = 1.0;
@@ -109,52 +109,82 @@ TEST( TwistReaderTests, canSendTwistAndReceiveTickVelocity )
   // Check the results of send four twist commands
   EXPECT_TRUE(tick_velocity_receiver._count_of_tick_velocities_received == 4);
 }
-#if 0
-// Define the unit test to verify ability to integrate and estimate position
-TEST( TwistReaderTests, canCalculateEstimatedPosition) 
-{
-  // Establish Context
-  double distance;
-  double theta;
 
-  TwistReader twist_reader;
+// Define the unit test to verify ability to convert twist messages into ticks
+TEST( TwistConverterTests, canConvertTwistToTicks )
+{
+  int linear1, linear2, angular1, angular2;
+
+  // Establish Context
+  TwistConverter twist_conveter;
   TwistGenerator twist_generator;
   TickVelocityReceiver tick_velocity_receiver;
-  diff_drive::Twist new_twist;
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
+  geometry_msgs::Twist new_twist;
 
-  twist_reader.Attach(tick_velocity_receiver);
-  twist_reader.SetBaseModel(base_model);
+  twist_conveter.Attach(tick_velocity_receiver);
+  twist_conveter.SetBaseModel(base_model);
 
-  twist_generator.Attach(twist_reader);
+  twist_generator.Attach(twist_conveter);
 
   // Act
-  new_twist.left_twist = 100;
-  new_twist.right_twist = 100;
-  new_twist.dt_ms = 100;
-  twist_generator.AddTicks(new_twist);
-  twist_generator.AddTicks(new_twist);
-  twist_generator.AddTicks(new_twist);
-  twist_generator.AddTicks(new_twist);
+  new_twist.linear.x = 1.0;
+  new_twist.angular.z = 0.0;
+  twist_generator.NewTwistCommand( new_twist );
+  linear1 = tick_velocity_receiver._linear;
+  angular1 = tick_velocity_receiver._angular;
 
-  distance = tick_velocity_receiver._x;
-
-  new_twist.left_twist = 0;
-  new_twist.right_twist = 50;
-  new_twist.dt_ms = 100;
-  twist_generator.AddTicks(new_twist);
-  twist_generator.AddTicks(new_twist);
-  twist_generator.AddTicks(new_twist);
-
-  theta = tick_velocity_receiver._theta;
-
-  twist_generator.AddTicks(new_twist);
+  new_twist.linear.x = 0.0;
+  new_twist.angular.z = 1.0;
+  twist_generator.NewTwistCommand( new_twist );
+  linear2 = tick_velocity_receiver._linear;
+  angular2 = tick_velocity_receiver._angular;
 
   // Assert
 
-  EXPECT_FLOAT_EQ(distance, 4.0);
-  EXPECT_FLOAT_EQ(theta, 3.0);
-  EXPECT_LT(tick_velocity_receiver._theta, 0.0);
+  EXPECT_EQ( 100, linear1 ); 
+  EXPECT_EQ( 0 , angular1 );
+
+  EXPECT_EQ( 0, linear2 ); 
+  EXPECT_EQ( 50 , angular2 );
 }
-#endif
+
+// Define the unit test to verify ability to convert twist messages into ticks
+TEST( TwistConverterTests, canConvertTwistToTicksCalibrated )
+{
+  int linear1, linear2, angular1, angular2;
+
+  // Establish Context
+  TwistConverter twist_conveter;
+  TwistGenerator twist_generator;
+  TickVelocityReceiver tick_velocity_receiver;
+  BaseModel base_model( 0.5 / M_PI, 100, 0.5, 0.95 );
+  geometry_msgs::Twist new_twist;
+
+  twist_conveter.Attach(tick_velocity_receiver);
+  twist_conveter.SetBaseModel(base_model);
+
+  twist_generator.Attach(twist_conveter);
+
+  // Act
+  new_twist.linear.x = 1.0;
+  new_twist.angular.z = 0.0;
+  twist_generator.NewTwistCommand( new_twist );
+  linear1 = tick_velocity_receiver._linear;
+  angular1 = tick_velocity_receiver._angular;
+
+  new_twist.linear.x = 0.0;
+  new_twist.angular.z = 8.0;
+  twist_generator.NewTwistCommand( new_twist );
+  linear2 = tick_velocity_receiver._linear;
+  angular2 = tick_velocity_receiver._angular;
+
+  // Assert
+
+  EXPECT_EQ( 100, linear1 ); 
+  EXPECT_EQ( -5, angular1 );
+
+  EXPECT_EQ( -5, linear2 ); 
+  EXPECT_EQ( 400 , angular2 );
+}
 }

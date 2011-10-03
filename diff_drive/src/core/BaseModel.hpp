@@ -19,8 +19,8 @@ namespace diff_drive_core
                   const double    stasis_radius = 0.0,
                   const int16_t   stasis_ticks  = -1 );
  
-      void      NewEncoderCounts( const diff_drive::EncoderCounts new_counts); 
-      diff_drive::TickVelocity VelocityToTicks(double linear_vel, double angular_vel) const;
+      void      ConvertCounts( const diff_drive::EncoderCounts new_counts ); 
+      diff_drive::TickVelocity VelocityToTicks( const double linear_vel, const double angular_vel ) const;
 
       // Current State
       double    GetDeltaX() const;

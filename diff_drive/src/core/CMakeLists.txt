@@ -1,7 +1,7 @@
 # Create the core library
 add_library(
   diff_drive_core
-  EncoderCountsReader.cpp
-  TwistReader.cpp
+  OdometryIntegrater.cpp
+  TwistConverter.cpp
   BaseModel.cpp
 )

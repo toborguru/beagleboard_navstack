@@ -1,7 +1,7 @@
-// TwistReader.hpp
+// TwistConverter.hpp
  
-#ifndef GUARD_TwistReader
-#define GUARD_TwistReader
+#ifndef GUARD_TwistConverter
+#define GUARD_TwistConverter
  
 #include <vector>
 
@@ -14,10 +14,10 @@
 
 namespace diff_drive_core
 {
-  class TwistReader : public ITwistListener
+  class TwistConverter : public ITwistListener
   {
     public:
-      TwistReader();
+      TwistConverter();
 
       void Attach( ITickVelocityListener& tick_velocity_listener );
 
@@ -26,7 +26,7 @@ namespace diff_drive_core
       void OnTwistAvailableEvent( const geometry_msgs::Twist& twist );
  
     private:
-      diff_drive::TickVelocity TwistReceived( const geometry_msgs::Twist twist_cmd );
+      diff_drive::TickVelocity ConvertTwist( const geometry_msgs::Twist twist_cmd );
 
       void NotifyTickVelocityListeners(const diff_drive::TickVelocity& tick_velocity);
  
@@ -36,4 +36,4 @@ namespace diff_drive_core
   };
 }
 
-#endif /* GUARD_TwistReader */
+#endif /* GUARD_TwistConverter */

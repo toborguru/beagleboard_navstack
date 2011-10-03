@@ -8,8 +8,8 @@ include_directories(
 rosbuild_add_executable(
   diff_drive_tests
   TestRunner.cpp
-  ./core/EncoderCountsReaderTests.cpp
-  ./core/TwistReaderTests.cpp
+  ./core/OdometryIntegraterTests.cpp
+  ./core/TwistConverterTests.cpp
   ./core/BaseModelTests.cpp
 #  ./application_services/OdometryReportingServiceTests.cpp
 #  ./message_endpoints/OdometryEndpointTests.cpp
