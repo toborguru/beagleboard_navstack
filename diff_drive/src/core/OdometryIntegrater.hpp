@@ -21,7 +21,7 @@ namespace diff_drive_core
 
       void Attach( IOdometryListener& odometry_listener );
 
-      void SetBaseModel( BaseModel& base_model );
+      void SetBaseModel( const BaseModel& base_model );
 
       void OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts );
  
@@ -35,7 +35,7 @@ namespace diff_drive_core
   
       nav_msgs::Odometry _current_position;
 
-      BaseModel* _p_base_model;
+      const BaseModel* _p_base_model;
   };
 }
 

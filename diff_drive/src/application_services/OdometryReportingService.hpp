@@ -5,23 +5,24 @@
  
 #include <boost/shared_ptr.hpp>
 #include "IOdometryEndpoint.hpp"
-#include "IEncoderCountEndpoint.hpp"
+#include "IEncoderCountsEndpoint.hpp"
  
 namespace diff_drive_application_services
 {
   class OdometryReportingService
   {
     public:
-      explicit OdometryReportingService(boost::shared_ptr<diff_drive_core::IOdometryEndpoint> odometryEndpoint,
-                                        boost::shared_ptr<diff_drive_core::IEncoderCountEndpoint> encoderCountEndpoint);
+      explicit OdometryReportingService(  boost::shared_ptr<diff_drive_core::IOdometryEndpoint> odometry_endpoint,
+                                          boost::shared_ptr<diff_drive_core::IEncoderCountsEndpoint> encoder_count_endpoint,
+                                          boost::shared_ptr<const diff_drive_core::BaseModel> base_model );
 
-      BeginReporting();
-      StopReporting();
+      void BeginReporting();
+      void StopReporting();
  
     private:
       // Forward declare the implementation class
       class OdometryReportingServiceImpl;
-      boost::shared_ptr<OdometryReportingServiceImpl> _pImpl;
+      boost::shared_ptr<OdometryReportingServiceImpl> _p_impl;
   };
 }
  

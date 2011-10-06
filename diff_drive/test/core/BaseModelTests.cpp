@@ -14,7 +14,7 @@ using namespace diff_drive_core;
 namespace diff_drive_core_test_core
 {
 // Define the unit test to verify Base Model calculated geometry properties
-TEST( BaseModelTests, canCalculateGeometryProperties )
+TEST( BaseModelTests, canCalculateTickRates )
 {
   // Establish Context
   BaseModel base_model;

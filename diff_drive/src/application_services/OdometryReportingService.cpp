@@ -2,7 +2,7 @@
  
 #include "nav_msgs/Odometry.h"
 #include "IOdometryListener.hpp"
-#include "OdometryReader.hpp"
+#include "OdometryIntegrater.hpp"
 #include "OdometryReportingService.hpp"
  
 using namespace diff_drive_core;
@@ -13,38 +13,54 @@ namespace diff_drive_application_services
   class OdometryReportingService::OdometryReportingServiceImpl : public diff_drive_core::IOdometryListener
   {
     public:
-      explicit OdometryReportingServiceImpl(boost::shared_ptr<IOdometryEndpoint> odometryEndpoint,
-                                            IEncoderCountEndpoint& encoderCountEndpoint); 
-      void onOdometryAvailableEvent(const nav_msgs::Odometry& odometry) const;
+      explicit OdometryReportingServiceImpl(  boost::shared_ptr<IOdometryEndpoint> odometry_endpoint,
+                                              boost::shared_ptr<IEncoderCountsEndpoint> encoder_counts_endpoint,
+                                              boost::shared_ptr<const diff_drive_core::BaseModel> base_model );
+
+      void OnOdometryAvailableEvent(  const nav_msgs::Odometry& odometry );
+
+      OdometryIntegrater odometry_integrater;
  
+      boost::shared_ptr<IOdometryEndpoint>                p_odometry_endpoint;
+      boost::shared_ptr<IEncoderCountsEndpoint>           p_encoder_counts_endpoint; 
+      boost::shared_ptr<const diff_drive_core::BaseModel> p_base_model;
     private:
-      boost::shared_ptr<IOdometryEndpoint> _odometryEndpoint;
   };
  
-  OdometryReportingService::OdometryReportingService(boost::shared_ptr<IOdometryEndpoint> odometryEndpoint,
-                                                     boost::shared_ptr<IEncoderCountEndpoint> encoderCountEndpoint) 
-    : _pImpl(new OdometryReportingServiceImpl( odometryEndpoint, encoderCountEndpoint )) 
+  OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryEndpoint> odometry_endpoint,
+                                                      boost::shared_ptr<IEncoderCountsEndpoint> encoder_counts_endpoint, 
+                                                      boost::shared_ptr<const diff_drive_core::BaseModel> base_model )
+    : _p_impl(new OdometryReportingServiceImpl( odometry_endpoint, encoder_counts_endpoint, base_model )) 
   {
   }
  
   OdometryReportingService::OdometryReportingServiceImpl::OdometryReportingServiceImpl(
-                                                                boost::shared_ptr<IOdometryEndpoint> odometryEndpoint,
-                                                                boost::shared_ptr<IEncoderCountEndpoint> encoderCountEndpoint) 
-    : _odometryEndpoint(odometryEndpoint),
-      _encoderCountEndpoint(encoderCountEndpoint)
+                                                                boost::shared_ptr<IOdometryEndpoint> odometry_endpoint,
+                                                                boost::shared_ptr<IEncoderCountsEndpoint> encoder_counts_endpoint,
+                                                                boost::shared_ptr<const diff_drive_core::BaseModel> base_model )
+    : p_odometry_endpoint( odometry_endpoint ),
+      p_encoder_counts_endpoint( encoder_counts_endpoint ),
+      p_base_model( base_model )
   { 
+    p_encoder_counts_endpoint->Attach( odometry_integrater );
+
+    odometry_integrater.Attach( *this);
+    odometry_integrater.SetBaseModel(*p_base_model );
   }
  
-  void OdometryReportingService::beginReporting() const {
-    _encoderCountEndpoint->beginReading();
+  void OdometryReportingService::BeginReporting() 
+  {
+    _p_impl->p_encoder_counts_endpoint->Subscribe();
   }
  
-  void OdometryReportingService::stopReporting() const {
-    _encoderCountEndpoint->stopReading();
+  void OdometryReportingService::StopReporting()
+  {
+    _p_impl->p_encoder_counts_endpoint->Unsubscribe();
   }
  
-  void OdometryReportingService::OdometryReportingServiceImpl::onOdometryAvailableEvent(const nav_msgs::Odometry& odometry) const {
+  void OdometryReportingService::OdometryReportingServiceImpl::OnOdometryAvailableEvent(const nav_msgs::Odometry& odometry)
+  {
     // Send odometry to the message end point
-    _odometryEndpoint->publish(odometry);
+    p_odometry_endpoint->Publish( odometry );
   };
 }

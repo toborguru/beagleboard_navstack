@@ -62,7 +62,7 @@ void OdometryIntegrater::Attach(IOdometryListener& odometry_listener)
 
 /** Sets the BaseModel object to use for ticks to SI conversion.
  */
-void OdometryIntegrater::SetBaseModel( BaseModel& base_model )
+void OdometryIntegrater::SetBaseModel( const BaseModel& base_model )
 {
   _p_base_model = &base_model;
 }

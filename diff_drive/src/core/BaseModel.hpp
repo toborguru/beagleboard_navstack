@@ -123,7 +123,7 @@ namespace diff_drive_core
       // Base Geometry Property Variables
       BaseGeometry_T  _base_geometry;                                  
 
-      TickRates_T    _tick_rates; 
+      TickRates_T     _tick_rates; 
   };
 }
  
