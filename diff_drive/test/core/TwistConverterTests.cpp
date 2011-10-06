@@ -107,7 +107,7 @@ TEST( TwistConverterTests, canSendTwistAndReceiveTickVelocity )
   // Assert
 
   // Check the results of send four twist commands
-  EXPECT_TRUE(tick_velocity_receiver._count_of_tick_velocities_received == 4);
+  ASSERT_TRUE(tick_velocity_receiver._count_of_tick_velocities_received == 4);
 }
 
 // Define the unit test to verify ability to convert twist messages into ticks
@@ -142,11 +142,11 @@ TEST( TwistConverterTests, canConvertTwistToTicks )
 
   // Assert
 
-  EXPECT_EQ( 100, linear1 ); 
-  EXPECT_EQ( 0 , angular1 );
+  ASSERT_EQ( 100, linear1 ); 
+  ASSERT_EQ( 0 , angular1 );
 
-  EXPECT_EQ( 0, linear2 ); 
-  EXPECT_EQ( 50 , angular2 );
+  ASSERT_EQ( 0, linear2 ); 
+  ASSERT_EQ( 50 , angular2 );
 }
 
 // Define the unit test to verify ability to convert twist messages into ticks
@@ -181,10 +181,10 @@ TEST( TwistConverterTests, canConvertTwistToTicksCalibrated )
 
   // Assert
 
-  EXPECT_EQ( 100, linear1 ); 
-  EXPECT_EQ( -5, angular1 );
+  ASSERT_EQ( 100, linear1 ); 
+  ASSERT_EQ( -5, angular1 );
 
-  EXPECT_EQ( -5, linear2 ); 
-  EXPECT_EQ( 400 , angular2 );
+  ASSERT_EQ( -5, linear2 ); 
+  ASSERT_EQ( 400 , angular2 );
 }
 }

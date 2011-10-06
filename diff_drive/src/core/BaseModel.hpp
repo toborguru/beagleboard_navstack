@@ -8,103 +8,122 @@
 
 namespace diff_drive_core
 { 
+  typedef struct
+  {
+    double x;       // meters
+    double y;       // meters
+    double theta;   // radians
+    double linear;  // meters
+    double stasis;  // meters
+  } BaseDistance_T;
+
+  typedef struct
+  {
+    double linear;  // meters/sec
+    double angular; // radians/sec
+    double stasis;  // meters/sec
+  } BaseVelocities_T;
+
+  typedef struct
+  {
+    double    wheel_radius;   // meters                                           
+    uint16_t  wheel_ticks;    // wheel separation - meters                        
+    double    wheel_base;     // Ratio of wheel diameter differences              
+    double    wheel_ratio;    // Number of ticks in one complete wheel rotation   
+    double    stasis_radius;  // Radius of the stasis wheel, if enabled.          
+    int16_t   stasis_ticks;   // Number of ticks in one complete wheel rotation,  
+  } BaseGeometry_T;         // negative numbers disables stasis wheel support.
+
+  typedef struct
+  {
+    double ticks_per_meter; 
+    double ticks_per_radian; 
+    double stasis_ticks_per_meter;
+  } TickRates_T;
+
   class BaseModel
   {
     public:
   
-      BaseModel(  const double    wheel_radius  = 0.5, 
-                  const uint16_t  wheel_ticks   = 100,
-                  const double    wheel_base    = 1.0,
-                  const double    wheel_ratio   = 1.0,
-                  const double    stasis_radius = 0.0,
-                  const int16_t   stasis_ticks  = -1 );
+      BaseModel(  double    wheel_radius  = 0.5, 
+                  uint16_t  wheel_ticks   = 100,
+                  double    wheel_base    = 1.0,
+                  double    wheel_ratio   = 1.0,
+                  double    stasis_radius = 0.0,
+                  int16_t   stasis_ticks  = -1 );
+
+      BaseModel(  BaseGeometry_T  base_geometry );
  
-      void      ConvertCounts( const diff_drive::EncoderCounts new_counts ); 
-      diff_drive::TickVelocity VelocityToTicks( const double linear_vel, const double angular_vel ) const;
+      void      ConvertCounts(  BaseDistance_T* p_delta_position, 
+                                BaseVelocities_T* p_velocity,
+                                diff_drive::EncoderCounts new_counts ) const; 
 
-      // Current State
-      double    GetDeltaX() const;
-      double    GetDeltaY() const;
-      double    GetDeltaTheta() const;
-      double    GetDeltaStasis() const;
+      diff_drive::TickVelocity VelocityToTicks( double linear_vel, double angular_vel ) const;
 
-      double    GetLinearVelocity() const;
-      double    GetAngularVelocity() const;
-      double    GetStasisVelocity() const;
-
-      // Base Geometry Properties
+      // Base Geometry Geometry
       double    GetWheelRadius() const;
-      void      SetWheelRadius(const double wheel_radius);
+      void      SetWheelRadius(double wheel_radius);
 
       double    GetWheelBase() const;
-      void      SetWheelBase(const double wheel_base);
+      void      SetWheelBase(double wheel_base);
 
       double    GetWheelRatio() const;
-      void      SetWheelRatio(const double wheel_ratio);
+      void      SetWheelRatio(double wheel_ratio);
 
       uint16_t  GetWheelTicks() const;
-      void      SetWheelTicks(const uint16_t wheel_ticks);
+      void      SetWheelTicks(uint16_t wheel_ticks);
 
       double    GetStasisRadius() const;
-      void      SetStasisRadius(const double stasis_radius);
+      void      SetStasisRadius(double stasis_radius);
  
       int16_t   GetStasisTicks() const;
-      void      SetStasisTicks(const int16_t stasis_ticks);
+      void      SetStasisTicks(int16_t stasis_ticks);
 
       double    GetTicksPerMeter() const;
       double    GetTicksPerRadian() const;
       double    GetStasisTicksPerMeter() const;
 
     private:
-      // Base Geometry Property  Functions
-      void      CalculateProperties();
+      BaseDistance_T  CountsToDistance( diff_drive::EncoderCounts counts, 
+                                        BaseGeometry_T geometry, 
+                                        const TickRates_T* p_rates = NULL ) const;
 
-      double    CalculateTicksPerMeter( const double wheel_radius, 
-                                        const uint16_t wheel_ticks ) const;
+      BaseVelocities_T  DistanceToVelocity( BaseDistance_T distance, double seconds ) const;
+
+      // Base Geometry Property  Functions
+      TickRates_T CalculateTickRates( BaseGeometry_T geometry ) const;
+
+      double      CalculateTicksPerMeter( double wheel_radius, 
+                                          uint16_t wheel_ticks ) const;
       
-      double    CalculateTicksPerRadian(  const double wheel_base, 
-                                          const double ticks_per_meter ) const;
+      double      CalculateTicksPerRadian(  double wheel_base, 
+                                            double ticks_per_meter ) const;
 
       // State Functions 
-      double    CalculateDeltaTheta(  const double left_distance, 
-                                      const double right_distance, 
-                                      const double wheel_base ) const;
+      double      CalculateDeltaTheta(  double left_distance, 
+                                        double right_distance, 
+                                        double wheel_base ) const;
       
-      double    CalculateDeltaX(  const double average_distance, 
-                                  const double delta_theta ) const;
+      double      CalculateDeltaX(  double average_distance, 
+                                    double delta_theta ) const;
       
-      double    CalculateDeltaY(  const double average_distance, 
-                                  const double delta_theta ) const;
+      double      CalculateDeltaY(  double average_distance, 
+                                    double delta_theta ) const;
   
-      double    CalculateDistance(  const int16_t ticks,
-                                    const double ticks_per_meter,
-                                    const double correction_factor = 1.0 ) const;
+      double      CalculateDistance(  int16_t ticks,
+                                      double ticks_per_meter,
+                                      double correction_factor = 1.0 ) const;
 
-      double    CalculateVelocity(  const double distance,
-                                    const double seconds ) const;
+      double      CalculateVelocity(  double distance,
+                                      double seconds ) const;
+  
+      double      LeftInRightOutCorrection( double wheel_ratio ) const; 
+      double      RightInLeftOutCorrection( double wheel_ratio ) const; 
 
       // Base Geometry Property Variables
-      double    _wheel_radius;    // meters
-      double    _wheel_base;      // wheel separation - meters
-      double    _wheel_ratio;     // Ratio of wheel diameter differences
-      uint16_t  _wheel_ticks;     // Number of ticks in one complete wheel rotation
-      double    _stasis_radius;   // Radius of the stasis wheel, if enabled.
-      int16_t   _stasis_ticks;    // Number of ticks in one complete wheel rotation, 
-                                  // negative numbers disables stasis wheel support.
+      BaseGeometry_T  _base_geometry;                                  
 
-      double _ticks_per_meter; 
-      double _ticks_per_radian; 
-      double _stasis_ticks_per_meter;
-
-      // Current State Variables
-      double    _delta_x;           // meters
-      double    _delta_y;           // meters 
-      double    _delta_theta;       // radians
-      double    _delta_stasis;      // meters
-     
-      double    _linear_velocity;   // meters/sec
-      double    _angular_velocity;  // radians/sec
-      double    _stasis_velocity;   // meters/sec
+      TickRates_T    _tick_rates; 
   };
 }
  

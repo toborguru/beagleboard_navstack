@@ -88,6 +88,9 @@ nav_msgs::Odometry OdometryIntegrater::AddNewCounts( const diff_drive::EncoderCo
 {
   nav_msgs::Odometry new_position;
 
+  BaseDistance_T delta_position;
+  BaseVelocities_T  velocities;
+
   const double (*p_covariance)[36];
 
   double x;
@@ -99,14 +102,14 @@ nav_msgs::Odometry OdometryIntegrater::AddNewCounts( const diff_drive::EncoderCo
   // Run base model here
   if (_p_base_model != NULL)
   {
-    _p_base_model->ConvertCounts( counts );
+    _p_base_model->ConvertCounts( &delta_position, &velocities, counts );
 
     // Integrate the incoming data
-    x = last_position.pose.pose.position.x + _p_base_model->GetDeltaX();
-    y = last_position.pose.pose.position.y + _p_base_model->GetDeltaY();
-    theta = tf::getYaw(last_position.pose.pose.orientation) + _p_base_model->GetDeltaTheta();
-    linear = _p_base_model->GetLinearVelocity();
-    angular = _p_base_model->GetAngularVelocity();
+    x = last_position.pose.pose.position.x + delta_position.x;
+    y = last_position.pose.pose.position.y + delta_position.y;
+    theta = tf::getYaw(last_position.pose.pose.orientation) + delta_position.theta;
+    linear = velocities.linear;
+    angular = velocities.angular;
 
     if ( _p_base_model->GetStasisTicks() > 0 )
     {

@@ -42,103 +42,136 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
 {
   // Establish Context
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
+  
+  BaseDistance_T distance;
+  BaseVelocities_T velocity;
+
   diff_drive::EncoderCounts counts; 
 
-  // Act
+  // Act: 1m straight
   counts.left_count = 100;
   counts.right_count = 100;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( counts );
+  base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 1.0, base_model.GetDeltaX() );
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetDeltaY() );
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetDeltaTheta() );
-  ASSERT_FLOAT_EQ( 10.0, base_model.GetLinearVelocity() );
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetAngularVelocity() );
+  ASSERT_FLOAT_EQ( 1.0, distance.x );
+  ASSERT_FLOAT_EQ( 0.0, distance.y );
+  ASSERT_FLOAT_EQ( 0.0, distance.theta );
+  ASSERT_FLOAT_EQ( 10.0, velocity.linear );
+  ASSERT_FLOAT_EQ( 0.0, velocity.angular );
 
-  // Act
+  // Act: 1m straight, slow
+  counts.left_count = 100;
+  counts.right_count = 100;
+  counts.dt_ms = 500;
+
+  base_model.ConvertCounts( &distance, &velocity, counts );
+
+  // Assert
+  ASSERT_FLOAT_EQ( 1.0, distance.x );
+  ASSERT_FLOAT_EQ( 0.0, distance.y );
+  ASSERT_FLOAT_EQ( 0.0, distance.theta );
+  ASSERT_FLOAT_EQ( 2.0, velocity.linear );
+  ASSERT_FLOAT_EQ( 0.0, velocity.angular );
+
+  // Act: 1rad
   counts.left_count = -25;
   counts.right_count = 25;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( counts );
+  base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetDeltaX() );
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetDeltaY() );
-  ASSERT_FLOAT_EQ( 1.0, base_model.GetDeltaTheta() );
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetLinearVelocity() );
-  ASSERT_FLOAT_EQ( 10.0, base_model.GetAngularVelocity() );
+  ASSERT_FLOAT_EQ( 0.0, distance.x );
+  ASSERT_FLOAT_EQ( 0.0, distance.y );
+  ASSERT_FLOAT_EQ( 1.0, distance.theta );
+  ASSERT_FLOAT_EQ( 0.0, velocity.linear );
+  ASSERT_FLOAT_EQ( 10.0, velocity.angular );
 
   // Act
   counts.left_count = 75;
   counts.right_count = 125;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( counts );
+  base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 1.0, base_model.GetDeltaTheta() );
-  ASSERT_FLOAT_EQ( 10.0, base_model.GetLinearVelocity() );
-  ASSERT_FLOAT_EQ( 10.0, base_model.GetAngularVelocity() );
+  ASSERT_FLOAT_EQ( 1.0, distance.theta );
+  ASSERT_FLOAT_EQ( 10.0, velocity.linear );
+  ASSERT_FLOAT_EQ( 10.0, velocity.angular );
+
+  // Act: fast
+  counts.left_count = 75;
+  counts.right_count = 125;
+  counts.dt_ms = 20;
+
+  base_model.ConvertCounts( &distance, &velocity, counts );
+
+  // Assert
+  ASSERT_FLOAT_EQ( 1.0, distance.theta );
+  ASSERT_FLOAT_EQ( 50.0, velocity.linear );
+  ASSERT_FLOAT_EQ( 50.0, velocity.angular );
 
   // Act
   counts.left_count = 25;
   counts.right_count = -25;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( counts );
+  base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetDeltaX() );
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetDeltaY() );
-  ASSERT_FLOAT_EQ( -1.0, base_model.GetDeltaTheta() );
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetLinearVelocity() );
-  ASSERT_FLOAT_EQ( -10.0, base_model.GetAngularVelocity() );
+  ASSERT_FLOAT_EQ( 0.0, distance.x );
+  ASSERT_FLOAT_EQ( 0.0, distance.y );
+  ASSERT_FLOAT_EQ( -1.0, distance.theta );
+  ASSERT_FLOAT_EQ( 0.0, velocity.linear );
+  ASSERT_FLOAT_EQ( -10.0, velocity.angular );
 
   // Act
   counts.left_count = -75;
   counts.right_count = -125;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( counts );
+  base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( -1.0, base_model.GetDeltaTheta() );
-  ASSERT_FLOAT_EQ( -10.0, base_model.GetLinearVelocity() );
-  ASSERT_FLOAT_EQ( -10.0, base_model.GetAngularVelocity() );
+  ASSERT_FLOAT_EQ( -1.0, distance.theta );
+  ASSERT_FLOAT_EQ( -10.0, velocity.linear );
+  ASSERT_FLOAT_EQ( -10.0, velocity.angular );
 }
 
 // Define the unit test to verify Base Model calibrated dead reckoning
-TEST( BaseModelTests, canCalculateCalibratedDeadReckoning )
+TEST( BaseModelTests, canCalculateDeadReckoningCalibrated )
 {
   double x1, y1, theta1, x2, y2, theta2;
   // Establish Context
   BaseModel base_model( 0.5 / M_PI, 100, 0.5, 0.95);
   diff_drive::EncoderCounts counts; 
 
+  BaseDistance_T distance;
+  BaseVelocities_T velocity;
+
   // Act
   counts.left_count = 205;
   counts.right_count = 195;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( counts );
+  base_model.ConvertCounts( &distance, &velocity, counts );
   
-  x1 = base_model.GetDeltaX();
-  y1 = base_model.GetDeltaY();
-  theta1 = base_model.GetDeltaTheta();
+  x1 = distance.x;
+  y1 = distance.y;
+  theta1 = distance.theta;
   
   counts.left_count = -205;
   counts.right_count = 195;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( counts );
+  base_model.ConvertCounts( &distance, &velocity, counts );
   
-  x2 = base_model.GetDeltaX();
-  y2 = base_model.GetDeltaY();
-  theta2 = base_model.GetDeltaTheta();
+  x2 = distance.x;
+  y2 = distance.y;
+  theta2 = distance.theta;
 
 #if 0
   std::cout << "X1: " << x1
@@ -183,7 +216,7 @@ TEST( BaseModelTests, canCalculateTickVelocities )
 }
 
 // Define the unit test to verify Base Model tick velocities
-TEST( BaseModelTests, canCalculateCalibratedTickVelocities )
+TEST( BaseModelTests, canCalculateTickVelocitiesCalibrated )
 {
   // Establish Context
   BaseModel base_model( 0.5 / M_PI, 100, 0.5, 0.95 );

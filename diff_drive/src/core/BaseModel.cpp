@@ -2,12 +2,6 @@
 
 #include "BaseModel.hpp"
 
-// Calibrated dead reckoning, as per "A Quick & Easy Guide to Calibrating Your 
-// Robot Using UMBMark" at: http://www.dprg.org/articles/2009-02a/
-// where _wheel_ratio = Ed
-#define LEFT_IN_RIGHT_OUT_CORRECTION ( 2.0 / (( 1.0 / _wheel_ratio ) + 1.0) )
-#define RIGHT_IN_LEFT_OUT_CORRECTION ( 2.0 / (1.0 + _wheel_ratio) )
- 
 namespace diff_drive_core
 {
 /** Default constructor.
@@ -30,60 +24,40 @@ BaseModel::BaseModel( double    wheel_radius,
                       double    wheel_ratio,
                       double    stasis_radius,
                       int16_t   stasis_ticks)
-          : _wheel_radius(wheel_radius),
-            _wheel_ticks(wheel_ticks),
-            _wheel_base(wheel_base),
-            _wheel_ratio(wheel_ratio),
-            _stasis_radius(stasis_radius),
-            _stasis_ticks(stasis_ticks),
-            _delta_x(0.0),
-            _delta_y(0.0),
-            _delta_theta(0.0),
-            _delta_stasis(0.0),
-            _linear_velocity(0.0),
-            _angular_velocity(0.0),
-            _stasis_velocity(0.0)
 {
-  CalculateProperties();
+  _base_geometry.wheel_radius = wheel_radius;
+  _base_geometry.wheel_ticks = wheel_ticks;
+  _base_geometry.wheel_base = wheel_base;
+  _base_geometry.wheel_ratio = wheel_ratio;
+  _base_geometry.stasis_radius = stasis_radius;
+  _base_geometry.stasis_ticks = stasis_ticks;
+
+  _tick_rates = CalculateTickRates( _base_geometry );
+}
+
+BaseModel::BaseModel( BaseGeometry_T new_geometry )
+{
+  _base_geometry = new_geometry;
+
+  _tick_rates = CalculateTickRates( _base_geometry );
 }
 
 /** Updates the current model state with new encoder counts.
  *
  *  @param  new_counts  Contains the newly received encoder counts.
  */
-void BaseModel::ConvertCounts(const diff_drive::EncoderCounts new_counts)
+void BaseModel::ConvertCounts(  BaseDistance_T* p_delta_position,
+                                BaseVelocities_T* p_velocity,
+                                diff_drive::EncoderCounts new_counts ) const
 {
-  double left_distance;
-  double right_distance;
-  double average_distance;
   double seconds;
-
-  left_distance = CalculateDistance(  new_counts.left_count, _ticks_per_meter, 
-                                      LEFT_IN_RIGHT_OUT_CORRECTION );
-  right_distance = CalculateDistance( new_counts.right_count, _ticks_per_meter, 
-                                      RIGHT_IN_LEFT_OUT_CORRECTION );
-  average_distance = ( left_distance + right_distance ) / 2.0;
-
-  _delta_theta = CalculateDeltaTheta( left_distance, right_distance, _wheel_base );
-  _delta_x = CalculateDeltaX( average_distance, _delta_theta );
-  _delta_y = CalculateDeltaY( average_distance, _delta_theta );
 
   // convert milliseconds to seconds
   seconds = new_counts.dt_ms / 1000.0;
 
-  _linear_velocity = CalculateVelocity( average_distance, seconds );
-  _angular_velocity = CalculateVelocity( _delta_theta, seconds );
+  *p_delta_position = CountsToDistance( new_counts, _base_geometry, &_tick_rates );
 
-  if ( _stasis_ticks > 0 )
-  {
-    _delta_stasis = CalculateDistance( new_counts.stasis_count, _stasis_ticks_per_meter );
-    _stasis_velocity = CalculateVelocity( _delta_stasis, seconds );
-  }
-  else
-  {
-    _delta_stasis = 0.0;
-    _stasis_velocity = 0.0;
-  }
+  *p_velocity = DistanceToVelocity( *p_delta_position, seconds );
 }
 
 /** Accepts an desired linear and angular velocity and returns the velocities
@@ -97,15 +71,15 @@ diff_drive::TickVelocity BaseModel::VelocityToTicks( const double linear_vel, co
   double left_corrected;
   double right_corrected;
 
-  linear_ticks = linear_vel * _ticks_per_meter;
-  angular_ticks = angular_vel * _ticks_per_radian;
+  linear_ticks = linear_vel * _tick_rates.ticks_per_meter;
+  angular_ticks = angular_vel * _tick_rates.ticks_per_radian;
                                             
 
   left_corrected = ( linear_ticks - (angular_ticks / 2.0) )
-                    * RIGHT_IN_LEFT_OUT_CORRECTION;
+                    * RightInLeftOutCorrection( _base_geometry.wheel_ratio );
 
   right_corrected = ( linear_ticks + ( angular_ticks / 2.0) )
-                     * LEFT_IN_RIGHT_OUT_CORRECTION;
+                    * LeftInRightOutCorrection( _base_geometry.wheel_ratio );
                      
   new_velocity.linear_ticks_sec = (int)( (right_corrected + left_corrected) / 2.0 );
   new_velocity.angular_ticks_sec = (int)( right_corrected - left_corrected );
@@ -121,104 +95,36 @@ diff_drive::TickVelocity BaseModel::VelocityToTicks( const double linear_vel, co
   return new_velocity;
 }
 
-/** Returns the current estimate of the change in X position in meters
- *  based on the last received encoder counts.
- *
- *  Please note that integration is _not_ performed, this value represents 
- *  only the distance traveled during the latest encoder counts.
- */
-double BaseModel::GetDeltaX() const
-{
-  return _delta_x;
-}
-
-/** Returns the current estimate of the change in Y position in meters
- *  based on the last received encoder counts.
- *
- *  Please note that integration is _not_ performed, this value represents 
- *  only the distance traveled during the latest encoder counts.
- */
-double BaseModel::GetDeltaY() const
-{
-  return _delta_y;
-}
-
-/** Returns the current estimate of the change in heading angle in radians 
- *  based on the last received encoder counts.
- *
- *  Please note that integration is _not_ performed, this value represents 
- *  only the heading change during the latest encoder counts.
- */
-double BaseModel::GetDeltaTheta() const
-{
-  return _delta_theta;
-}
-
-/** Returns the current estimate of the change in Stasis position in meters
- *  based on the last received encoder counts.
- *
- *  Please note that integration is _not_ performed, this value represents 
- *  only the distance traveled during the latest encoder counts.
- */
-double BaseModel::GetDeltaStasis() const
-{
-  return _delta_stasis;
-}
-
-/** Returns the linear velocity calculated from the latest set of encoder counts,
- *  in meters/sec.
- */
-double BaseModel::GetLinearVelocity() const
-{
-  return _linear_velocity;
-}
-
-/** Returns the angular velocity calculated from the latest set of encoder counts,
- *  in radians/sec.
- */
-double BaseModel::GetAngularVelocity() const
-{
-  return _angular_velocity;
-}
-
-/** Returns the linear velocity of the stasis wheel (if enabled) calculated from 
- *  the latest set of encoder counts, in meters/sec.
- */
-double BaseModel::GetStasisVelocity() const
-{
-  return _stasis_velocity;
-}
-
 /** Returns the drive wheel radius in meters.
  */
 double BaseModel::GetWheelRadius() const
 {
-  return _wheel_radius;
+  return _base_geometry.wheel_radius;
 }
 
 /** Sets the drive wheel radius in meters.
  */
 void BaseModel::SetWheelRadius(const double wheel_radius)
 {
-  _wheel_radius = wheel_radius;
+  _base_geometry.wheel_radius = wheel_radius;
 
-  CalculateProperties();
+  _tick_rates = CalculateTickRates( _base_geometry );
 }
 
 /** Returns the drive wheel separation in meters.
  */
 double BaseModel::GetWheelBase() const
 {
-  return _wheel_base;
+  return _base_geometry.wheel_base;
 }
 
 /** Sets the drive wheel separation in meters.
  */
 void BaseModel::SetWheelBase(const double wheel_base)
 {
-  _wheel_base = wheel_base;
+  _base_geometry.wheel_base = wheel_base;
 
-  CalculateProperties();
+  _tick_rates = CalculateTickRates( _base_geometry );
 }
 
 /** Returns the drive wheel radius ratio (ie. left radius/ right radius).
@@ -227,7 +133,7 @@ void BaseModel::SetWheelBase(const double wheel_base)
  */
 double BaseModel::GetWheelRatio() const
 {
-  return _wheel_ratio;
+  return _base_geometry.wheel_ratio;
 }
 
 /** Sets the drive wheel radius ratio (ie. left radius/ right radius).
@@ -236,41 +142,41 @@ double BaseModel::GetWheelRatio() const
  */
 void BaseModel::SetWheelRatio(const double wheel_ratio)
 {
-  _wheel_ratio = wheel_ratio;
+  _base_geometry.wheel_ratio = wheel_ratio;
 
-  CalculateProperties();
+  _tick_rates = CalculateTickRates( _base_geometry );
 }
 
 /** Return the number of encoder ticks in one full rotation of the drive wheels.
  */
 uint16_t BaseModel::GetWheelTicks() const
 {
-  return _wheel_ticks;
+  return _base_geometry.wheel_ticks;
 }
 
 /** Sets the number of encoder ticks in one full rotation of the drive wheels.
  */
 void BaseModel::SetWheelTicks(const uint16_t wheel_ticks)
 {
-  _wheel_ticks = wheel_ticks;
+  _base_geometry.wheel_ticks = wheel_ticks;
 
-  CalculateProperties();
+  _tick_rates = CalculateTickRates( _base_geometry );
 }
 
 /** Returns the radius of the stasis wheel if one is used in meters.
  */
 double BaseModel::GetStasisRadius() const
 {
-  return _stasis_radius;
+  return _base_geometry.stasis_radius;
 }
 
 /** Sets the radius of the stasis wheel if one is used in meters.
  */
 void BaseModel::SetStasisRadius(const double stasis_radius)
 {
-  _stasis_radius = stasis_radius;
+  _base_geometry.stasis_radius = stasis_radius;
 
-  CalculateProperties();
+  _tick_rates = CalculateTickRates( _base_geometry );
 }
 
 /** Returns the number of encoder ticks in one full revolution of the stasis
@@ -280,7 +186,7 @@ void BaseModel::SetStasisRadius(const double stasis_radius)
  */
 int16_t BaseModel::GetStasisTicks() const
 {
-  return _stasis_ticks;
+  return _base_geometry.stasis_ticks;
 }
 
 /** Sets the number of encoder ticks in one full revolution of the stasis
@@ -290,16 +196,16 @@ int16_t BaseModel::GetStasisTicks() const
  */
 void BaseModel::SetStasisTicks(const int16_t stasis_ticks)
 {
-  _stasis_ticks = stasis_ticks;
+  _base_geometry.stasis_ticks = stasis_ticks;
 
-  CalculateProperties();
+  _tick_rates = CalculateTickRates( _base_geometry );
 }
 
 /** Returns the calculated encoder ticks per meter for the drive wheels.
  */
 double BaseModel::GetTicksPerMeter() const
 {
-  return _ticks_per_meter;
+  return _tick_rates.ticks_per_meter;
 }
 
 /** Returns the calculated difference in encoder ticks needed to turn 
@@ -307,32 +213,98 @@ double BaseModel::GetTicksPerMeter() const
  */
 double BaseModel::GetTicksPerRadian() const
 {
-  return _ticks_per_radian;
+  return _tick_rates.ticks_per_radian;
 }
 
 /** Returns the calculated encoder ticks per meter for the stasis wheel.
  */
 double BaseModel::GetStasisTicksPerMeter() const
 {
-  return _stasis_ticks_per_meter;
+  return _tick_rates.stasis_ticks_per_meter;
+}
+
+/** Converts encoder counts to the changes in X, Y and theta.
+ */
+BaseDistance_T  BaseModel::CountsToDistance(  diff_drive::EncoderCounts counts, 
+                                              BaseGeometry_T geometry, 
+                                              const TickRates_T* p_rates ) const
+{
+  BaseDistance_T  delta_position;
+  TickRates_T rates;
+
+  double left_distance;
+  double right_distance;
+  double stasis_distance;
+  double average_distance;
+
+  if ( p_rates == NULL )
+  {
+    rates = CalculateTickRates( geometry );
+    p_rates = &rates;
+  }
+
+  left_distance = CalculateDistance(  counts.left_count, p_rates->ticks_per_meter, 
+                                      LeftInRightOutCorrection( geometry.wheel_ratio ) );
+
+  right_distance = CalculateDistance( counts.right_count, p_rates->ticks_per_meter, 
+                                      RightInLeftOutCorrection( geometry.wheel_ratio ) );
+
+  if ( geometry.stasis_ticks > 0 )
+  {
+    stasis_distance = CalculateDistance( counts.stasis_count, p_rates->stasis_ticks_per_meter );
+  }
+  else
+  {
+    stasis_distance = 0.0;
+  }
+
+  average_distance = ( left_distance + right_distance ) / 2.0;
+
+  delta_position.theta = CalculateDeltaTheta( left_distance, right_distance, geometry.wheel_base );
+  delta_position.x = CalculateDeltaX( average_distance, delta_position.theta );
+  delta_position.y = CalculateDeltaY( average_distance, delta_position.theta );
+  delta_position.linear = average_distance;
+  delta_position.stasis = stasis_distance;
+
+  return delta_position;
+}
+
+/** Converts base distances into velocities given the elapsed time.
+ */
+BaseVelocities_T  BaseModel::DistanceToVelocity( BaseDistance_T distance, double seconds ) const
+{
+  BaseVelocities_T velocities;
+
+  velocities.linear = CalculateVelocity( distance.linear, seconds );
+  velocities.angular = CalculateVelocity( distance.theta, seconds );
+  velocities.stasis = CalculateVelocity( distance.stasis, seconds );
+
+  return velocities;
 }
 
 /** Calculates drive wheel ticks/meter, ticks/radian, and stasis wheel 
  *  ticks/meter.
  */
-void BaseModel::CalculateProperties()
+TickRates_T BaseModel::CalculateTickRates( BaseGeometry_T geometry ) const
 {
-  _ticks_per_meter = CalculateTicksPerMeter(_wheel_radius, _wheel_ticks);
-  _ticks_per_radian = CalculateTicksPerRadian(_wheel_base, _ticks_per_meter);
+  TickRates_T rates;
 
-  if (_stasis_ticks > 0)
+  rates.ticks_per_meter = CalculateTicksPerMeter( geometry.wheel_radius, 
+                                                  geometry.wheel_ticks );
+  rates.ticks_per_radian = CalculateTicksPerRadian( geometry.wheel_base, 
+                                                    rates.ticks_per_meter );
+
+  if ( geometry.stasis_ticks > 0)
   {
-    _stasis_ticks_per_meter = CalculateTicksPerMeter(_stasis_radius, _stasis_ticks);
+    rates.stasis_ticks_per_meter = CalculateTicksPerMeter( geometry.stasis_radius, 
+                                                              geometry.stasis_ticks );
   }
   else
   {
-    _stasis_ticks_per_meter = 0.0;
+    rates.stasis_ticks_per_meter = 0.0;
   }
+
+  return rates;
 }
 
 /** Calculates the ticks required to travel 1 meter.
@@ -344,7 +316,7 @@ double BaseModel::CalculateTicksPerMeter(const double wheel_radius, const uint16
 {
   double wheel_circumference;
 
-  wheel_circumference = _wheel_radius * 2.0 * M_PI;
+  wheel_circumference = wheel_radius * 2.0 * M_PI;
 
   return (double)wheel_ticks / wheel_circumference;
 }
@@ -406,6 +378,28 @@ double BaseModel::CalculateDistance(  const int16_t ticks,
                                       const double correction_factor ) const
 {
   return ((double)ticks / ticks_per_meter) * correction_factor;
+}
+
+/** Distance correction factor for the given wheel ratio.
+ *
+ *  Calibrated dead reckoning, as per "A Quick & Easy Guide to Calibrating Your 
+ *  Robot Using UMBMark" at: http://www.dprg.org/articles/2009-02a/
+ *  where wheel_ratio = Ed
+ */
+double BaseModel::LeftInRightOutCorrection( const double wheel_ratio ) const
+{
+  return 2.0 / (( 1.0 / wheel_ratio ) + 1.0);
+}
+
+/** Distance correction factor for the given wheel ratio.
+ *  
+ *  Calibrated dead reckoning, as per "A Quick & Easy Guide to Calibrating Your 
+ *  Robot Using UMBMark" at: http://www.dprg.org/articles/2009-02a/
+ *  where wheel_ratio = Ed
+ */
+double BaseModel::RightInLeftOutCorrection( double wheel_ratio ) const
+{
+  return 2.0 / (1.0 + wheel_ratio);
 }
 
 /** Returns the linear velocity in meters/sec for a given distance and time.
