@@ -12,19 +12,46 @@ namespace diff_drive_test_message_endpoints_test_doubles
   { 
     public:
       OdometryEndpointStub()
-        : countOfOdometrysPublished(0) { }
- 
-      void publish(const nav_msgs::Odometry& odometry) const {
-        countOfOdometrysPublished++;
- 
-        // Output the laser scan seq number to the terminal; this isn't the
+        : _count_of_odometrys_published(0),
+          _x(0.0),
+          _y(0.0),
+          _theta(0.0),
+          _linear(0.0),
+          _angular(0.0),
+          _covariance(0.0)
+      { }
+
+      mutable int _count_of_odometrys_published;
+      mutable double _x;
+      mutable double _y;
+      mutable double _theta;
+      mutable double _linear;
+      mutable double _angular;
+      mutable double _covariance;
+
+      void Publish(const nav_msgs::Odometry& odometry) const
+      {
+        _count_of_odometrys_published++;
+
+        _x = odometry.pose.pose.position.x;
+        _y = odometry.pose.pose.position.y;
+        _theta = tf::getYaw(odometry.pose.pose.orientation);
+        _covariance = odometry.pose.covariance[0];
+        _linear = odometry.twist.twist.linear.x;
+        _angular = odometry.twist.twist.angular.z;
+
+#if 0
+        // Output the read values to the terminal; this isn't the
         // unit test, but merely a helpful means to show what's going on.
-        std::cout << "Odometry endpoint stub sent to OdometryReceiver with a seq of: " << odometry.header.seq << std::endl;
-      };
- 
-      // Extend IOdometryEndpoint for unit testing needs.
-      // May be modified by const functions but maintains logical constness [Meyers, 2005, Item 3].
-      mutable int countOfOdometrysPublished;
+        std::cout << "Odometry published on OdometryEndpoint with x: " 
+                  << _x
+                  << ", y: "
+                  << _y
+                  << ", theta: "
+                  << _theta
+                  << std::endl;
+#endif
+      }
   };
 }
  

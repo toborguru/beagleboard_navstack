@@ -1,7 +1,7 @@
 # Create the core library
 add_library(
   diff_drive_core
-  OdometryIntegrater.cpp
+  OdometryIntegrator.cpp
   TwistConverter.cpp
   BaseModel.cpp
 )

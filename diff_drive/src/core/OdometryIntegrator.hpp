@@ -1,7 +1,7 @@
-// OdometryIntegrater.hpp
+// OdometryIntegrator.hpp
  
-#ifndef GUARD_OdometryIntegrater
-#define GUARD_OdometryIntegrater
+#ifndef GUARD_OdometryIntegrator
+#define GUARD_OdometryIntegrator
  
 #include <vector>
 
@@ -14,10 +14,10 @@
 
 namespace diff_drive_core
 {
-  class OdometryIntegrater : public IEncoderCountsListener
+  class OdometryIntegrator : public IEncoderCountsListener
   {
     public:
-      OdometryIntegrater();
+      OdometryIntegrator();
 
       void Attach( IOdometryListener& odometry_listener );
 
@@ -39,4 +39,4 @@ namespace diff_drive_core
   };
 }
 
-#endif /* GUARD_OdometryIntegrater */
+#endif /* GUARD_OdometryIntegrator */

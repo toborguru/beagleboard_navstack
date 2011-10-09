@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 #include "IOdometryEndpoint.hpp"
 #include "IEncoderCountsEndpoint.hpp"
+#include "BaseModel.hpp"
  
 namespace diff_drive_application_services
 {

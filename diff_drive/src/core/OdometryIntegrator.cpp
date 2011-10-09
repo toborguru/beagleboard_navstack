@@ -13,7 +13,7 @@
 
 #include "tf/transform_datatypes.h"
 
-#include "OdometryIntegrater.hpp"
+#include "OdometryIntegrator.hpp"
 
 namespace diff_drive_core
 {
@@ -44,7 +44,7 @@ static const double OdometryCovarianceLow[36] =
 
 /** Default constructor.
  */
-OdometryIntegrater::OdometryIntegrater()
+OdometryIntegrator::OdometryIntegrator()
                    : _p_base_model(NULL)
 {
   _odometry_listeners.reserve(1);
@@ -55,21 +55,21 @@ OdometryIntegrater::OdometryIntegrater()
 /** Provides a call-back mechanism for objects interested in receiving 
  *  odometry messages when they are available.
  */
-void OdometryIntegrater::Attach(IOdometryListener& odometry_listener) 
+void OdometryIntegrator::Attach(IOdometryListener& odometry_listener) 
 {
   _odometry_listeners.push_back(&odometry_listener);
 }
 
 /** Sets the BaseModel object to use for ticks to SI conversion.
  */
-void OdometryIntegrater::SetBaseModel( const BaseModel& base_model )
+void OdometryIntegrator::SetBaseModel( const BaseModel& base_model )
 {
   _p_base_model = &base_model;
 }
 
 /** Callback for IEncoderCountsListener
  */
-void OdometryIntegrater::OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts )
+void OdometryIntegrator::OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts )
 {
   _current_position = AddNewCounts( encoder_counts, _current_position ); 
 
@@ -83,7 +83,7 @@ void OdometryIntegrater::OnEncoderCountsAvailableEvent( const diff_drive::Encode
  *  reduced if the Linear and Stasis velocities do not match.
  *
  */
-nav_msgs::Odometry OdometryIntegrater::AddNewCounts( const diff_drive::EncoderCounts counts, 
+nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCounts counts, 
                                                      const nav_msgs::Odometry last_position ) 
 {
   nav_msgs::Odometry new_position;
@@ -169,7 +169,7 @@ nav_msgs::Odometry OdometryIntegrater::AddNewCounts( const diff_drive::EncoderCo
 
 /** Calls the callback function for all registered odometry listeners.
  */  
-void OdometryIntegrater::NotifyOdometryListeners(const nav_msgs::Odometry& odometry)
+void OdometryIntegrator::NotifyOdometryListeners(const nav_msgs::Odometry& odometry)
 {
   for (int i= 0; i < _odometry_listeners.size(); i++) 
   {
