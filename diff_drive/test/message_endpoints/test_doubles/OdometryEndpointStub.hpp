@@ -3,6 +3,8 @@
 #ifndef GUARD_OdometryEndpointStub
 #define GUARD_OdometryEndpointStub
  
+#include "tf/transform_datatypes.h"
+
 #include "nav_msgs/Odometry.h"
 #include "IOdometryEndpoint.hpp"
  

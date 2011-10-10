@@ -21,7 +21,7 @@ namespace diff_drive_core
 
       void Attach( ITickVelocityListener& tick_velocity_listener );
 
-      void SetBaseModel( BaseModel& base_model );
+      void SetBaseModel( const BaseModel& base_model );
 
       void OnTwistAvailableEvent( const geometry_msgs::Twist& twist );
  
@@ -32,7 +32,7 @@ namespace diff_drive_core
  
       std::vector<ITickVelocityListener*> _tick_velocity_listeners;
 
-      BaseModel* _p_base_model;
+      const BaseModel* _p_base_model;
   };
 }
 

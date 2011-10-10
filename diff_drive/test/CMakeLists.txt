@@ -13,6 +13,7 @@ rosbuild_add_executable(
   ./core/TwistConverterTests.cpp
   ./core/BaseModelTests.cpp
   ./application_services/OdometryReportingServiceTests.cpp
+  ./application_services/TwistCommandServiceTests.cpp
 #  ./message_endpoints/OdometryEndpointTests.cpp
 #  ./message_endpoints/EncoderCountEndpointTests.cpp
 )

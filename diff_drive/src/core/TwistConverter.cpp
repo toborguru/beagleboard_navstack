@@ -31,7 +31,7 @@ void TwistConverter::Attach(ITickVelocityListener& tick_velocity_listener)
 
 /** Sets the BaseModel object to use for SI to ticks conversion.
  */
-void TwistConverter::SetBaseModel( BaseModel& base_model )
+void TwistConverter::SetBaseModel( const BaseModel& base_model )
 {
   _p_base_model = &base_model;
 }

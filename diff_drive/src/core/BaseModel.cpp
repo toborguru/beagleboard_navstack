@@ -4,6 +4,12 @@
 
 namespace diff_drive_core
 {
+static int RoundInt( double r ) 
+{
+  return (r > 0.0) ? (r + 0.5) : (r - 0.5); 
+}
+
+
 /** Default constructor.
  *  @param  wheel_radius  The radius of the differential drive wheels in meters.
  *  @param  wheel_base    The separation  of the drive wheels in meters. This 
@@ -81,8 +87,8 @@ diff_drive::TickVelocity BaseModel::VelocityToTicks( const double linear_vel, co
   right_corrected = ( linear_ticks + ( angular_ticks / 2.0) )
                     * LeftInRightOutCorrection( _base_geometry.wheel_ratio );
                      
-  new_velocity.linear_ticks_sec = (int)( (right_corrected + left_corrected) / 2.0 );
-  new_velocity.angular_ticks_sec = (int)( right_corrected - left_corrected );
+  new_velocity.linear_ticks_sec = RoundInt( (right_corrected + left_corrected) / 2.0 );
+  new_velocity.angular_ticks_sec = RoundInt( right_corrected - left_corrected );
 
 #if 0
   std::cout << "Left Cor: " << left_corrected 
