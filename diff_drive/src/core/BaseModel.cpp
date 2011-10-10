@@ -101,6 +101,16 @@ diff_drive::TickVelocity BaseModel::VelocityToTicks( const double linear_vel, co
   return new_velocity;
 }
 
+BaseGeometry_T BaseModel::GetBaseGeometry() const
+{
+  return _base_geometry;
+}
+
+void BaseModel::SetBaseGeometry( BaseGeometry_T geometry )
+{
+  _base_geometry = geometry;
+}
+
 /** Returns the drive wheel radius in meters.
  */
 double BaseModel::GetWheelRadius() const

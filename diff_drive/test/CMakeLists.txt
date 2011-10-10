@@ -1,5 +1,6 @@
 include_directories(
   "message_endpoints/test_doubles"
+  "data_repositories/test_doubles"
   "core"
 )
 
@@ -12,6 +13,7 @@ rosbuild_add_executable(
   ./core/OdometryIntegratorTests.cpp
   ./core/TwistConverterTests.cpp
   ./core/BaseModelTests.cpp
+  ./application_services/BaseModelSetupServiceTests.cpp
   ./application_services/OdometryReportingServiceTests.cpp
   ./application_services/TwistCommandServiceTests.cpp
 #  ./message_endpoints/OdometryEndpointTests.cpp

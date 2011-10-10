@@ -60,7 +60,10 @@ namespace diff_drive_core
 
       diff_drive::TickVelocity VelocityToTicks( double linear_vel, double angular_vel ) const;
 
-      // Base Geometry Geometry
+      // Base Geometry Functions
+      BaseGeometry_T  GetBaseGeometry() const;
+      void            SetBaseGeometry( BaseGeometry_T geometry );
+
       double    GetWheelRadius() const;
       void      SetWheelRadius(double wheel_radius);
 
