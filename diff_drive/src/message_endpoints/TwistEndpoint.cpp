@@ -55,7 +55,7 @@ void TwistEndpoint::TwistReceivedCallback( const geometry_msgs::Twist& twist )
 
 void TwistEndpoint::ReceiveTwistMessages()
 {
-  ros::Subscriber twist_subscriber = _twist_node.subscribe( "~cmd_vel", 
+  ros::Subscriber twist_subscriber = _twist_node.subscribe( "cmd_vel", 
                                                             1, 
                                                             &TwistEndpoint::TwistReceivedCallback,
                                                             this );

@@ -11,7 +11,7 @@ namespace diff_drive_message_endpoints
 OdometryEndpoint::OdometryEndpoint() 
   // Setup topic for publishing laser scans to
   : _odometry_publisher(
-    _odometry_node.advertise<nav_msgs::Odometry>("odometry", 5)) 
+    _odometry_node.advertise<nav_msgs::Odometry>("odometry", 10)) 
 { 
 }
 
