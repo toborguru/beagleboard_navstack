@@ -16,7 +16,8 @@ rosbuild_add_executable(
   ./application_services/BaseModelSetupServiceTests.cpp
   ./application_services/OdometryReportingServiceTests.cpp
   ./application_services/TwistCommandServiceTests.cpp
-#  ./message_endpoints/OdometryEndpointTests.cpp
+  ./message_endpoints/OdometryEndpointTests.cpp
+  ./message_endpoints/TickVelocityEndpointTests.cpp
 #  ./message_endpoints/EncoderCountEndpointTests.cpp
 )
 
@@ -26,7 +27,7 @@ rosbuild_add_gtest_build_flags(diff_drive_tests)
 target_link_libraries(
   diff_drive_tests
   diff_drive_application_services
-#  diff_drive_message_endpoints
+  diff_drive_message_endpoints
 #  i2c_core
   # Important that core comes after application_services due to direction of dependencies
   diff_drive_core

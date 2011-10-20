@@ -1,8 +1,10 @@
 # Create the library
 add_library(
   diff_drive_message_endpoints
+  EncoderCountsEndpoint.cpp
   OdometryEndpoint.cpp
-  EncoderCountEndpoint.cpp
+  TickVelocityEndpoint.cpp
+  TwistEndpoint.cpp
 )
 
 target_link_libraries(

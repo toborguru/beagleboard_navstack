@@ -31,7 +31,7 @@ namespace diff_drive_test_message_endpoints_test_doubles
       mutable double _angular;
       mutable double _covariance;
 
-      void Publish(const nav_msgs::Odometry& odometry) const
+      void Publish(const nav_msgs::Odometry& odometry)
       {
         _count_of_odometrys_published++;
 

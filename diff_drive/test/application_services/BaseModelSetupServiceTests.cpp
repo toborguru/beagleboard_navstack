@@ -11,7 +11,7 @@ using namespace diff_drive_test_data_repositories_test_doubles;
  
 namespace diff_drive_test_application_services
 {
-  // Define the unit test to verify ability to leverage the reporting service using the message endpoint stub
+  // Define the unit test to verify ability to update the data using the data repository stub
   TEST(BaseModelSetupServiceTests, canSetupAndUpdateBaseModel)
   {
     int wheel_ticks1;
