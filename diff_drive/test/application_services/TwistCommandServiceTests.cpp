@@ -22,7 +22,7 @@ namespace diff_drive_test_application_services
     int received3;
 
     // Establish Context
-     boost::shared_ptr<TickVelocityEndpointStub> tick_velocity_endpoint_stub =
+    boost::shared_ptr<TickVelocityEndpointStub> tick_velocity_endpoint_stub =
         boost::shared_ptr<TickVelocityEndpointStub>( new TickVelocityEndpointStub() );
 
     boost::shared_ptr<TwistEndpointStub> twist_endpoint_stub =

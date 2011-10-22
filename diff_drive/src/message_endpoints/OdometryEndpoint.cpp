@@ -1,4 +1,8 @@
-// OdometryEndpoint.cpp
+/** @file
+ *  ROS node which publishes @c Odometry messages and broadcasts a coordinate frame 
+ *  transform which share a @c frame_id of @e "odom" and a @c child_frame_id of @e 
+ *  "base_link".
+ */
  
 #include <ros/ros.h>
 
@@ -8,6 +12,8 @@
  
 namespace diff_drive_message_endpoints
 {
+/** Default constructor, advertises on the ROS @e "odometry" topic.
+ */
 OdometryEndpoint::OdometryEndpoint() 
   // Setup topic for publishing laser scans to
   : _odometry_publisher(
@@ -15,6 +21,9 @@ OdometryEndpoint::OdometryEndpoint()
 { 
 }
 
+/** Publishes the @p odometry msg and broadcasts the coordinate frame 
+ *  transform.
+ */
 void OdometryEndpoint::Publish( const nav_msgs::Odometry& odometry )
 {
   nav_msgs::Odometry stamped_odometry;
@@ -43,7 +52,8 @@ void OdometryEndpoint::Publish( const nav_msgs::Odometry& odometry )
   _transform_broadcaster.sendTransform(odometry_transform);
 
   ros::spinOnce();
-  ROS_INFO("Published odometry to odometry topic with x, y of: %f, %f", odometry.pose.pose.position.x,
-                                                                        odometry.pose.pose.position.y );
+
+  ROS_DEBUG(  "Published odometry with x, y of: %f, %f", 
+              odometry.pose.pose.position.x, odometry.pose.pose.position.y );
 }
 }

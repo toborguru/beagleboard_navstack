@@ -2,4 +2,5 @@
 add_subdirectory(core)
 add_subdirectory(application_services)
 add_subdirectory(message_endpoints)
-#add_subdirectory(ui)
+add_subdirectory(data_repositories)
+add_subdirectory(ui)

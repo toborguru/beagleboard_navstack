@@ -1,4 +1,6 @@
-// TickVelocityEndpoint.cpp
+/** @file
+ *  ROS node which publishes @c TickVelocity messages.
+ */
  
 #include <ros/ros.h>
 #include "diff_drive/TickVelocity.h"
@@ -22,8 +24,8 @@ void TickVelocityEndpoint::Publish( const diff_drive::TickVelocity& tick_velocit
   _tick_velocity_publisher.publish(tick_velocity);
 
   ros::spinOnce();
-  ROS_INFO( "Published to tick_velocity topic with linear, angular of: %d, %d", 
-            tick_velocity.linear_ticks_sec,
-            tick_velocity.angular_ticks_sec );
+  ROS_DEBUG(  "Published tick_velocity with linear, angular of: %d, %d", 
+              tick_velocity.linear_ticks_sec,
+              tick_velocity.angular_ticks_sec );
 }
 }

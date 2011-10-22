@@ -27,7 +27,8 @@ rosbuild_add_executable(
   ./message_endpoints/OdometryEndpointTests.cpp
   ./message_endpoints/TickVelocityEndpointTests.cpp
   ./message_endpoints/TwistEndpointTests.cpp
-#  ./message_endpoints/EncoderCountEndpointTests.cpp
+  ./message_endpoints/EncoderCountsEndpointTests.cpp
+  ./data_repositories/BaseModelRepositoryTests.cpp
 )
 
 rosbuild_add_gtest_build_flags(diff_drive_tests)
@@ -47,6 +48,7 @@ target_link_libraries(
   diff_drive_ros_tests
   diff_drive_application_services
   diff_drive_message_endpoints
+  diff_drive_data_repositories
   # Important that core comes after application_services due to direction of dependencies
   diff_drive_core
 )

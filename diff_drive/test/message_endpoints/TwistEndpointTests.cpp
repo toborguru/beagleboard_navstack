@@ -55,7 +55,7 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
 
     ros::NodeHandle node;
     ros::Publisher pub = node.advertise<geometry_msgs::Twist>("cmd_vel", 12);
-    sleep( 1 );
+    usleep( 25000 );
 
     double linear1;
     double linear2;
@@ -77,19 +77,19 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
     twist_endpoint.Attach( twist_receiver );
    
     // ACT
-    sleep( 1 );
+    usleep( 25000 );
 
     twist.linear.x = 2.5;
     twist.angular.z = -0.5;
 
     pub.publish( twist );
-    sleep( 1 );
+    usleep( 25000 );
     pub.publish( twist );
-    sleep( 1 );
+    usleep( 25000 );
     pub.publish( twist );
-    sleep( 1 );
+    usleep( 25000 );
     pub.publish( twist );
-    sleep( 1 );
+    usleep( 25000 );
 
     count1 = twist_receiver._count_of_twists_received; 
     linear1 = twist_receiver._linear; 
@@ -97,16 +97,16 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
 
     twist_endpoint.Subscribe();
 
-    sleep(1);
+    usleep( 25000 );
 
     pub.publish( twist );
-    sleep( 1 );
+    usleep( 25000 );
     pub.publish( twist );
-    sleep( 1 );
+    usleep( 25000 );
     pub.publish( twist );
-    sleep( 1 );
+    usleep( 25000 );
     pub.publish( twist );
-    sleep( 1 );
+    usleep( 25000 );
 
     count2 = twist_receiver._count_of_twists_received; 
     linear2 = twist_receiver._linear; 
@@ -114,16 +114,16 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
 
     twist_endpoint.Unsubscribe();
 
-    sleep(1);
+    usleep( 25000 );
 
     pub.publish( twist );
-    sleep(1);
+    usleep( 25000 );
     pub.publish( twist );
-    sleep(1);
+    usleep( 25000 );
     pub.publish( twist );
-    sleep(1);
+    usleep( 25000 );
     pub.publish( twist );
-    sleep(1);
+    usleep( 25000 );
 
     count3 = twist_receiver._count_of_twists_received; 
     linear3 = twist_receiver._linear; 
@@ -146,7 +146,6 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
     EXPECT_EQ( 4, count3 ); 
     EXPECT_FLOAT_EQ( 2.5, linear3 ); 
     EXPECT_FLOAT_EQ( -0.5, angular3 ); 
-
   }
 #if 0 
   // Define unit test to verify ability to leverage the reporting 

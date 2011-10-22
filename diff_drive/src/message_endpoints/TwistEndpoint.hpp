@@ -11,43 +11,43 @@
  
 namespace diff_drive_message_endpoints
 {
-  class TwistEndpoint : public diff_drive_core::ITwistEndpoint
-  { 
-    public:
-      TwistEndpoint();
-      ~TwistEndpoint();
- 
-      void Subscribe();
-      void Unsubscribe();
-      void Attach( diff_drive_core::ITwistListener& twist_listener );
+class TwistEndpoint : public diff_drive_core::ITwistEndpoint
+{ 
+public:
+  TwistEndpoint();
+  ~TwistEndpoint();
 
-      void TwistReceivedCallback( const geometry_msgs::Twist& twist );
+  void Subscribe();
+  void Unsubscribe();
+  void Attach( diff_drive_core::ITwistListener& twist_listener );
 
-    private:
-      void ReceiveTwistMessages();
+  void NewTwistReceived( const geometry_msgs::Twist& twist );
 
-      void NotifyTwistListeners( const geometry_msgs::Twist& twist );
+private:
+  void ReceiveTwistMessages();
 
-      std::vector<diff_drive_core::ITwistListener*> _twist_listeners;
+  void NotifyTwistListeners( const geometry_msgs::Twist& twist );
 
-      // Create handle to node
-      ros::NodeHandle _twist_node;
- 
-      ros::Subscriber _twist_subscriber;
+  std::vector<diff_drive_core::ITwistListener*> _twist_listeners;
 
-      // Basic threading support as suggested by Jeremy Friesner at
-      // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
-      volatile bool _stopRequested;
-      volatile bool _running;
+  // Create handle to node
+  ros::NodeHandle _twist_node;
 
-      pthread_t _thread;
+  ros::Subscriber _twist_subscriber;
 
-      static void * ReceiveTwistMessagesFunction(void * This) {
-        ((TwistEndpoint*)This)->ReceiveTwistMessages();
-        return 0;
-      }
+  // Basic threading support as suggested by Jeremy Friesner at
+  // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
+  volatile bool _stopRequested;
+  volatile bool _running;
 
-  };
+  pthread_t _thread;
+
+  static void * ReceiveTwistMessagesFunction(void * This) {
+    ((TwistEndpoint*)This)->ReceiveTwistMessages();
+    return 0;
+  }
+
+};
 }
  
 #endif /* GUARD_TwistEndpoint */
