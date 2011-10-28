@@ -15,7 +15,7 @@ namespace diff_drive_message_endpoints
 /** Default Constructor
  */
 TwistEndpoint::TwistEndpoint()    
-              : _stopRequested(false), 
+              : _stop_requested(false), 
                 _running(false) 
 {
   _twist_listeners.reserve(1);
@@ -34,7 +34,7 @@ void TwistEndpoint::Subscribe()
   if (! _running) 
   {
     _running = true;
-    _stopRequested = false;
+    _stop_requested = false;
     // Spawn async thread for reading laser scans
     pthread_create(&_thread, 0, ReceiveTwistMessagesFunction, this);
   }
@@ -47,7 +47,7 @@ void TwistEndpoint::Unsubscribe()
   if (_running) 
   {
     _running = false;
-    _stopRequested = true;
+    _stop_requested = true;
 
     // Wait to return until _thread has completed
     pthread_join(_thread, 0);
@@ -83,7 +83,7 @@ void TwistEndpoint::ReceiveTwistMessages()
 
   ros::Rate r(100); // 100 hz
 
-  while (!_stopRequested && ros::ok()) 
+  while (!_stop_requested && ros::ok()) 
   {
     ros::spinOnce();
     r.sleep();

@@ -37,7 +37,7 @@ private:
 
   // Basic threading support as suggested by Jeremy Friesner at
   // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
-  volatile bool _stopRequested;
+  volatile bool _stop_requested;
   volatile bool _running;
 
   pthread_t _thread;
