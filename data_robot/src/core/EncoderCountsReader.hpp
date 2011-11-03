@@ -23,8 +23,15 @@ public:
   // Provides an interface to request counts from
   void SetExternalBus( IExternalBusInterface *p_external_bus );
 
+  bool IsBlockingForBusRequest() const { return _block_for_request; }
+  void SetBlockingForBusRequest();
+
   // Provides a call-back mechanism for objects interested in receiving encoder counts
   void Attach( IEncoderCountsListener& encoder_counts_listener );
+
+  int32_t  DifferentiateEncoderReading( int32_t last_reading, int32_t new_reading ) const;
+  int16_t  DifferentiateEncoderReading( int16_t last_reading, int16_t new_reading ) const;
+  int8_t   DifferentiateEncoderReading( int8_t  last_reading,  int8_t new_reading ) const;
 
 private:
   void ReadEncoderCounts();
@@ -34,11 +41,14 @@ private:
 
   std::vector<IEncoderCountsListener*> _encoder_counts_listeners;
 
+  bool _block_for_request;
+
   // Basic threading support as suggested by Jeremy Friesner at
   // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
   volatile bool _stop_requested;
   volatile bool _running;
   pthread_t _thread;
+
   static void * ReadEncoderCountsFunction(void * This) {
     ((EncoderCountsReader *)This)->ReadEncoderCounts();
     return 0;
