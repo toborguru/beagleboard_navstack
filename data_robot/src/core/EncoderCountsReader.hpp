@@ -23,15 +23,15 @@ public:
   // Provides an interface to request counts from
   void SetExternalBus( IExternalBusInterface *p_external_bus );
 
-  bool IsBlockingForBusRequest() const { return _block_for_request; }
-  void SetBlockingForBusRequest();
+  bool GetBlockForBusRequest() const { return _block_for_request; }
+  void SetBlockForBusRequest( bool block ) {_block_for_request = block; }
 
   // Provides a call-back mechanism for objects interested in receiving encoder counts
   void Attach( IEncoderCountsListener& encoder_counts_listener );
 
-  int32_t  DifferentiateEncoderReading( int32_t last_reading, int32_t new_reading ) const;
-  int16_t  DifferentiateEncoderReading( int16_t last_reading, int16_t new_reading ) const;
-  int8_t   DifferentiateEncoderReading( int8_t  last_reading,  int8_t new_reading ) const;
+  int32_t  DifferentiateEncoderReading( int32_t old_reading, int32_t new_reading ) const;
+  int16_t  DifferentiateEncoderReading( int16_t old_reading, int16_t new_reading ) const;
+  int8_t   DifferentiateEncoderReading( int8_t  old_reading,  int8_t new_reading ) const;
 
 private:
   void ReadEncoderCounts();

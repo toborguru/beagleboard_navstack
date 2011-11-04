@@ -37,19 +37,21 @@ void EncoderCountsReader::SetExternalBus( IExternalBusInterface *p_external_bus 
 /** Provides the difference in encoder counts while trying to detect and correct 
  *  for roll-over.
  */
-int32_t  EncoderCountsReader::DifferentiateEncoderReading( int32_t last_reading, int32_t new_reading ) const
+int32_t  EncoderCountsReader::DifferentiateEncoderReading( int32_t old_reading, int32_t new_reading ) const
 {
   long difference;
 
-  difference = (long)new_reading - (long)last_reading;
+  difference = (long)new_reading - (long)old_reading;
 
+  // Roll over from negative velocity
   if ( difference > INT_MAX )
   {
-    difference = ( (new_reading - INT_MAX) + (INT_MIN - last_reading) );
+    difference = ( (new_reading - INT_MAX) + (INT_MIN - old_reading) - 1 );
   }
+  // Roll over from positive velocity
   else if ( difference < INT_MIN )
   {
-    difference = ( (INT_MAX - last_reading) + (new_reading - INT_MIN) );
+    difference = ( (INT_MAX - old_reading) + (new_reading - INT_MIN) + 1 );
   }
 
   return (int32_t)difference;
@@ -58,19 +60,21 @@ int32_t  EncoderCountsReader::DifferentiateEncoderReading( int32_t last_reading,
 /** Provides the difference in encoder counts while trying to detect and correct 
  *  for roll-over.
  */
-int16_t  EncoderCountsReader::DifferentiateEncoderReading( int16_t last_reading, int16_t new_reading ) const
+int16_t  EncoderCountsReader::DifferentiateEncoderReading( int16_t old_reading, int16_t new_reading ) const
 {
   int32_t difference;
 
-  difference = (int32_t)new_reading - (int32_t)last_reading;
+  difference = (int32_t)new_reading - (int32_t)old_reading;
 
+  // Roll over from negative velocity
   if ( difference > SHRT_MAX )
   {
-    difference = ( (new_reading - SHRT_MAX) + (SHRT_MIN - last_reading) );
+    difference = ( (new_reading - SHRT_MAX) + (SHRT_MIN - old_reading) - 1 );
   }
+  // Roll over from positive velocity
   else if ( difference < SHRT_MIN )
   {
-    difference = ( (SHRT_MAX - last_reading) + (new_reading - SHRT_MIN) );
+    difference = ( (SHRT_MAX - old_reading) + (new_reading - SHRT_MIN) + 1 );
   }
 
   return (int16_t)difference;
@@ -79,19 +83,21 @@ int16_t  EncoderCountsReader::DifferentiateEncoderReading( int16_t last_reading,
 /** Provides the difference in encoder counts while trying to detect and correct 
  *  for roll-over.
  */
-int8_t   EncoderCountsReader::DifferentiateEncoderReading( int8_t  last_reading,  int8_t new_reading ) const
+int8_t   EncoderCountsReader::DifferentiateEncoderReading( int8_t  old_reading,  int8_t new_reading ) const
 {
   int16_t difference;
 
-  difference = (int16_t)new_reading - (int16_t)last_reading;
+  difference = (int16_t)new_reading - (int16_t)old_reading;
 
+  // Roll over from negative velocity
   if ( difference > SCHAR_MAX )
   {
-    difference = ( (new_reading - SCHAR_MAX) + (SCHAR_MIN - last_reading) );
+    difference = ( (new_reading - SCHAR_MAX) + (SCHAR_MIN - old_reading) - 1 );
   }
+  // Roll over from positive velocity
   else if ( difference < SCHAR_MIN )
   {
-    difference = ( (SCHAR_MAX - last_reading) + (new_reading - SCHAR_MIN) );
+    difference = ( (SCHAR_MAX - old_reading) + (new_reading - SCHAR_MIN) + 1 );
   }
 
   return (int8_t)difference;
@@ -141,6 +147,11 @@ void EncoderCountsReader::ReadEncoderCounts()
   int16_t stasis_count;
   uint16_t millis;
 
+  int16_t last_left_count;
+  int16_t last_right_count;
+  int16_t last_stasis_count;
+  uint16_t last_millis;
+
   BusRequest bus_request;
 
   uint16_t address = ENCODER_COUNTS_ADDRESS;
@@ -158,32 +169,64 @@ void EncoderCountsReader::ReadEncoderCounts()
   ros::Time::init();
   ros::Rate r( 10.0 );
 
+  diff_drive::EncoderCounts encoder_counts;
+
   while ( ! _stop_requested ) 
   {
     if ( _p_external_bus != NULL )
     {
-      diff_drive::EncoderCounts encoder_counts;
-
-      bus_request.Lock();
-
       // Exectute our request
+      bus_request.SetRequestComplete( false );
       _p_external_bus->ProcessRequest( &bus_request );
 
-      // Hang the thread until bus_request.Unblock() is called
-      bus_request.Block();
-  
-      // Now copy the data out
+      // Check if request is being accessed
       bus_request.Lock();
-      millis = *(int16_t*)&p_data_buffer[0];
-      left_count = *(int16_t*)&p_data_buffer[2];
-      right_count = *(int16_t*)&p_data_buffer[4];
-      stasis_count = *(int16_t*)&p_data_buffer[6];
-      bus_request.Unlock();
 
-      NotifyEncoderCountsListeners( encoder_counts );
+      // We have the lock but the request is not finished
+      while ( !bus_request.GetRequestComplete() )
+      {
+        if ( _block_for_request )
+        {
+          // Hang the thread until bus_request.Unblock() is called
+          bus_request.Block();
+        }
+        else
+        {
+          bus_request.Unlock();
+          r.sleep();
+          bus_request.Lock();
+        }
+      }
 
-      ROS_INFO( "Encoder Counts Reader: Period: %.3f Actual: %.3f", 
-          r.expectedCycleTime().toSec(), r.cycleTime().toSec() );
+      // Request should be Locked at this point
+      if ( bus_request.IsLocked() )
+      {
+        // Now copy the data out
+        millis = *(int16_t*)&p_data_buffer[0];
+        left_count = *(int16_t*)&p_data_buffer[2];
+        right_count = *(int16_t*)&p_data_buffer[4];
+        stasis_count = *(int16_t*)&p_data_buffer[6];
+        bus_request.Unlock();
+
+        encoder_counts.left_count = DifferentiateEncoderReading( last_left_count, left_count );
+        encoder_counts.right_count = DifferentiateEncoderReading( last_right_count, right_count );
+        encoder_counts.stasis_count = DifferentiateEncoderReading( last_stasis_count, stasis_count );
+        encoder_counts.dt_ms = DifferentiateEncoderReading( last_millis, millis );
+
+        last_left_count = left_count;
+        last_right_count = right_count;
+        last_stasis_count = stasis_count;
+
+        NotifyEncoderCountsListeners( encoder_counts );
+
+        ROS_DEBUG(  "Encoder Counts Reader: Period: %.3f Actual: %.3f L: %d R: %d S: %d Dt: %d", 
+                    r.expectedCycleTime().toSec(), r.cycleTime().toSec(), encoder_counts.left_count,
+                    encoder_counts.right_count, encoder_counts.stasis_count, encoder_counts.dt_ms );
+      }
+      else
+      {
+        ROS_ERROR( "Encoder Counts Reader Bus Request object is NOT LOCKED!" );
+      }
     }
     else
     {
