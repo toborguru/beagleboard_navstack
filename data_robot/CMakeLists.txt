@@ -31,6 +31,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 # Include subdirectories for headers
 
 include_directories ( "src/core" )
+include_directories ( "src/core/message_endpoint_interfaces" )
 
 add_subdirectory(src)
 add_subdirectory(test)

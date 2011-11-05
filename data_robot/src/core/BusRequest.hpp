@@ -63,8 +63,8 @@ public:
   virtual uint8_t*  GetDataBuffer() const { return _p_data_buffer; }
 
   /** Returns the time last set. */
-  virtual struct timespec GetTime() const { return _time; }
-  virtual void  SetTime( struct timespec new_time );
+  virtual struct timespec GetTimeStamp() const { return _time; }
+  virtual void  SetTimeStamp( struct timespec new_time );
 
 private:
   // Disable the copy constructor and assignment operator because I don't know

@@ -10,6 +10,7 @@ rosbuild_add_executable(
   data_robot_tests
   TestRunner.cpp
   ./core/EncoderCountsReaderTests.cpp
+  ./core/RollOverHelpersTests.cpp
 #  ./core/TwistConverterTests.cpp
 #  ./core/BaseModelTests.cpp
 #  ./application_services/BaseModelSetupServiceTests.cpp

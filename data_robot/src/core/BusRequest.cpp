@@ -286,7 +286,7 @@ int   BusRequest::SetData( const uint8_t* src, int num_bytes )
 /** Sets the time associated with the request, often set when the request is
  *  completed.
  */
-void  BusRequest::SetTime( struct timespec new_time )
+void  BusRequest::SetTimeStamp( struct timespec new_time )
 {
   _time = new_time;	
 }
