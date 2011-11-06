@@ -31,5 +31,4 @@ void MotorVelocityRequest::SetVelocity( int16_t linear, int16_t angular )
 
   SetData( (uint8_t*)&velocity, NUM_DATA_BYTES );
 }
-
 }

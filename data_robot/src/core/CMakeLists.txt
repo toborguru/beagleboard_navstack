@@ -5,5 +5,6 @@ add_library (
   ReadEncodersRequest.cpp
   MotorVelocityRequest.cpp
   EncoderCountsReader.cpp
+  TickVelocityForwarder.cpp
   RollOverHelpers.c
 )
