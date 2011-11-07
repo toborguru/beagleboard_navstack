@@ -1,0 +1,14 @@
+# Create the library
+add_library(
+  data_robot_message_endpoints
+  EncoderCountsEndpoint.cpp
+  TickVelocityEndpoint.cpp
+  I2CBusEndpoint.cpp
+  i2c-api.c
+  Crc8.c
+)
+
+target_link_libraries(
+  data_robot_message_endpoints
+)
+
