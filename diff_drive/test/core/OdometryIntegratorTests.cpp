@@ -45,7 +45,7 @@ struct OdometryReceiver : public diff_drive_core::IOdometryListener
     _x = odometry.pose.pose.position.x;
     _y = odometry.pose.pose.position.y;
     _theta = tf::getYaw(odometry.pose.pose.orientation);
-    _covariance = odometry.pose.covariance[0];
+    _covariance = odometry.pose.covariance[7];
     _linear = odometry.twist.twist.linear.x;
     _angular = odometry.twist.twist.angular.z;
 
@@ -121,14 +121,15 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveOdometry )
   // Assert
 
   // tCheck the results of adding four counts
-  ASSERT_TRUE(odometry_receiver._count_of_odometrys_received == 4);
+  EXPECT_TRUE(odometry_receiver._count_of_odometrys_received == 4);
 }
 
 // Define the unit test to verify ability to integrate and estimate position
 TEST( OdometryIntegratorTests, canCalculateEstimatedPosition) 
 {
   // Establish Context
-  double distance;
+  double x;
+  double y;
   double theta;
   double linear;
   double angular;
@@ -153,7 +154,7 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   count_generator.AddTicks(new_counts);
   count_generator.AddTicks(new_counts);
 
-  distance = odometry_receiver._x;
+  x = odometry_receiver._x;
   linear = odometry_receiver._linear;
 
   new_counts.left_count = 0;
@@ -163,6 +164,7 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   count_generator.AddTicks(new_counts);
   count_generator.AddTicks(new_counts);
 
+  y = odometry_receiver._y;
   theta = odometry_receiver._theta;
   angular = odometry_receiver._angular;
 
@@ -171,13 +173,14 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
 
   // Assert
 
-  ASSERT_FLOAT_EQ( distance, 4.0 );
-  ASSERT_FLOAT_EQ( theta, 3.0 );
-  ASSERT_FLOAT_EQ( linear, 10.0 );
-  ASSERT_FLOAT_EQ( angular, 10.0 );
+  EXPECT_FLOAT_EQ( x, 4.0 );
+  EXPECT_GT( y, 0.5 );
+  EXPECT_FLOAT_EQ( theta, 3.0 );
+  EXPECT_FLOAT_EQ( linear, 10.0 );
+  EXPECT_FLOAT_EQ( angular, 10.0 );
 
   // Check roll over
-  ASSERT_LT( odometry_receiver._theta, -2.25 );
+  EXPECT_LT( odometry_receiver._theta, -2.25 );
 }
 
 // Define the unit test to verify ability to set and adjust the covariance
@@ -212,7 +215,7 @@ TEST( OdometryIntegratorTests, canSetAndReadCovariance)
 
   // Assert
 
-  ASSERT_FLOAT_EQ(cov1, 1e-1);
-  ASSERT_FLOAT_EQ(cov2, 1e-9);
+  EXPECT_FLOAT_EQ(cov1, 1e-1);
+  EXPECT_FLOAT_EQ(cov2, 1e-9);
 }
 }
