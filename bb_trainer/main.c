@@ -30,6 +30,9 @@
 
 #define I2C_ADDRESS         0x06
 
+// Voltage reading below which: kill power to the entire bot.
+#define VOLTAGE_KILL_LIMIT  300 // 300 ~= 6V
+
 #define SHELL_RESET_STEPS   500 // 50 Hz Steps (last I checked...)
 
 #define MOTION_STEP_DELAY   1000 / MOTION_CONTROL_UPDATE_RATE_HZ
@@ -64,6 +67,7 @@ static I2C_REGISTERS_t m_telemetry_b;
 static uint8_t m_steps_since_command = 0;
 
 void BaseMotion( void );
+void CheckVoltage( void );
 void MotorPattern( void );
 void Ports_Zero( void );
 void ProcessIncomingCommands( void );
@@ -122,12 +126,41 @@ int main( void )
 
     UpdateTelemetry();
 
+    CheckVoltage();
+
 #if MOTOR_TEST_EN
     MotorPattern();
 #endif
   }
   // Never reached.
   return(0);
+}
+
+void CheckVoltage()
+{
+  static limit_reached = 0;
+  static SYSTEM_CLOCK_T step_time = 0;
+
+  // Perform Motion Step
+  if ( Clock_Diff(step_time, g_system_clock) <= 0 )
+  {
+    step_time += 10;
+
+    if ( (gp_telemetry_write->voltage > 0) && (gp_telemetry_write->voltage < VOLTAGE_KILL_LIMIT) )
+    { 
+      limit_reached++;
+    }
+    else
+    {
+      limit_reached = 0;
+    }
+
+    // 1 full second of limit reached...
+    if ( limit_reached > 100 ) 
+    {
+      BIT_SET(_PORT(KILL_PORT), KILL_PIN);
+    }
+  }
 }
 
 void UpdateTelemetry()

@@ -6,8 +6,8 @@
 #define WANDER_SPEED  0.3 // m/s
 #define WANDER_TURN   0.35 // rad/s
 #define WANDER_TIME   5.0 // s
-#define LOOP_RATE     10.0
-#define LOOP_TIME     0.1
+#define LOOP_RATE     20.0
+#define LOOP_TIME     0.05
 
 #define BUMP_SPEED    0.2
 #define BUMP_TURN     0.8
