@@ -24,13 +24,14 @@ BumpersProcessorSetupService::BumpersProcessorSetupService( boost::shared_ptr<IB
  */
 void  BumpersProcessorSetupService::Update()
 {
+/*
   _p_processor->SetFrontBumperMask(0); 
   _p_processor->SetFrontLeftBumperMask(0); 
   _p_processor->SetFrontRightBumperMask(0); 
   _p_processor->SetRearBumperMask(0); 
   _p_processor->SetRearLeftBumperMask(0); 
   _p_processor->SetRearRightBumperMask(0); 
-
+*/
   _p_processor->AddFrontBumperIndex( _p_indexes_repository->QueryFrontBumperIndex() );
   _p_processor->AddFrontLeftBumperIndex( _p_indexes_repository->QueryFrontLeftBumperIndex() );
   _p_processor->AddFrontRightBumperIndex( _p_indexes_repository->QueryFrontRightBumperIndex() );
