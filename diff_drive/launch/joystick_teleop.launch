@@ -1,7 +1,7 @@
 <launch>
 
   <!--- Teleop Joystick -->
-  <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="turtlebot_teleop_joystick">
+  <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="teleop_joystick">
     <remap from="turtlebot_node/cmd_vel" to="cmd_vel"/>
 
     <!-- Button Index -->
@@ -14,7 +14,7 @@
 
   <node pkg="joy" type="joy_node" name="joystick"/>
 
-  <node pkg="diff_drive" type="diff_drive_node" name="diff_drive_DATA">
+  <node pkg="diff_drive" type="diff_drive_node" name="diff_drive">
     <param name="drive_wheel_radius"  value="0.033"/>
     <param name="drive_wheel_base"    value="0.100"/>
     <param name="drive_wheel_encoder_ticks" value="128"/>

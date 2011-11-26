@@ -91,7 +91,7 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
   BaseDistance_T delta_position;
   BaseVelocities_T  velocities;
 
-  const double (*p_covariance)[36];
+  const double *p_covariance;
 
   double x;
   double y;
@@ -122,13 +122,14 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
     linear = velocities.linear;
     angular = velocities.angular;
 
+    // TODO stasis wheel check
     if ( _p_base_model->GetStasisTicks() > 0 )
     {
-      p_covariance = &OdometryCovariance;
+      p_covariance = OdometryCovariance;
     }
     else
     {
-      p_covariance = &OdometryCovariance;
+      p_covariance = OdometryCovariance;
     }
   }
   else
@@ -139,7 +140,7 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
     linear = 0.0;
     angular = 0.0;
 
-    p_covariance = &OdometryCovarianceLow;
+    p_covariance = OdometryCovarianceLow;
   }
 
 #if 0
@@ -171,8 +172,8 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
   // Set the covariance data
   for (int i = 0; i < 36; i++)
   {
-    new_position.pose.covariance[i] = *p_covariance[i];
-    new_position.twist.covariance[i] = *p_covariance[i];
+    new_position.pose.covariance[i] = p_covariance[i];
+    new_position.twist.covariance[i] = p_covariance[i];
   }
   
   return new_position;
