@@ -5,13 +5,13 @@
 
 typedef struct __attribute__((__packed__))
 {
-  int16_t     command;            // R/W
+  uint16_t    command;            // W
   int16_t     linear_velocity;    // R/W
   int16_t     angular_velocity;   // R/W
   int16_t     left_encoder;       // R
   int16_t     right_encoder;      // R
   int16_t     stasis_encoder;     // R
-  uint16_t    measurement_time;   // R
+  uint16_t    encoder_time;       // R
   uint16_t    system_time;        // R
   uint16_t    status_flag;        // R
   uint16_t    voltage;            // R

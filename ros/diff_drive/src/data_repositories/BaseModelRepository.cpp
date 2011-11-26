@@ -53,7 +53,7 @@ diff_drive_core::BaseGeometry_T BaseModelRepository::QueryBaseGeometry() const
 
   if ( wheel_ticks <= 0.0 )
   {
-    ROS_ERROR_NAMED(  "BaseModelRepository", "drive_wheel_encoder_ticks <= 0! : %f changed to %f.",
+    ROS_ERROR_NAMED(  "BaseModelRepository", "drive_wheel_encoder_ticks <= 0! : %d changed to %d.",
                       wheel_ticks, wheel_ticks * -1 );
     wheel_ticks *= -1;
   }

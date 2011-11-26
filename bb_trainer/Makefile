@@ -299,12 +299,12 @@ extcoff: $(TARGET).elf
 	$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
 
 # Program the device.  
-program: $(TARGET).hex
+install: $(TARGET).hex
 	bb_trainer_program $(TARGET).hex
 
 # Install to Gumstix
-install : $(TARGET).hex
-	scp $(TARGET).hex root@data-blue:robostix/
+#install : $(TARGET).hex
+#	scp $(TARGET).hex root@data-blue:robostix/
 
 # Create final output files (.hex, .eep) from ELF output file.
 %.hex: %.elf

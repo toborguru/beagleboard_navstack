@@ -6,3 +6,6 @@ bb_trainer_on
 sleep 0.1
 
 i2cloader -d 2 -f $1 -s 0102FF -e FF -smbusdelay
+
+sleep 7.5
+shell_reset

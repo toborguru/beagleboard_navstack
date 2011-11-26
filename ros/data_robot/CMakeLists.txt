@@ -17,7 +17,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #uncomment if you have defined messages
-#rosbuild_genmsg()
+rosbuild_genmsg()
 #uncomment if you have defined services
 #rosbuild_gensrv()
 
@@ -31,7 +31,10 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 # Include subdirectories for headers
 
 include_directories ( "src/core" )
+include_directories ( "src/core/bus_requests" )
+include_directories ( "src/core/listener_interfaces" )
 include_directories ( "src/core/message_endpoint_interfaces" )
+include_directories ( "src/core/utils" )
 include_directories ( "src/message_endpoints" )
 include_directories ( "src/application_services" )
 

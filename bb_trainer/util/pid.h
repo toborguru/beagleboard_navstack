@@ -24,7 +24,7 @@ typedef struct
     int8_t  kp;
     int8_t  kd;
     int8_t  ki;
-    int8_t  ko; // Output Scale => Kp=kp/ko, Kd=kd/ko, Ki=ki/ko
+    int8_t  ko; // Output Scale: Used for fractional gains => Kp=kp/ko, Kd=kd/ko, Ki=ki/ko 
     int16_t max_i_error;
     int16_t max_correction;
 } Pid_State_t;

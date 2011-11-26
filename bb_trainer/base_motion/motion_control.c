@@ -14,7 +14,7 @@
 #define MOTION_CONTROL_KP   20
 #define MOTION_CONTROL_KD   2
 #define MOTION_CONTROL_KI   5
-#define MOTION_CONTROL_KO   1
+#define MOTION_CONTROL_KO   1 // Output Scale: Used for fractional gains => Kp=kp/ko, Kd=kd/ko, Ki=ki/ko
 #define MOTION_CONTROL_MAX_CORRECTION   0xFF
 #define MOTION_CONTROL_MAX_I_ERROR      0x30
 
@@ -207,7 +207,7 @@ void Motion_Control_Run_Step(   void )
     gp_telemetry_write->left_encoder = (int16_t)(p_l_wheel->encoder);
     gp_telemetry_write->right_encoder = (int16_t)(p_r_wheel->encoder);
     gp_telemetry_write->stasis_encoder = stasis_total;
-    gp_telemetry_write->measurement_time = measurement_time;
+    gp_telemetry_write->encoder_time = measurement_time;
 
     ENABLE_INTERRUPTS();
 } 

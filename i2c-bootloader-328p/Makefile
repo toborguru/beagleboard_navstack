@@ -7,7 +7,7 @@ F_CPU=8000000UL
 CFLAGS=-g -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Wall -Wstrict-prototypes -Os -mcall-prologues -W
 
 #- I2C Address
-BOOTLOADER_I2C=0x4
+BOOTLOADER_I2C=0x04
 
 #- default LED-PIN
 LED=PB5
@@ -17,7 +17,7 @@ PORT=`echo ${LED} | cut -c2`
 PIN=`echo ${LED} | cut -c3`
 LEDPIN=-DLEDDDR=DDR${PORT} -DLEDPORT=PORT${PORT} -DLEDPIN=P${PORT}${PIN}
 
-I2C_ADDR=-DI2C_ADDR=$(BOOTLOADER)
+I2C_DEF=-DI2C_ADDR=$(BOOTLOADER_I2C)
 
 all: i2c-bootloader-1024w.hex i2c-test i2cloader 
 
@@ -33,7 +33,7 @@ i2c-bootloader-512w: i2c-bootloader.o
 		-Wl,-Map,i2c-bootloader-512w.map $<
 
 i2c-bootloader-led.o: i2c-bootloader.c
-	$(CC) -o $@ -c $< -DMITLED $(CFLAGS) $(LEDPIN)
+	$(CC) -o $@ -c $< -DMITLED $(CFLAGS) $(LEDPIN) $(I2C_DEF)
 
 i2c-bootloader.s: i2c-bootloader.c
 	$(CC) $(CFLAGS) -S -DMITLED $<

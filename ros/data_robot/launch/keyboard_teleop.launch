@@ -3,6 +3,7 @@
   <node pkg="turtlebot_teleop" type="turtlebot_teleop_key" name="teleop_keyboard"  output="screen">
     <param name="scale_linear" value="0.2" type="double"/>
     <param name="scale_angular" value="0.6" type="double"/>
+    <remap from="turtlebot_node/cmd_vel" to="cmd_vel"/>
   </node>
 
   <node pkg="diff_drive" type="diff_drive_node" name="diff_drive">
@@ -10,5 +11,7 @@
     <param name="drive_wheel_base"    value="0.100"/>
     <param name="drive_wheel_encoder_ticks" value="128"/>
   </node>
+
+  <node pkg="data_robot" type="data_robot_node" name="robot"/>
 
 </launch>
