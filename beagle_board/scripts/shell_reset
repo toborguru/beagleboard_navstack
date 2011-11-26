@@ -1,0 +1,6 @@
+#!/bin/bash
+i2c -d /dev/i2c-2 0x06 wb2 0 0x0106
+sleep 0.5
+
+bb_trainer_reset
+
