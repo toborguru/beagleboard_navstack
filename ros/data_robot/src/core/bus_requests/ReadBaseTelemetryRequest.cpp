@@ -10,7 +10,7 @@ extern "C"
   #include "RollOverHelpers.h"
 }
 
-#define NUM_DATA_BYTES  8
+#define NUM_DATA_BYTES 16
 
 namespace data_robot_core
 {
@@ -42,7 +42,7 @@ BaseTelemetry_T ReadBaseTelemetryRequest::GetTelemetry()
 
   if ( NUM_DATA_BYTES >= GetDataBufferSize() )
   {
-    memcpy( &telemetry.left_encoder, p_data_buffer, 8 );
+    memcpy( &telemetry.left_encoder, p_data_buffer, NUM_DATA_BYTES );
 
     telemetry.seconds = GetTimeStamp().tv_sec;
     telemetry.nano_seconds  = GetTimeStamp().tv_nsec;

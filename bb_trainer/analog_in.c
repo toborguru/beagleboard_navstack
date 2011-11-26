@@ -45,7 +45,5 @@ void AnalogInInit()
                      BIT(ADPS1) |
                      BIT(ADPS0));
 
-    BITS_SET(ADMUX,  BIT(REFS0));   // External AVCC Reference
-
     BITS_SET(DIDR0, 0x06);          // Disable the digital I/O on used analog pins
 }

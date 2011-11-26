@@ -3,24 +3,27 @@
 #include "data_robot/Bumpers.h"
 #include "geometry_msgs/Twist.h"
 
-#define WANDER_SPEED  0.2 // m/s
-#define WANDER_TURN   0.5 // rad/s
-#define WANDER_TIME   3.0 // s
+#define WANDER_SPEED  0.3 // m/s
+#define WANDER_TURN   0.35 // rad/s
+#define WANDER_TIME   5.0 // s
 #define LOOP_RATE     10.0
 #define LOOP_TIME     0.1
 
-#define BUMP_SPEED    0.1
-#define BUMP_TURN     1.0
+#define BUMP_SPEED    0.2
+#define BUMP_TURN     0.8
 
-#define BUMP_TIME1      0.5
-#define BUMP_TIME2_MAX  1.0
+#define BUMP_TIME1    0.75
+#define BUMP_TIME2    0.2
 
-#define BUMP_CENTER   20000
-#define BUMP_SIDE     10000
-#define BUMP_DRAIN    320
-#define BUMP_FIRST_MULT 4
+#define BUMP_CENTER   7500
+#define BUMP_SIDE     5000
+#define BUMP_DRAIN    120
+#define BUMP_FIRST_MULT 1
 
 int8_t m_bump_direction = data_robot::Bumpers::NONE;
+
+bool m_left = false;
+double m_time_left = 0.0;
 
 void BumpersCallback( data_robot::Bumpers current_bumps );
 bool EscapeCollision( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction );
@@ -63,22 +66,19 @@ int main(int argc, char **argv)
 
 geometry_msgs::Twist Wander()
 {
-  static double time_left = 0.0;
-  static bool left = true;
-
   geometry_msgs::Twist cmd;
 
-  time_left -= LOOP_TIME;
+  m_time_left -= LOOP_TIME;
 
-  if ( time_left <= 0.0 )
+  if ( m_time_left <= 0.0 )
   {
-    time_left = WANDER_TIME;
-    left = !left;
+    m_time_left = WANDER_TIME;
+    m_left = !m_left;
   }
 
   cmd.linear.x = WANDER_SPEED;
 
-  if ( left )
+  if ( m_left )
   {
     cmd.angular.z = WANDER_TURN;
   }
@@ -134,6 +134,7 @@ bool EscapeCollision( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction )
   if ( new_bump )
   {
     time1 = BUMP_TIME1;
+    m_time_left = time1 + WANDER_TIME;
 
     if ( data_robot::Bumpers::FRONT == bump_direction )
     {
@@ -266,8 +267,13 @@ bool EscapeCollision( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction )
 
     if ( time1 <= 0.0 )
     {
-      time2 = BUMP_TIME2_MAX;
-      turn_speed = BUMP_TURN * (double)response_value / (double)BUMP_CENTER;
+      //time2 = BUMP_TIME2_MAX;
+      //turn_speed = BUMP_TURN * (double)response_value / (double)BUMP_CENTER;
+
+      time2 = 1.0 + (BUMP_TIME2 * (double)response_value / (double)BUMP_CENTER);
+      turn_speed = BUMP_TURN;
+
+      m_time_left = time2 + WANDER_TIME;
     }
   }
   else if ( time2 > 0.0 )
@@ -292,6 +298,8 @@ bool EscapeCollision( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction )
     {
       p_cmd_vel->angular.z = turn_speed;
     }
+
+    m_left = !left;
   }
 
   // Drain a little from our integrater

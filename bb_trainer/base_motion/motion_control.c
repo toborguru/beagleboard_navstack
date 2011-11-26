@@ -233,9 +233,6 @@ void Motion_Control_Set_Velocity(   int16_t linear_velocity, int16_t angular_vel
         // Reduce both velocities by the "overage ratio"
         new_linear_velocity = ( ( new_linear_velocity * m_max_velocity ) / total_velocity );
         new_angular_velocity = ( ( new_angular_velocity * m_max_velocity ) / total_velocity );
-
-//        linear_velocity = ( (int32_t)( (int32_t) linear_velocity * (int32_t)m_max_velocity ) / total_velocity );
-//        angular_velocity = ( (int32_t)( (int32_t) angular_velocity * (int32_t)m_max_velocity ) / total_velocity );
     }
 
     // Positive angular velocity causes the right wheel to spin faster.
@@ -245,8 +242,6 @@ void Motion_Control_Set_Velocity(   int16_t linear_velocity, int16_t angular_vel
     // Copy data to outgoing telemetry
     gp_telemetry_write->linear_velocity = linear_velocity;
     gp_telemetry_write->angular_velocity = angular_velocity;
-    //gp_i2c_telemetry->linear_velocity = (int16_t)new_linear_velocity;
-    //gp_i2c_telemetry->angular_velocity = (int16_t)new_angular_velocity;
 }
 
 void  Motion_Control_EStop( void )

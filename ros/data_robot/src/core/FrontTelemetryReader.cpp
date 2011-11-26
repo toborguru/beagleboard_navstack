@@ -86,7 +86,7 @@ void FrontTelemetryReader::ReadFrontTelemetry()
   ReadFrontTelemetryRequest bus_request;
   FrontShellTelemetry_T telemetry;
 
-  ros::Rate r( 20.0 );
+  ros::Rate r( 12.0 );
 
   while ( ! _stop_requested ) 
   {
