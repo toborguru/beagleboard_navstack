@@ -1,0 +1,2 @@
+/usr/bin/ar cr ../../../lib/libdata_robot_core.a  CMakeFiles/data_robot_core.dir/BusRequest.o CMakeFiles/data_robot_core.dir/ReadEncodersRequest.o CMakeFiles/data_robot_core.dir/MotorVelocityRequest.o CMakeFiles/data_robot_core.dir/EncoderCountsReader.o CMakeFiles/data_robot_core.dir/TickVelocityForwarder.o CMakeFiles/data_robot_core.dir/RollOverHelpers.o
+/usr/bin/ranlib ../../../lib/libdata_robot_core.a

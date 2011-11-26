@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/int6
+END
+int6.c
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/int6/int6.c
+END
+Hardware.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/int6/Hardware.h
+END
+Config.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/int6/Config.h
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/gumstix-buildroot/!svn/ver/836/branches/projects/robostix/int6/Makefile
+END
+Hardware.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/int6/Hardware.c
+END

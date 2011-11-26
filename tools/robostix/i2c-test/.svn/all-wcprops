@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/gumstix-buildroot/!svn/ver/1173/branches/projects/robostix/i2c-test
+END
+Hardware.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/gumstix-buildroot/!svn/ver/1042/branches/projects/robostix/i2c-test/Hardware.h
+END
+Config.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/gumstix-buildroot/!svn/ver/1042/branches/projects/robostix/i2c-test/Config.h
+END
+i2c-test.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/gumstix-buildroot/!svn/ver/1173/branches/projects/robostix/i2c-test/i2c-test.c
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/gumstix-buildroot/!svn/ver/1042/branches/projects/robostix/i2c-test/Makefile
+END
+Hardware.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/gumstix-buildroot/!svn/ver/1042/branches/projects/robostix/i2c-test/Hardware.c
+END

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/gumstix-buildroot/!svn/ver/1190/branches/projects/robostix/gumstix/bin2hex
+END
+bin2hex.c
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/gumstix-buildroot/!svn/ver/1170/branches/projects/robostix/gumstix/bin2hex/bin2hex.c
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/gumstix-buildroot/!svn/ver/1190/branches/projects/robostix/gumstix/bin2hex/Makefile
+END

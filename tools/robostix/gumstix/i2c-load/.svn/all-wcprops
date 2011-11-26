@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/gumstix-buildroot/!svn/ver/1190/branches/projects/robostix/gumstix/i2c-load
+END
+Config.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/gumstix-buildroot/!svn/ver/1040/branches/projects/robostix/gumstix/i2c-load/Config.h
+END
+i2c-load.c
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/gumstix-buildroot/!svn/ver/1040/branches/projects/robostix/gumstix/i2c-load/i2c-load.c
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/gumstix-buildroot/!svn/ver/1190/branches/projects/robostix/gumstix/i2c-load/Makefile
+END

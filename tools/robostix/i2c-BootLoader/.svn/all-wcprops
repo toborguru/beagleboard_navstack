@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader
+END
+BootLoader.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader/BootLoader.h
+END
+Hardware.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader/Hardware.h
+END
+vectors.S
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader/vectors.S
+END
+eeprom-init.c
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader/eeprom-init.c
+END
+BootLoader.c
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader/BootLoader.c
+END
+BootLoader.lds
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/gumstix-buildroot/!svn/ver/964/branches/projects/robostix/i2c-BootLoader/BootLoader.lds
+END
+Config.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader/Config.h
+END
+eeprom-init.hex
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/gumstix-buildroot/!svn/ver/948/branches/projects/robostix/i2c-BootLoader/eeprom-init.hex
+END
+Config-LED.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader/Config-LED.h
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/gumstix-buildroot/!svn/ver/996/branches/projects/robostix/i2c-BootLoader/Makefile
+END
+Hardware.c
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/gumstix-buildroot/!svn/ver/1036/branches/projects/robostix/i2c-BootLoader/Hardware.c
+END

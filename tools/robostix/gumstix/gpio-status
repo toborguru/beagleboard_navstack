@@ -1,0 +1,21 @@
+#!/bin/sh
+
+LABEL_46='IR-Rxd '
+LABEL_47='IR-Txd '
+LABEL_69='ATM Irq'
+LABEL_70='VCC5 EN'
+LABEL_72='245 EN '
+LABEL_73='RESET  '
+LABEL_81='SCK    '
+LABEL_82='SS     '
+LABEL_83='MOSI   '
+LABEL_84='MISO   '
+
+for pin in 46 47 69 70 72 73 81 82 83 84
+do
+    LABEL_VAR="LABEL_${pin}"
+    eval LABEL='${'${LABEL_VAR}'}'
+    echo -n "${LABEL} "
+    cat /proc/gpio/GPIO${pin}
+done
+

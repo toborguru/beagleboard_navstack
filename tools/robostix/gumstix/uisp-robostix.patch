@@ -1,0 +1,46 @@
+Index: src/Main.C
+===================================================================
+--- uisp/src/Main.C	2005-07-27 09:34:48.000000000 -0700
++++ uisp/src/Main.C	2005-07-27 16:28:48.000000000 -0700
+@@ -215,6 +215,10 @@ const char* GetCmdParam(const char* argv
+       }
+     }
+   }
++  if ( strncmp( argv_name, "-dprog", argv_name_len ) == 0 ) {
++      // No programmer specified, pick a default.
++      return "bsd";
++  }
+   return NULL;
+ }
+ 
+@@ -235,13 +239,15 @@ int main(int _argc, const char* _argv[])
+   argc = _argc;
+   argv = _argv;
+   verbose_level=1;  
+-  
++
++#if 0
+   if (argc==1){
+     Info(0, "%s: No commands specified. "
+          "Try '%s --help' for list of commands.\n",
+          argv[0], argv[0]);
+     exit(1);
+-  }  
++  }
++#endif
+   argv_ok = (char *)malloc(argc);
+   for (int i=1; i<argc; i++){argv_ok[i]=0;}    
+   
+Index: src/DAPA.C
+===================================================================
+--- uisp/src/DAPA.C	2005-07-27 09:09:39.000000000 -0700
++++ uisp/src/DAPA.C	2005-07-27 09:25:53.000000000 -0700
+@@ -1076,7 +1076,7 @@ TDAPA::TDAPA(): 
+      and can suffer the consequences. Joe user should not be told about ioperm
+      failure due to permission denied. */
+ 
+-  const char *ppdev_name = "/dev/parport0";
++  const char *ppdev_name = "/dev/robostix";
+ 
+   sck_invert = 0;
+   mosi_invert = 0;

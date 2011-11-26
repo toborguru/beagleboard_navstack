@@ -1,0 +1,2 @@
+/usr/bin/ar cr ../../../lib/libdiff_drive_application_services.a  CMakeFiles/diff_drive_application_services.dir/BaseModelSetupService.o CMakeFiles/diff_drive_application_services.dir/OdometryReportingService.o CMakeFiles/diff_drive_application_services.dir/TwistCommandService.o
+/usr/bin/ranlib ../../../lib/libdiff_drive_application_services.a

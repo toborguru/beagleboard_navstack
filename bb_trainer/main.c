@@ -63,7 +63,7 @@ int main( void )
   DISABLE_INTERRUPTS();
 
   SYSTEM_CLOCK_T  motion_step_time = 0;
-  uint8_t TWI_slaveAddress = 0x10;
+  uint8_t TWI_slaveAddress = 0x06;
 
   uint8_t steps_since_command = 0;
 

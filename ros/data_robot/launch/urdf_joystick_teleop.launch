@@ -1,0 +1,32 @@
+<launch>
+  <!-- URDF Model -->
+  <param name="robot_description" textfile="../urdf/data_urdf_model.xml" />
+  <param name="use_gui" value="false"/>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" /> 
+
+  <!--- Teleop Joystick -->
+  <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="teleop_joystick">
+    <remap from="turtlebot_node/cmd_vel" to="cmd_vel"/>
+
+    <!-- Button Index -->
+    <param name="axis_deadman" value="3"/>
+
+    <!-- Top Speeds -->
+    <param name="scale_linear" value="0.25"/>
+    <param name="scale_angular" value="3.0"/>
+  </node>
+
+  <node pkg="joy" type="joy_node" name="joystick"/>
+
+  <node pkg="diff_drive" type="diff_drive_node" name="diff_drive">
+    <param name="drive_wheel_radius"  value="0.063"/>
+    <param name="drive_wheel_base"    value="0.180"/>
+    <param name="drive_wheel_encoder_ticks" value="128"/>
+    <remap from="tick_velocity" to="cmd_ticks"/>
+  </node>
+
+  <node pkg="data_robot" type="data_robot_node" name="robot"/>
+
+</launch>

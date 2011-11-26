@@ -1,0 +1,101 @@
+#!/bin/sh
+#############################################################################
+#
+#   Script which uses i2c-io to manipulate servos on the robostix
+#
+#   Usage:
+#
+#       servo i2c-addr init timer
+#
+#           where 'timer' can be 1 or 3.
+#
+#       servo i2c-addr set servo-num pulse-width
+#
+#           where 'servo-num' is 1A, 1B, 1C, 3A, 3B, or 3C,
+#           and 'pulse-width' is a number between 500 and 2500, with 1500 being
+#           the center position.
+#
+#############################################################################
+
+#set -x
+
+if [ -z "$1" ]
+then
+    echo "No i2c_addr specified"
+    exit 1
+fi
+
+i2c_addr=$1
+
+if [ -z "$2" ]
+then
+    echo "No cmd specified"
+    exit 1
+fi
+
+cmd=$2
+
+case ${cmd} in
+
+    init)
+        timer=$3
+        if [ "${timer}" != "1" -a "${timer}" != "3" ]
+        then
+            echo "Expecting timer to be 1 or 3, found '${timer}'"
+            exit 1;
+        fi
+        
+        # Set COM mode to 2. This causes the OCR pin to fall when the timer
+        # reaches the value stored in the OCR register and causes the OCR pin
+        # to rise when the counter gets reset to zero.
+        #
+        # Use a divide by 8 prescalar, which gives a 2MHz clock which will
+        # overflow every 32.7 msec, which is suitable for driving R/C servos
+        
+        i2c-io ${i2c_addr} wr TCCR${timer}A 0xAA
+        i2c-io ${i2c_addr} wr TCCR${timer}B 0x1A
+
+        i2c-io ${i2c_addr} wr ICR${timer}  40000
+        i2c-io ${i2c_addr} wr TCNT${timer} 0
+        
+        i2c-io ${i2c_addr} wr OCR${timer}A 3000
+        i2c-io ${i2c_addr} wr OCR${timer}B 3000
+        i2c-io ${i2c_addr} wr OCR${timer}C 3000
+        
+        if [ "${timer}" = "1" ]
+        then
+            i2c-io ${i2c_addr} setdir b.5 out
+            i2c-io ${i2c_addr} setdir b.6 out
+            i2c-io ${i2c_addr} setdir b.7 out
+        fi
+        if [ "${timer}" = "3" ]
+        then
+            i2c-io ${i2c_addr} setdir e.3 out
+            i2c-io ${i2c_addr} setdir e.4 out
+            i2c-io ${i2c_addr} setdir e.5 out
+        fi
+        ;;
+        
+    set)
+        servo=$3
+        pulse_width=$4
+        if [ -z "${servo}" ]
+        then
+            echo "Must specify a servo (1a, 1b, 1c, 3a, 3b, or 3c)"
+            exit 1
+        fi
+        if [ -z "${pulse_width}" ]
+        then
+            echo "Must specify a pulse_width"
+            exit 1
+        fi
+        
+        i2c-io ${i2c_addr} wr OCR${servo} $(( ${pulse_width} * 2 ))
+        ;;
+        
+    *)
+        echo "Unrecognized command '${cmd}'"
+        exit 1
+        ;;
+        
+esac

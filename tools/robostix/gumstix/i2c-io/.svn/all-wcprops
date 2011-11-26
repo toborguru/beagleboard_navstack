@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/gumstix-buildroot/!svn/ver/1616/branches/projects/robostix/gumstix/i2c-io
+END
+i2c-adc.c
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/gumstix-buildroot/!svn/ver/1040/branches/projects/robostix/gumstix/i2c-io/i2c-adc.c
+END
+i2c-io.c
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/gumstix-buildroot/!svn/ver/1302/branches/projects/robostix/gumstix/i2c-io/i2c-io.c
+END
+i2c-adc.mk
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/gumstix-buildroot/!svn/ver/1616/branches/projects/robostix/gumstix/i2c-io/i2c-adc.mk
+END
+Config.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/gumstix-buildroot/!svn/ver/1040/branches/projects/robostix/gumstix/i2c-io/Config.h
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/gumstix-buildroot/!svn/ver/1304/branches/projects/robostix/gumstix/i2c-io/Makefile
+END
+servo
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/gumstix-buildroot/!svn/ver/914/branches/projects/robostix/gumstix/i2c-io/servo
+END

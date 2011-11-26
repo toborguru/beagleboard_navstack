@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/gumstix-buildroot/!svn/ver/1219/branches/projects/robostix/RCInput
+END
+RC-Test.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/gumstix-buildroot/!svn/ver/1219/branches/projects/robostix/RCInput/RC-Test.c
+END
+Hardware.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/gumstix-buildroot/!svn/ver/1058/branches/projects/robostix/RCInput/Hardware.h
+END
+Config.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/gumstix-buildroot/!svn/ver/1058/branches/projects/robostix/RCInput/Config.h
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/gumstix-buildroot/!svn/ver/1058/branches/projects/robostix/RCInput/Makefile
+END
+Hardware.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/gumstix-buildroot/!svn/ver/1058/branches/projects/robostix/RCInput/Hardware.c
+END

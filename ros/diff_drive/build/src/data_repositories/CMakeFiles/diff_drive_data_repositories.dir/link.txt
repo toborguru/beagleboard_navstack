@@ -1,0 +1,2 @@
+/usr/bin/ar cr ../../../lib/libdiff_drive_data_repositories.a  CMakeFiles/diff_drive_data_repositories.dir/BaseModelRepository.o
+/usr/bin/ranlib ../../../lib/libdiff_drive_data_repositories.a

@@ -1,0 +1,2 @@
+/usr/bin/ar cr ../../../lib/libdiff_drive_message_endpoints.a  CMakeFiles/diff_drive_message_endpoints.dir/EncoderCountsEndpoint.o CMakeFiles/diff_drive_message_endpoints.dir/OdometryEndpoint.o CMakeFiles/diff_drive_message_endpoints.dir/TickVelocityEndpoint.o CMakeFiles/diff_drive_message_endpoints.dir/TwistEndpoint.o
+/usr/bin/ranlib ../../../lib/libdiff_drive_message_endpoints.a

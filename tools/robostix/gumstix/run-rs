@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Make sure ttyS2 is setup
+
+echo "AF2 in"  > /proc/gpio/GPIO46
+echo "AF1 out" > /proc/gpio/GPIO47
+
+# Turn on the robostix '245
+echo "GPIO out clear" > /proc/gpio/GPIO72
+
+# Turn on the robostix Power
+echo "GPIO out set" > /proc/gpio/GPIO70
+
+# Take the robostix out of reset
+echo "GPIO out set" > /proc/gpio/GPIO73

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+bb_trainer_off
+sleep 0.5
+bb_trainer_on
+sleep 0.1
+
+i2cloader -d 2 -f $1 -s 0102FF -e FF -smbusdelay

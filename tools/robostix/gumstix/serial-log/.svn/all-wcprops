@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/gumstix-buildroot/!svn/ver/1190/branches/projects/robostix/gumstix/serial-log
+END
+serial-log.c
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/gumstix-buildroot/!svn/ver/1040/branches/projects/robostix/gumstix/serial-log/serial-log.c
+END
+Config.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/gumstix-buildroot/!svn/ver/1040/branches/projects/robostix/gumstix/serial-log/Config.h
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/gumstix-buildroot/!svn/ver/1190/branches/projects/robostix/gumstix/serial-log/Makefile
+END

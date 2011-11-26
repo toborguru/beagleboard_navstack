@@ -1,0 +1,5 @@
+i2c-bootloader-*w
+*.hex
+*.map
+i2c-test
+i2cloader

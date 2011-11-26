@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo "Setting BootLoader Fuses..."
+
+uisp --wr_fuse_l=0xbf --wr_fuse_h=0xc2 --wr_fuse_e=0xff
+
