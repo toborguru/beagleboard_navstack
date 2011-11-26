@@ -1,1 +1,1 @@
-The front shell expansion board consists of an "Arduino Pro Mini 328 - 5V/16MHz", surrounded by glue circuitry and an analog multiplexer.
+The front shell uC is an ATMega328p Arduino Pro Mini running at 5V and 16MHz.
