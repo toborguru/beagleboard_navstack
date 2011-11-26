@@ -22,7 +22,7 @@ namespace data_robot_application_services
     _tick_velocity_forwarder.SetExternalBus( _p_external_bus_endpoint.get() );
   }
 
-  /** Do everything required to start listening for tick_velocity commands and passing them on as tick_velocity.
+  /** Do everything required to start listening for tick_velocity commands and passing them on to the robot.
    */
   void TickVelocityCommandService::BeginAcceptingCommands() 
   {
@@ -31,7 +31,7 @@ namespace data_robot_application_services
     _p_tick_velocity_endpoint->Subscribe();
   }
  
-  /** Do everything required to stop listening for tick_velocity commands and passing them on as tick_velocity.
+  /** Do everything required to stop listening for tick_velocity commands and passing them on to the robot.
    */
   void TickVelocityCommandService::StopAcceptingCommands()
   {

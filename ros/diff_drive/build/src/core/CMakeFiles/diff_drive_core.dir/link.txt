@@ -1,2 +1,0 @@
-/usr/bin/ar cr ../../../lib/libdiff_drive_core.a  CMakeFiles/diff_drive_core.dir/OdometryIntegrator.o CMakeFiles/diff_drive_core.dir/TwistConverter.o CMakeFiles/diff_drive_core.dir/BaseModel.o
-/usr/bin/ranlib ../../../lib/libdiff_drive_core.a

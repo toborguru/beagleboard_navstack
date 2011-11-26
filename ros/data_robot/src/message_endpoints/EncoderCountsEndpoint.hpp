@@ -18,7 +18,7 @@ namespace data_robot_message_endpoints
 
       virtual ~EncoderCountsEndpoint() {};
  
-      virtual void Publish(const diff_drive::EncoderCounts& encoder_counts_scan);
+      virtual void Publish( const diff_drive::EncoderCounts& encoder_counts );
  
     private:
       // Create handle to node

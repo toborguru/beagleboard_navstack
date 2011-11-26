@@ -1,11 +1,13 @@
 #include "ros/ros.h"
 
 #include "EncoderCountsReportingService.hpp"
+#include "FrontTelemetryReportingService.hpp"
 #include "TickVelocityCommandService.hpp"
 
-#include "TickVelocityEndpoint.hpp"
+#include "BumpersEndpoint.hpp"
 #include "EncoderCountsEndpoint.hpp"
 #include "I2CBusEndpoint.hpp"
+#include "TickVelocityEndpoint.hpp"
 
 using namespace data_robot_application_services;
 using namespace data_robot_core;
@@ -31,6 +33,14 @@ int main(int argc, char **argv)
     EncoderCountsReportingService encoder_counts_reporting_service( encoder_counts_endpoint,
                                                                     i2c_bus_endpoint );
 
+
+    // Front Telemetry Reporting Service
+    boost::shared_ptr<BumpersEndpoint> bumpers_endpoint =
+        boost::shared_ptr<BumpersEndpoint>( new BumpersEndpoint() );
+
+    FrontTelemetryReportingService front_telemetry_reporting_service( bumpers_endpoint,
+                                                                      i2c_bus_endpoint );
+
     
     // Twist Command Service
     boost::shared_ptr<TickVelocityEndpoint> tick_velocity_endpoint =
@@ -45,6 +55,9 @@ int main(int argc, char **argv)
 
     ROS_INFO( "Starting Encoder Counts Reporting Service..." );
     encoder_counts_reporting_service.BeginReporting();
+
+    ROS_INFO( "Starting Front Shell Telemetry Reporting Service..." );
+    front_telemetry_reporting_service.BeginReporting();
 
     ROS_INFO( "Starting Tick Velocity Command Service..." );
     tick_velocity_command_service.BeginAcceptingCommands();

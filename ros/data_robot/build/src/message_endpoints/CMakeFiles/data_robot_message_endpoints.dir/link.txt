@@ -1,2 +1,0 @@
-/usr/bin/ar cr ../../../lib/libdata_robot_message_endpoints.a  CMakeFiles/data_robot_message_endpoints.dir/EncoderCountsEndpoint.o CMakeFiles/data_robot_message_endpoints.dir/TickVelocityEndpoint.o CMakeFiles/data_robot_message_endpoints.dir/I2CBusEndpoint.o CMakeFiles/data_robot_message_endpoints.dir/Crc8.o CMakeFiles/data_robot_message_endpoints.dir/i2c-api.o
-/usr/bin/ranlib ../../../lib/libdata_robot_message_endpoints.a

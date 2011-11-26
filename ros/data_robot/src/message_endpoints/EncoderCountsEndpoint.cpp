@@ -26,8 +26,6 @@ EncoderCountsEndpoint::EncoderCountsEndpoint()
  */
 void EncoderCountsEndpoint::Publish( const diff_drive::EncoderCounts& encoder_counts )
 {
-  diff_drive::EncoderCounts stamped_encoder_counts;
-
   // and publish the encoder_counts msg
   _encoder_counts_publisher.publish(encoder_counts);
 

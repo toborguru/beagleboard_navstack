@@ -133,7 +133,7 @@ int I2cTransfer
               cmd, wrLen, rdLen, wrBlock, rdBlock );
     if ( wrData != NULL )
     {
-        LogDebug( "----- wrData:0x%08x *wrData:0x%02x -----\n", wrData, *(const uint8_t *)wrData ); 
+        LogDebug( "----- wrData:0x%08x *wrData:0x%02x -----\n", (unsigned int)wrData, *(const uint8_t *)wrData ); 
     }
 
     rdLen &= 0x7f;
@@ -399,7 +399,7 @@ int I2cWriteByte
 )
 {
     LogDebug( "----- I2cWriteByte cmd: 0x%02x wrByte:0x%02x -----\n", cmd, wrByte );
-    LogDebug( "----- &wrByte = 0x%08x wrByte = 0x%02x -----\n", &wrByte, *&wrByte );
+    LogDebug( "----- &wrByte = 0x%08x wrByte = 0x%02x -----\n", (unsigned int)&wrByte, *&wrByte );
 
     return I2cTransfer( i2cDev, cmd, &wrByte, 1, NULL, 0, NULL );
 

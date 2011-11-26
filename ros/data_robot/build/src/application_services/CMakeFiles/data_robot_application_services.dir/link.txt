@@ -1,2 +1,0 @@
-/usr/bin/ar cr ../../../lib/libdata_robot_application_services.a  CMakeFiles/data_robot_application_services.dir/EncoderCountsReportingService.o CMakeFiles/data_robot_application_services.dir/TickVelocityCommandService.o
-/usr/bin/ranlib ../../../lib/libdata_robot_application_services.a
