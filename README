@@ -1,2 +1,11 @@
 This project is intended to allow the beagleboard to use the ROS (Robot 
 Operating System) to control a differentially steered robot with shaft encoders.
+
+Directories:
+bb_trainer              : Embedded code for the ATMega 328p controlling base movement, shaft encoders, and power management.
+beagle_board            : Code, scripts, and files needed to run the DATA robot. 
+docs                    : All saved reference documents for the DATA robot. 
+front_shell             : Embedded code for the ATMega 328p interfacing with the front sensors, lasers, and neck servos.
+i2c-bootloader-328p     : I2C bootloader for ATMega328p's. Frequency and I2C address can be specified in the Makefile.
+ros                     : ROS nodes and high level supporting libraries.
+tools                   : Original downloaded supporting materials.
