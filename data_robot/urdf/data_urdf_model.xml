@@ -1,10 +1,81 @@
 <robot name="DATA">
-  <link name="body" />
-  <link name="head" />
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.125" rpy="0 0 0" />
 
-  <joint name="neck" type="continuous">
-  <parent link="body"/>
-  <child link="head"/>
+      <geometry>
+        <cylinder length="0.25" radius="0.12"/>
+      </geometry>
+      
+      <material name="blue">
+        <color rgba="0 0 .8 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <link name="neck" />
+
+  <link name="head">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="white">
+        <color rgba="0.8 0.8 0.8 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <link name="left_eye">
+    <visual>
+      <origin xyz="0.05 0.025 0.025" rpy="0 1.57 0" />
+
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+      
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <link name="right_eye">
+    <visual>
+      <origin xyz="0.05 -0.025 0.025" rpy="0 1.57 0" />
+
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+      
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="neck_yaw" type="revolute">
+    <parent link="base_link"/>
+    <child link="neck"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit effort="1.0" lower="-1.57" upper="1.57" velocity="0.5"/>
+  </joint>
+
+  <joint name="neck_pitch" type="revolute">
+    <parent link="neck"/>
+    <child link="head"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <axis xyz="0 -1 0" />
+    <limit effort="1.0" lower="-.26" upper="1.57" velocity="0.5"/>
+  </joint>
+
+  <joint name="head_to_left_eye" type="fixed">
+    <parent link="head"/>
+    <child link="left_eye"/>
+  </joint>
+
+  <joint name="head_to_right_eye" type="fixed">
+    <parent link="head"/>
+    <child link="right_eye"/>
   </joint>
 </robot>
 

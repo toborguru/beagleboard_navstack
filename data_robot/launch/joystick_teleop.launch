@@ -1,4 +1,6 @@
 <launch>
+  <!-- URDF Model -->
+  <param name="robot_description" textfile="../urdf/data_urdf_model.xml" />
 
   <!--- Teleop Joystick -->
   <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="teleop_joystick">
