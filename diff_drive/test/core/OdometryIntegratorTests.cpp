@@ -60,6 +60,19 @@ struct OdometryReceiver : public diff_drive_core::IOdometryListener
               << _theta
               << std::endl;
 #endif
+
+#if 0
+    std::cout << std::endl << std::endl << "Covariance:";
+    for (int i = 0; i < 36; i++)
+    {
+      if ( !(i % 6) )
+      {
+        std::cout << std::endl;
+      }
+
+      std::cout << odometry.pose.covariance[i] << "\t";
+    }
+#endif
   }
 };
 
