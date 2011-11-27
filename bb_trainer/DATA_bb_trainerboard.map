@@ -1,0 +1,784 @@
+Archive member included because of file (symbol)
+
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_mulsi3.o)
+                              base_motion/motion_control.o (__mulsi3)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodhi4.o)
+                              main.o (__udivmodhi4)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodhi4.o)
+                              base_motion/motion_control.o (__divmodhi4)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodsi4.o)
+                              base_motion/motion_control.o (__divmodsi4)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+                              /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o (exit)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+                              main.o (__do_copy_data)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+                              main.o (__do_clear_bss)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodsi4.o)
+                              /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodsi4.o) (__udivmodsi4)
+/usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+                              util/ascii_print.o (sprintf)
+/usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                              /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o) (vfprintf)
+/usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                              /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o) (strnlen_P)
+/usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen.o)
+                              /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o) (strnlen)
+/usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(fputc.o)
+                              /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o) (fputc)
+/usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+                              /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o) (__ultoa_invert)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_prologue.o)
+                              /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o) (__prologue_saves__)
+/usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_epilogue.o)
+                              /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o) (__epilogue_restores__)
+
+Allocating common symbols
+Common symbol       size              file
+
+g_right_wheel_motion
+                    0x24              base_motion/motion_control.o
+gp_telemetry_read   0x2               main.o
+gp_telemetry_write  0x2               main.o
+gp_TWI_receive_buf  0x2               i2c/TWI_slave.o
+m_max_velocity      0x2               base_motion/motion_control.o
+m_linear_acceleration
+                    0x2               base_motion/motion_control.o
+m_angular_acceleration
+                    0x2               base_motion/motion_control.o
+gp_commands_write   0x2               main.o
+gp_TWI_transmitBuf  0x2               i2c/TWI_slave.o
+g_left_wheel_motion
+                    0x24              base_motion/motion_control.o
+gp_commands_read    0x2               main.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x00000000         0x00020000         xr
+data             0x00800060         0x0000ffa0         rw !x
+eeprom           0x00810000         0x00010000         rw !x
+fuse             0x00820000         0x00000400         rw !x
+lock             0x00830000         0x00000400         rw !x
+signature        0x00840000         0x00000400         rw !x
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+Address of section .data set to 0x800100
+LOAD /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+LOAD main.o
+LOAD system_clock.o
+LOAD base_motion/motion_control.o
+LOAD base_motion/motors.o
+LOAD base_motion/shaft_encoders.o
+LOAD i2c/TWI_slave.o
+LOAD util/checksum.o
+LOAD util/clamp.o
+LOAD util/ascii_print.o
+LOAD util/pid.o
+LOAD /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libm.a
+LOAD /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a
+LOAD /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a
+LOAD /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x00000000     0x16de
+ *(.vectors)
+ .vectors       0x00000000       0x68 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+                0x00000000                __vectors
+                0x00000000                __vector_default
+ *(.vectors)
+ *(.progmem.gcc*)
+ *(.progmem*)
+                0x00000068                . = ALIGN (0x2)
+                0x00000068                __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x00000068        0x0 linker stubs
+ *(.trampolines*)
+                0x00000068                __trampolines_end = .
+ *(.jumptables)
+ *(.jumptables*)
+ *(.lowtext)
+ *(.lowtext*)
+                0x00000068                __ctors_start = .
+ *(.ctors)
+                0x00000068                __ctors_end = .
+                0x00000068                __dtors_start = .
+ *(.dtors)
+                0x00000068                __dtors_end = .
+ SORT(*)(.ctors)
+ SORT(*)(.dtors)
+ *(.init0)
+ .init0         0x00000068        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+                0x00000068                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x00000068        0xc /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+ *(.init2)
+ *(.init3)
+ *(.init3)
+ *(.init4)
+ .init4         0x00000074       0x16 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+                0x00000074                __do_copy_data
+ .init4         0x0000008a       0x10 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+                0x0000008a                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x0000009a        0x8 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+ *(.init9)
+ *(.text)
+ .text          0x000000a2        0x4 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+                0x000000a2                __vector_22
+                0x000000a2                __vector_12
+                0x000000a2                __bad_interrupt
+                0x000000a2                __vector_6
+                0x000000a2                __vector_3
+                0x000000a2                __vector_23
+                0x000000a2                __vector_25
+                0x000000a2                __vector_11
+                0x000000a2                __vector_13
+                0x000000a2                __vector_17
+                0x000000a2                __vector_19
+                0x000000a2                __vector_5
+                0x000000a2                __vector_4
+                0x000000a2                __vector_9
+                0x000000a2                __vector_21
+                0x000000a2                __vector_15
+                0x000000a2                __vector_8
+                0x000000a2                __vector_14
+                0x000000a2                __vector_10
+                0x000000a2                __vector_16
+                0x000000a2                __vector_18
+                0x000000a2                __vector_20
+ .text          0x000000a6      0x18a main.o
+                0x000000a6                Ports_Zero
+                0x000000b4                Switch_Telemetry_Buffers
+                0x0000010e                HwBitTestAndClear
+                0x00000136                main
+ .text          0x00000230       0xf2 system_clock.o
+                0x00000230                System_Clock_Init
+                0x00000258                Clock_Diff
+                0x000002c0                __vector_7
+ .text          0x00000322      0x616 base_motion/motion_control.o
+                0x00000322                Motion_Control_Set_Acceleration
+                0x0000034e                Motion_Control_Init_Acceleration
+                0x0000035c                Motion_Control_Init_State
+                0x000003b4                Motion_Control_Set_Velocity
+                0x00000520                Motion_Control_Stop
+                0x0000052e                Motion_Control_Set_Update_Velocity
+                0x0000053a                Motion_Control_Add_To_Encoder
+                0x00000560                Motion_Control_Add_To_Position
+                0x0000064c                Motion_Control_Compute_Target_Position
+                0x0000071a                Motion_Control_Run_PID
+                0x0000077e                Motion_Control_Compute_Power
+                0x000007c2                Motion_Control_EStop
+                0x000007e6                Motion_Control_Init
+                0x00000824                Motion_Control_Run_Step
+ .text          0x00000938      0x11c base_motion/motors.o
+                0x00000938                Motors_Enable
+                0x0000093c                Motors_Disable
+                0x00000940                Motors_Set_Direction
+                0x000009e8                Motors_Init
+                0x00000a30                Motors_Set_Power
+ .text          0x00000a54       0xac base_motion/shaft_encoders.o
+                0x00000a54                Shaft_Encoders_Init
+                0x00000a76                __vector_2
+                0x00000abc                __vector_1
+ .text          0x00000b00      0x256 i2c/TWI_slave.o
+                0x00000b00                TWI_Slave_Initialise
+                0x00000b1a                TWI_Transceiver_Busy
+                0x00000b20                TWI_Get_State_Info
+                0x00000b30                TWI_Start_Transceiver_With_Data
+                0x00000b74                TWI_Start_Transceiver
+                0x00000b94                TWI_Get_Data_From_Transceiver
+                0x00000bd6                __vector_24
+ .text          0x00000d56       0xa0 util/checksum.o
+                0x00000d56                CRC8_Update
+                0x00000d78                CRC8_Checksum
+ .text          0x00000df6       0x60 util/clamp.o
+                0x00000df6                Clamp_Abs_Value
+                0x00000e30                Clamp_Value
+ .text          0x00000e56       0xfc util/ascii_print.o
+                0x00000e56                Bin_to_AsciiHex
+ .text          0x00000f52       0xd2 util/pid.o
+                0x00000f52                Pid_Compute_Correction
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_mulsi3.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodhi4.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodhi4.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodsi4.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodsi4.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen_P.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(fputc.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_prologue.o)
+ .text          0x00001024        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_epilogue.o)
+                0x00001024                . = ALIGN (0x2)
+ *(.text.*)
+ .text.libgcc   0x00001024       0x3e /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_mulsi3.o)
+                0x00001024                __mulsi3
+ .text.libgcc   0x00001062       0x28 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodhi4.o)
+                0x00001062                __udivmodhi4
+ .text.libgcc   0x0000108a       0x26 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodhi4.o)
+                0x0000108a                __divmodhi4
+                0x0000108a                _div
+ .text.libgcc   0x000010b0       0x36 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodsi4.o)
+                0x000010b0                __divmodsi4
+ .text.libgcc   0x000010e6        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+ .text.libgcc   0x000010e6        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc   0x000010e6        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x000010e6       0x44 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodsi4.o)
+                0x000010e6                __udivmodsi4
+ .text.avr-libc
+                0x0000112a       0x48 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+                0x0000112a                sprintf
+ .text.avr-libc
+                0x00001172      0x3ba /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                0x00001172                vfprintf
+ .text.avr-libc
+                0x0000152c       0x16 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                0x0000152c                strnlen_P
+ .text.avr-libc
+                0x00001542       0x16 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen.o)
+                0x00001542                strnlen
+ .text.avr-libc
+                0x00001558       0x58 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(fputc.o)
+                0x00001558                fputc
+ .text.avr-libc
+                0x000015b0       0xbc /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+                0x000015b0                __ultoa_invert
+ .text.libgcc   0x0000166c       0x38 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_prologue.o)
+                0x0000166c                __prologue_saves__
+ .text.libgcc   0x000016a4       0x36 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_epilogue.o)
+                0x000016a4                __epilogue_restores__
+                0x000016da                . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x000016da        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+                0x000016da                exit
+                0x000016da                _exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x000016da        0x4 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+ *(.fini0)
+                0x000016de                _etext = .
+
+.data           0x00800100        0xc load address 0x000016de
+                0x00800100                PROVIDE (__data_start, .)
+ *(.data)
+ .data          0x00800100        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+ .data          0x00800100        0x1 main.o
+ .data          0x00800101        0x0 system_clock.o
+ .data          0x00800101        0x0 base_motion/motion_control.o
+ .data          0x00800101        0x0 base_motion/motors.o
+ .data          0x00800101        0x0 base_motion/shaft_encoders.o
+ .data          0x00800101        0x1 i2c/TWI_slave.o
+ .data          0x00800102        0x0 util/checksum.o
+ .data          0x00800102        0x0 util/clamp.o
+ .data          0x00800102        0x9 util/ascii_print.o
+ .data          0x0080010b        0x0 util/pid.o
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_mulsi3.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodhi4.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodhi4.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodsi4.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodsi4.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen_P.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(fputc.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_prologue.o)
+ .data          0x0080010b        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_epilogue.o)
+ *(.data*)
+ *(.rodata)
+ *(.rodata*)
+ *(.gnu.linkonce.d*)
+                0x0080010c                . = ALIGN (0x2)
+ *fill*         0x0080010b        0x1 00
+                0x0080010c                _edata = .
+                0x0080010c                PROVIDE (__data_end, .)
+
+.bss            0x0080010c       0xc1
+                0x0080010c                PROVIDE (__bss_start, .)
+ *(.bss)
+ .bss           0x0080010c        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+ .bss           0x0080010c       0x48 main.o
+ .bss           0x00800154        0x2 system_clock.o
+                0x00800154                g_system_clock
+ .bss           0x00800156        0xb base_motion/motion_control.o
+                0x00800156                g_encoder_total
+                0x0080015a                g_stasis_total
+                0x0080015e                g_estop
+ .bss           0x00800161        0x2 base_motion/motors.o
+ .bss           0x00800163        0x6 base_motion/shaft_encoders.o
+                0x00800163                g_shaft_encoders_left_count
+                0x00800165                g_shaft_encoders_right_count
+                0x00800167                g_shaft_encoders_stasis_count
+ .bss           0x00800169        0xa i2c/TWI_slave.o
+                0x00800169                g_TWI_readComplete
+                0x0080016a                g_TWI_writeComplete
+                0x0080016b                g_TWI_readInProgress
+                0x0080016c                g_TWI_writeInProgress
+                0x0080016d                TWI_statusReg
+ .bss           0x00800173        0x0 util/checksum.o
+ .bss           0x00800173        0x0 util/clamp.o
+ .bss           0x00800173        0x0 util/ascii_print.o
+ .bss           0x00800173        0x0 util/pid.o
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_mulsi3.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodhi4.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodhi4.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodsi4.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodsi4.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen_P.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(fputc.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_prologue.o)
+ .bss           0x00800173        0x0 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_epilogue.o)
+ *(.bss*)
+ *(COMMON)
+ COMMON         0x00800173        0x8 main.o
+                0x00800173                gp_telemetry_read
+                0x00800175                gp_telemetry_write
+                0x00800177                gp_commands_write
+                0x00800179                gp_commands_read
+ COMMON         0x0080017b       0x4e base_motion/motion_control.o
+                0x0080017b                g_right_wheel_motion
+                0x0080019f                m_max_velocity
+                0x008001a1                m_linear_acceleration
+                0x008001a3                m_angular_acceleration
+                0x008001a5                g_left_wheel_motion
+ COMMON         0x008001c9        0x4 i2c/TWI_slave.o
+                0x008001c9                gp_TWI_receive_buf
+                0x008001cb                gp_TWI_transmitBuf
+                0x008001cd                PROVIDE (__bss_end, .)
+                0x000016de                __data_load_start = LOADADDR (.data)
+                0x000016ea                __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x008001cd        0x0
+                0x008001cd                PROVIDE (__noinit_start, .)
+ *(.noinit*)
+                0x008001cd                PROVIDE (__noinit_end, .)
+                0x008001cd                _end = .
+                0x008001cd                PROVIDE (__heap_start, .)
+
+.eeprom         0x00810000        0x0
+ *(.eeprom*)
+                0x00810000                __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.stab           0x00000000     0x4d04
+ *(.stab)
+ .stab          0x00000000      0x6b4 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+ .stab          0x000006b4      0x8c4 main.o
+                                0x8d0 (size before relaxing)
+ .stab          0x00000f78      0x330 system_clock.o
+                                0x51c (size before relaxing)
+ .stab          0x000012a8      0xc90 base_motion/motion_control.o
+                                0xea0 (size before relaxing)
+ .stab          0x00001f38      0x588 base_motion/motors.o
+                                0x738 (size before relaxing)
+ .stab          0x000024c0      0x2dc base_motion/shaft_encoders.o
+                                0x4b0 (size before relaxing)
+ .stab          0x0000279c      0x72c i2c/TWI_slave.o
+                                0x900 (size before relaxing)
+ .stab          0x00002ec8      0x2c4 util/checksum.o
+                                0x450 (size before relaxing)
+ .stab          0x0000318c      0x2a0 util/clamp.o
+                                0x42c (size before relaxing)
+ .stab          0x0000342c      0x24c util/ascii_print.o
+                                0x414 (size before relaxing)
+ .stab          0x00003678      0x1f8 util/pid.o
+                                0x384 (size before relaxing)
+ .stab          0x00003870      0x390 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+                                0x3d8 (size before relaxing)
+ .stab          0x00003c00      0x978 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                0xb58 (size before relaxing)
+ .stab          0x00004578       0x9c /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                                 0xa8 (size before relaxing)
+ .stab          0x00004614       0x9c /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen.o)
+                                 0xa8 (size before relaxing)
+ .stab          0x000046b0      0x1d4 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(fputc.o)
+                                0x3b4 (size before relaxing)
+ .stab          0x00004884      0x480 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+                                0x48c (size before relaxing)
+
+.stabstr        0x00000000     0x2866
+ *(.stabstr)
+ .stabstr       0x00000000     0x2866 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment
+ *(.comment)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges
+ *(.debug_aranges)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info
+ *(.debug_info)
+ *(.gnu.linkonce.wi.*)
+
+.debug_abbrev
+ *(.debug_abbrev)
+
+.debug_line
+ *(.debug_line)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str
+ *(.debug_str)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+OUTPUT(DATA_bb_trainerboard.elf elf32-avr)
+LOAD linker stubs
+
+Cross Reference Table
+
+Symbol                                            File
+Bin_to_AsciiHex                                   util/ascii_print.o
+CRC8_Checksum                                     util/checksum.o
+CRC8_Update                                       util/checksum.o
+Clamp_Abs_Value                                   util/clamp.o
+                                                  util/pid.o
+                                                  base_motion/motion_control.o
+Clamp_Value                                       util/clamp.o
+Clock_Diff                                        system_clock.o
+                                                  main.o
+HwBitTestAndClear                                 main.o
+Motion_Control_Add_To_Encoder                     base_motion/motion_control.o
+Motion_Control_Add_To_Position                    base_motion/motion_control.o
+Motion_Control_Compute_Power                      base_motion/motion_control.o
+Motion_Control_Compute_Target_Position            base_motion/motion_control.o
+Motion_Control_EStop                              base_motion/motion_control.o
+Motion_Control_Init                               base_motion/motion_control.o
+                                                  main.o
+Motion_Control_Init_Acceleration                  base_motion/motion_control.o
+Motion_Control_Init_State                         base_motion/motion_control.o
+Motion_Control_Run_PID                            base_motion/motion_control.o
+Motion_Control_Run_Step                           base_motion/motion_control.o
+                                                  main.o
+Motion_Control_Set_Acceleration                   base_motion/motion_control.o
+Motion_Control_Set_Update_Velocity                base_motion/motion_control.o
+Motion_Control_Set_Velocity                       base_motion/motion_control.o
+                                                  main.o
+Motion_Control_Stop                               base_motion/motion_control.o
+                                                  main.o
+Motors_Disable                                    base_motion/motors.o
+Motors_Enable                                     base_motion/motors.o
+                                                  main.o
+Motors_Init                                       base_motion/motors.o
+                                                  main.o
+Motors_Set_Direction                              base_motion/motors.o
+                                                  base_motion/motion_control.o
+Motors_Set_Power                                  base_motion/motors.o
+                                                  base_motion/motion_control.o
+Pid_Compute_Correction                            util/pid.o
+                                                  base_motion/motion_control.o
+Ports_Zero                                        main.o
+Shaft_Encoders_Init                               base_motion/shaft_encoders.o
+                                                  main.o
+Switch_Telemetry_Buffers                          main.o
+System_Clock_Init                                 system_clock.o
+                                                  main.o
+TWI_Get_Data_From_Transceiver                     i2c/TWI_slave.o
+TWI_Get_State_Info                                i2c/TWI_slave.o
+TWI_Slave_Initialise                              i2c/TWI_slave.o
+                                                  main.o
+TWI_Start_Transceiver                             i2c/TWI_slave.o
+                                                  main.o
+TWI_Start_Transceiver_With_Data                   i2c/TWI_slave.o
+TWI_Transceiver_Busy                              i2c/TWI_slave.o
+TWI_statusReg                                     i2c/TWI_slave.o
+__bad_interrupt                                   /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__bss_end                                         /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+__bss_start                                       /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+__data_end                                        /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+__data_load_start                                 /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+__data_start                                      /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+__divmodhi4                                       /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodhi4.o)
+                                                  util/pid.o
+                                                  base_motion/motion_control.o
+__divmodsi4                                       /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodsi4.o)
+                                                  base_motion/motion_control.o
+__do_clear_bss                                    /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_clear_bss.o)
+                                                  i2c/TWI_slave.o
+                                                  base_motion/shaft_encoders.o
+                                                  base_motion/motors.o
+                                                  base_motion/motion_control.o
+                                                  system_clock.o
+                                                  main.o
+__do_copy_data                                    /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_copy_data.o)
+                                                  util/ascii_print.o
+                                                  i2c/TWI_slave.o
+                                                  main.o
+__epilogue_restores__                             /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_epilogue.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+__heap_end                                        /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__init                                            /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__mulsi3                                          /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_mulsi3.o)
+                                                  base_motion/motion_control.o
+__prologue_saves__                                /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_prologue.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+__stack                                           /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__udivmodhi4                                      /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodhi4.o)
+                                                  /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodhi4.o)
+                                                  base_motion/motion_control.o
+                                                  system_clock.o
+                                                  main.o
+__udivmodsi4                                      /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_udivmodsi4.o)
+                                                  /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodsi4.o)
+__ultoa_invert                                    /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+__vector_1                                        base_motion/shaft_encoders.o
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_10                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_11                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_12                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_13                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_14                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_15                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_16                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_17                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_18                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_19                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_2                                        base_motion/shaft_encoders.o
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_20                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_21                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_22                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_23                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_24                                       i2c/TWI_slave.o
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_25                                       /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_3                                        /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_4                                        /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_5                                        /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_6                                        /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_7                                        system_clock.o
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_8                                        /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_9                                        /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vector_default                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+__vectors                                         /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+_div                                              /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_divmodhi4.o)
+_exit                                             /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+exit                                              /usr/lib/gcc/avr/4.3.5/avr5/libgcc.a(_exit.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+fputc                                             /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(fputc.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+g_TWI_readComplete                                i2c/TWI_slave.o
+g_TWI_readInProgress                              i2c/TWI_slave.o
+                                                  main.o
+g_TWI_writeComplete                               i2c/TWI_slave.o
+                                                  main.o
+g_TWI_writeInProgress                             i2c/TWI_slave.o
+g_encoder_total                                   base_motion/motion_control.o
+g_estop                                           base_motion/motion_control.o
+g_left_wheel_motion                               base_motion/motion_control.o
+g_right_wheel_motion                              base_motion/motion_control.o
+g_shaft_encoders_left_count                       base_motion/shaft_encoders.o
+                                                  base_motion/motion_control.o
+g_shaft_encoders_right_count                      base_motion/shaft_encoders.o
+                                                  base_motion/motion_control.o
+g_shaft_encoders_stasis_count                     base_motion/shaft_encoders.o
+                                                  base_motion/motion_control.o
+g_stasis_total                                    base_motion/motion_control.o
+g_system_clock                                    system_clock.o
+                                                  base_motion/motion_control.o
+                                                  main.o
+gp_TWI_receive_buf                                i2c/TWI_slave.o
+                                                  main.o
+gp_TWI_transmitBuf                                i2c/TWI_slave.o
+                                                  main.o
+gp_commands_read                                  main.o
+gp_commands_write                                 main.o
+gp_telemetry_read                                 main.o
+gp_telemetry_write                                base_motion/motion_control.o
+                                                  main.o
+m_angular_acceleration                            base_motion/motion_control.o
+m_linear_acceleration                             base_motion/motion_control.o
+m_max_velocity                                    base_motion/motion_control.o
+main                                              main.o
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/crtm328p.o
+sprintf                                           /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)
+                                                  util/ascii_print.o
+strnlen                                           /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+strnlen_P                                         /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+vfprintf                                          /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                                  /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr5/libc.a(sprintf.o)

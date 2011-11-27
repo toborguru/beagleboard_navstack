@@ -1,0 +1,162 @@
+   1               		.file	"clamp.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  64               	.global	Clamp_Abs_Value
+  66               	Clamp_Abs_Value:
+  67               		.stabd	46,0,0
+   1:util/clamp.c  **** /************************************************
+   2:util/clamp.c  ****  Sawyer Larkin
+   3:util/clamp.c  ****  D.A.T.A.
+   4:util/clamp.c  **** 
+   5:util/clamp.c  ****  clamp.c
+   6:util/clamp.c  ****  Pid Controller
+   7:util/clamp.c  **** ************************************************/
+   8:util/clamp.c  **** 
+   9:util/clamp.c  **** #include <inttypes.h>
+  10:util/clamp.c  **** 
+  11:util/clamp.c  **** #include "clamp.h"
+  12:util/clamp.c  **** 
+  13:util/clamp.c  **** /** Clamps the value of p_to_clamp to within +-abs_max.
+  14:util/clamp.c  ****  */
+  15:util/clamp.c  **** uint8_t Clamp_Abs_Value(int16_t* p_to_clamp, int16_t abs_max)
+  16:util/clamp.c  **** {
+  69               	.LM0:
+  70               	.LFBB1:
+  71               	/* prologue: function */
+  72               	/* frame size = 0 */
+  73 0000 FC01      		movw r30,r24
+  75               	.LM1:
+  76 0002 CB01      		movw r24,r22
+  77 0004 77FF      		sbrs r23,7
+  78 0006 00C0      		rjmp .L2
+  79 0008 9095      		com r25
+  80 000a 8195      		neg r24
+  81 000c 9F4F      		sbci r25,lo8(-1)
+  82               	.L2:
+  83               	.LBB4:
+  84               	.LBB5:
+  17:util/clamp.c  ****    if (abs_max < 0)
+  18:util/clamp.c  ****    {
+  19:util/clamp.c  ****       abs_max *= -1;
+  20:util/clamp.c  ****    }
+  21:util/clamp.c  **** 
+  22:util/clamp.c  ****    return Clamp_Value(p_to_clamp, (abs_max * -1), abs_max);
+  23:util/clamp.c  **** }
+  24:util/clamp.c  **** 
+  25:util/clamp.c  **** /** Clamps the value of p_to_clamp to within min_value and max_value.
+  26:util/clamp.c  ****  */
+  27:util/clamp.c  **** uint8_t Clamp_Value(int16_t* p_to_clamp, int16_t min_value, int16_t max_value)
+  28:util/clamp.c  **** {
+  29:util/clamp.c  ****     uint8_t result = CLAMP_VALUE_IN_RANGE;
+  30:util/clamp.c  **** 
+  31:util/clamp.c  ****     if (*p_to_clamp > max_value)
+  86               	.LM2:
+  87 000e 4081      		ld r20,Z
+  88 0010 5181      		ldd r21,Z+1
+  89 0012 8417      		cp r24,r20
+  90 0014 9507      		cpc r25,r21
+  91 0016 04F4      		brge .L3
+  32:util/clamp.c  ****     {
+  33:util/clamp.c  ****         *p_to_clamp = max_value;
+  93               	.LM3:
+  94 0018 9183      		std Z+1,r25
+  95 001a 8083      		st Z,r24
+  96 001c 81E0      		ldi r24,lo8(1)
+  97 001e 0895      		ret
+  98               	.L3:
+  99               	.LBE5:
+ 100               	.LBE4:
+  22:util/clamp.c  ****    return Clamp_Value(p_to_clamp, (abs_max * -1), abs_max);
+ 102               	.LM4:
+ 103 0020 2227      		clr r18
+ 104 0022 3327      		clr r19
+ 105 0024 281B      		sub r18,r24
+ 106 0026 390B      		sbc r19,r25
+ 107               	.LBB7:
+ 108               	.LBB6:
+  34:util/clamp.c  ****         result = CLAMP_VALUE_CLAMPED;
+  35:util/clamp.c  ****     }
+  36:util/clamp.c  ****     else if (*p_to_clamp < min_value)
+ 110               	.LM5:
+ 111 0028 4217      		cp r20,r18
+ 112 002a 5307      		cpc r21,r19
+ 113 002c 04F0      		brlt .L5
+ 114 002e 80E0      		ldi r24,lo8(0)
+ 115 0030 0895      		ret
+ 116               	.L5:
+  37:util/clamp.c  ****     {
+  38:util/clamp.c  ****         *p_to_clamp = min_value;
+ 118               	.LM6:
+ 119 0032 3183      		std Z+1,r19
+ 120 0034 2083      		st Z,r18
+ 121 0036 81E0      		ldi r24,lo8(1)
+ 122               	.LBE6:
+ 123               	.LBE7:
+  23:util/clamp.c  **** }
+ 125               	.LM7:
+ 126 0038 0895      		ret
+ 134               	.Lscope1:
+ 136               		.stabd	78,0,0
+ 141               	.global	Clamp_Value
+ 143               	Clamp_Value:
+ 144               		.stabd	46,0,0
+  28:util/clamp.c  **** {
+ 146               	.LM8:
+ 147               	.LFBB2:
+ 148               	/* prologue: function */
+ 149               	/* frame size = 0 */
+ 150 003a FC01      		movw r30,r24
+  31:util/clamp.c  ****     if (*p_to_clamp > max_value)
+ 152               	.LM9:
+ 153 003c 8081      		ld r24,Z
+ 154 003e 9181      		ldd r25,Z+1
+ 155 0040 4817      		cp r20,r24
+ 156 0042 5907      		cpc r21,r25
+ 157 0044 04F4      		brge .L8
+  33:util/clamp.c  ****         *p_to_clamp = max_value;
+ 159               	.LM10:
+ 160 0046 5183      		std Z+1,r21
+ 161 0048 4083      		st Z,r20
+ 162 004a 81E0      		ldi r24,lo8(1)
+ 163 004c 0895      		ret
+ 164               	.L8:
+  36:util/clamp.c  ****     else if (*p_to_clamp < min_value)
+ 166               	.LM11:
+ 167 004e 8617      		cp r24,r22
+ 168 0050 9707      		cpc r25,r23
+ 169 0052 04F0      		brlt .L10
+ 170 0054 80E0      		ldi r24,lo8(0)
+ 171 0056 0895      		ret
+ 172               	.L10:
+ 174               	.LM12:
+ 175 0058 7183      		std Z+1,r23
+ 176 005a 6083      		st Z,r22
+ 177 005c 81E0      		ldi r24,lo8(1)
+  39:util/clamp.c  ****         result = CLAMP_VALUE_CLAMPED;
+  40:util/clamp.c  ****     }
+  41:util/clamp.c  **** 
+  42:util/clamp.c  ****     return result;
+  43:util/clamp.c  **** }
+ 179               	.LM13:
+ 180 005e 0895      		ret
+ 185               	.Lscope2:
+ 187               		.stabd	78,0,0
+ 189               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 clamp.c
+     /tmp/cc9ti6fX.s:2      *ABS*:0000003f __SREG__
+     /tmp/cc9ti6fX.s:3      *ABS*:0000003e __SP_H__
+     /tmp/cc9ti6fX.s:4      *ABS*:0000003d __SP_L__
+     /tmp/cc9ti6fX.s:5      *ABS*:00000034 __CCP__
+     /tmp/cc9ti6fX.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/cc9ti6fX.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/cc9ti6fX.s:66     .text:00000000 Clamp_Abs_Value
+     /tmp/cc9ti6fX.s:143    .text:0000003a Clamp_Value
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,1531 @@
+   1               		.file	"motion_control.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  91               	.global	Motion_Control_Set_Acceleration
+  93               	Motion_Control_Set_Acceleration:
+  94               		.stabd	46,0,0
+   1:base_motion/motion_control.c **** #include <stdlib.h>
+   2:base_motion/motion_control.c **** 
+   3:base_motion/motion_control.c **** 
+   4:base_motion/motion_control.c **** #include "../util/pid.h"
+   5:base_motion/motion_control.c **** #include "../util/clamp.h"
+   6:base_motion/motion_control.c **** #include "../Avr.h"
+   7:base_motion/motion_control.c **** #include "../i2c_registers.h"
+   8:base_motion/motion_control.c **** #include "../system_clock.h"
+   9:base_motion/motion_control.c **** 
+  10:base_motion/motion_control.c **** #include "motors.h"
+  11:base_motion/motion_control.c **** #include "motion_control.h"
+  12:base_motion/motion_control.c **** #include "shaft_encoders.h"
+  13:base_motion/motion_control.c **** 
+  14:base_motion/motion_control.c **** #define MOTION_CONTROL_KP   20
+  15:base_motion/motion_control.c **** #define MOTION_CONTROL_KD   2
+  16:base_motion/motion_control.c **** #define MOTION_CONTROL_KI   5
+  17:base_motion/motion_control.c **** #define MOTION_CONTROL_KO   1
+  18:base_motion/motion_control.c **** #define MOTION_CONTROL_MAX_CORRECTION   0xFF
+  19:base_motion/motion_control.c **** #define MOTION_CONTROL_MAX_I_ERROR      0x30
+  20:base_motion/motion_control.c **** 
+  21:base_motion/motion_control.c **** #define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
+  22:base_motion/motion_control.c **** #define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     20  // u16.0 ticks/sec (should be but isn't)
+  23:base_motion/motion_control.c **** #define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    22  // u16.0 ticks/sec (should be but isn't)
+  24:base_motion/motion_control.c **** 
+  25:base_motion/motion_control.c **** /* GLOBAL VARIABLES */
+  26:base_motion/motion_control.c **** volatile Motion_State_t g_left_wheel_motion;
+  27:base_motion/motion_control.c **** volatile Motion_State_t g_right_wheel_motion;
+  28:base_motion/motion_control.c **** 
+  29:base_motion/motion_control.c **** volatile int32_t g_encoder_total = 0;
+  30:base_motion/motion_control.c **** volatile int32_t g_stasis_total = 0;
+  31:base_motion/motion_control.c **** 
+  32:base_motion/motion_control.c **** volatile uint8_t g_estop = 0;
+  33:base_motion/motion_control.c **** 
+  34:base_motion/motion_control.c **** /* MODULE VARIABLES */
+  35:base_motion/motion_control.c **** volatile uint16_t   m_linear_acceleration;      // u8.8 ticks/update^2
+  36:base_motion/motion_control.c **** volatile uint16_t   m_angular_acceleration;     // u8.8 ticks/update^2
+  37:base_motion/motion_control.c **** volatile uint16_t   m_max_velocity;             // u16.0 ticks/sec
+  38:base_motion/motion_control.c **** 
+  39:base_motion/motion_control.c **** /* MODULE FUNCTION PROTOTYPES */
+  40:base_motion/motion_control.c **** 
+  41:base_motion/motion_control.c **** void    Motion_Control_Init_State(  volatile Motion_State_t *p_state );
+  42:base_motion/motion_control.c **** 
+  43:base_motion/motion_control.c **** void    Motion_Control_Init_Acceleration(   void );
+  44:base_motion/motion_control.c **** 
+  45:base_motion/motion_control.c **** // Returns power_out- runs Add To Encoder, Compute Position then Run PID
+  46:base_motion/motion_control.c **** int16_t Motion_Control_Compute_Power(   int8_t new_encoder_ticks,   // s7.0 ticks
+  47:base_motion/motion_control.c ****                                         volatile Motion_State_t *p_state );      
+  48:base_motion/motion_control.c **** 
+  49:base_motion/motion_control.c **** // Adds new encoder counts
+  50:base_motion/motion_control.c **** void Motion_Control_Add_To_Encoder( int8_t new_encoder_ticks,   // s7.0 ticks 
+  51:base_motion/motion_control.c ****                                     volatile Motion_State_t *p_state );     
+  52:base_motion/motion_control.c **** 
+  53:base_motion/motion_control.c **** // Computes the current target position
+  54:base_motion/motion_control.c **** void    Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_motion );
+  55:base_motion/motion_control.c **** 
+  56:base_motion/motion_control.c **** // Returns the correction from the PID controller
+  57:base_motion/motion_control.c **** int16_t Motion_Control_Run_PID( int8_t new_encoder_ticks,           // s7.0 ticks
+  58:base_motion/motion_control.c ****                                 volatile Motion_State_t *p_state );
+  59:base_motion/motion_control.c **** 
+  60:base_motion/motion_control.c **** // Adds new fixed point counts to the target position
+  61:base_motion/motion_control.c **** void    Motion_Control_Add_To_Position(     int16_t num_ticks,          // s7.8 ticks
+  62:base_motion/motion_control.c ****                                             volatile Motion_State_t *p_motion);
+  63:base_motion/motion_control.c **** 
+  64:base_motion/motion_control.c **** void    Motion_Control_Set_Update_Velocity( int16_t linear_velocity,    // s7.8 ticks/update
+  65:base_motion/motion_control.c ****                                             int16_t angular_velocity,   // s7.8 ticks/update
+  66:base_motion/motion_control.c ****                                             volatile Motion_State_t *p_state );
+  67:base_motion/motion_control.c **** 
+  68:base_motion/motion_control.c **** /* FUNCTIONS */
+  69:base_motion/motion_control.c **** 
+  70:base_motion/motion_control.c **** void Motion_Control_Init(   void )
+  71:base_motion/motion_control.c **** {
+  72:base_motion/motion_control.c ****     Motion_Control_Init_Acceleration();
+  73:base_motion/motion_control.c ****     Motion_Control_Init_State( &g_left_wheel_motion );
+  74:base_motion/motion_control.c ****     Motion_Control_Init_State( &g_right_wheel_motion );
+  75:base_motion/motion_control.c ****     Motion_Control_Set_Velocity( 0, 0 );
+  76:base_motion/motion_control.c **** 
+  77:base_motion/motion_control.c ****     m_max_velocity = MOTION_CONTROL_DEFAULT_MAX_VELOCITY;
+  78:base_motion/motion_control.c ****     
+  79:base_motion/motion_control.c ****     Motors_Set_Direction(MOTORS_L_INDEX, MOTORS_FORWARD);
+  80:base_motion/motion_control.c ****     Motors_Set_Direction(MOTORS_R_INDEX, MOTORS_FORWARD);
+  81:base_motion/motion_control.c **** }
+  82:base_motion/motion_control.c **** 
+  83:base_motion/motion_control.c **** /** Sets the default accelerations per #defines.
+  84:base_motion/motion_control.c ****  */
+  85:base_motion/motion_control.c **** void    Motion_Control_Init_Acceleration( void )
+  86:base_motion/motion_control.c **** {
+  87:base_motion/motion_control.c ****     Motion_Control_Set_Acceleration(    MOTION_CONTROL_DEFAULT_LINEAR_ACCEL, 
+  88:base_motion/motion_control.c ****                                         MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL );
+  89:base_motion/motion_control.c **** }
+  90:base_motion/motion_control.c **** 
+  91:base_motion/motion_control.c **** /** Sets the linear and angular accelerations for the module, automatically adjusting
+  92:base_motion/motion_control.c ****  *  for the step period.
+  93:base_motion/motion_control.c ****  *  @param  linear_acceleration     In ticks/sec^2
+  94:base_motion/motion_control.c ****  *  @param  angular_acceleration    In ticks/sec^2
+  95:base_motion/motion_control.c ****  *
+  96:base_motion/motion_control.c ****  */
+  97:base_motion/motion_control.c **** void    Motion_Control_Set_Acceleration(    uint16_t linear_acceleration, 
+  98:base_motion/motion_control.c ****                                             uint16_t angular_acceleration )
+  99:base_motion/motion_control.c **** {
+  96               	.LM0:
+  97               	.LFBB1:
+  98               	/* prologue: function */
+  99               	/* frame size = 0 */
+ 100 0000 982F      		mov r25,r24
+ 101 0002 262F      		mov r18,r22
+ 100:base_motion/motion_control.c ****     // s15.0 -> s7.8 conversion also scaling for update rate
+ 101:base_motion/motion_control.c ****     m_linear_acceleration = ( linear_acceleration * 256 ) / MOTION_CONTROL_UPDATE_RATE_HZ;
+ 103               	.LM1:
+ 104 0004 80E0      		ldi r24,lo8(0)
+ 105 0006 62E3      		ldi r22,lo8(50)
+ 106 0008 70E0      		ldi r23,hi8(50)
+ 107 000a 0E94 0000 		call __udivmodhi4
+ 108 000e 7093 0000 		sts (m_linear_acceleration)+1,r23
+ 109 0012 6093 0000 		sts m_linear_acceleration,r22
+ 102:base_motion/motion_control.c ****     
+ 103:base_motion/motion_control.c ****     // s15.0 -> s7.8 conversion also scaling for update rate 
+ 104:base_motion/motion_control.c ****     m_angular_acceleration = ( angular_acceleration * 256 ) / MOTION_CONTROL_UPDATE_RATE_HZ;
+ 111               	.LM2:
+ 112 0016 80E0      		ldi r24,lo8(0)
+ 113 0018 922F      		mov r25,r18
+ 114 001a 62E3      		ldi r22,lo8(50)
+ 115 001c 70E0      		ldi r23,hi8(50)
+ 116 001e 0E94 0000 		call __udivmodhi4
+ 117 0022 7093 0000 		sts (m_angular_acceleration)+1,r23
+ 118 0026 6093 0000 		sts m_angular_acceleration,r22
+ 119               	/* epilogue start */
+ 105:base_motion/motion_control.c **** }
+ 121               	.LM3:
+ 122 002a 0895      		ret
+ 124               	.Lscope1:
+ 126               		.stabd	78,0,0
+ 128               	.global	Motion_Control_Init_Acceleration
+ 130               	Motion_Control_Init_Acceleration:
+ 131               		.stabd	46,0,0
+  86:base_motion/motion_control.c **** {
+ 133               	.LM4:
+ 134               	.LFBB2:
+ 135               	/* prologue: function */
+ 136               	/* frame size = 0 */
+  87:base_motion/motion_control.c ****     Motion_Control_Set_Acceleration(    MOTION_CONTROL_DEFAULT_LINEAR_ACCEL, 
+ 138               	.LM5:
+ 139 002c 84E1      		ldi r24,lo8(20)
+ 140 002e 90E0      		ldi r25,hi8(20)
+ 141 0030 66E1      		ldi r22,lo8(22)
+ 142 0032 70E0      		ldi r23,hi8(22)
+ 143 0034 0E94 0000 		call Motion_Control_Set_Acceleration
+ 144               	/* epilogue start */
+  89:base_motion/motion_control.c **** }
+ 146               	.LM6:
+ 147 0038 0895      		ret
+ 149               	.Lscope2:
+ 151               		.stabd	78,0,0
+ 154               	.global	Motion_Control_Init_State
+ 156               	Motion_Control_Init_State:
+ 157               		.stabd	46,0,0
+ 106:base_motion/motion_control.c **** 
+ 107:base_motion/motion_control.c **** /** This function initializes a Motion_State_t structure, using #defined defaults
+ 108:base_motion/motion_control.c ****  *  for the PID tuning parameters.
+ 109:base_motion/motion_control.c ****  */
+ 110:base_motion/motion_control.c **** void Motion_Control_Init_State( volatile Motion_State_t *p_state )
+ 111:base_motion/motion_control.c **** {
+ 159               	.LM7:
+ 160               	.LFBB3:
+ 161               	/* prologue: function */
+ 162               	/* frame size = 0 */
+ 163 003a FC01      		movw r30,r24
+ 112:base_motion/motion_control.c ****     // Reset motion state
+ 113:base_motion/motion_control.c ****     p_state->angular_velocity = 0;
+ 165               	.LM8:
+ 166 003c 1382      		std Z+3,__zero_reg__
+ 167 003e 1282      		std Z+2,__zero_reg__
+ 114:base_motion/motion_control.c ****     p_state->angular_velocity_setpoint = 0;
+ 169               	.LM9:
+ 170 0040 1182      		std Z+1,__zero_reg__
+ 171 0042 1082      		st Z,__zero_reg__
+ 115:base_motion/motion_control.c **** 
+ 116:base_motion/motion_control.c ****     p_state->linear_velocity = 0;
+ 173               	.LM10:
+ 174 0044 1782      		std Z+7,__zero_reg__
+ 175 0046 1682      		std Z+6,__zero_reg__
+ 117:base_motion/motion_control.c ****     p_state->linear_velocity_setpoint = 0;
+ 177               	.LM11:
+ 178 0048 1582      		std Z+5,__zero_reg__
+ 179 004a 1482      		std Z+4,__zero_reg__
+ 118:base_motion/motion_control.c **** 
+ 119:base_motion/motion_control.c ****     p_state->encoder_setpoint = 0;
+ 181               	.LM12:
+ 182 004c 1086      		std Z+8,__zero_reg__
+ 183 004e 1186      		std Z+9,__zero_reg__
+ 184 0050 1286      		std Z+10,__zero_reg__
+ 185 0052 1386      		std Z+11,__zero_reg__
+ 120:base_motion/motion_control.c ****     p_state->encoder = 0;
+ 187               	.LM13:
+ 188 0054 1486      		std Z+12,__zero_reg__
+ 189 0056 1586      		std Z+13,__zero_reg__
+ 190 0058 1686      		std Z+14,__zero_reg__
+ 191 005a 1786      		std Z+15,__zero_reg__
+ 121:base_motion/motion_control.c **** 
+ 122:base_motion/motion_control.c ****     // PID defaults
+ 123:base_motion/motion_control.c ****     p_state->pid.kp = MOTION_CONTROL_KP;
+ 193               	.LM14:
+ 194 005c 84E1      		ldi r24,lo8(20)
+ 195 005e 848F      		std Z+28,r24
+ 124:base_motion/motion_control.c ****     p_state->pid.kd = MOTION_CONTROL_KD;
+ 197               	.LM15:
+ 198 0060 82E0      		ldi r24,lo8(2)
+ 199 0062 858F      		std Z+29,r24
+ 125:base_motion/motion_control.c ****     p_state->pid.ki = MOTION_CONTROL_KI;
+ 201               	.LM16:
+ 202 0064 85E0      		ldi r24,lo8(5)
+ 203 0066 868F      		std Z+30,r24
+ 126:base_motion/motion_control.c ****     p_state->pid.ko = MOTION_CONTROL_KO;
+ 205               	.LM17:
+ 206 0068 81E0      		ldi r24,lo8(1)
+ 207 006a 878F      		std Z+31,r24
+ 127:base_motion/motion_control.c ****     p_state->pid.max_correction = MOTION_CONTROL_MAX_CORRECTION;
+ 209               	.LM18:
+ 210 006c 8FEF      		ldi r24,lo8(255)
+ 211 006e 90E0      		ldi r25,hi8(255)
+ 212 0070 93A3      		std Z+35,r25
+ 213 0072 82A3      		std Z+34,r24
+ 128:base_motion/motion_control.c ****     p_state->pid.max_i_error = MOTION_CONTROL_MAX_I_ERROR;
+ 215               	.LM19:
+ 216 0074 80E3      		ldi r24,lo8(48)
+ 217 0076 90E0      		ldi r25,hi8(48)
+ 218 0078 91A3      		std Z+33,r25
+ 219 007a 80A3      		std Z+32,r24
+ 129:base_motion/motion_control.c **** 
+ 130:base_motion/motion_control.c ****     // Reset PID state
+ 131:base_motion/motion_control.c ****     p_state->pid.setpoint = 0;
+ 221               	.LM20:
+ 222 007c 138A      		std Z+19,__zero_reg__
+ 223 007e 128A      		std Z+18,__zero_reg__
+ 132:base_motion/motion_control.c ****     p_state->pid.error = 0;
+ 225               	.LM21:
+ 226 0080 158A      		std Z+21,__zero_reg__
+ 227 0082 148A      		std Z+20,__zero_reg__
+ 133:base_motion/motion_control.c ****     p_state->pid.d_error = 0;
+ 229               	.LM22:
+ 230 0084 118E      		std Z+25,__zero_reg__
+ 231 0086 108E      		std Z+24,__zero_reg__
+ 134:base_motion/motion_control.c ****     p_state->pid.i_error = 0;
+ 233               	.LM23:
+ 234 0088 138E      		std Z+27,__zero_reg__
+ 235 008a 128E      		std Z+26,__zero_reg__
+ 135:base_motion/motion_control.c ****     p_state->pid.prev_error = 0;
+ 237               	.LM24:
+ 238 008c 178A      		std Z+23,__zero_reg__
+ 239 008e 168A      		std Z+22,__zero_reg__
+ 240               	/* epilogue start */
+ 136:base_motion/motion_control.c **** }
+ 242               	.LM25:
+ 243 0090 0895      		ret
+ 245               	.Lscope3:
+ 247               		.stabd	78,0,0
+ 251               	.global	Motion_Control_Set_Velocity
+ 253               	Motion_Control_Set_Velocity:
+ 254               		.stabd	46,0,0
+ 137:base_motion/motion_control.c **** 
+ 138:base_motion/motion_control.c **** /** This function runs a complete motion step. This includes reading the encoder 
+ 139:base_motion/motion_control.c ****  *  values and commanding the motors.
+ 140:base_motion/motion_control.c ****  */
+ 141:base_motion/motion_control.c **** void Motion_Control_Run_Step(   void )
+ 142:base_motion/motion_control.c **** {
+ 143:base_motion/motion_control.c ****     /*  TODO Verify: I set pointers to the motor control structures because the 
+ 144:base_motion/motion_control.c ****      *  GNU compiler actually produces better code through pointers than direct 
+ 145:base_motion/motion_control.c ****      *  references to structure members (e.g. 'p->Encoder =' produces better 
+ 146:base_motion/motion_control.c ****      *  code than 'Left.Encoder =').
+ 147:base_motion/motion_control.c ****      */
+ 148:base_motion/motion_control.c ****     volatile Motion_State_t* p_l_wheel = &g_left_wheel_motion;
+ 149:base_motion/motion_control.c ****     volatile Motion_State_t* p_r_wheel = &g_right_wheel_motion;
+ 150:base_motion/motion_control.c **** 
+ 151:base_motion/motion_control.c ****     static int16_t stasis_total = 0;
+ 152:base_motion/motion_control.c **** 
+ 153:base_motion/motion_control.c ****     int16_t delta_left;
+ 154:base_motion/motion_control.c ****     int16_t delta_right;
+ 155:base_motion/motion_control.c ****     
+ 156:base_motion/motion_control.c ****     int16_t left_power;
+ 157:base_motion/motion_control.c ****     int16_t right_power;
+ 158:base_motion/motion_control.c **** 
+ 159:base_motion/motion_control.c ****     uint16_t measurement_time;
+ 160:base_motion/motion_control.c **** 
+ 161:base_motion/motion_control.c ****     // Get new encoder counts
+ 162:base_motion/motion_control.c ****     DISABLE_INTERRUPTS();
+ 163:base_motion/motion_control.c ****     delta_left = g_shaft_encoders_left_count;
+ 164:base_motion/motion_control.c ****     delta_right = g_shaft_encoders_right_count;
+ 165:base_motion/motion_control.c ****     stasis_total += g_shaft_encoders_stasis_count;
+ 166:base_motion/motion_control.c **** 
+ 167:base_motion/motion_control.c ****     g_shaft_encoders_left_count = 0;
+ 168:base_motion/motion_control.c ****     g_shaft_encoders_right_count = 0;
+ 169:base_motion/motion_control.c ****     g_shaft_encoders_stasis_count = 0;
+ 170:base_motion/motion_control.c **** 
+ 171:base_motion/motion_control.c ****     measurement_time = (uint16_t)g_system_clock;
+ 172:base_motion/motion_control.c ****     ENABLE_INTERRUPTS();
+ 173:base_motion/motion_control.c **** 
+ 174:base_motion/motion_control.c ****     // Set motor power
+ 175:base_motion/motion_control.c ****     left_power =    Motion_Control_Compute_Power(   delta_left,   p_l_wheel );
+ 176:base_motion/motion_control.c ****     right_power =   Motion_Control_Compute_Power(   delta_right,  p_r_wheel );
+ 177:base_motion/motion_control.c **** 
+ 178:base_motion/motion_control.c ****     if (!g_estop)
+ 179:base_motion/motion_control.c ****     {
+ 180:base_motion/motion_control.c ****         if (left_power < 0)
+ 181:base_motion/motion_control.c ****         {
+ 182:base_motion/motion_control.c ****             left_power *= -1;
+ 183:base_motion/motion_control.c ****             Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_REVERSE );
+ 184:base_motion/motion_control.c ****         }
+ 185:base_motion/motion_control.c ****         else
+ 186:base_motion/motion_control.c ****         {
+ 187:base_motion/motion_control.c ****             Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_FORWARD);
+ 188:base_motion/motion_control.c ****         }
+ 189:base_motion/motion_control.c ****      
+ 190:base_motion/motion_control.c ****         if (right_power < 0)
+ 191:base_motion/motion_control.c ****         {
+ 192:base_motion/motion_control.c ****             right_power *= -1;
+ 193:base_motion/motion_control.c ****             Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_REVERSE);
+ 194:base_motion/motion_control.c ****         }
+ 195:base_motion/motion_control.c ****         else
+ 196:base_motion/motion_control.c ****         {
+ 197:base_motion/motion_control.c ****             Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_FORWARD);
+ 198:base_motion/motion_control.c ****         }
+ 199:base_motion/motion_control.c **** 
+ 200:base_motion/motion_control.c ****         Motors_Set_Power(   MOTORS_L_INDEX, left_power & 0xFF);
+ 201:base_motion/motion_control.c ****         Motors_Set_Power(   MOTORS_R_INDEX, right_power & 0xFF);
+ 202:base_motion/motion_control.c ****     }
+ 203:base_motion/motion_control.c **** 
+ 204:base_motion/motion_control.c ****     // Update telemetry registers
+ 205:base_motion/motion_control.c ****     DISABLE_INTERRUPTS();
+ 206:base_motion/motion_control.c **** 
+ 207:base_motion/motion_control.c ****     gp_telemetry_write->left_encoder = (int16_t)(p_l_wheel->encoder);
+ 208:base_motion/motion_control.c ****     gp_telemetry_write->right_encoder = (int16_t)(p_r_wheel->encoder);
+ 209:base_motion/motion_control.c ****     gp_telemetry_write->stasis_encoder = stasis_total;
+ 210:base_motion/motion_control.c ****     gp_telemetry_write->measurement_time = measurement_time;
+ 211:base_motion/motion_control.c **** 
+ 212:base_motion/motion_control.c ****     ENABLE_INTERRUPTS();
+ 213:base_motion/motion_control.c **** } 
+ 214:base_motion/motion_control.c **** 
+ 215:base_motion/motion_control.c **** /** Set left and right motion structures up for the new velocities.
+ 216:base_motion/motion_control.c ****  *  @param  linear_velocity     New base linear velocity in ticks/sec
+ 217:base_motion/motion_control.c ****  *  @param  angular_velocity    New base angular velocity in ticks/sec
+ 218:base_motion/motion_control.c ****  */
+ 219:base_motion/motion_control.c **** void Motion_Control_Set_Velocity(   int16_t linear_velocity, int16_t angular_velocity )
+ 220:base_motion/motion_control.c **** {
+ 256               	.LM26:
+ 257               	.LFBB4:
+ 258 0092 2F92      		push r2
+ 259 0094 3F92      		push r3
+ 260 0096 4F92      		push r4
+ 261 0098 5F92      		push r5
+ 262 009a 6F92      		push r6
+ 263 009c 7F92      		push r7
+ 264 009e 8F92      		push r8
+ 265 00a0 9F92      		push r9
+ 266 00a2 AF92      		push r10
+ 267 00a4 BF92      		push r11
+ 268 00a6 CF92      		push r12
+ 269 00a8 DF92      		push r13
+ 270 00aa EF92      		push r14
+ 271 00ac FF92      		push r15
+ 272 00ae 0F93      		push r16
+ 273 00b0 1F93      		push r17
+ 274 00b2 CF93      		push r28
+ 275 00b4 DF93      		push r29
+ 276               	/* prologue: function */
+ 277               	/* frame size = 0 */
+ 278 00b6 EC01      		movw r28,r24
+ 279 00b8 6B01      		movw r12,r22
+ 221:base_motion/motion_control.c ****     int32_t new_linear_velocity, new_angular_velocity, total_velocity;
+ 222:base_motion/motion_control.c **** 
+ 223:base_motion/motion_control.c ****     // s15.0 -> s7.8 conversion also scaling for update rate
+ 224:base_motion/motion_control.c ****     new_linear_velocity =   ( (int32_t)linear_velocity * 256 ) /    MOTION_CONTROL_UPDATE_RATE_HZ;
+ 281               	.LM27:
+ 282 00ba BE01      		movw r22,r28
+ 283 00bc 8827      		clr r24
+ 284 00be 77FD      		sbrc r23,7
+ 285 00c0 8095      		com r24
+ 286 00c2 982F      		mov r25,r24
+ 287 00c4 982F      		mov r25,r24
+ 288 00c6 872F      		mov r24,r23
+ 289 00c8 762F      		mov r23,r22
+ 290 00ca 6627      		clr r22
+ 291 00cc 22E3      		ldi r18,lo8(50)
+ 292 00ce 30E0      		ldi r19,hi8(50)
+ 293 00d0 40E0      		ldi r20,hlo8(50)
+ 294 00d2 50E0      		ldi r21,hhi8(50)
+ 295 00d4 0E94 0000 		call __divmodsi4
+ 296 00d8 B22E      		mov r11,r18
+ 297 00da A32E      		mov r10,r19
+ 298 00dc 542E      		mov r5,r20
+ 299 00de 452E      		mov r4,r21
+ 300 00e0 622E      		mov r6,r18
+ 301 00e2 732E      		mov r7,r19
+ 225:base_motion/motion_control.c **** 
+ 226:base_motion/motion_control.c ****     // Each wheel gets 1/2 the angular rate
+ 227:base_motion/motion_control.c ****     new_angular_velocity =  ( (int32_t)angular_velocity * 256 ) / ( MOTION_CONTROL_UPDATE_RATE_HZ *
+ 303               	.LM28:
+ 304 00e4 B601      		movw r22,r12
+ 305 00e6 8827      		clr r24
+ 306 00e8 77FD      		sbrc r23,7
+ 307 00ea 8095      		com r24
+ 308 00ec 982F      		mov r25,r24
+ 309 00ee 982F      		mov r25,r24
+ 310 00f0 872F      		mov r24,r23
+ 311 00f2 762F      		mov r23,r22
+ 312 00f4 6627      		clr r22
+ 313 00f6 24E6      		ldi r18,lo8(100)
+ 314 00f8 30E0      		ldi r19,hi8(100)
+ 315 00fa 40E0      		ldi r20,hlo8(100)
+ 316 00fc 50E0      		ldi r21,hhi8(100)
+ 317 00fe 0E94 0000 		call __divmodsi4
+ 318 0102 922E      		mov r9,r18
+ 319 0104 832E      		mov r8,r19
+ 320 0106 342E      		mov r3,r20
+ 321 0108 252E      		mov r2,r21
+ 322 010a E22F      		mov r30,r18
+ 323 010c 432F      		mov r20,r19
+ 228:base_motion/motion_control.c **** 
+ 229:base_motion/motion_control.c ****     total_velocity = abs( linear_velocity ) + abs( angular_velocity / 2 );
+ 325               	.LM29:
+ 326 010e C601      		movw r24,r12
+ 327 0110 62E0      		ldi r22,lo8(2)
+ 328 0112 70E0      		ldi r23,hi8(2)
+ 329 0114 0E94 0000 		call __divmodhi4
+ 330 0118 CB01      		movw r24,r22
+ 331 011a 77FF      		sbrs r23,7
+ 332 011c 00C0      		rjmp .L8
+ 333 011e 9095      		com r25
+ 334 0120 8195      		neg r24
+ 335 0122 9F4F      		sbci r25,lo8(-1)
+ 336               	.L8:
+ 337 0124 9E01      		movw r18,r28
+ 338 0126 D7FF      		sbrs r29,7
+ 339 0128 00C0      		rjmp .L9
+ 340 012a 2227      		clr r18
+ 341 012c 3327      		clr r19
+ 342 012e 2C1B      		sub r18,r28
+ 343 0130 3D0B      		sbc r19,r29
+ 344               	.L9:
+ 345 0132 280F      		add r18,r24
+ 346 0134 391F      		adc r19,r25
+ 347 0136 7901      		movw r14,r18
+ 348 0138 0027      		clr r16
+ 349 013a F7FC      		sbrc r15,7
+ 350 013c 0095      		com r16
+ 351 013e 102F      		mov r17,r16
+ 230:base_motion/motion_control.c **** 
+ 231:base_motion/motion_control.c ****     if ( total_velocity > m_max_velocity )  // Exceeding wheel speed limits
+ 353               	.LM30:
+ 354 0140 8091 0000 		lds r24,m_max_velocity
+ 355 0144 9091 0000 		lds r25,(m_max_velocity)+1
+ 356 0148 A0E0      		ldi r26,lo8(0)
+ 357 014a B0E0      		ldi r27,hi8(0)
+ 358 014c 8E15      		cp r24,r14
+ 359 014e 9F05      		cpc r25,r15
+ 360 0150 A007      		cpc r26,r16
+ 361 0152 B107      		cpc r27,r17
+ 362 0154 04F4      		brge .L10
+ 232:base_motion/motion_control.c ****     {
+ 233:base_motion/motion_control.c ****         // Reduce both velocities by the "overage ratio"
+ 234:base_motion/motion_control.c ****         new_linear_velocity = ( ( new_linear_velocity * m_max_velocity ) / total_velocity );
+ 364               	.LM31:
+ 365 0156 2091 0000 		lds r18,m_max_velocity
+ 366 015a 3091 0000 		lds r19,(m_max_velocity)+1
+ 367 015e 40E0      		ldi r20,lo8(0)
+ 368 0160 50E0      		ldi r21,hi8(0)
+ 369 0162 6B2D      		mov r22,r11
+ 370 0164 7A2D      		mov r23,r10
+ 371 0166 852D      		mov r24,r5
+ 372 0168 942D      		mov r25,r4
+ 373 016a 0E94 0000 		call __mulsi3
+ 374 016e A801      		movw r20,r16
+ 375 0170 9701      		movw r18,r14
+ 376 0172 0E94 0000 		call __divmodsi4
+ 377 0176 3901      		movw r6,r18
+ 235:base_motion/motion_control.c ****         new_angular_velocity = ( ( new_angular_velocity * m_max_velocity ) / total_velocity );
+ 379               	.LM32:
+ 380 0178 2091 0000 		lds r18,m_max_velocity
+ 381 017c 3091 0000 		lds r19,(m_max_velocity)+1
+ 382 0180 40E0      		ldi r20,lo8(0)
+ 383 0182 50E0      		ldi r21,hi8(0)
+ 384 0184 692D      		mov r22,r9
+ 385 0186 782D      		mov r23,r8
+ 386 0188 832D      		mov r24,r3
+ 387 018a 922D      		mov r25,r2
+ 388 018c 0E94 0000 		call __mulsi3
+ 389 0190 A801      		movw r20,r16
+ 390 0192 9701      		movw r18,r14
+ 391 0194 0E94 0000 		call __divmodsi4
+ 392 0198 E22F      		mov r30,r18
+ 393 019a 432F      		mov r20,r19
+ 394               	.L10:
+ 236:base_motion/motion_control.c **** 
+ 237:base_motion/motion_control.c **** //        linear_velocity = ( (int32_t)( (int32_t) linear_velocity * (int32_t)m_max_velocity ) / to
+ 238:base_motion/motion_control.c **** //        angular_velocity = ( (int32_t)( (int32_t) angular_velocity * (int32_t)m_max_velocity ) / 
+ 239:base_motion/motion_control.c ****     }
+ 240:base_motion/motion_control.c **** 
+ 241:base_motion/motion_control.c ****     // Positive angular velocity causes the right wheel to spin faster.
+ 242:base_motion/motion_control.c ****     Motion_Control_Set_Update_Velocity( (int16_t)new_linear_velocity, -1 * new_angular_velocity, &g
+ 396               	.LM33:
+ 397 019c 8E2F      		mov r24,r30
+ 398 019e 942F      		mov r25,r20
+ 399 01a0 4427      		clr r20
+ 400 01a2 5527      		clr r21
+ 401 01a4 481B      		sub r20,r24
+ 402 01a6 590B      		sbc r21,r25
+ 403               	.LBB8:
+ 404               	.LBB9:
+ 243:base_motion/motion_control.c ****     Motion_Control_Set_Update_Velocity( (int16_t)new_linear_velocity, new_angular_velocity, &g_righ
+ 244:base_motion/motion_control.c **** 
+ 245:base_motion/motion_control.c ****     // Copy data to outgoing telemetry
+ 246:base_motion/motion_control.c ****     gp_telemetry_write->linear_velocity = linear_velocity;
+ 247:base_motion/motion_control.c ****     gp_telemetry_write->angular_velocity = angular_velocity;
+ 248:base_motion/motion_control.c ****     //gp_i2c_telemetry->linear_velocity = (int16_t)new_linear_velocity;
+ 249:base_motion/motion_control.c ****     //gp_i2c_telemetry->angular_velocity = (int16_t)new_angular_velocity;
+ 250:base_motion/motion_control.c **** }
+ 251:base_motion/motion_control.c **** 
+ 252:base_motion/motion_control.c **** void  Motion_Control_EStop( void )
+ 253:base_motion/motion_control.c **** {
+ 254:base_motion/motion_control.c ****     g_estop = 1;
+ 255:base_motion/motion_control.c **** 
+ 256:base_motion/motion_control.c ****     Motors_Set_Direction( MOTORS_L_INDEX, MOTORS_BRAKE );
+ 257:base_motion/motion_control.c ****     Motors_Set_Direction( MOTORS_R_INDEX, MOTORS_BRAKE );
+ 258:base_motion/motion_control.c **** 
+ 259:base_motion/motion_control.c ****     Motion_Control_Set_Velocity( 0, 0 );
+ 260:base_motion/motion_control.c **** }
+ 261:base_motion/motion_control.c **** 
+ 262:base_motion/motion_control.c **** void  Motion_Control_Stop( void )
+ 263:base_motion/motion_control.c **** {
+ 264:base_motion/motion_control.c ****     Motion_Control_Set_Velocity( 0, 0 );
+ 265:base_motion/motion_control.c **** }
+ 266:base_motion/motion_control.c **** 
+ 267:base_motion/motion_control.c **** void    Motion_Control_Set_Update_Velocity( int16_t linear_velocity,    // s7.8 ticks/update
+ 268:base_motion/motion_control.c ****                                             int16_t angular_velocity,   // s7.8 ticks/update
+ 269:base_motion/motion_control.c ****                                             volatile Motion_State_t *p_state )
+ 270:base_motion/motion_control.c **** {
+ 271:base_motion/motion_control.c ****     p_state->linear_velocity_setpoint = linear_velocity;
+ 406               	.LM34:
+ 407 01a8 7092 0000 		sts (g_left_wheel_motion+4)+1,r7
+ 408 01ac 6092 0000 		sts g_left_wheel_motion+4,r6
+ 272:base_motion/motion_control.c ****     p_state->angular_velocity_setpoint = angular_velocity;
+ 410               	.LM35:
+ 411 01b0 5093 0000 		sts (g_left_wheel_motion)+1,r21
+ 412 01b4 4093 0000 		sts g_left_wheel_motion,r20
+ 413               	.LBE9:
+ 414               	.LBE8:
+ 415               	.LBB10:
+ 416               	.LBB11:
+ 271:base_motion/motion_control.c ****     p_state->linear_velocity_setpoint = linear_velocity;
+ 418               	.LM36:
+ 419 01b8 7092 0000 		sts (g_right_wheel_motion+4)+1,r7
+ 420 01bc 6092 0000 		sts g_right_wheel_motion+4,r6
+ 422               	.LM37:
+ 423 01c0 9093 0000 		sts (g_right_wheel_motion)+1,r25
+ 424 01c4 8093 0000 		sts g_right_wheel_motion,r24
+ 425               	.LBE11:
+ 426               	.LBE10:
+ 246:base_motion/motion_control.c ****     gp_telemetry_write->linear_velocity = linear_velocity;
+ 428               	.LM38:
+ 429 01c8 E091 0000 		lds r30,gp_telemetry_write
+ 430 01cc F091 0000 		lds r31,(gp_telemetry_write)+1
+ 431 01d0 D183      		std Z+1,r29
+ 432 01d2 C083      		st Z,r28
+ 247:base_motion/motion_control.c ****     gp_telemetry_write->angular_velocity = angular_velocity;
+ 434               	.LM39:
+ 435 01d4 D382      		std Z+3,r13
+ 436 01d6 C282      		std Z+2,r12
+ 437               	/* epilogue start */
+ 250:base_motion/motion_control.c **** }
+ 439               	.LM40:
+ 440 01d8 DF91      		pop r29
+ 441 01da CF91      		pop r28
+ 442 01dc 1F91      		pop r17
+ 443 01de 0F91      		pop r16
+ 444 01e0 FF90      		pop r15
+ 445 01e2 EF90      		pop r14
+ 446 01e4 DF90      		pop r13
+ 447 01e6 CF90      		pop r12
+ 448 01e8 BF90      		pop r11
+ 449 01ea AF90      		pop r10
+ 450 01ec 9F90      		pop r9
+ 451 01ee 8F90      		pop r8
+ 452 01f0 7F90      		pop r7
+ 453 01f2 6F90      		pop r6
+ 454 01f4 5F90      		pop r5
+ 455 01f6 4F90      		pop r4
+ 456 01f8 3F90      		pop r3
+ 457 01fa 2F90      		pop r2
+ 458 01fc 0895      		ret
+ 463               	.Lscope4:
+ 465               		.stabd	78,0,0
+ 467               	.global	Motion_Control_Stop
+ 469               	Motion_Control_Stop:
+ 470               		.stabd	46,0,0
+ 263:base_motion/motion_control.c **** {
+ 472               	.LM41:
+ 473               	.LFBB5:
+ 474               	/* prologue: function */
+ 475               	/* frame size = 0 */
+ 264:base_motion/motion_control.c ****     Motion_Control_Set_Velocity( 0, 0 );
+ 477               	.LM42:
+ 478 01fe 80E0      		ldi r24,lo8(0)
+ 479 0200 90E0      		ldi r25,hi8(0)
+ 480 0202 60E0      		ldi r22,lo8(0)
+ 481 0204 70E0      		ldi r23,hi8(0)
+ 482 0206 0E94 0000 		call Motion_Control_Set_Velocity
+ 483               	/* epilogue start */
+ 265:base_motion/motion_control.c **** }
+ 485               	.LM43:
+ 486 020a 0895      		ret
+ 488               	.Lscope5:
+ 490               		.stabd	78,0,0
+ 495               	.global	Motion_Control_Set_Update_Velocity
+ 497               	Motion_Control_Set_Update_Velocity:
+ 498               		.stabd	46,0,0
+ 270:base_motion/motion_control.c **** {
+ 500               	.LM44:
+ 501               	.LFBB6:
+ 502               	/* prologue: function */
+ 503               	/* frame size = 0 */
+ 504 020c FA01      		movw r30,r20
+ 271:base_motion/motion_control.c ****     p_state->linear_velocity_setpoint = linear_velocity;
+ 506               	.LM45:
+ 507 020e 9583      		std Z+5,r25
+ 508 0210 8483      		std Z+4,r24
+ 510               	.LM46:
+ 511 0212 7183      		std Z+1,r23
+ 512 0214 6083      		st Z,r22
+ 513               	/* epilogue start */
+ 273:base_motion/motion_control.c **** }
+ 515               	.LM47:
+ 516 0216 0895      		ret
+ 518               	.Lscope6:
+ 520               		.stabd	78,0,0
+ 524               	.global	Motion_Control_Add_To_Encoder
+ 526               	Motion_Control_Add_To_Encoder:
+ 527               		.stabd	46,0,0
+ 274:base_motion/motion_control.c **** 
+ 275:base_motion/motion_control.c **** /** This function computes an entire update cycle.
+ 276:base_motion/motion_control.c ****  */
+ 277:base_motion/motion_control.c **** int16_t Motion_Control_Compute_Power(   int8_t new_encoder_ticks,     // s15.0 ticks
+ 278:base_motion/motion_control.c ****                                         volatile Motion_State_t *p_state )
+ 279:base_motion/motion_control.c **** {
+ 280:base_motion/motion_control.c ****     Motion_Control_Add_To_Encoder( new_encoder_ticks, p_state );
+ 281:base_motion/motion_control.c **** 
+ 282:base_motion/motion_control.c ****     Motion_Control_Compute_Target_Position( p_state );
+ 283:base_motion/motion_control.c **** 
+ 284:base_motion/motion_control.c ****     return Motion_Control_Run_PID( new_encoder_ticks, p_state );
+ 285:base_motion/motion_control.c **** }
+ 286:base_motion/motion_control.c **** 
+ 287:base_motion/motion_control.c **** void Motion_Control_Add_To_Encoder( int8_t new_encoder_ticks,  // s7.0 ticks 
+ 288:base_motion/motion_control.c ****                                     volatile Motion_State_t *p_state )
+ 289:base_motion/motion_control.c **** {
+ 529               	.LM48:
+ 530               	.LFBB7:
+ 531               	/* prologue: function */
+ 532               	/* frame size = 0 */
+ 533 0218 FB01      		movw r30,r22
+ 290:base_motion/motion_control.c ****     p_state->encoder += new_encoder_ticks;
+ 535               	.LM49:
+ 536 021a 2485      		ldd r18,Z+12
+ 537 021c 3585      		ldd r19,Z+13
+ 538 021e 4685      		ldd r20,Z+14
+ 539 0220 5785      		ldd r21,Z+15
+ 540 0222 9927      		clr r25
+ 541 0224 87FD      		sbrc r24,7
+ 542 0226 9095      		com r25
+ 543 0228 A92F      		mov r26,r25
+ 544 022a B92F      		mov r27,r25
+ 545 022c 820F      		add r24,r18
+ 546 022e 931F      		adc r25,r19
+ 547 0230 A41F      		adc r26,r20
+ 548 0232 B51F      		adc r27,r21
+ 549 0234 8487      		std Z+12,r24
+ 550 0236 9587      		std Z+13,r25
+ 551 0238 A687      		std Z+14,r26
+ 552 023a B787      		std Z+15,r27
+ 553               	/* epilogue start */
+ 291:base_motion/motion_control.c **** }
+ 555               	.LM50:
+ 556 023c 0895      		ret
+ 558               	.Lscope7:
+ 560               		.stabd	78,0,0
+ 564               	.global	Motion_Control_Add_To_Position
+ 566               	Motion_Control_Add_To_Position:
+ 567               		.stabd	46,0,0
+ 292:base_motion/motion_control.c **** 
+ 293:base_motion/motion_control.c **** /** This function runs a PID correction.
+ 294:base_motion/motion_control.c ****  */
+ 295:base_motion/motion_control.c **** int16_t Motion_Control_Run_PID( int8_t new_encoder_ticks,  // s7.0 ticks 
+ 296:base_motion/motion_control.c ****                                 volatile Motion_State_t *p_state )
+ 297:base_motion/motion_control.c **** {
+ 298:base_motion/motion_control.c ****   int16_t power;
+ 299:base_motion/motion_control.c ****   int16_t error_squared;
+ 300:base_motion/motion_control.c **** 
+ 301:base_motion/motion_control.c ****   power = Pid_Compute_Correction( new_encoder_ticks, &( p_state->pid ) );
+ 302:base_motion/motion_control.c **** 
+ 303:base_motion/motion_control.c ****   if  ( ( p_state->linear_velocity == 0 ) &&
+ 304:base_motion/motion_control.c ****         ( p_state->angular_velocity == 0 ) &&
+ 305:base_motion/motion_control.c ****         (( error_squared = p_state->pid.error * p_state->pid.error ) < 5) ) // 10 should mean withi
+ 306:base_motion/motion_control.c ****   {
+ 307:base_motion/motion_control.c ****     power = (power * error_squared) / 8;
+ 308:base_motion/motion_control.c ****   }
+ 309:base_motion/motion_control.c **** 
+ 310:base_motion/motion_control.c ****   p_state->power_out = power;
+ 311:base_motion/motion_control.c **** 
+ 312:base_motion/motion_control.c ****   return power;
+ 313:base_motion/motion_control.c **** }
+ 314:base_motion/motion_control.c **** 
+ 315:base_motion/motion_control.c **** /** Add an s7.8 value to the current setpoint.
+ 316:base_motion/motion_control.c ****  *
+ 317:base_motion/motion_control.c ****  *  Do this with interrupts off since the motor control
+ 318:base_motion/motion_control.c ****  *  task might be reading the value. -where? SJL
+ 319:base_motion/motion_control.c ****  *
+ 320:base_motion/motion_control.c ****  */
+ 321:base_motion/motion_control.c **** void Motion_Control_Add_To_Position( int16_t num_ticks, volatile Motion_State_t *p_motion )
+ 322:base_motion/motion_control.c **** {
+ 569               	.LM51:
+ 570               	.LFBB8:
+ 571 023e AF92      		push r10
+ 572 0240 BF92      		push r11
+ 573 0242 CF92      		push r12
+ 574 0244 DF92      		push r13
+ 575 0246 EF92      		push r14
+ 576 0248 FF92      		push r15
+ 577 024a 0F93      		push r16
+ 578 024c 1F93      		push r17
+ 579 024e DF93      		push r29
+ 580 0250 CF93      		push r28
+ 581 0252 00D0      		rcall .
+ 582 0254 CDB7      		in r28,__SP_L__
+ 583 0256 DEB7      		in r29,__SP_H__
+ 584               	/* prologue: function */
+ 585               	/* frame size = 2 */
+ 586 0258 5C01      		movw r10,r24
+ 587 025a 6B01      		movw r12,r22
+ 323:base_motion/motion_control.c ****     int16_t new_pid_setpoint;
+ 324:base_motion/motion_control.c **** 
+ 325:base_motion/motion_control.c ****     new_pid_setpoint = (int16_t)( ( p_motion->encoder_setpoint / 256) - p_motion->encoder );
+ 589               	.LM52:
+ 590 025c FB01      		movw r30,r22
+ 591 025e 6085      		ldd r22,Z+8
+ 592 0260 7185      		ldd r23,Z+9
+ 593 0262 8285      		ldd r24,Z+10
+ 594 0264 9385      		ldd r25,Z+11
+ 595 0266 E484      		ldd r14,Z+12
+ 596 0268 F584      		ldd r15,Z+13
+ 597 026a 0685      		ldd r16,Z+14
+ 598 026c 1785      		ldd r17,Z+15
+ 599 026e 20E0      		ldi r18,lo8(256)
+ 600 0270 31E0      		ldi r19,hi8(256)
+ 601 0272 40E0      		ldi r20,hlo8(256)
+ 602 0274 50E0      		ldi r21,hhi8(256)
+ 603 0276 0E94 0000 		call __divmodsi4
+ 604 027a 2E19      		sub r18,r14
+ 605 027c 3F09      		sbc r19,r15
+ 606 027e 3A83      		std Y+2,r19
+ 607 0280 2983      		std Y+1,r18
+ 326:base_motion/motion_control.c **** 
+ 327:base_motion/motion_control.c ****     // Prevent run-away setpoints! If there is already more positive error, than the velocity
+ 328:base_motion/motion_control.c ****     // you are trying to acheive, don't add more.
+ 329:base_motion/motion_control.c ****     if ( (num_ticks > 0) && (( num_ticks / 256 ) > new_pid_setpoint) )
+ 609               	.LM53:
+ 610 0282 1A14      		cp __zero_reg__,r10
+ 611 0284 1B04      		cpc __zero_reg__,r11
+ 612 0286 04F4      		brge .L19
+ 613 0288 8B2D      		mov r24,r11
+ 614 028a 9927      		clr r25
+ 615 028c 87FD      		sbrc r24,7
+ 616 028e 9A95      		dec r25
+ 617 0290 2817      		cp r18,r24
+ 618 0292 3907      		cpc r19,r25
+ 619 0294 04F4      		brge .L20
+ 620 0296 00C0      		rjmp .L23
+ 621               	.L19:
+ 330:base_motion/motion_control.c ****     { 
+ 331:base_motion/motion_control.c ****         p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
+ 332:base_motion/motion_control.c ****         new_pid_setpoint = (int16_t)( ( p_motion->encoder_setpoint / 256) - p_motion->encoder );
+ 333:base_motion/motion_control.c ****     }    
+ 334:base_motion/motion_control.c ****     // Similarly if there is already more error (going backward), than the velocity
+ 335:base_motion/motion_control.c ****     // you are trying to acheive, don't add more.
+ 336:base_motion/motion_control.c ****     else if ( (num_ticks < 0) && (( num_ticks / 256 ) < new_pid_setpoint) )
+ 623               	.LM54:
+ 624 0298 A114      		cp r10,__zero_reg__
+ 625 029a B104      		cpc r11,__zero_reg__
+ 626 029c 01F0      		breq .L20
+ 627 029e C501      		movw r24,r10
+ 628 02a0 60E0      		ldi r22,lo8(256)
+ 629 02a2 71E0      		ldi r23,hi8(256)
+ 630 02a4 0E94 0000 		call __divmodhi4
+ 631 02a8 6217      		cp r22,r18
+ 632 02aa 7307      		cpc r23,r19
+ 633 02ac 04F4      		brge .L20
+ 634               	.L23:
+ 337:base_motion/motion_control.c ****     { 
+ 338:base_motion/motion_control.c ****         p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
+ 636               	.LM55:
+ 637 02ae F601      		movw r30,r12
+ 638 02b0 2085      		ldd r18,Z+8
+ 639 02b2 3185      		ldd r19,Z+9
+ 640 02b4 4285      		ldd r20,Z+10
+ 641 02b6 5385      		ldd r21,Z+11
+ 642 02b8 C501      		movw r24,r10
+ 643 02ba AA27      		clr r26
+ 644 02bc 97FD      		sbrc r25,7
+ 645 02be A095      		com r26
+ 646 02c0 BA2F      		mov r27,r26
+ 647 02c2 820F      		add r24,r18
+ 648 02c4 931F      		adc r25,r19
+ 649 02c6 A41F      		adc r26,r20
+ 650 02c8 B51F      		adc r27,r21
+ 651 02ca 8087      		std Z+8,r24
+ 652 02cc 9187      		std Z+9,r25
+ 653 02ce A287      		std Z+10,r26
+ 654 02d0 B387      		std Z+11,r27
+ 339:base_motion/motion_control.c ****         new_pid_setpoint = (int16_t)( ( p_motion->encoder_setpoint / 256) - p_motion->encoder );
+ 656               	.LM56:
+ 657 02d2 6085      		ldd r22,Z+8
+ 658 02d4 7185      		ldd r23,Z+9
+ 659 02d6 8285      		ldd r24,Z+10
+ 660 02d8 9385      		ldd r25,Z+11
+ 661 02da E484      		ldd r14,Z+12
+ 662 02dc F584      		ldd r15,Z+13
+ 663 02de 0685      		ldd r16,Z+14
+ 664 02e0 1785      		ldd r17,Z+15
+ 665 02e2 20E0      		ldi r18,lo8(256)
+ 666 02e4 31E0      		ldi r19,hi8(256)
+ 667 02e6 40E0      		ldi r20,hlo8(256)
+ 668 02e8 50E0      		ldi r21,hhi8(256)
+ 669 02ea 0E94 0000 		call __divmodsi4
+ 670 02ee 2E19      		sub r18,r14
+ 671 02f0 3F09      		sbc r19,r15
+ 672 02f2 3A83      		std Y+2,r19
+ 673 02f4 2983      		std Y+1,r18
+ 674               	.L20:
+ 340:base_motion/motion_control.c ****     }    
+ 341:base_motion/motion_control.c ****     
+ 342:base_motion/motion_control.c ****     // HACK!!! new_pid_setpoint should be around 5, so 100 should be Way safe.
+ 343:base_motion/motion_control.c ****     // The pid setpoint was routinely getting set to 170-220...
+ 344:base_motion/motion_control.c ****     // With this change I have seen no anomalous behavior.
+ 345:base_motion/motion_control.c ****     if ( CLAMP_VALUE_NOT_CLAMPED == Clamp_Abs_Value(&new_pid_setpoint, 100 ) )
+ 676               	.LM57:
+ 677 02f6 CE01      		movw r24,r28
+ 678 02f8 0196      		adiw r24,1
+ 679 02fa 64E6      		ldi r22,lo8(100)
+ 680 02fc 70E0      		ldi r23,hi8(100)
+ 681 02fe 0E94 0000 		call Clamp_Abs_Value
+ 682 0302 8823      		tst r24
+ 683 0304 01F4      		brne .L22
+ 346:base_motion/motion_control.c ****     {
+ 347:base_motion/motion_control.c ****         p_motion->pid.setpoint = new_pid_setpoint;
+ 685               	.LM58:
+ 686 0306 8981      		ldd r24,Y+1
+ 687 0308 9A81      		ldd r25,Y+2
+ 688 030a F601      		movw r30,r12
+ 689 030c 938B      		std Z+19,r25
+ 690 030e 828B      		std Z+18,r24
+ 691               	.L22:
+ 692               	/* epilogue start */
+ 348:base_motion/motion_control.c ****     }
+ 349:base_motion/motion_control.c **** }
+ 694               	.LM59:
+ 695 0310 0F90      		pop __tmp_reg__
+ 696 0312 0F90      		pop __tmp_reg__
+ 697 0314 CF91      		pop r28
+ 698 0316 DF91      		pop r29
+ 699 0318 1F91      		pop r17
+ 700 031a 0F91      		pop r16
+ 701 031c FF90      		pop r15
+ 702 031e EF90      		pop r14
+ 703 0320 DF90      		pop r13
+ 704 0322 CF90      		pop r12
+ 705 0324 BF90      		pop r11
+ 706 0326 AF90      		pop r10
+ 707 0328 0895      		ret
+ 712               	.Lscope8:
+ 714               		.stabd	78,0,0
+ 717               	.global	Motion_Control_Compute_Target_Position
+ 719               	Motion_Control_Compute_Target_Position:
+ 720               		.stabd	46,0,0
+ 350:base_motion/motion_control.c **** 
+ 351:base_motion/motion_control.c **** void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_motion )
+ 352:base_motion/motion_control.c **** {
+ 722               	.LM60:
+ 723               	.LFBB9:
+ 724               	/* prologue: function */
+ 725               	/* frame size = 0 */
+ 726 032a FC01      		movw r30,r24
+ 353:base_motion/motion_control.c ****     int16_t new_velocity;
+ 354:base_motion/motion_control.c **** 
+ 355:base_motion/motion_control.c ****     // Linear Velocity
+ 356:base_motion/motion_control.c ****     if ( p_motion->linear_velocity < p_motion->linear_velocity_setpoint )
+ 728               	.LM61:
+ 729 032c 2681      		ldd r18,Z+6
+ 730 032e 3781      		ldd r19,Z+7
+ 731 0330 8481      		ldd r24,Z+4
+ 732 0332 9581      		ldd r25,Z+5
+ 733 0334 2817      		cp r18,r24
+ 734 0336 3907      		cpc r19,r25
+ 735 0338 04F4      		brge .L25
+ 357:base_motion/motion_control.c ****     {
+ 358:base_motion/motion_control.c ****         p_motion->linear_velocity += m_linear_acceleration;
+ 737               	.LM62:
+ 738 033a 8681      		ldd r24,Z+6
+ 739 033c 9781      		ldd r25,Z+7
+ 740 033e 2091 0000 		lds r18,m_linear_acceleration
+ 741 0342 3091 0000 		lds r19,(m_linear_acceleration)+1
+ 742 0346 820F      		add r24,r18
+ 743 0348 931F      		adc r25,r19
+ 744 034a 9783      		std Z+7,r25
+ 745 034c 8683      		std Z+6,r24
+ 359:base_motion/motion_control.c **** 
+ 360:base_motion/motion_control.c ****         if ( p_motion->linear_velocity > p_motion->linear_velocity_setpoint )
+ 747               	.LM63:
+ 748 034e 2681      		ldd r18,Z+6
+ 749 0350 3781      		ldd r19,Z+7
+ 750 0352 8481      		ldd r24,Z+4
+ 751 0354 9581      		ldd r25,Z+5
+ 752 0356 8217      		cp r24,r18
+ 753 0358 9307      		cpc r25,r19
+ 754 035a 04F4      		brge .L26
+ 755 035c 00C0      		rjmp .L30
+ 756               	.L25:
+ 361:base_motion/motion_control.c ****         {
+ 362:base_motion/motion_control.c ****             p_motion->linear_velocity = p_motion->linear_velocity_setpoint;
+ 363:base_motion/motion_control.c ****         }
+ 364:base_motion/motion_control.c ****     }
+ 365:base_motion/motion_control.c ****     else
+ 366:base_motion/motion_control.c ****     {
+ 367:base_motion/motion_control.c ****         p_motion->linear_velocity -= m_linear_acceleration;
+ 758               	.LM64:
+ 759 035e 8681      		ldd r24,Z+6
+ 760 0360 9781      		ldd r25,Z+7
+ 761 0362 2091 0000 		lds r18,m_linear_acceleration
+ 762 0366 3091 0000 		lds r19,(m_linear_acceleration)+1
+ 763 036a 821B      		sub r24,r18
+ 764 036c 930B      		sbc r25,r19
+ 765 036e 9783      		std Z+7,r25
+ 766 0370 8683      		std Z+6,r24
+ 368:base_motion/motion_control.c **** 
+ 369:base_motion/motion_control.c ****         if ( p_motion->linear_velocity < p_motion->linear_velocity_setpoint )
+ 768               	.LM65:
+ 769 0372 2681      		ldd r18,Z+6
+ 770 0374 3781      		ldd r19,Z+7
+ 771 0376 8481      		ldd r24,Z+4
+ 772 0378 9581      		ldd r25,Z+5
+ 773 037a 2817      		cp r18,r24
+ 774 037c 3907      		cpc r19,r25
+ 775 037e 04F4      		brge .L26
+ 776               	.L30:
+ 370:base_motion/motion_control.c ****         {
+ 371:base_motion/motion_control.c ****             p_motion->linear_velocity = p_motion->linear_velocity_setpoint;
+ 778               	.LM66:
+ 779 0380 8481      		ldd r24,Z+4
+ 780 0382 9581      		ldd r25,Z+5
+ 781 0384 9783      		std Z+7,r25
+ 782 0386 8683      		std Z+6,r24
+ 783               	.L26:
+ 372:base_motion/motion_control.c ****         }
+ 373:base_motion/motion_control.c ****     }
+ 374:base_motion/motion_control.c **** 
+ 375:base_motion/motion_control.c ****     // Angular Velocity
+ 376:base_motion/motion_control.c ****     if ( p_motion->angular_velocity < p_motion->angular_velocity_setpoint )
+ 785               	.LM67:
+ 786 0388 2281      		ldd r18,Z+2
+ 787 038a 3381      		ldd r19,Z+3
+ 788 038c 8081      		ld r24,Z
+ 789 038e 9181      		ldd r25,Z+1
+ 790 0390 2817      		cp r18,r24
+ 791 0392 3907      		cpc r19,r25
+ 792 0394 04F4      		brge .L27
+ 377:base_motion/motion_control.c ****     {
+ 378:base_motion/motion_control.c ****         p_motion->angular_velocity += m_angular_acceleration; 
+ 794               	.LM68:
+ 795 0396 8281      		ldd r24,Z+2
+ 796 0398 9381      		ldd r25,Z+3
+ 797 039a 2091 0000 		lds r18,m_angular_acceleration
+ 798 039e 3091 0000 		lds r19,(m_angular_acceleration)+1
+ 799 03a2 820F      		add r24,r18
+ 800 03a4 931F      		adc r25,r19
+ 801 03a6 9383      		std Z+3,r25
+ 802 03a8 8283      		std Z+2,r24
+ 379:base_motion/motion_control.c **** 
+ 380:base_motion/motion_control.c ****         if ( p_motion->angular_velocity > p_motion->angular_velocity_setpoint )
+ 804               	.LM69:
+ 805 03aa 2281      		ldd r18,Z+2
+ 806 03ac 3381      		ldd r19,Z+3
+ 807 03ae 8081      		ld r24,Z
+ 808 03b0 9181      		ldd r25,Z+1
+ 809 03b2 8217      		cp r24,r18
+ 810 03b4 9307      		cpc r25,r19
+ 811 03b6 04F4      		brge .L28
+ 812 03b8 00C0      		rjmp .L31
+ 813               	.L27:
+ 381:base_motion/motion_control.c ****         {
+ 382:base_motion/motion_control.c ****             p_motion->angular_velocity = p_motion->angular_velocity_setpoint;
+ 383:base_motion/motion_control.c ****         }
+ 384:base_motion/motion_control.c ****     }
+ 385:base_motion/motion_control.c ****     else
+ 386:base_motion/motion_control.c ****     {
+ 387:base_motion/motion_control.c ****         p_motion->angular_velocity -= m_angular_acceleration;
+ 815               	.LM70:
+ 816 03ba 8281      		ldd r24,Z+2
+ 817 03bc 9381      		ldd r25,Z+3
+ 818 03be 2091 0000 		lds r18,m_angular_acceleration
+ 819 03c2 3091 0000 		lds r19,(m_angular_acceleration)+1
+ 820 03c6 821B      		sub r24,r18
+ 821 03c8 930B      		sbc r25,r19
+ 822 03ca 9383      		std Z+3,r25
+ 823 03cc 8283      		std Z+2,r24
+ 388:base_motion/motion_control.c **** 
+ 389:base_motion/motion_control.c ****         if ( p_motion->angular_velocity < p_motion->angular_velocity_setpoint )
+ 825               	.LM71:
+ 826 03ce 2281      		ldd r18,Z+2
+ 827 03d0 3381      		ldd r19,Z+3
+ 828 03d2 8081      		ld r24,Z
+ 829 03d4 9181      		ldd r25,Z+1
+ 830 03d6 2817      		cp r18,r24
+ 831 03d8 3907      		cpc r19,r25
+ 832 03da 04F4      		brge .L28
+ 833               	.L31:
+ 390:base_motion/motion_control.c ****         {
+ 391:base_motion/motion_control.c ****             p_motion->angular_velocity = p_motion->angular_velocity_setpoint;
+ 835               	.LM72:
+ 836 03dc 8081      		ld r24,Z
+ 837 03de 9181      		ldd r25,Z+1
+ 838 03e0 9383      		std Z+3,r25
+ 839 03e2 8283      		std Z+2,r24
+ 840               	.L28:
+ 392:base_motion/motion_control.c ****         }
+ 393:base_motion/motion_control.c ****     }
+ 394:base_motion/motion_control.c **** 
+ 395:base_motion/motion_control.c ****     new_velocity = p_motion->linear_velocity + p_motion->angular_velocity;
+ 842               	.LM73:
+ 843 03e4 2681      		ldd r18,Z+6
+ 844 03e6 3781      		ldd r19,Z+7
+ 845 03e8 8281      		ldd r24,Z+2
+ 846 03ea 9381      		ldd r25,Z+3
+ 396:base_motion/motion_control.c **** 
+ 397:base_motion/motion_control.c ****     Motion_Control_Add_To_Position( new_velocity, p_motion );
+ 848               	.LM74:
+ 849 03ec 820F      		add r24,r18
+ 850 03ee 931F      		adc r25,r19
+ 851 03f0 BF01      		movw r22,r30
+ 852 03f2 0E94 0000 		call Motion_Control_Add_To_Position
+ 853               	/* epilogue start */
+ 398:base_motion/motion_control.c **** }
+ 855               	.LM75:
+ 856 03f6 0895      		ret
+ 858               	.Lscope9:
+ 860               		.stabd	78,0,0
+ 864               	.global	Motion_Control_Run_PID
+ 866               	Motion_Control_Run_PID:
+ 867               		.stabd	46,0,0
+ 297:base_motion/motion_control.c **** {
+ 869               	.LM76:
+ 870               	.LFBB10:
+ 871 03f8 CF93      		push r28
+ 872 03fa DF93      		push r29
+ 873               	/* prologue: function */
+ 874               	/* frame size = 0 */
+ 875 03fc EB01      		movw r28,r22
+ 301:base_motion/motion_control.c ****   power = Pid_Compute_Correction( new_encoder_ticks, &( p_state->pid ) );
+ 877               	.LM77:
+ 878 03fe 6E5E      		subi r22,lo8(-(18))
+ 879 0400 7F4F      		sbci r23,hi8(-(18))
+ 880 0402 9927      		clr r25
+ 881 0404 87FD      		sbrc r24,7
+ 882 0406 9095      		com r25
+ 883 0408 0E94 0000 		call Pid_Compute_Correction
+ 884 040c BC01      		movw r22,r24
+ 303:base_motion/motion_control.c ****   if  ( ( p_state->linear_velocity == 0 ) &&
+ 886               	.LM78:
+ 887 040e 8E81      		ldd r24,Y+6
+ 888 0410 9F81      		ldd r25,Y+7
+ 889 0412 892B      		or r24,r25
+ 890 0414 01F4      		brne .L33
+ 891 0416 8A81      		ldd r24,Y+2
+ 892 0418 9B81      		ldd r25,Y+3
+ 893 041a 892B      		or r24,r25
+ 894 041c 01F4      		brne .L33
+ 895 041e 2C89      		ldd r18,Y+20
+ 896 0420 3D89      		ldd r19,Y+21
+ 897 0422 8C89      		ldd r24,Y+20
+ 898 0424 9D89      		ldd r25,Y+21
+ 899 0426 829F      		mul r24,r18
+ 900 0428 A001      		movw r20,r0
+ 901 042a 839F      		mul r24,r19
+ 902 042c 500D      		add r21,r0
+ 903 042e 929F      		mul r25,r18
+ 904 0430 500D      		add r21,r0
+ 905 0432 1124      		clr r1
+ 906 0434 4530      		cpi r20,5
+ 907 0436 5105      		cpc r21,__zero_reg__
+ 908 0438 04F4      		brge .L33
+ 307:base_motion/motion_control.c ****     power = (power * error_squared) / 8;
+ 910               	.LM79:
+ 911 043a 649F      		mul r22,r20
+ 912 043c C001      		movw r24,r0
+ 913 043e 659F      		mul r22,r21
+ 914 0440 900D      		add r25,r0
+ 915 0442 749F      		mul r23,r20
+ 916 0444 900D      		add r25,r0
+ 917 0446 1124      		clr r1
+ 918 0448 68E0      		ldi r22,lo8(8)
+ 919 044a 70E0      		ldi r23,hi8(8)
+ 920 044c 0E94 0000 		call __divmodhi4
+ 921               	.L33:
+ 310:base_motion/motion_control.c ****   p_state->power_out = power;
+ 923               	.LM80:
+ 924 0450 798B      		std Y+17,r23
+ 925 0452 688B      		std Y+16,r22
+ 313:base_motion/motion_control.c **** }
+ 927               	.LM81:
+ 928 0454 CB01      		movw r24,r22
+ 929               	/* epilogue start */
+ 930 0456 DF91      		pop r29
+ 931 0458 CF91      		pop r28
+ 932 045a 0895      		ret
+ 938               	.Lscope10:
+ 940               		.stabd	78,0,0
+ 944               	.global	Motion_Control_Compute_Power
+ 946               	Motion_Control_Compute_Power:
+ 947               		.stabd	46,0,0
+ 279:base_motion/motion_control.c **** {
+ 949               	.LM82:
+ 950               	.LFBB11:
+ 951 045c FF92      		push r15
+ 952 045e 0F93      		push r16
+ 953 0460 1F93      		push r17
+ 954               	/* prologue: function */
+ 955               	/* frame size = 0 */
+ 956 0462 F82E      		mov r15,r24
+ 957 0464 8B01      		movw r16,r22
+ 958               	.LBB12:
+ 959               	.LBB13:
+ 290:base_motion/motion_control.c ****     p_state->encoder += new_encoder_ticks;
+ 961               	.LM83:
+ 962 0466 FB01      		movw r30,r22
+ 963 0468 2485      		ldd r18,Z+12
+ 964 046a 3585      		ldd r19,Z+13
+ 965 046c 4685      		ldd r20,Z+14
+ 966 046e 5785      		ldd r21,Z+15
+ 967 0470 9927      		clr r25
+ 968 0472 87FD      		sbrc r24,7
+ 969 0474 9095      		com r25
+ 970 0476 A92F      		mov r26,r25
+ 971 0478 B92F      		mov r27,r25
+ 972 047a 820F      		add r24,r18
+ 973 047c 931F      		adc r25,r19
+ 974 047e A41F      		adc r26,r20
+ 975 0480 B51F      		adc r27,r21
+ 976 0482 8487      		std Z+12,r24
+ 977 0484 9587      		std Z+13,r25
+ 978 0486 A687      		std Z+14,r26
+ 979 0488 B787      		std Z+15,r27
+ 980               	.LBE13:
+ 981               	.LBE12:
+ 282:base_motion/motion_control.c ****     Motion_Control_Compute_Target_Position( p_state );
+ 983               	.LM84:
+ 984 048a CB01      		movw r24,r22
+ 985 048c 0E94 0000 		call Motion_Control_Compute_Target_Position
+ 284:base_motion/motion_control.c ****     return Motion_Control_Run_PID( new_encoder_ticks, p_state );
+ 987               	.LM85:
+ 988 0490 8F2D      		mov r24,r15
+ 989 0492 B801      		movw r22,r16
+ 990 0494 0E94 0000 		call Motion_Control_Run_PID
+ 991               	/* epilogue start */
+ 285:base_motion/motion_control.c **** }
+ 993               	.LM86:
+ 994 0498 1F91      		pop r17
+ 995 049a 0F91      		pop r16
+ 996 049c FF90      		pop r15
+ 997 049e 0895      		ret
+ 999               	.Lscope11:
+ 1001               		.stabd	78,0,0
+ 1003               	.global	Motion_Control_EStop
+ 1005               	Motion_Control_EStop:
+ 1006               		.stabd	46,0,0
+ 253:base_motion/motion_control.c **** {
+ 1008               	.LM87:
+ 1009               	.LFBB12:
+ 1010               	/* prologue: function */
+ 1011               	/* frame size = 0 */
+ 254:base_motion/motion_control.c ****     g_estop = 1;
+ 1013               	.LM88:
+ 1014 04a0 81E0      		ldi r24,lo8(1)
+ 1015 04a2 8093 0000 		sts g_estop,r24
+ 256:base_motion/motion_control.c ****     Motors_Set_Direction( MOTORS_L_INDEX, MOTORS_BRAKE );
+ 1017               	.LM89:
+ 1018 04a6 80E0      		ldi r24,lo8(0)
+ 1019 04a8 60E0      		ldi r22,lo8(0)
+ 1020 04aa 0E94 0000 		call Motors_Set_Direction
+ 257:base_motion/motion_control.c ****     Motors_Set_Direction( MOTORS_R_INDEX, MOTORS_BRAKE );
+ 1022               	.LM90:
+ 1023 04ae 81E0      		ldi r24,lo8(1)
+ 1024 04b0 60E0      		ldi r22,lo8(0)
+ 1025 04b2 0E94 0000 		call Motors_Set_Direction
+ 259:base_motion/motion_control.c ****     Motion_Control_Set_Velocity( 0, 0 );
+ 1027               	.LM91:
+ 1028 04b6 80E0      		ldi r24,lo8(0)
+ 1029 04b8 90E0      		ldi r25,hi8(0)
+ 1030 04ba 60E0      		ldi r22,lo8(0)
+ 1031 04bc 70E0      		ldi r23,hi8(0)
+ 1032 04be 0E94 0000 		call Motion_Control_Set_Velocity
+ 1033               	/* epilogue start */
+ 260:base_motion/motion_control.c **** }
+ 1035               	.LM92:
+ 1036 04c2 0895      		ret
+ 1038               	.Lscope12:
+ 1040               		.stabd	78,0,0
+ 1042               	.global	Motion_Control_Init
+ 1044               	Motion_Control_Init:
+ 1045               		.stabd	46,0,0
+  71:base_motion/motion_control.c **** {
+ 1047               	.LM93:
+ 1048               	.LFBB13:
+ 1049               	/* prologue: function */
+ 1050               	/* frame size = 0 */
+  72:base_motion/motion_control.c ****     Motion_Control_Init_Acceleration();
+ 1052               	.LM94:
+ 1053 04c4 0E94 0000 		call Motion_Control_Init_Acceleration
+  73:base_motion/motion_control.c ****     Motion_Control_Init_State( &g_left_wheel_motion );
+ 1055               	.LM95:
+ 1056 04c8 80E0      		ldi r24,lo8(g_left_wheel_motion)
+ 1057 04ca 90E0      		ldi r25,hi8(g_left_wheel_motion)
+ 1058 04cc 0E94 0000 		call Motion_Control_Init_State
+  74:base_motion/motion_control.c ****     Motion_Control_Init_State( &g_right_wheel_motion );
+ 1060               	.LM96:
+ 1061 04d0 80E0      		ldi r24,lo8(g_right_wheel_motion)
+ 1062 04d2 90E0      		ldi r25,hi8(g_right_wheel_motion)
+ 1063 04d4 0E94 0000 		call Motion_Control_Init_State
+  75:base_motion/motion_control.c ****     Motion_Control_Set_Velocity( 0, 0 );
+ 1065               	.LM97:
+ 1066 04d8 80E0      		ldi r24,lo8(0)
+ 1067 04da 90E0      		ldi r25,hi8(0)
+ 1068 04dc 60E0      		ldi r22,lo8(0)
+ 1069 04de 70E0      		ldi r23,hi8(0)
+ 1070 04e0 0E94 0000 		call Motion_Control_Set_Velocity
+  77:base_motion/motion_control.c ****     m_max_velocity = MOTION_CONTROL_DEFAULT_MAX_VELOCITY;
+ 1072               	.LM98:
+ 1073 04e4 80E8      		ldi r24,lo8(128)
+ 1074 04e6 90E0      		ldi r25,hi8(128)
+ 1075 04e8 9093 0000 		sts (m_max_velocity)+1,r25
+ 1076 04ec 8093 0000 		sts m_max_velocity,r24
+  79:base_motion/motion_control.c ****     Motors_Set_Direction(MOTORS_L_INDEX, MOTORS_FORWARD);
+ 1078               	.LM99:
+ 1079 04f0 80E0      		ldi r24,lo8(0)
+ 1080 04f2 62E0      		ldi r22,lo8(2)
+ 1081 04f4 0E94 0000 		call Motors_Set_Direction
+  80:base_motion/motion_control.c ****     Motors_Set_Direction(MOTORS_R_INDEX, MOTORS_FORWARD);
+ 1083               	.LM100:
+ 1084 04f8 81E0      		ldi r24,lo8(1)
+ 1085 04fa 62E0      		ldi r22,lo8(2)
+ 1086 04fc 0E94 0000 		call Motors_Set_Direction
+ 1087               	/* epilogue start */
+  81:base_motion/motion_control.c **** }
+ 1089               	.LM101:
+ 1090 0500 0895      		ret
+ 1092               	.Lscope13:
+ 1094               		.stabd	78,0,0
+ 1096               	.global	Motion_Control_Run_Step
+ 1098               	Motion_Control_Run_Step:
+ 1099               		.stabd	46,0,0
+ 142:base_motion/motion_control.c **** {
+ 1101               	.LM102:
+ 1102               	.LFBB14:
+ 1103 0502 CF92      		push r12
+ 1104 0504 DF92      		push r13
+ 1105 0506 EF92      		push r14
+ 1106 0508 FF92      		push r15
+ 1107 050a 0F93      		push r16
+ 1108 050c 1F93      		push r17
+ 1109 050e CF93      		push r28
+ 1110 0510 DF93      		push r29
+ 1111               	/* prologue: function */
+ 1112               	/* frame size = 0 */
+ 162:base_motion/motion_control.c ****     DISABLE_INTERRUPTS();
+ 1114               	.LM103:
+ 1115               	/* #APP */
+ 1116               	 ;  162 "base_motion/motion_control.c" 1
+ 1117 0512 F894      		cli
+ 1118               	 ;  0 "" 2
+ 163:base_motion/motion_control.c ****     delta_left = g_shaft_encoders_left_count;
+ 1120               	.LM104:
+ 1121               	/* #NOAPP */
+ 1122 0514 8091 0000 		lds r24,g_shaft_encoders_left_count
+ 1123 0518 9091 0000 		lds r25,(g_shaft_encoders_left_count)+1
+ 164:base_motion/motion_control.c ****     delta_right = g_shaft_encoders_right_count;
+ 1125               	.LM105:
+ 1126 051c 0091 0000 		lds r16,g_shaft_encoders_right_count
+ 1127 0520 1091 0000 		lds r17,(g_shaft_encoders_right_count)+1
+ 165:base_motion/motion_control.c ****     stasis_total += g_shaft_encoders_stasis_count;
+ 1129               	.LM106:
+ 1130 0524 4091 0000 		lds r20,g_shaft_encoders_stasis_count
+ 1131 0528 5091 0000 		lds r21,(g_shaft_encoders_stasis_count)+1
+ 1132 052c 2091 0000 		lds r18,stasis_total.1467
+ 1133 0530 3091 0000 		lds r19,(stasis_total.1467)+1
+ 1134 0534 240F      		add r18,r20
+ 1135 0536 351F      		adc r19,r21
+ 1136 0538 3093 0000 		sts (stasis_total.1467)+1,r19
+ 1137 053c 2093 0000 		sts stasis_total.1467,r18
+ 167:base_motion/motion_control.c ****     g_shaft_encoders_left_count = 0;
+ 1139               	.LM107:
+ 1140 0540 1092 0000 		sts (g_shaft_encoders_left_count)+1,__zero_reg__
+ 1141 0544 1092 0000 		sts g_shaft_encoders_left_count,__zero_reg__
+ 168:base_motion/motion_control.c ****     g_shaft_encoders_right_count = 0;
+ 1143               	.LM108:
+ 1144 0548 1092 0000 		sts (g_shaft_encoders_right_count)+1,__zero_reg__
+ 1145 054c 1092 0000 		sts g_shaft_encoders_right_count,__zero_reg__
+ 169:base_motion/motion_control.c ****     g_shaft_encoders_stasis_count = 0;
+ 1147               	.LM109:
+ 1148 0550 1092 0000 		sts (g_shaft_encoders_stasis_count)+1,__zero_reg__
+ 1149 0554 1092 0000 		sts g_shaft_encoders_stasis_count,__zero_reg__
+ 171:base_motion/motion_control.c ****     measurement_time = (uint16_t)g_system_clock;
+ 1151               	.LM110:
+ 1152 0558 C090 0000 		lds r12,g_system_clock
+ 1153 055c D090 0000 		lds r13,(g_system_clock)+1
+ 172:base_motion/motion_control.c ****     ENABLE_INTERRUPTS();
+ 1155               	.LM111:
+ 1156               	/* #APP */
+ 1157               	 ;  172 "base_motion/motion_control.c" 1
+ 1158 0560 7894      		sei
+ 1159               	 ;  0 "" 2
+ 175:base_motion/motion_control.c ****     left_power =    Motion_Control_Compute_Power(   delta_left,   p_l_wheel );
+ 1161               	.LM112:
+ 1162               	/* #NOAPP */
+ 1163 0562 60E0      		ldi r22,lo8(g_left_wheel_motion)
+ 1164 0564 70E0      		ldi r23,hi8(g_left_wheel_motion)
+ 1165 0566 0E94 0000 		call Motion_Control_Compute_Power
+ 1166 056a 7C01      		movw r14,r24
+ 176:base_motion/motion_control.c ****     right_power =   Motion_Control_Compute_Power(   delta_right,  p_r_wheel );
+ 1168               	.LM113:
+ 1169 056c 802F      		mov r24,r16
+ 1170 056e 60E0      		ldi r22,lo8(g_right_wheel_motion)
+ 1171 0570 70E0      		ldi r23,hi8(g_right_wheel_motion)
+ 1172 0572 0E94 0000 		call Motion_Control_Compute_Power
+ 1173 0576 EC01      		movw r28,r24
+ 178:base_motion/motion_control.c ****     if (!g_estop)
+ 1175               	.LM114:
+ 1176 0578 8091 0000 		lds r24,g_estop
+ 1177 057c 8823      		tst r24
+ 1178 057e 01F4      		brne .L42
+ 180:base_motion/motion_control.c ****         if (left_power < 0)
+ 1180               	.LM115:
+ 1181 0580 F7FE      		sbrs r15,7
+ 1182 0582 00C0      		rjmp .L43
+ 182:base_motion/motion_control.c ****             left_power *= -1;
+ 1184               	.LM116:
+ 1185 0584 F094      		com r15
+ 1186 0586 E194      		neg r14
+ 1187 0588 F108      		sbc r15,__zero_reg__
+ 1188 058a F394      		inc r15
+ 183:base_motion/motion_control.c ****             Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_REVERSE );
+ 1190               	.LM117:
+ 1191 058c 63E0      		ldi r22,lo8(3)
+ 1192 058e 00C0      		rjmp .L48
+ 1193               	.L43:
+ 187:base_motion/motion_control.c ****             Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_FORWARD);
+ 1195               	.LM118:
+ 1196 0590 80E0      		ldi r24,lo8(0)
+ 1197 0592 62E0      		ldi r22,lo8(2)
+ 1198               	.L48:
+ 1199 0594 0E94 0000 		call Motors_Set_Direction
+ 190:base_motion/motion_control.c ****         if (right_power < 0)
+ 1201               	.LM119:
+ 1202 0598 D7FF      		sbrs r29,7
+ 1203 059a 00C0      		rjmp .L45
+ 192:base_motion/motion_control.c ****             right_power *= -1;
+ 1205               	.LM120:
+ 1206 059c D095      		com r29
+ 1207 059e C195      		neg r28
+ 1208 05a0 DF4F      		sbci r29,lo8(-1)
+ 193:base_motion/motion_control.c ****             Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_REVERSE);
+ 1210               	.LM121:
+ 1211 05a2 81E0      		ldi r24,lo8(1)
+ 1212 05a4 63E0      		ldi r22,lo8(3)
+ 1213 05a6 00C0      		rjmp .L49
+ 1214               	.L45:
+ 197:base_motion/motion_control.c ****             Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_FORWARD);
+ 1216               	.LM122:
+ 1217 05a8 81E0      		ldi r24,lo8(1)
+ 1218 05aa 62E0      		ldi r22,lo8(2)
+ 1219               	.L49:
+ 1220 05ac 0E94 0000 		call Motors_Set_Direction
+ 200:base_motion/motion_control.c ****         Motors_Set_Power(   MOTORS_L_INDEX, left_power & 0xFF);
+ 1222               	.LM123:
+ 1223 05b0 80E0      		ldi r24,lo8(0)
+ 1224 05b2 6E2D      		mov r22,r14
+ 1225 05b4 0E94 0000 		call Motors_Set_Power
+ 201:base_motion/motion_control.c ****         Motors_Set_Power(   MOTORS_R_INDEX, right_power & 0xFF);
+ 1227               	.LM124:
+ 1228 05b8 81E0      		ldi r24,lo8(1)
+ 1229 05ba 6C2F      		mov r22,r28
+ 1230 05bc 0E94 0000 		call Motors_Set_Power
+ 1231               	.L42:
+ 205:base_motion/motion_control.c ****     DISABLE_INTERRUPTS();
+ 1233               	.LM125:
+ 1234               	/* #APP */
+ 1235               	 ;  205 "base_motion/motion_control.c" 1
+ 1236 05c0 F894      		cli
+ 1237               	 ;  0 "" 2
+ 207:base_motion/motion_control.c ****     gp_telemetry_write->left_encoder = (int16_t)(p_l_wheel->encoder);
+ 1239               	.LM126:
+ 1240               	/* #NOAPP */
+ 1241 05c2 E091 0000 		lds r30,gp_telemetry_write
+ 1242 05c6 F091 0000 		lds r31,(gp_telemetry_write)+1
+ 1243 05ca 8091 0000 		lds r24,g_left_wheel_motion+12
+ 1244 05ce 9091 0000 		lds r25,(g_left_wheel_motion+12)+1
+ 1245 05d2 A091 0000 		lds r26,(g_left_wheel_motion+12)+2
+ 1246 05d6 B091 0000 		lds r27,(g_left_wheel_motion+12)+3
+ 1247 05da 9583      		std Z+5,r25
+ 1248 05dc 8483      		std Z+4,r24
+ 208:base_motion/motion_control.c ****     gp_telemetry_write->right_encoder = (int16_t)(p_r_wheel->encoder);
+ 1250               	.LM127:
+ 1251 05de 8091 0000 		lds r24,g_right_wheel_motion+12
+ 1252 05e2 9091 0000 		lds r25,(g_right_wheel_motion+12)+1
+ 1253 05e6 A091 0000 		lds r26,(g_right_wheel_motion+12)+2
+ 1254 05ea B091 0000 		lds r27,(g_right_wheel_motion+12)+3
+ 1255 05ee 9783      		std Z+7,r25
+ 1256 05f0 8683      		std Z+6,r24
+ 209:base_motion/motion_control.c ****     gp_telemetry_write->stasis_encoder = stasis_total;
+ 1258               	.LM128:
+ 1259 05f2 8091 0000 		lds r24,stasis_total.1467
+ 1260 05f6 9091 0000 		lds r25,(stasis_total.1467)+1
+ 1261 05fa 9187      		std Z+9,r25
+ 1262 05fc 8087      		std Z+8,r24
+ 210:base_motion/motion_control.c ****     gp_telemetry_write->measurement_time = measurement_time;
+ 1264               	.LM129:
+ 1265 05fe D386      		std Z+11,r13
+ 1266 0600 C286      		std Z+10,r12
+ 212:base_motion/motion_control.c ****     ENABLE_INTERRUPTS();
+ 1268               	.LM130:
+ 1269               	/* #APP */
+ 1270               	 ;  212 "base_motion/motion_control.c" 1
+ 1271 0602 7894      		sei
+ 1272               	 ;  0 "" 2
+ 1273               	/* epilogue start */
+ 213:base_motion/motion_control.c **** } 
+ 1275               	.LM131:
+ 1276               	/* #NOAPP */
+ 1277 0604 DF91      		pop r29
+ 1278 0606 CF91      		pop r28
+ 1279 0608 1F91      		pop r17
+ 1280 060a 0F91      		pop r16
+ 1281 060c FF90      		pop r15
+ 1282 060e EF90      		pop r14
+ 1283 0610 DF90      		pop r13
+ 1284 0612 CF90      		pop r12
+ 1285 0614 0895      		ret
+ 1295               	.Lscope14:
+ 1297               		.stabd	78,0,0
+ 1298               	.global	g_encoder_total
+ 1299               	.global	g_encoder_total
+ 1300               		.section .bss
+ 1303               	g_encoder_total:
+ 1304 0000 0000 0000 		.skip 4,0
+ 1305               	.global	g_stasis_total
+ 1306               	.global	g_stasis_total
+ 1309               	g_stasis_total:
+ 1310 0004 0000 0000 		.skip 4,0
+ 1311               	.global	g_estop
+ 1312               	.global	g_estop
+ 1315               	g_estop:
+ 1316 0008 00        		.skip 1,0
+ 1317               		.lcomm stasis_total.1467,2
+ 1318               		.comm g_left_wheel_motion,36,1
+ 1319               		.comm g_right_wheel_motion,36,1
+ 1320               		.comm m_linear_acceleration,2,1
+ 1321               		.comm m_angular_acceleration,2,1
+ 1322               		.comm m_max_velocity,2,1
+ 1332               		.text
+ 1334               	.Letext0:
+ 1335               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:00000000 motion_control.c
+     /tmp/ccCj7hPh.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccCj7hPh.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccCj7hPh.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccCj7hPh.s:5      *ABS*:00000034 __CCP__
+     /tmp/ccCj7hPh.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/ccCj7hPh.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/ccCj7hPh.s:93     .text:00000000 Motion_Control_Set_Acceleration
+                            *COM*:00000002 m_linear_acceleration
+                            *COM*:00000002 m_angular_acceleration
+     /tmp/ccCj7hPh.s:130    .text:0000002c Motion_Control_Init_Acceleration
+     /tmp/ccCj7hPh.s:156    .text:0000003a Motion_Control_Init_State
+     /tmp/ccCj7hPh.s:253    .text:00000092 Motion_Control_Set_Velocity
+                            *COM*:00000002 m_max_velocity
+                            *COM*:00000024 g_left_wheel_motion
+                            *COM*:00000024 g_right_wheel_motion
+     /tmp/ccCj7hPh.s:469    .text:000001fe Motion_Control_Stop
+     /tmp/ccCj7hPh.s:497    .text:0000020c Motion_Control_Set_Update_Velocity
+     /tmp/ccCj7hPh.s:526    .text:00000218 Motion_Control_Add_To_Encoder
+     /tmp/ccCj7hPh.s:566    .text:0000023e Motion_Control_Add_To_Position
+     /tmp/ccCj7hPh.s:719    .text:0000032a Motion_Control_Compute_Target_Position
+     /tmp/ccCj7hPh.s:866    .text:000003f8 Motion_Control_Run_PID
+     /tmp/ccCj7hPh.s:946    .text:0000045c Motion_Control_Compute_Power
+     /tmp/ccCj7hPh.s:1005   .text:000004a0 Motion_Control_EStop
+     /tmp/ccCj7hPh.s:1315   .bss:00000008 g_estop
+     /tmp/ccCj7hPh.s:1044   .text:000004c4 Motion_Control_Init
+     /tmp/ccCj7hPh.s:1098   .text:00000502 Motion_Control_Run_Step
+                             .bss:00000009 stasis_total.1467
+     /tmp/ccCj7hPh.s:1303   .bss:00000000 g_encoder_total
+     /tmp/ccCj7hPh.s:1309   .bss:00000004 g_stasis_total
+
+UNDEFINED SYMBOLS
+__udivmodhi4
+__divmodsi4
+__divmodhi4
+__mulsi3
+gp_telemetry_write
+Clamp_Abs_Value
+Pid_Compute_Correction
+Motors_Set_Direction
+g_shaft_encoders_left_count
+g_shaft_encoders_right_count
+g_shaft_encoders_stasis_count
+g_system_clock
+Motors_Set_Power
+__do_clear_bss

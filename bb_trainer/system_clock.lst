@@ -1,0 +1,258 @@
+   1               		.file	"system_clock.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  77               	.global	System_Clock_Init
+  79               	System_Clock_Init:
+  80               		.stabd	46,0,0
+   1:system_clock.c **** #include <inttypes.h>
+   2:system_clock.c **** #include <avr/interrupt.h>
+   3:system_clock.c **** #include <avr/io.h>
+   4:system_clock.c **** 
+   5:system_clock.c **** #include "macros.h"
+   6:system_clock.c **** 
+   7:system_clock.c **** #include "system_clock.h"
+   8:system_clock.c **** 
+   9:system_clock.c **** #define SYSTEM_CLOCK_RATE_HZ    1000
+  10:system_clock.c **** 
+  11:system_clock.c **** volatile SYSTEM_CLOCK_T g_system_clock = 0;
+  12:system_clock.c **** 
+  13:system_clock.c **** /*
+  14:system_clock.c ****  * Setup timer 2 compare match to generate a tick interrupt.
+  15:system_clock.c ****  */
+  16:system_clock.c **** void System_Clock_Init( void )
+  17:system_clock.c **** {
+  82               	.LM0:
+  83               	.LFBB1:
+  84               	/* prologue: function */
+  85               	/* frame size = 0 */
+  18:system_clock.c ****     uint8_t compare_match;
+  19:system_clock.c ****     uint8_t byte;
+  20:system_clock.c **** 
+  21:system_clock.c **** 	compare_match = 124; // 1000 Hz
+  22:system_clock.c **** 
+  23:system_clock.c **** 	/* Setup compare match value for compare match A.  Interrupts are disabled 
+  24:system_clock.c **** 	before this is called so we need not worry here. */
+  25:system_clock.c **** 	byte = ( unsigned char ) ( compare_match & ( unsigned long ) 0xff );
+  26:system_clock.c **** 	OCR2A = byte;
+  87               	.LM1:
+  88 0000 8CE7      		ldi r24,lo8(124)
+  89 0002 8093 B300 		sts 179,r24
+  27:system_clock.c **** 
+  28:system_clock.c **** 	/* Setup clock source and compare match behaviour. */
+  29:system_clock.c **** 	TCCR2A = _BV(WGM21); // CTC
+  91               	.LM2:
+  92 0006 82E0      		ldi r24,lo8(2)
+  93 0008 8093 B000 		sts 176,r24
+  30:system_clock.c ****     TCCR2B = _BV(CS22);  // 64 Prescale
+  95               	.LM3:
+  96 000c 84E0      		ldi r24,lo8(4)
+  97 000e 8093 B100 		sts 177,r24
+  31:system_clock.c ****     BIT_CLEAR ( PRR, PRTIM2 );
+  99               	.LM4:
+ 100 0012 E4E6      		ldi r30,lo8(100)
+ 101 0014 F0E0      		ldi r31,hi8(100)
+ 102 0016 8081      		ld r24,Z
+ 103 0018 8F7B      		andi r24,lo8(-65)
+ 104 001a 8083      		st Z,r24
+  32:system_clock.c **** 
+  33:system_clock.c **** 	/* Enable the interrupt - this is okay as interrupt are currently globally
+  34:system_clock.c **** 	disabled. */
+  35:system_clock.c **** 	byte = TIMSK2;
+ 106               	.LM5:
+ 107 001c E0E7      		ldi r30,lo8(112)
+ 108 001e F0E0      		ldi r31,hi8(112)
+ 109 0020 8081      		ld r24,Z
+  36:system_clock.c **** 	byte |= _BV(OCIE2A); // Enable Timer Interupt
+ 111               	.LM6:
+ 112 0022 8260      		ori r24,lo8(2)
+  37:system_clock.c **** 	TIMSK2 = byte;
+ 114               	.LM7:
+ 115 0024 8083      		st Z,r24
+ 116               	/* epilogue start */
+  38:system_clock.c **** }
+ 118               	.LM8:
+ 119 0026 0895      		ret
+ 124               	.Lscope1:
+ 126               		.stabd	78,0,0
+ 130               	.global	Clock_Diff
+ 132               	Clock_Diff:
+ 133               		.stabd	46,0,0
+  39:system_clock.c **** 
+  40:system_clock.c **** /* This function returns the value of time1-time2 corrected for roll over at
+  41:system_clock.c ****  * SYSTEM_CLOCK_MAX. Differences over SYSTEM_CLOCK_MAX/2 are considered roll-over.
+  42:system_clock.c ****  */
+  43:system_clock.c **** int32_t Clock_Diff(SYSTEM_CLOCK_T time1, SYSTEM_CLOCK_T time2)
+  44:system_clock.c **** {
+ 135               	.LM9:
+ 136               	.LFBB2:
+ 137 0028 EF92      		push r14
+ 138 002a FF92      		push r15
+ 139 002c 0F93      		push r16
+ 140 002e 1F93      		push r17
+ 141               	/* prologue: function */
+ 142               	/* frame size = 0 */
+ 143 0030 9B01      		movw r18,r22
+  45:system_clock.c ****     int32_t time_diff;
+  46:system_clock.c **** 
+  47:system_clock.c ****     time_diff = (int32_t)time1 - (int32_t)time2;
+ 145               	.LM10:
+ 146 0032 7C01      		movw r14,r24
+ 147 0034 00E0      		ldi r16,lo8(0)
+ 148 0036 10E0      		ldi r17,hi8(0)
+ 149 0038 40E0      		ldi r20,lo8(0)
+ 150 003a 50E0      		ldi r21,hi8(0)
+ 151 003c E21A      		sub r14,r18
+ 152 003e F30A      		sbc r15,r19
+ 153 0040 040B      		sbc r16,r20
+ 154 0042 150B      		sbc r17,r21
+  48:system_clock.c **** 
+  49:system_clock.c ****     if ( time_diff > (SYSTEM_CLOCK_MAX / 2) )
+ 156               	.LM11:
+ 157 0044 81E3      		ldi r24,lo8(30001)
+ 158 0046 E816      		cp r14,r24
+ 159 0048 85E7      		ldi r24,hi8(30001)
+ 160 004a F806      		cpc r15,r24
+ 161 004c 80E0      		ldi r24,hlo8(30001)
+ 162 004e 0807      		cpc r16,r24
+ 163 0050 80E0      		ldi r24,hhi8(30001)
+ 164 0052 1807      		cpc r17,r24
+ 165 0054 04F0      		brlt .L4
+  50:system_clock.c ****     {
+  51:system_clock.c ****         time_diff -= SYSTEM_CLOCK_MAX;
+ 167               	.LM12:
+ 168 0056 80EA      		ldi r24,lo8(-60000)
+ 169 0058 95E1      		ldi r25,hi8(-60000)
+ 170 005a AFEF      		ldi r26,hlo8(-60000)
+ 171 005c BFEF      		ldi r27,hhi8(-60000)
+ 172 005e 00C0      		rjmp .L7
+ 173               	.L4:
+  52:system_clock.c ****     }
+  53:system_clock.c ****     else if ( time_diff < (-1 * SYSTEM_CLOCK_MAX / 2) )
+ 175               	.LM13:
+ 176 0060 90ED      		ldi r25,lo8(-30000)
+ 177 0062 E916      		cp r14,r25
+ 178 0064 9AE8      		ldi r25,hi8(-30000)
+ 179 0066 F906      		cpc r15,r25
+ 180 0068 9FEF      		ldi r25,hlo8(-30000)
+ 181 006a 0907      		cpc r16,r25
+ 182 006c 9FEF      		ldi r25,hhi8(-30000)
+ 183 006e 1907      		cpc r17,r25
+ 184 0070 04F4      		brge .L5
+  54:system_clock.c ****     {
+  55:system_clock.c ****         time_diff += SYSTEM_CLOCK_MAX;
+ 186               	.LM14:
+ 187 0072 80E6      		ldi r24,lo8(60000)
+ 188 0074 9AEE      		ldi r25,hi8(60000)
+ 189 0076 A0E0      		ldi r26,hlo8(60000)
+ 190 0078 B0E0      		ldi r27,hhi8(60000)
+ 191               	.L7:
+ 192 007a E80E      		add r14,r24
+ 193 007c F91E      		adc r15,r25
+ 194 007e 0A1F      		adc r16,r26
+ 195 0080 1B1F      		adc r17,r27
+ 196               	.L5:
+  56:system_clock.c ****     }
+  57:system_clock.c **** 
+  58:system_clock.c ****     return time_diff;
+  59:system_clock.c **** }
+ 198               	.LM15:
+ 199 0082 B701      		movw r22,r14
+ 200 0084 C801      		movw r24,r16
+ 201               	/* epilogue start */
+ 202 0086 1F91      		pop r17
+ 203 0088 0F91      		pop r16
+ 204 008a FF90      		pop r15
+ 205 008c EF90      		pop r14
+ 206 008e 0895      		ret
+ 211               	.Lscope2:
+ 213               		.stabd	78,0,0
+ 215               	.global	__vector_7
+ 217               	__vector_7:
+ 218               		.stabd	46,0,0
+  60:system_clock.c **** 
+  61:system_clock.c **** ISR( TIMER2_COMPA_vect )
+  62:system_clock.c **** {
+ 220               	.LM16:
+ 221               	.LFBB3:
+ 222 0090 1F92      		push __zero_reg__
+ 223 0092 0F92      		push r0
+ 224 0094 0FB6      		in r0,__SREG__
+ 225 0096 0F92      		push r0
+ 226 0098 1124      		clr __zero_reg__
+ 227 009a 2F93      		push r18
+ 228 009c 3F93      		push r19
+ 229 009e 5F93      		push r21
+ 230 00a0 6F93      		push r22
+ 231 00a2 7F93      		push r23
+ 232 00a4 8F93      		push r24
+ 233 00a6 9F93      		push r25
+ 234 00a8 AF93      		push r26
+ 235 00aa BF93      		push r27
+ 236               	/* prologue: Signal */
+ 237               	/* frame size = 0 */
+  63:system_clock.c ****     ++g_system_clock;
+ 239               	.LM17:
+ 240 00ac 8091 0000 		lds r24,g_system_clock
+ 241 00b0 9091 0000 		lds r25,(g_system_clock)+1
+ 242 00b4 0196      		adiw r24,1
+ 243 00b6 9093 0000 		sts (g_system_clock)+1,r25
+ 244 00ba 8093 0000 		sts g_system_clock,r24
+  64:system_clock.c **** 
+  65:system_clock.c ****     g_system_clock %= SYSTEM_CLOCK_MAX;
+ 246               	.LM18:
+ 247 00be 8091 0000 		lds r24,g_system_clock
+ 248 00c2 9091 0000 		lds r25,(g_system_clock)+1
+ 249 00c6 60E6      		ldi r22,lo8(-5536)
+ 250 00c8 7AEE      		ldi r23,hi8(-5536)
+ 251 00ca 0E94 0000 		call __udivmodhi4
+ 252 00ce 9093 0000 		sts (g_system_clock)+1,r25
+ 253 00d2 8093 0000 		sts g_system_clock,r24
+ 254               	/* epilogue start */
+  66:system_clock.c **** }
+ 256               	.LM19:
+ 257 00d6 BF91      		pop r27
+ 258 00d8 AF91      		pop r26
+ 259 00da 9F91      		pop r25
+ 260 00dc 8F91      		pop r24
+ 261 00de 7F91      		pop r23
+ 262 00e0 6F91      		pop r22
+ 263 00e2 5F91      		pop r21
+ 264 00e4 3F91      		pop r19
+ 265 00e6 2F91      		pop r18
+ 266 00e8 0F90      		pop r0
+ 267 00ea 0FBE      		out __SREG__,r0
+ 268 00ec 0F90      		pop r0
+ 269 00ee 1F90      		pop __zero_reg__
+ 270 00f0 1895      		reti
+ 272               	.Lscope3:
+ 274               		.stabd	78,0,0
+ 275               	.global	g_system_clock
+ 276               	.global	g_system_clock
+ 277               		.section .bss
+ 280               	g_system_clock:
+ 281 0000 0000      		.skip 2,0
+ 283               		.text
+ 285               	.Letext0:
+ 286               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:00000000 system_clock.c
+     /tmp/cceGpkBi.s:2      *ABS*:0000003f __SREG__
+     /tmp/cceGpkBi.s:3      *ABS*:0000003e __SP_H__
+     /tmp/cceGpkBi.s:4      *ABS*:0000003d __SP_L__
+     /tmp/cceGpkBi.s:5      *ABS*:00000034 __CCP__
+     /tmp/cceGpkBi.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/cceGpkBi.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/cceGpkBi.s:79     .text:00000000 System_Clock_Init
+     /tmp/cceGpkBi.s:132    .text:00000028 Clock_Diff
+     /tmp/cceGpkBi.s:217    .text:00000090 __vector_7
+     /tmp/cceGpkBi.s:280    .bss:00000000 g_system_clock
+
+UNDEFINED SYMBOLS
+__udivmodhi4
+__do_clear_bss

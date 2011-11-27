@@ -1,0 +1,187 @@
+   1               		.file	"pid.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  68               	.global	Pid_Compute_Correction
+  70               	Pid_Compute_Correction:
+  71               		.stabd	46,0,0
+   1:util/pid.c    **** /************************************************
+   2:util/pid.c    ****  Sawyer Larkin
+   3:util/pid.c    ****  D.A.T.A.
+   4:util/pid.c    **** 
+   5:util/pid.c    ****  Pid.c
+   6:util/pid.c    ****  Pid Controller
+   7:util/pid.c    **** ************************************************/
+   8:util/pid.c    **** 
+   9:util/pid.c    **** #include <inttypes.h>
+  10:util/pid.c    **** 
+  11:util/pid.c    **** #include "pid.h"
+  12:util/pid.c    **** #include "clamp.h"
+  13:util/pid.c    **** 
+  14:util/pid.c    **** /** Computes a PID based correction. 
+  15:util/pid.c    ****  */
+  16:util/pid.c    **** int16_t Pid_Compute_Correction( int16_t current_value, Pid_State_t *_p_state )
+  17:util/pid.c    **** {
+  73               	.LM0:
+  74               	.LFBB1:
+  75 0000 0F93      		push r16
+  76 0002 1F93      		push r17
+  77 0004 DF93      		push r29
+  78 0006 CF93      		push r28
+  79 0008 00D0      		rcall .
+  80 000a CDB7      		in r28,__SP_L__
+  81 000c DEB7      		in r29,__SP_H__
+  82               	/* prologue: function */
+  83               	/* frame size = 2 */
+  84 000e 8B01      		movw r16,r22
+  18:util/pid.c    ****     int16_t correction;
+  19:util/pid.c    **** 
+  20:util/pid.c    ****     _p_state->error = _p_state->setpoint - current_value;
+  86               	.LM1:
+  87 0010 FB01      		movw r30,r22
+  88 0012 4081      		ld r20,Z
+  89 0014 5181      		ldd r21,Z+1
+  90 0016 481B      		sub r20,r24
+  91 0018 590B      		sbc r21,r25
+  92 001a 5383      		std Z+3,r21
+  93 001c 4283      		std Z+2,r20
+  21:util/pid.c    **** 
+  22:util/pid.c    ****     // Compute the derivative error
+  23:util/pid.c    ****     _p_state->d_error = _p_state->prev_error - _p_state->error;
+  95               	.LM2:
+  96 001e 6481      		ldd r22,Z+4
+  97 0020 7581      		ldd r23,Z+5
+  98 0022 641B      		sub r22,r20
+  99 0024 750B      		sbc r23,r21
+ 100 0026 7783      		std Z+7,r23
+ 101 0028 6683      		std Z+6,r22
+  24:util/pid.c    **** 
+  25:util/pid.c    ****     // Update the previous error
+  26:util/pid.c    ****     _p_state->prev_error = _p_state->error;
+ 103               	.LM3:
+ 104 002a 5583      		std Z+5,r21
+ 105 002c 4483      		std Z+4,r20
+  27:util/pid.c    **** 
+  28:util/pid.c    ****     correction = ( (_p_state->kp * _p_state->error) 
+ 107               	.LM4:
+ 108 002e 8485      		ldd r24,Z+12
+ 109 0030 9927      		clr r25
+ 110 0032 87FD      		sbrc r24,7
+ 111 0034 9095      		com r25
+ 112 0036 2085      		ldd r18,Z+8
+ 113 0038 3185      		ldd r19,Z+9
+ 114 003a FC01      		movw r30,r24
+ 115 003c E29F      		mul r30,r18
+ 116 003e C001      		movw r24,r0
+ 117 0040 E39F      		mul r30,r19
+ 118 0042 900D      		add r25,r0
+ 119 0044 F29F      		mul r31,r18
+ 120 0046 900D      		add r25,r0
+ 121 0048 1124      		clr r1
+ 122 004a F801      		movw r30,r16
+ 123 004c 2285      		ldd r18,Z+10
+ 124 004e 3327      		clr r19
+ 125 0050 27FD      		sbrc r18,7
+ 126 0052 3095      		com r19
+ 127 0054 F901      		movw r30,r18
+ 128 0056 E49F      		mul r30,r20
+ 129 0058 9001      		movw r18,r0
+ 130 005a E59F      		mul r30,r21
+ 131 005c 300D      		add r19,r0
+ 132 005e F49F      		mul r31,r20
+ 133 0060 300D      		add r19,r0
+ 134 0062 1124      		clr r1
+ 135 0064 820F      		add r24,r18
+ 136 0066 931F      		adc r25,r19
+ 137 0068 F801      		movw r30,r16
+ 138 006a 2385      		ldd r18,Z+11
+ 139 006c 3327      		clr r19
+ 140 006e 27FD      		sbrc r18,7
+ 141 0070 3095      		com r19
+ 142 0072 A901      		movw r20,r18
+ 143 0074 469F      		mul r20,r22
+ 144 0076 9001      		movw r18,r0
+ 145 0078 479F      		mul r20,r23
+ 146 007a 300D      		add r19,r0
+ 147 007c 569F      		mul r21,r22
+ 148 007e 300D      		add r19,r0
+ 149 0080 1124      		clr r1
+ 150 0082 6585      		ldd r22,Z+13
+ 151 0084 7727      		clr r23
+ 152 0086 67FD      		sbrc r22,7
+ 153 0088 7095      		com r23
+ 154 008a 821B      		sub r24,r18
+ 155 008c 930B      		sbc r25,r19
+ 156 008e 0E94 0000 		call __divmodhi4
+ 157 0092 7A83      		std Y+2,r23
+ 158 0094 6983      		std Y+1,r22
+  29:util/pid.c    ****                  - (_p_state->kd * _p_state->d_error) 
+  30:util/pid.c    ****                  + (_p_state->ki * _p_state->i_error) )
+  31:util/pid.c    ****                 / _p_state->ko;
+  32:util/pid.c    **** 
+  33:util/pid.c    ****     Clamp_Abs_Value( &correction, _p_state->max_correction );
+ 160               	.LM5:
+ 161 0096 6089      		ldd r22,Z+16
+ 162 0098 7189      		ldd r23,Z+17
+ 163 009a CE01      		movw r24,r28
+ 164 009c 0196      		adiw r24,1
+ 165 009e 0E94 0000 		call Clamp_Abs_Value
+  34:util/pid.c    ****     //if ( CLAMP_VALUE_NOT_CLAMPED == Clamp_Abs_Value( &correction, _p_state->max_correction ) )
+  35:util/pid.c    ****     {
+  36:util/pid.c    ****         // Compute the integral error
+  37:util/pid.c    ****         _p_state->i_error += _p_state->error;
+ 167               	.LM6:
+ 168 00a2 F801      		movw r30,r16
+ 169 00a4 8085      		ldd r24,Z+8
+ 170 00a6 9185      		ldd r25,Z+9
+ 171 00a8 2281      		ldd r18,Z+2
+ 172 00aa 3381      		ldd r19,Z+3
+ 173 00ac 820F      		add r24,r18
+ 174 00ae 931F      		adc r25,r19
+ 175 00b0 9187      		std Z+9,r25
+ 176 00b2 8087      		std Z+8,r24
+  38:util/pid.c    **** 
+  39:util/pid.c    ****         // Constrain the integral error
+  40:util/pid.c    ****         Clamp_Abs_Value( &(_p_state->i_error), _p_state->max_i_error );
+ 178               	.LM7:
+ 179 00b4 6685      		ldd r22,Z+14
+ 180 00b6 7785      		ldd r23,Z+15
+ 181 00b8 C801      		movw r24,r16
+ 182 00ba 0896      		adiw r24,8
+ 183 00bc 0E94 0000 		call Clamp_Abs_Value
+  41:util/pid.c    ****     }
+  42:util/pid.c    **** 
+  43:util/pid.c    ****     return correction;
+  44:util/pid.c    **** }
+ 185               	.LM8:
+ 186 00c0 8981      		ldd r24,Y+1
+ 187 00c2 9A81      		ldd r25,Y+2
+ 188               	/* epilogue start */
+ 189 00c4 0F90      		pop __tmp_reg__
+ 190 00c6 0F90      		pop __tmp_reg__
+ 191 00c8 CF91      		pop r28
+ 192 00ca DF91      		pop r29
+ 193 00cc 1F91      		pop r17
+ 194 00ce 0F91      		pop r16
+ 195 00d0 0895      		ret
+ 200               	.Lscope1:
+ 202               		.stabd	78,0,0
+ 204               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 pid.c
+     /tmp/ccJMgI2f.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccJMgI2f.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccJMgI2f.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccJMgI2f.s:5      *ABS*:00000034 __CCP__
+     /tmp/ccJMgI2f.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/ccJMgI2f.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/ccJMgI2f.s:70     .text:00000000 Pid_Compute_Correction
+
+UNDEFINED SYMBOLS
+__divmodhi4
+Clamp_Abs_Value

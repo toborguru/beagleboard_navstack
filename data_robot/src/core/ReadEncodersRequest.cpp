@@ -8,7 +8,7 @@ extern "C"
   #include "RollOverHelpers.h"
 }
 
-#define NUM_DATA_BYTES  19 
+#define NUM_DATA_BYTES  12 
 
 namespace data_robot_core
 {
@@ -52,9 +52,9 @@ diff_drive::EncoderCounts ReadEncodersRequest::GetEncoderCounts()
   if ( NUM_DATA_BYTES >= GetDataBufferSize() )
   {
     new_left_count = *(int16_t*)&p_data_buffer[0];
-    new_right_count = *(int16_t*)&p_data_buffer[4];
-    new_stasis_count = *(int16_t*)&p_data_buffer[8];
-    new_millis = *(int16_t*)&p_data_buffer[10];
+    new_right_count = *(int16_t*)&p_data_buffer[2];
+    new_stasis_count = *(int16_t*)&p_data_buffer[4];
+    new_millis = *(int16_t*)&p_data_buffer[6];
 
     diff_millis = DifferentiateUint16RollOver( _last_millis, new_millis );
   
