@@ -40,7 +40,7 @@
 #include "system_clock.h"
 
 #define MOT_CMD_ENABLED 1
-#define MAX_STEPS_BETWEEN_COMMANDS  25 // 50 Hz Steps (last I checked...)
+#define MAX_STEPS_BETWEEN_COMMANDS  15 // 50 Hz Steps (last I checked...)
 
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
 
@@ -102,12 +102,26 @@ int main( void )
   ENABLE_INTERRUPTS();
 
   for (;;)
-  { 
+  {
+    if ( (uint16_t)g_system_clock != gp_telemetry_read->system_time )
+    {
+      // Update both if the buffers are not active
+      if ( !g_TWI_writeInProgress ) 
+      {
+        gp_telemetry_write->system_time = g_system_clock;
+      }
+
+      if ( !g_TWI_readInProgress )
+      {
+        gp_telemetry_read->system_time = g_system_clock;
+      }
+    }
+ 
     if ( Clock_Diff(motion_step_time, g_system_clock) <= 0 )
     {
-      Switch_Telemetry_Buffers();
-
       Motion_Control_Run_Step();
+
+      Switch_Telemetry_Buffers();
 
       motion_step_time += MOTION_STEP_DELAY;
       motion_step_time %= SYSTEM_CLOCK_MAX;

@@ -19,8 +19,8 @@
 #define MOTION_CONTROL_MAX_I_ERROR      0x30
 
 #define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
-#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     20  // u16.0 ticks/sec (should be but isn't)
-#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    22  // u16.0 ticks/sec (should be but isn't)
+#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     10  // u16.0 ticks/sec (should be but isn't)
+#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    10  // u16.0 ticks/sec (should be but isn't)
 
 /* GLOBAL VARIABLES */
 volatile Motion_State_t g_left_wheel_motion;

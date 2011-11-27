@@ -1,0 +1,10 @@
+<robot name="DATA">
+  <link name="body" />
+  <link name="head" />
+
+  <joint name="neck" type="continuous">
+  <parent link="body"/>
+  <child link="head"/>
+  </joint>
+</robot>
+
