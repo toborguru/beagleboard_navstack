@@ -10,7 +10,9 @@ int8_t BumperIndexesRepository::QueryFrontBumperIndex() const
 {
   int index;
 
-  ros::param::param<int>( "front_bumper_index", index, -1 );
+  ros::param::param<int>( "~front_bumper_index", index, -1 );
+
+  ROS_INFO( "Front bumper index: %d", index );
   
   return index;
 }
@@ -21,7 +23,7 @@ int8_t BumperIndexesRepository::QueryFrontLeftBumperIndex() const
 {
   int index;
 
-  ros::param::param<int>( "front_left_bumper_index", index, -1 );
+  ros::param::param<int>( "~front_left_bumper_index", index, -1 );
   
   return index;
 }
@@ -32,7 +34,7 @@ int8_t BumperIndexesRepository::QueryFrontRightBumperIndex() const
 {
   int index;
 
-  ros::param::param<int>( "front_right_bumper_index", index, -1 );
+  ros::param::param<int>( "~front_right_bumper_index", index, -1 );
   
   return index;
 }
@@ -43,7 +45,7 @@ int8_t BumperIndexesRepository::QueryRearBumperIndex() const
 {
   int index;
 
-  ros::param::param<int>( "rear_bumper_index", index, -1 );
+  ros::param::param<int>( "~rear_bumper_index", index, -1 );
   
   return index;
 }
@@ -54,7 +56,7 @@ int8_t BumperIndexesRepository::QueryRearLeftBumperIndex() const
 {
   int index;
 
-  ros::param::param<int>( "rear_left_bumper_index", index, -1 );
+  ros::param::param<int>( "~rear_left_bumper_index", index, -1 );
   
   return index;
 }
@@ -65,7 +67,7 @@ int8_t BumperIndexesRepository::QueryRearRightBumperIndex() const
 {
   int index;
 
-  ros::param::param<int>( "rear_right_bumper_index", index, -1 );
+  ros::param::param<int>( "~rear_right_bumper_index", index, -1 );
   
   return index;
 }
