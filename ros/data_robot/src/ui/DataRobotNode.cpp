@@ -2,9 +2,12 @@
 
 #include "BumpersProcessor.hpp"
 
+#include "BumpersProcessorSetupService.hpp"
 #include "EncoderCountsReportingService.hpp"
 #include "FrontTelemetryReportingService.hpp"
 #include "TickVelocityCommandService.hpp"
+
+#include "BumperIndexesRepository.hpp"
 
 #include "BumpersEndpoint.hpp"
 #include "EncoderCountsEndpoint.hpp"
@@ -13,6 +16,7 @@
 
 using namespace data_robot_application_services;
 using namespace data_robot_core;
+using namespace data_robot_data_repositories;
 using namespace data_robot_message_endpoints;
 
 int main(int argc, char **argv)
@@ -24,9 +28,25 @@ int main(int argc, char **argv)
     ROS_INFO( "data_robot node started." );
 
     // 2) Application services must be initialized before being used
+
+    // SHARED OBJECTS
+    // Bumpers Processor
+    boost::shared_ptr<BumpersProcessor> bumpers_processor =
+        boost::shared_ptr<BumpersProcessor>( new BumpersProcessor() );
+
+
     // I2C Bus
     boost::shared_ptr<I2CBusEndpoint> i2c_bus_endpoint =
         boost::shared_ptr<I2CBusEndpoint>( new I2CBusEndpoint() );
+
+
+    // SERVICES
+    // Bumpers Processor Setup Service
+    boost::shared_ptr<BumperIndexesRepository> bumper_indexes_repository =
+        boost::shared_ptr<BumperIndexesRepository>( new BumperIndexesRepository() );
+
+    BumpersProcessorSetupService bumpers_processor_setup_service( bumper_indexes_repository,
+                                                                  bumpers_processor );
 
 
     // Encoder Counts Reporting Service
@@ -38,9 +58,6 @@ int main(int argc, char **argv)
 
 
     // Front Telemetry Reporting Service
-    boost::shared_ptr<BumpersProcessor> bumpers_processor =
-        boost::shared_ptr<BumpersProcessor>( new BumpersProcessor() );
-
     boost::shared_ptr<BumpersEndpoint> bumpers_endpoint =
         boost::shared_ptr<BumpersEndpoint>( new BumpersEndpoint() );
 
@@ -59,6 +76,8 @@ int main(int argc, char **argv)
 
     // 3) Start the services
     i2c_bus_endpoint->Open( "/dev/i2c-2" );
+
+    bumpers_processor_setup_service.Update();
 
     ROS_INFO( "Starting Encoder Counts Reporting Service..." );
     encoder_counts_reporting_service.BeginReporting();

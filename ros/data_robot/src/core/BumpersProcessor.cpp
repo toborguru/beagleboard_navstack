@@ -52,6 +52,17 @@ uint8_t   BumpersProcessor::GetBumpDirection() const
   return CalculateBumpDirection( _current_bumps );
 }
 
+/** Performs a read-modify-write on the bumper mask to add a bit at the given index.
+ *  @param index Bit index to add to the bumper mask. If negative nothing is changed.
+ */
+void      BumpersProcessor::AddFrontBumperIndex( int8_t index )
+{
+  if ( (index >= 0) && (index < 32) )
+  {
+    _front_mask |= 1<<index;
+  }
+}
+
 /** Access Function. 
  *  @returns The mask in the bumper bit-field that represents the front center bumper.
  */
@@ -66,6 +77,17 @@ uint32_t  BumpersProcessor::GetFrontBumperMask() const
 void      BumpersProcessor::SetFrontBumperMask(  uint32_t mask )
 {
   _front_mask = mask;
+}
+
+/** Performs a read-modify-write on the bumper mask to add a bit at the given index.
+ *  @param index Bit index to add to the bumper mask. If negative nothing is changed.
+ */
+void      BumpersProcessor::AddFrontLeftBumperIndex( int8_t index )
+{
+  if ( (index >= 0) && (index < 32) )
+  {
+    _front_left_mask |= 1<<index;
+  }
 }
 
 /** Access Function. 
@@ -84,6 +106,17 @@ void      BumpersProcessor::SetFrontLeftBumperMask(  uint32_t mask )
   _front_left_mask = mask;
 }
 
+/** Performs a read-modify-write on the bumper mask to add a bit at the given index.
+ *  @param index Bit index to add to the bumper mask. If negative nothing is changed.
+ */
+void      BumpersProcessor::AddFrontRightBumperIndex( int8_t index )
+{
+  if ( (index >= 0) && (index < 32) )
+  {
+    _front_right_mask |= 1<<index;
+  }
+}
+
 /** Access Function. 
  *  @returns The mask in the bumper bit-field that represents the front right bumper.
  */
@@ -98,6 +131,17 @@ uint32_t  BumpersProcessor::GetFrontRightBumperMask() const
 void      BumpersProcessor::SetFrontRightBumperMask( uint32_t mask )
 {
   _front_right_mask = mask;
+}
+
+/** Performs a read-modify-write on the bumper mask to add a bit at the given index.
+ *  @param index Bit index to add to the bumper mask. If negative nothing is changed.
+ */
+void      BumpersProcessor::AddRearBumperIndex( int8_t index )
+{
+  if ( (index >= 0) && (index < 32) )
+  {
+    _rear_mask |= 1<<index;
+  }
 }
 
 /** Access Function. 
@@ -116,6 +160,17 @@ void      BumpersProcessor::SetRearBumperMask( uint32_t mask )
   _rear_mask = mask;
 }
 
+/** Performs a read-modify-write on the bumper mask to add a bit at the given index.
+ *  @param index Bit index to add to the bumper mask. If negative nothing is changed.
+ */
+void      BumpersProcessor::AddRearLeftBumperIndex( int8_t index )
+{
+  if ( (index >= 0) && (index < 32) )
+  {
+    _rear_left_mask |= 1<<index;
+  }
+}
+
 /** Access Function. 
  *  @returns The mask in the bumper bit-field that represents the rear left bumper.
  */
@@ -130,6 +185,17 @@ uint32_t  BumpersProcessor::GetRearLeftBumperMask() const
 void      BumpersProcessor::SetRearLeftBumperMask( uint32_t mask )
 {
   _rear_left_mask = mask;
+}
+
+/** Performs a read-modify-write on the bumper mask to add a bit at the given index.
+ *  @param index Bit index to add to the bumper mask. If negative nothing is changed.
+ */
+void      BumpersProcessor::AddRearRightBumperIndex( int8_t index )
+{
+  if ( (index >= 0) && (index < 32) )
+  {
+    _rear_right_mask |= 1<<index;
+  }
 }
 
 /** Access Function. 
