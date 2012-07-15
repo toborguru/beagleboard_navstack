@@ -33,8 +33,9 @@ rosbuild_genmsg()
 
 # Include subdirectories for headers
 include_directories( "src/core" )
-include_directories( "src/core/message_endpoint_interfaces" )
 include_directories( "src/core/data_repository_interfaces" )
+include_directories( "src/core/listener_interfaces" )
+include_directories( "src/core/message_endpoint_interfaces" )
 include_directories( "src/application_services" )
 include_directories( "src/message_endpoints" )
 include_directories( "src/data_repositories" )
