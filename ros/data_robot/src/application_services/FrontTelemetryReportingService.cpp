@@ -51,7 +51,7 @@ void FrontTelemetryReportingService::OnFrontTelemetryAvailableEvent(const data_r
   {
     // Report bumpers status
     _p_bumpers_processor->AddNewData( 0x0F, ~telemetry.bumpers );
-    bumpers = _p_bumpers_processor->GetBumpDirection();
+    bumpers.bump_direction = _p_bumpers_processor->GetBumpDirection();
     _p_bumpers_endpoint->Publish( bumpers );
   }
 }

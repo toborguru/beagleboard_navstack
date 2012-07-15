@@ -11,51 +11,50 @@ namespace data_robot_core
   {
     public:
   
-      BumpersProcessor( int8_t front_bumper_index =       -1,
-                        int8_t front_left_bumper_index =  -1,
-                        int8_t front_right_bumper_index = -1,
-                        int8_t rear_bumper_index =        -1,
-                        int8_t rear_left_bumper_index =   -1,
-                        int8_t rear_right_bumper_index =  -1 );
+      BumpersProcessor( uint32_t front_bumper_mask =        0,
+                        uint32_t front_left_bumper_mask =   0,
+                        uint32_t front_right_bumper_mask =  0,
+                        uint32_t rear_bumper_mask =         0,
+                        uint32_t rear_left_bumper_mask =    0,
+                        uint32_t rear_right_bumper_mask =   0 );
 
-      void    AddNewData( uint8_t bumpers_mask,  uint8_t bumpers_state );
+      void      AddNewData( uint32_t bumpers_mask,  uint32_t bumpers_state );
 
-      uint8_t GetCurrentBumps() const;
+      uint32_t  GetCurrentBumps() const;
 
-      data_robot::Bumpers GetBumpDirection() const;
+      uint8_t   GetBumpDirection() const;
 
       // Bumper Geometry Functions
-      int8_t  GetFrontBumperIndex() const;
-      void    SetFrontBumperIndex(  int8_t index );
+      uint32_t  GetFrontBumperMask()  const;
+      void      SetFrontBumperMask(   uint32_t mask );
 
-      int8_t  GetFrontLeftBumperIndex() const;
-      void    SetFrontLeftBumperIndex(  int8_t index );
+      uint32_t  GetFrontLeftBumperMask()  const;
+      void      SetFrontLeftBumperMask(   uint32_t mask );
 
-      int8_t  GetFrontRightBumperIndex()  const;
-      void    SetFrontRightBumperIndex(   int8_t index );
+      uint32_t  GetFrontRightBumperMask() const;
+      void      SetFrontRightBumperMask(  uint32_t mask );
 
-      int8_t  GetRearBumperIndex()  const;
-      void    SetRearBumperIndex(   int8_t index );
+      uint32_t  GetRearBumperMask() const;
+      void      SetRearBumperMask(  uint32_t mask );
 
-      int8_t  GetRearLeftBumperIndex()  const;
-      void    SetRearLeftBumperIndex(   int8_t index );
+      uint32_t  GetRearLeftBumperMask() const;
+      void      SetRearLeftBumperMask(  uint32_t mask );
 
-      int8_t  GetRearRightBumperIndex() const;
-      void    SetRearRightBumperIndex(  int8_t index );
+      uint32_t  GetRearRightBumperMask()  const;
+      void      SetRearRightBumperMask(   uint32_t mask );
 
     private:
-      uint8_t CalculateBumps( uint8_t old_bumps, uint8_t new_bump_mask, uint8_t new_bumps );
-      data_robot::Bumpers CalculateBumpDirection( uint8_t bumpers_state ) const;
-      
-      int8_t  _front_index;
-      int8_t  _front_left_index;
-      int8_t  _front_right_index;
- 
-      int8_t  _rear_index;
-      int8_t  _rear_left_index;
-      int8_t  _rear_right_index;
+      uint32_t  CalculateBumps( uint32_t old_bumps, uint32_t new_bump_mask, uint32_t new_bumps );
+      uint8_t   CalculateBumpDirection( uint32_t bumpers_state ) const;
 
-      uint8_t _current_bumps;
+      uint32_t  _front_mask;
+      uint32_t  _front_left_mask;
+      uint32_t  _front_right_mask;
+      uint32_t  _rear_mask;
+      uint32_t  _rear_left_mask;
+      uint32_t  _rear_right_mask;
+
+      uint32_t _current_bumps;
   };
 }
  
