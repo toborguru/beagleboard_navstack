@@ -12,8 +12,6 @@ int8_t BumperIndexesRepository::QueryFrontBumperIndex() const
 
   ros::param::param<int>( "~front_bumper_index", index, -1 );
 
-  ROS_INFO( "Front bumper index: %d", index );
-  
   return index;
 }
 
