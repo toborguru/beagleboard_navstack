@@ -11,12 +11,9 @@ rosbuild_add_executable(
   TestRunner.cpp
   ./core/EncoderCountsReaderTests.cpp
   ./core/RollOverHelpersTests.cpp
-#  ./core/TwistConverterTests.cpp
-#  ./core/BaseModelTests.cpp
-#  ./application_services/BaseModelSetupServiceTests.cpp
+  ./core/BumpersProcessorTests.cpp
   ./application_services/EncoderCountsReportingServiceTests.cpp
   ./application_services/TickVelocityCommandServiceTests.cpp
-#
 )
 
 rosbuild_add_gtest_build_flags(data_robot_tests)
