@@ -13,6 +13,8 @@ namespace data_robot_test_application_services
 // Define the unit test to verify ability to leverage the reporting service using the messege endpoint stub
 TEST(EncoderCountsReportingServiceTests, canStartAndStopEncoderCountsReportingService) 
 {
+  ros::Time::init();
+
   // Establish Context
   boost::shared_ptr<EncoderCountsEndpointStub> encoder_counts_endpoint_stub =
       boost::shared_ptr<EncoderCountsEndpointStub>( new EncoderCountsEndpointStub() );
