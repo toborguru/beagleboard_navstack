@@ -4,7 +4,7 @@ import struct
 
 
 class Bumpers(roslib.message.Message):
-  _md5sum = "267e946ac113512e3d24a087ce648b9c"
+  _md5sum = "f68991d13c1a3295b7ca8815bc2e2c89"
   _type = "data_robot/Bumpers"
   _has_header = False #flag to mark the presence of a Header object
   _full_text = """uint8 NONE = 0
@@ -16,6 +16,7 @@ uint8 REAR = 5
 uint8 REAR_RIGHT = 6
 uint8 RIGHT = 7
 uint8 FRONT_RIGHT = 8
+uint8 WEDGED = 255
 
 uint8 bump_direction
 
@@ -30,6 +31,7 @@ uint8 bump_direction
   REAR_RIGHT = 6
   RIGHT = 7
   FRONT_RIGHT = 8
+  WEDGED = 255
 
   __slots__ = ['bump_direction']
   _slot_types = ['uint8']

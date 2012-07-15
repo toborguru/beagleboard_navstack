@@ -5,6 +5,7 @@
  
 #include <boost/shared_ptr.hpp>
 
+#include "BumpersProcessor.hpp"
 #include "FrontTelemetryReader.hpp"
 #include "IBumpersEndpoint.hpp"
 #include "IFrontTelemetryEndpoint.hpp"
@@ -17,7 +18,8 @@ class FrontTelemetryReportingService : public data_robot_core::IFrontTelemetryLi
 {
 public:
   explicit FrontTelemetryReportingService(  boost::shared_ptr<data_robot_core::IBumpersEndpoint> bumpers_endpoint,
-                                            boost::shared_ptr<data_robot_core::IExternalBusEndpoint> external_bus_endpoint );
+                                            boost::shared_ptr<data_robot_core::IExternalBusEndpoint> external_bus_endpoint,
+                                            boost::shared_ptr<data_robot_core::BumpersProcessor> bumpers_processor );
 
   void BeginReporting();
   void StopReporting();
@@ -28,8 +30,9 @@ private:
 
   data_robot_core::FrontTelemetryReader _telemetry_reader;
 
-  boost::shared_ptr<data_robot_core::IBumpersEndpoint>  _p_bumpers_endpoint; 
-  boost::shared_ptr<data_robot_core::IExternalBusEndpoint>    _p_external_bus_endpoint;
+  boost::shared_ptr<data_robot_core::IBumpersEndpoint>      _p_bumpers_endpoint; 
+  boost::shared_ptr<data_robot_core::IExternalBusEndpoint>  _p_external_bus_endpoint;
+  boost::shared_ptr<data_robot_core::BumpersProcessor>      _p_bumpers_processor;
 
   bool  _is_reporting;
 };

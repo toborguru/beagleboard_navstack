@@ -14,9 +14,11 @@ namespace data_robot_application_services
  *  destroyed.
  */
 FrontTelemetryReportingService::FrontTelemetryReportingService( boost::shared_ptr<IBumpersEndpoint> bumpers_endpoint,
-                                                              boost::shared_ptr<IExternalBusEndpoint> external_bus_endpoint )
+                                                                boost::shared_ptr<IExternalBusEndpoint> external_bus_endpoint,
+                                                                boost::shared_ptr<BumpersProcessor> bumpers_processor )
   : _p_bumpers_endpoint( bumpers_endpoint ),
     _p_external_bus_endpoint( external_bus_endpoint ),
+    _p_bumpers_processor( bumpers_processor ),
     _is_reporting( false )
 { 
   _telemetry_reader.Attach( *this );
@@ -47,8 +49,9 @@ void FrontTelemetryReportingService::OnFrontTelemetryAvailableEvent(const data_r
 
   if ( _is_reporting )
   {
-    bumpers.bump_direction = telemetry.bumpers;
-    // Send telemetry to the message end point
+    // Report bumpers status
+    _p_bumpers_processor->AddNewData( 0x0F, ~telemetry.bumpers );
+    bumpers = _p_bumpers_processor->GetBumpDirection();
     _p_bumpers_endpoint->Publish( bumpers );
   }
 }

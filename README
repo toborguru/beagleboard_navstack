@@ -7,5 +7,6 @@ beagle_board            : Code, scripts, and files needed to run the DATA robot.
 docs                    : All saved reference documents for the DATA robot. 
 front_shell             : Embedded code for the ATMega 328p interfacing with the front sensors, lasers, and neck servos.
 i2c-bootloader-328p     : I2C bootloader for ATMega328p's. Frequency and I2C address can be specified in the Makefile.
+razor_9dof_imu          : Source code for my modifications to the reference AHRS code.
 ros                     : ROS nodes and high level supporting libraries.
 tools                   : Original downloaded supporting materials.

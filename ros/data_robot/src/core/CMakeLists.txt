@@ -1,6 +1,7 @@
 # Create the core library
 add_library (
   data_robot_core
+  BumpersProcessor.cpp
   EncoderCountsReader.cpp
   FrontTelemetryReader.cpp
   TickVelocityForwarder.cpp
