@@ -43,7 +43,7 @@ namespace diff_drive_application_services
     p_base_model = boost::shared_ptr<BaseModel>( new BaseModel() );
   }
 
-  void BaseModelSetupService::UpdateBaseModel()
+  void BaseModelSetupService::Update()
   {
     _p_impl->p_base_model->SetBaseGeometry( _p_impl->p_base_model_repository->QueryBaseGeometry() );
   }

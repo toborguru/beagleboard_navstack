@@ -34,7 +34,7 @@ namespace diff_drive_test_application_services
     base_model_repository_stub->base_geometry.wheel_ticks = 200;
     wheel_ticks2 = p_base_model->GetWheelTicks();
     
-    base_model_service.UpdateBaseModel();
+    base_model_service.Update();
     wheel_ticks3 = p_base_model->GetWheelTicks();
 
     // Assert

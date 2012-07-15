@@ -13,7 +13,7 @@ namespace diff_drive_application_services
     public:
       explicit BaseModelSetupService( boost::shared_ptr<diff_drive_core::IBaseModelRepository> base_model_repository );
 
-      void UpdateBaseModel();
+      void Update();
   
       boost::shared_ptr<diff_drive_core::BaseModel> GetBaseModel();
  
