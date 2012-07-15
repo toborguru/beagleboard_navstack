@@ -1,12 +1,10 @@
 <launch>
-
   <node pkg="diff_drive" type="diff_drive_node" name="diff_drive">
-    <param name="drive_wheel_radius"  value="0.063"/>
+    <param name="drive_wheel_radius"  value="0.030"/>
     <param name="drive_wheel_base"    value="0.180"/>
     <param name="drive_wheel_encoder_ticks" value="128"/>
     <remap from="tick_velocity" to="cmd_ticks"/>
   </node>
 
-  <node pkg="data_robot" type="data_robot_node" name="robot_base"/>
-
+  <node pkg="data_robot" type="data_robot_node" name="robot"/>
 </launch>
