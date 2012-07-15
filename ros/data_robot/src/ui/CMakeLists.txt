@@ -3,6 +3,11 @@ rosbuild_add_executable(
   DataRobotNode.cpp
 )
 
+rosbuild_add_executable(
+  bumper_wander
+  BumperWander.cpp
+)
+
 target_link_libraries(
   data_robot_node
   data_robot_application_services
