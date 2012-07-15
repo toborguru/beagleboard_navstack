@@ -1,9 +1,3 @@
-/** @file
- *  ROS node which publishes @c Odometry messages and broadcasts a coordinate frame 
- *  transform which share a @c frame_id of @e "odom" and a @c child_frame_id of @e 
- *  "base_link".
- */
- 
 #include <ros/ros.h>
 
 #include "BaseModelRepository.hpp"
