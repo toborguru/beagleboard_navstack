@@ -81,6 +81,8 @@ TEST(BumpersProcessorTests, canSetBumperMaskesAndCalculateDirection)
   uint8_t new_bumps;
   uint8_t bumps_mask;
 
+  uint32_t mask1;
+
   uint8_t dir1; 
   uint8_t dir2; 
   uint8_t dir3; 
@@ -115,6 +117,9 @@ TEST(BumpersProcessorTests, canSetBumperMaskesAndCalculateDirection)
   new_bumps = 0x01;
   bumps_mask = 0xFF;
   bumpers.AddNewData( bumps_mask, new_bumps );
+
+  bumpers.AddFrontBumperIndex(0);
+  mask1 = bumpers.GetFrontBumperMask();
 
   // Set and change front bumper
   bumpers.SetFrontBumperMask(1);
@@ -197,6 +202,7 @@ TEST(BumpersProcessorTests, canSetBumperMaskesAndCalculateDirection)
 
   // Assert
 
+  EXPECT_EQ( 1, mask1);
   EXPECT_EQ( data_robot::Bumpers::NONE,         dir1 );
   EXPECT_EQ( data_robot::Bumpers::FRONT,        dir2 );
   EXPECT_EQ( data_robot::Bumpers::NONE,         dir3 );
