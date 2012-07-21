@@ -15,6 +15,17 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "base_motion/motors.h"
+#include "base_motion/shaft_encoders.h"
+#include "base_motion/motion_control.h"
+#include "i2c/TWI_slave.h"
+
+#include "Avr.h"
+#include "analog_in.h"
+#include "i2c_registers.h"
+#include "macros.h"
+#include "system_clock.h"
+
 //#define F_CPU 8E6
 
 #define I2C_ADDRESS         0x06
@@ -41,16 +52,6 @@
 #define MOTION_TEST_SPEED2  80
 #define MOTION_TEST_TURN2   80
 
-#include "base_motion/motors.h"
-#include "base_motion/shaft_encoders.h"
-#include "base_motion/motion_control.h"
-#include "i2c/TWI_slave.h"
-
-#include "Avr.h"
-#include "i2c_registers.h"
-#include "macros.h"
-#include "system_clock.h"
-
 volatile I2C_REGISTERS_t* gp_commands_read;
 volatile I2C_REGISTERS_t* gp_commands_write;
 
@@ -62,12 +63,13 @@ static I2C_REGISTERS_t m_telemetry_a;
 static I2C_REGISTERS_t m_telemetry_b; 
 static uint8_t m_steps_since_command = 0;
 
-void UpdateTelemetryClock( void );
 void BaseMotion( void );
-void ProcessIncomingCommands( void );
 void MotorPattern( void );
 void Ports_Zero( void );
+void ProcessIncomingCommands( void );
 void Switch_Telemetry_Buffers( void );
+void UpdateTelemetry( void );
+void UpdateTelemetryClock( void );
 
 int main( void )
 {
@@ -92,8 +94,8 @@ int main( void )
   OUTPUT_PIN(SHELL_POWER_PORT, SHELL_POWER_PIN);
   OUTPUT_PIN(KILL_PORT, KILL_PIN);
 
+  AnalogInInit();
   Motors_Init();
-
   Motion_Control_Init();
   Shaft_Encoders_Init();
   System_Clock_Init();
@@ -118,6 +120,8 @@ int main( void )
 
     ProcessIncomingCommands();
 
+    UpdateTelemetry();
+
 #if MOTOR_TEST_EN
     MotorPattern();
 #endif
@@ -126,15 +130,18 @@ int main( void )
   return(0);
 }
 
+void UpdateTelemetry()
+{
+  gp_telemetry_write->voltage = g_analog_values[ ANALOG_VOLTAGE_INDEX ];
+  gp_telemetry_write->current = g_analog_values[ ANALOG_CURRENT_INDEX ];
+}
+
 void UpdateTelemetryClock()
 {
   if ( (uint16_t)g_system_clock != gp_telemetry_read->system_time )
   {
     // Update both if the buffers are not active
-    if ( !g_TWI_writeInProgress ) 
-    {
-      gp_telemetry_write->system_time = g_system_clock;
-    }
+    gp_telemetry_write->system_time = g_system_clock;
 
     if ( !g_TWI_readInProgress )
     {

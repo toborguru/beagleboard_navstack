@@ -48,6 +48,7 @@ OPT = s
 # List C source files here. (C dependencies are automatically generated.)
 
 SRC	= \
+analog_in.c \
 main.c \
 system_clock.c \
 base_motion/motion_control.c \
