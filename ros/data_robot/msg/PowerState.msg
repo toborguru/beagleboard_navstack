@@ -1,0 +1,4 @@
+float32 battery_voltage
+float32 current_draw
+float32 power_consumed
+duration time_estimate

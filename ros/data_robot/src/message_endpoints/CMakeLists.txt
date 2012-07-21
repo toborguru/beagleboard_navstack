@@ -3,6 +3,7 @@ add_library(
   data_robot_message_endpoints
   BumpersEndpoint.cpp
   EncoderCountsEndpoint.cpp
+  PowerStateEndpoint.cpp
   TickVelocityEndpoint.cpp
   I2CBusEndpoint.cpp
   Crc8.c
