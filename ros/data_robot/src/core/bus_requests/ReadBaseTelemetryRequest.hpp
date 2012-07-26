@@ -23,10 +23,6 @@ public:
   BaseTelemetry_T GetTelemetry();
 
 private:
-  int16_t _last_left_count;
-  int16_t _last_right_count;
-  int16_t _last_stasis_count;
-  uint16_t _last_millis;
 };
 }
  

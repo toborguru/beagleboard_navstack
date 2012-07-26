@@ -17,9 +17,11 @@ namespace data_robot_application_services
  *  destroyed.
  */
 BaseTelemetryReportingService::BaseTelemetryReportingService( boost::shared_ptr<IEncoderCountsEndpoint> encoder_counts_endpoint,
-                                                              boost::shared_ptr<IExternalBusEndpoint> external_bus_endpoint )
+                                                              boost::shared_ptr<IExternalBusEndpoint> external_bus_endpoint,
+                                                              boost::shared_ptr<EncoderCountsProcessor> encoder_counts_processor )
   : _p_encoder_counts_endpoint( encoder_counts_endpoint ),
     _p_external_bus_endpoint( external_bus_endpoint ),
+    _p_encoder_counts_processor( encoder_counts_processor ),
     _is_reporting( false )
 { 
   _telemetry_reader.Attach( *this );
@@ -50,10 +52,13 @@ void BaseTelemetryReportingService::OnBaseTelemetryAvailableEvent(const data_rob
 
   if ( _is_reporting )
   {
-    encoder_counts.left_count = telemetry.left_encoder;
-    encoder_counts.right_count = telemetry.right_encoder;
-    encoder_counts.stasis_count = telemetry.stasis_encoder;
-    encoder_counts.dt_ms = telemetry.encoder_time;
+    _p_encoder_counts_processor->AddNewData(  telemetry.left_encoder, 
+                                              telemetry.right_encoder, 
+                                              telemetry.stasis_encoder,
+                                              telemetry.encoder_time);
+
+    encoder_counts = _p_encoder_counts_processor->GetEncoderCounts();
+
     encoder_counts.reading_time.sec = telemetry.seconds;
     encoder_counts.reading_time.nsec = telemetry.nano_seconds;
 

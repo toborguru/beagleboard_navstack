@@ -3,6 +3,7 @@ add_library (
   data_robot_core
   BumpersProcessor.cpp
   BaseTelemetryReader.cpp
+  EncoderCountsProcessor.cpp
   FrontTelemetryReader.cpp
   TickVelocityForwarder.cpp
   bus_requests/BusRequest.cpp

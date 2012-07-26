@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "BaseTelemetryReader.hpp"
+#include "EncoderCountsProcessor.hpp"
 #include "IEncoderCountsEndpoint.hpp"
 #include "IExternalBusEndpoint.hpp"
  
@@ -15,7 +16,8 @@ class BaseTelemetryReportingService : public data_robot_core::IBaseTelemetryList
 {
 public:
   explicit BaseTelemetryReportingService( boost::shared_ptr<data_robot_core::IEncoderCountsEndpoint> encoder_counts_endpoint,
-                                          boost::shared_ptr<data_robot_core::IExternalBusEndpoint> external_bus_endpoint );
+                                          boost::shared_ptr<data_robot_core::IExternalBusEndpoint> external_bus_endpoint,
+                                          boost::shared_ptr<data_robot_core::EncoderCountsProcessor> encoder_counts_processor );
 
   void BeginReporting();
   void StopReporting();
@@ -28,6 +30,7 @@ private:
 
   boost::shared_ptr<data_robot_core::IEncoderCountsEndpoint>  _p_encoder_counts_endpoint; 
   boost::shared_ptr<data_robot_core::IExternalBusEndpoint>    _p_external_bus_endpoint;
+  boost::shared_ptr<data_robot_core::EncoderCountsProcessor>  _p_encoder_counts_processor;
 
   bool  _is_reporting;
 };

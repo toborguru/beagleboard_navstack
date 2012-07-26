@@ -53,8 +53,12 @@ int main(int argc, char **argv)
     boost::shared_ptr<EncoderCountsEndpoint> encoder_counts_endpoint =
         boost::shared_ptr<EncoderCountsEndpoint>( new EncoderCountsEndpoint() );
 
+    boost::shared_ptr<EncoderCountsProcessor> encoder_counts_processor =
+        boost::shared_ptr<EncoderCountsProcessor>( new EncoderCountsProcessor() );
+
     BaseTelemetryReportingService base_telemetry_reporting_service( encoder_counts_endpoint,
-                                                                    i2c_bus_endpoint );
+                                                                    i2c_bus_endpoint,
+                                                                    encoder_counts_processor );
 
 
     // Front Telemetry Reporting Service
