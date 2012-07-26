@@ -5,6 +5,7 @@ add_library (
   BaseTelemetryReader.cpp
   EncoderCountsProcessor.cpp
   FrontTelemetryReader.cpp
+  PowerStateProcessor.cpp
   TickVelocityForwarder.cpp
   bus_requests/BusRequest.cpp
   bus_requests/BaseCommandRequest.cpp

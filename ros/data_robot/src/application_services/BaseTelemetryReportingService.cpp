@@ -17,11 +17,15 @@ namespace data_robot_application_services
  *  destroyed.
  */
 BaseTelemetryReportingService::BaseTelemetryReportingService( boost::shared_ptr<IEncoderCountsEndpoint> encoder_counts_endpoint,
+                                                              boost::shared_ptr<IPowerStateEndpoint> power_state_endpoint,
                                                               boost::shared_ptr<IExternalBusEndpoint> external_bus_endpoint,
-                                                              boost::shared_ptr<EncoderCountsProcessor> encoder_counts_processor )
+                                                              boost::shared_ptr<EncoderCountsProcessor> encoder_counts_processor,
+                                                              boost::shared_ptr<PowerStateProcessor> power_state_processor )
   : _p_encoder_counts_endpoint( encoder_counts_endpoint ),
+    _p_power_state_endpoint( power_state_endpoint ),
     _p_external_bus_endpoint( external_bus_endpoint ),
     _p_encoder_counts_processor( encoder_counts_processor ),
+    _p_power_state_processor( power_state_processor ),
     _is_reporting( false )
 { 
   _telemetry_reader.Attach( *this );
@@ -49,9 +53,11 @@ void BaseTelemetryReportingService::StopReporting()
 void BaseTelemetryReportingService::OnBaseTelemetryAvailableEvent(const data_robot_core::BaseTelemetry_T& telemetry)
 {
   diff_drive::EncoderCounts encoder_counts;
+  data_robot::PowerState    power_state;
 
   if ( _is_reporting )
-  {
+  { 
+    // Encoder Counts
     _p_encoder_counts_processor->AddNewData(  telemetry.left_encoder, 
                                               telemetry.right_encoder, 
                                               telemetry.stasis_encoder,
@@ -62,8 +68,13 @@ void BaseTelemetryReportingService::OnBaseTelemetryAvailableEvent(const data_rob
     encoder_counts.reading_time.sec = telemetry.seconds;
     encoder_counts.reading_time.nsec = telemetry.nano_seconds;
 
-    // Send telemetry to the message end point
     _p_encoder_counts_endpoint->Publish( encoder_counts );
+
+    // Power State
+    _p_power_state_processor->AddNewData( telemetry.current, telemetry.voltage );
+    power_state = _p_power_state_processor->GetPowerState();
+
+    _p_power_state_endpoint->Publish( power_state );
   }
 };
 }

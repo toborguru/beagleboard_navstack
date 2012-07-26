@@ -12,6 +12,7 @@
 #include "BumpersEndpoint.hpp"
 #include "EncoderCountsEndpoint.hpp"
 #include "I2CBusEndpoint.hpp"
+#include "PowerStateEndpoint.hpp"
 #include "TickVelocityEndpoint.hpp"
 
 using namespace data_robot_application_services;
@@ -49,16 +50,24 @@ int main(int argc, char **argv)
                                                                   bumpers_processor );
 
 
-    // Encoder Counts Reporting Service
+    // Base Telemetry Reporting Service
     boost::shared_ptr<EncoderCountsEndpoint> encoder_counts_endpoint =
         boost::shared_ptr<EncoderCountsEndpoint>( new EncoderCountsEndpoint() );
 
     boost::shared_ptr<EncoderCountsProcessor> encoder_counts_processor =
         boost::shared_ptr<EncoderCountsProcessor>( new EncoderCountsProcessor() );
 
+    boost::shared_ptr<PowerStateEndpoint> power_state_endpoint =
+        boost::shared_ptr<PowerStateEndpoint>( new PowerStateEndpoint() );
+
+    boost::shared_ptr<PowerStateProcessor> power_state_processor =
+        boost::shared_ptr<PowerStateProcessor>( new PowerStateProcessor() );
+
     BaseTelemetryReportingService base_telemetry_reporting_service( encoder_counts_endpoint,
+                                                                    power_state_endpoint,
                                                                     i2c_bus_endpoint,
-                                                                    encoder_counts_processor );
+                                                                    encoder_counts_processor,
+                                                                    power_state_processor );
 
 
     // Front Telemetry Reporting Service

@@ -8,12 +8,6 @@ extern "C"
 namespace data_robot_core
 {
 /** Default constructor.
- *  @param  front_bumper_mask  Bit position of of the front bumper.
- *  @param  front_left_bumper_mask  Bit position of of the front left bumper.
- *  @param  front_right_bumper_mask  Bit position of of the front right bumper.
- *  @param  rear_bumper_mask  Bit position of of the rear bumper.
- *  @param  rear_left_bumper_mask  Bit position of of the rear left bumper.
- *  @param  rear_right_bumper_mask  Bit position of of the rear right bumper.
  */
 EncoderCountsProcessor::EncoderCountsProcessor() 
                 : _last_left_count( 0 ),

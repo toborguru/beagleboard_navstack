@@ -9,6 +9,8 @@
 #include "EncoderCountsProcessor.hpp"
 #include "IEncoderCountsEndpoint.hpp"
 #include "IExternalBusEndpoint.hpp"
+#include "IPowerStateEndpoint.hpp"
+#include "PowerStateProcessor.hpp"
  
 namespace data_robot_application_services
 {
@@ -16,8 +18,10 @@ class BaseTelemetryReportingService : public data_robot_core::IBaseTelemetryList
 {
 public:
   explicit BaseTelemetryReportingService( boost::shared_ptr<data_robot_core::IEncoderCountsEndpoint> encoder_counts_endpoint,
+                                          boost::shared_ptr<data_robot_core::IPowerStateEndpoint> power_state_endpoint,
                                           boost::shared_ptr<data_robot_core::IExternalBusEndpoint> external_bus_endpoint,
-                                          boost::shared_ptr<data_robot_core::EncoderCountsProcessor> encoder_counts_processor );
+                                          boost::shared_ptr<data_robot_core::EncoderCountsProcessor> encoder_counts_processor,
+                                          boost::shared_ptr<data_robot_core::PowerStateProcessor> power_state_processor );
 
   void BeginReporting();
   void StopReporting();
@@ -30,7 +34,9 @@ private:
 
   boost::shared_ptr<data_robot_core::IEncoderCountsEndpoint>  _p_encoder_counts_endpoint; 
   boost::shared_ptr<data_robot_core::IExternalBusEndpoint>    _p_external_bus_endpoint;
+  boost::shared_ptr<data_robot_core::IPowerStateEndpoint>     _p_power_state_endpoint; 
   boost::shared_ptr<data_robot_core::EncoderCountsProcessor>  _p_encoder_counts_processor;
+  boost::shared_ptr<data_robot_core::PowerStateProcessor>     _p_power_state_processor;
 
   bool  _is_reporting;
 };
