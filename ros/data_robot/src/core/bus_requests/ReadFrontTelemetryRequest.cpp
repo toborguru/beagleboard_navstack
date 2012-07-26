@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 
+#include "BusAddresses.hpp"
 #include "ReadFrontTelemetryRequest.hpp"
 
 namespace data_robot_core

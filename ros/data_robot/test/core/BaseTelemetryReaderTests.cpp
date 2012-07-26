@@ -1,31 +1,33 @@
 #include <gtest/gtest.h>
-#include "EncoderCountsReader.hpp"
-#include "IEncoderCountsListener.hpp"
-#include "diff_drive/EncoderCounts.h"
+#include <ros/ros.h>
+
+#include "BaseTelemetryReader.hpp"
+#include "IBaseTelemetryListener.hpp"
+#include "Telemetry.hpp"
  
 using namespace data_robot_core;
  
 namespace data_robot_test_core
 {
 // Will be used by unit test to handle encoder events
-struct EncoderCountsReceiver : public data_robot_core::IEncoderCountsListener
+struct BaseTelemetryReceiver : public data_robot_core::IBaseTelemetryListener
 {
-  EncoderCountsReceiver()
-    : count_of_encoder_counts_received(0) { }
+  BaseTelemetryReceiver()
+    : count_of_telemetry_received(0) { }
 
-  mutable int count_of_encoder_counts_received;
+  mutable int count_of_telemetry_received;
 
-  void OnEncoderCountsAvailableEvent(const diff_drive::EncoderCounts& encoder_counts)
+  void OnBaseTelemetryAvailableEvent(const BaseTelemetry_T& telemetry)
   {
-    count_of_encoder_counts_received++;
+    count_of_telemetry_received++;
 
 #if 0
     // Output the encoder count information, this isn't the
     // unit test, but merely a helpful means to show what's going on.
-    std::cout << "Encoder Counts L: " << encoder_counts.left_count 
-              << " R: " << encoder_counts.right_count
-              << " S: " << encoder_counts.stasis_count
-              << " DT: " << encoder_counts.dt_ms
+    std::cout << "Encoder Counts L: " << telemetry.left_count 
+              << " R: " << telemetry.right_count
+              << " S: " << telemetry.stasis_count
+              << " DT: " << telemetry.dt_ms
               << std::endl;
 #endif
   }
@@ -70,32 +72,32 @@ struct BusRequestReceiver : public data_robot_core::IExternalBusEndpoint
 };
 
 // Define the unit test to verify ability to start and stop the reader
-TEST(EncoderCountsReaderTests, canStartAndStopEncoderCountsReader) 
+TEST(BaseTelemetryReaderTests, canStartAndStopBaseTelemetryReader) 
 {
   // Establish Context
 
   ros::Time::init();
 
-  EncoderCountsReader encoder_counts_reader;
-  EncoderCountsReceiver encoder_counts_receiver;
+  BaseTelemetryReader telemetry_reader;
+  BaseTelemetryReceiver telemetry_receiver;
   BusRequestReceiver bus_request_receiver;
 
   // Wire up the reader to the handler of laser scan reports
-  encoder_counts_reader.Attach(encoder_counts_receiver);
-  encoder_counts_reader.SetExternalBus(&bus_request_receiver);
+  telemetry_reader.Attach(telemetry_receiver);
+  telemetry_reader.SetExternalBus(&bus_request_receiver);
 
   // Act
-  encoder_counts_reader.BeginReading();
+  telemetry_reader.BeginReading();
 
   // Let it perform readings for a couple of seconds
   sleep(2);
-  encoder_counts_reader.StopReading();
+  telemetry_reader.StopReading();
 
   // Assert
 
   // Since we just ran the reader for 2 seconds, we should expect a few readings.
   // Arguably, this test is a bit light but makes sure encoder counts are being reported.
-  EXPECT_EQ( 20, encoder_counts_receiver.count_of_encoder_counts_received );
+  EXPECT_EQ( 20, telemetry_receiver.count_of_telemetry_received );
   EXPECT_EQ( 20, bus_request_receiver.count_of_bus_requests_received );
 }
 }

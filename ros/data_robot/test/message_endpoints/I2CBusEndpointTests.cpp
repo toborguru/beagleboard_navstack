@@ -2,7 +2,7 @@
  
 #include <gtest/gtest.h>
 
-#include "ReadEncodersRequest.hpp"
+#include "ReadBaseTelemetryRequest.hpp"
 #include "MotorVelocityRequest.hpp"
 
 #include "I2CBusEndpoint.hpp"
@@ -20,25 +20,25 @@ namespace data_robot_test_message_endpoints
 
     std::string device("/dev/i2c-2");
     I2CBusEndpoint i2c_bus_endpoint( device.c_str() );
-    ReadEncodersRequest read_encoders_request;
+    ReadBaseTelemetryRequest read_telemetry_request;
     MotorVelocityRequest motor_velocity_request; 
 
     i2c_bus_endpoint.Open();
 
     printf( "Opened!\n" );
 
-    i2c_bus_endpoint.ProcessRequest( &read_encoders_request );
+    i2c_bus_endpoint.ProcessRequest( &read_telemetry_request );
 
-    while ( !read_encoders_request.GetRequestComplete() )
+    while ( !read_telemetry_request.GetRequestComplete() )
     {   
       printf( "Sleeping!\n" );
       sleep(1);
     } 
 
     printf( "Encoder Counts: " );
-    for ( int i = 0; i < read_encoders_request.GetDataBufferSize(); i++ )
+    for ( int i = 0; i < read_telemetry_request.GetDataBufferSize(); i++ )
     {
-      printf( "0x%02X ", read_encoders_request.GetDataBuffer()[i] );
+      printf( "0x%02X ", read_telemetry_request.GetDataBuffer()[i] );
     }
     printf( "\n" );
 

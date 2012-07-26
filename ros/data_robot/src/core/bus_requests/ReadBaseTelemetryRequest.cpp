@@ -1,7 +1,9 @@
-// ReadEncodersRequest.cpp
+// ReadBaseTelemetryRequest.cpp
+
+#include <ros/ros.h>
 
 #include "BusAddresses.hpp"
-#include "ReadEncodersRequest.hpp"
+#include "ReadBaseTelemetryRequest.hpp"
 
 extern "C"
 {
@@ -12,7 +14,7 @@ extern "C"
 
 namespace data_robot_core
 {
-ReadEncodersRequest::ReadEncodersRequest( bool is_blockable, bool is_lockable )
+ReadBaseTelemetryRequest::ReadBaseTelemetryRequest( bool is_blockable, bool is_lockable )
                     : BusRequest( is_blockable, is_lockable ),
                       _last_left_count(0),
                       _last_right_count(0),
@@ -28,9 +30,9 @@ ReadEncodersRequest::ReadEncodersRequest( bool is_blockable, bool is_lockable )
   SetDataBufferSize( NUM_DATA_BYTES );
 }
 
-diff_drive::EncoderCounts ReadEncodersRequest::GetEncoderCounts()
+BaseTelemetry_T ReadBaseTelemetryRequest::GetTelemetry()
 {
-  diff_drive::EncoderCounts encoder_counts;
+  BaseTelemetry_T telemetry;
 
   int16_t new_left_count;
   int16_t new_right_count;
@@ -51,21 +53,23 @@ diff_drive::EncoderCounts ReadEncodersRequest::GetEncoderCounts()
 
   if ( NUM_DATA_BYTES >= GetDataBufferSize() )
   {
-    new_left_count = *(int16_t*)&p_data_buffer[0];
-    new_right_count = *(int16_t*)&p_data_buffer[2];
-    new_stasis_count = *(int16_t*)&p_data_buffer[4];
-    new_millis = *(int16_t*)&p_data_buffer[6];
+    memcpy( &telemetry.left_encoder, p_data_buffer, 8 );
+
+    new_left_count = telemetry.left_encoder;
+    new_right_count = telemetry.right_encoder;
+    new_stasis_count = telemetry.stasis_encoder;
+    new_millis = telemetry.encoder_time;
 
     diff_millis = DifferentiateUint16RollOver( _last_millis, new_millis );
   
-    encoder_counts.left_count = DifferentiateInt16RollOver( _last_left_count, new_left_count );
-    encoder_counts.right_count = DifferentiateInt16RollOver( _last_right_count, new_right_count );
-    encoder_counts.stasis_count = DifferentiateInt16RollOver( _last_stasis_count, new_stasis_count );
+    telemetry.left_encoder = DifferentiateInt16RollOver( _last_left_count, new_left_count );
+    telemetry.right_encoder = DifferentiateInt16RollOver( _last_right_count, new_right_count );
+    telemetry.stasis_encoder = DifferentiateInt16RollOver( _last_stasis_count, new_stasis_count );
 
-    encoder_counts.dt_ms = diff_millis;
+    telemetry.encoder_time = diff_millis;
 
-    encoder_counts.reading_time.sec   = GetTimeStamp().tv_sec;
-    encoder_counts.reading_time.nsec  = GetTimeStamp().tv_nsec;
+    telemetry.seconds = GetTimeStamp().tv_sec;
+    telemetry.nano_seconds  = GetTimeStamp().tv_nsec;
 
     _last_millis = new_millis;
     _last_left_count = new_left_count;
@@ -87,6 +91,6 @@ diff_drive::EncoderCounts ReadEncodersRequest::GetEncoderCounts()
     Unlock();
   }
 
-  return encoder_counts;
+  return telemetry;
 }
 }

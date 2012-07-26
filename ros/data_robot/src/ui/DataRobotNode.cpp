@@ -3,7 +3,7 @@
 #include "BumpersProcessor.hpp"
 
 #include "BumpersProcessorSetupService.hpp"
-#include "EncoderCountsReportingService.hpp"
+#include "BaseTelemetryReportingService.hpp"
 #include "FrontTelemetryReportingService.hpp"
 #include "TickVelocityCommandService.hpp"
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     boost::shared_ptr<EncoderCountsEndpoint> encoder_counts_endpoint =
         boost::shared_ptr<EncoderCountsEndpoint>( new EncoderCountsEndpoint() );
 
-    EncoderCountsReportingService encoder_counts_reporting_service( encoder_counts_endpoint,
+    BaseTelemetryReportingService base_telemetry_reporting_service( encoder_counts_endpoint,
                                                                     i2c_bus_endpoint );
 
 
@@ -79,8 +79,8 @@ int main(int argc, char **argv)
 
     bumpers_processor_setup_service.Update();
 
-    ROS_INFO( "Starting Encoder Counts Reporting Service..." );
-    encoder_counts_reporting_service.BeginReporting();
+    ROS_INFO( "Starting Base Telemetry Reporting Service..." );
+    base_telemetry_reporting_service.BeginReporting();
 
     ROS_INFO( "Starting Front Shell Telemetry Reporting Service..." );
     front_telemetry_reporting_service.BeginReporting();

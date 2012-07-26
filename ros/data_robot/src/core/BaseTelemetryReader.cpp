@@ -1,36 +1,31 @@
 #include <ros/ros.h>
 
-#include "ReadEncodersRequest.hpp"
-#include "EncoderCountsReader.hpp"
-
-extern "C"
-{
-  #include "RollOverHelpers.h"
-}
+#include "ReadBaseTelemetryRequest.hpp"
+#include "BaseTelemetryReader.hpp"
 
 namespace data_robot_core
 {
-EncoderCountsReader::EncoderCountsReader()
+BaseTelemetryReader::BaseTelemetryReader()
                     : _stop_requested( false ), 
                       _running( false ),
                       _block_for_request( true ),
                       _p_external_bus( NULL ) 
 {
-  _encoder_counts_listeners.reserve( 1 );
+  _telemetry_listeners.reserve( 1 );
 }
 
 /** Constructor which takes an IExternalBusEndpoint to communicate on.
  */
-EncoderCountsReader::EncoderCountsReader( IExternalBusEndpoint *p_external_bus )
+BaseTelemetryReader::BaseTelemetryReader( IExternalBusEndpoint *p_external_bus )
                     : _stop_requested( false ), 
                       _running( false ),
                       _block_for_request( true ),
                       _p_external_bus( p_external_bus ) 
 {
-  _encoder_counts_listeners.reserve(1);
+  _telemetry_listeners.reserve(1);
 }
 
-EncoderCountsReader::~EncoderCountsReader()
+BaseTelemetryReader::~BaseTelemetryReader()
 {
   StopReading();
 }
@@ -39,7 +34,7 @@ EncoderCountsReader::~EncoderCountsReader()
  *  
  *  Setting this value to NULL will disable the reader.
  */
-void EncoderCountsReader::SetExternalBus( IExternalBusEndpoint *p_external_bus )
+void BaseTelemetryReader::SetExternalBus( IExternalBusEndpoint *p_external_bus )
 {
   _p_external_bus = p_external_bus; 
 }
@@ -47,27 +42,27 @@ void EncoderCountsReader::SetExternalBus( IExternalBusEndpoint *p_external_bus )
 /** Provides a call-back mechanism for objects interested in receiving
  *  encoder count messages when they are available.
  */
-void EncoderCountsReader::Attach( IEncoderCountsListener& encoder_counts_listener ) 
+void BaseTelemetryReader::Attach( IBaseTelemetryListener& telemetry_listener ) 
 {
-  _encoder_counts_listeners.push_back( &encoder_counts_listener );
+  _telemetry_listeners.push_back( &telemetry_listener );
 }
 
 /** Starts the encoder count worker thread.
  */
-void EncoderCountsReader::BeginReading() 
+void BaseTelemetryReader::BeginReading() 
 {
   if (! _running) 
   {
     _running = true;
     _stop_requested = false;
     // Spawn async thread for reading laser scans
-    pthread_create(&_thread, 0, ReadEncoderCountsFunction, this);
+    pthread_create(&_thread, 0, ReadBaseTelemetryFunction, this);
   }
 }
 
 /** Stops the worker thread.
  */
-void EncoderCountsReader::StopReading() 
+void BaseTelemetryReader::StopReading() 
 {
   if ( _running ) 
   {
@@ -81,10 +76,10 @@ void EncoderCountsReader::StopReading()
 /** Worker thread to regularly generate BusRequests to read the current encoder 
  *  counts from the robot.
  */
-void EncoderCountsReader::ReadEncoderCounts() 
+void BaseTelemetryReader::ReadBaseTelemetry() 
 {
-  ReadEncodersRequest bus_request;
-  diff_drive::EncoderCounts encoder_counts;
+  ReadBaseTelemetryRequest bus_request;
+  BaseTelemetry_T telemetry;
 
   ros::Rate r( 10.0 );
 
@@ -116,15 +111,15 @@ void EncoderCountsReader::ReadEncoderCounts()
       }
 
       // Now copy the data out
-      encoder_counts = bus_request.GetEncoderCounts();
+      telemetry = bus_request.GetTelemetry();
 
       bus_request.Unlock();
 
-      NotifyEncoderCountsListeners( encoder_counts );
+      NotifyBaseTelemetryListeners( telemetry );
 
-      ROS_DEBUG(  "Encoder Counts Reader: Period: %.3f Actual: %.3f L: %d R: %d S: %d Dt: %d", 
-          r.expectedCycleTime().toSec(), r.cycleTime().toSec(), encoder_counts.left_count,
-          encoder_counts.right_count, encoder_counts.stasis_count, encoder_counts.dt_ms );
+      ROS_DEBUG(  "Base Telemetry Reader: Expected Period: %.3f Actual: %.3f L: %d R: %d S: %d Dt: %d", 
+          r.expectedCycleTime().toSec(), r.cycleTime().toSec(), telemetry.left_encoder,
+          telemetry.right_encoder, telemetry.stasis_encoder, telemetry.encoder_time );
     }
     else
     {
@@ -137,11 +132,11 @@ void EncoderCountsReader::ReadEncoderCounts()
 
 /** Calls the callback function for all registered odometry listeners.
  */
-void EncoderCountsReader::NotifyEncoderCountsListeners( const diff_drive::EncoderCounts& encoder_counts ) 
+void BaseTelemetryReader::NotifyBaseTelemetryListeners( const BaseTelemetry_T& telemetry ) 
 {
-  for (int i= 0; i < _encoder_counts_listeners.size(); i++) 
+  for (int i= 0; i < _telemetry_listeners.size(); i++) 
   {
-      _encoder_counts_listeners[i]->OnEncoderCountsAvailableEvent( encoder_counts );
+    _telemetry_listeners[i]->OnBaseTelemetryAvailableEvent( telemetry );
   }
 }
 }

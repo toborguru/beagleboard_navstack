@@ -1,6 +1,5 @@
 // ReadFrontTelemetryRequest.hpp
 
-#include "BusAddresses.hpp"
 #include "BusRequest.hpp"
 #include "Telemetry.hpp"
 

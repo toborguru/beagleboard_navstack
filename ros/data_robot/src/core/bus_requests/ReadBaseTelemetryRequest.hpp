@@ -1,11 +1,10 @@
-// ReadEncodersRequest.hpp
-
-#include "diff_drive/EncoderCounts.h"
+// ReadBaseTelemetryRequest.hpp
 
 #include "BusRequest.hpp"
+#include "Telemetry.hpp"
 
-#ifndef GUARD_ReadEncodersRequest
-#define GUARD_ReadEncodersRequest
+#ifndef GUARD_ReadBaseTelemetryRequest
+#define GUARD_ReadBaseTelemetryRequest
 
 namespace data_robot_core
 {
@@ -13,15 +12,15 @@ namespace data_robot_core
  *  the robot.
  *
  */
-class ReadEncodersRequest : public BusRequest
+class ReadBaseTelemetryRequest : public BusRequest
 {
 public:
-  ReadEncodersRequest( bool is_blockable = true, bool is_lockable = true );
+  ReadBaseTelemetryRequest( bool is_blockable = true, bool is_lockable = true );
 
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
-  virtual ~ReadEncodersRequest() {};
+  virtual ~ReadBaseTelemetryRequest() {};
 
-  diff_drive::EncoderCounts GetEncoderCounts();
+  BaseTelemetry_T GetTelemetry();
 
 private:
   int16_t _last_left_count;
@@ -31,4 +30,4 @@ private:
 };
 }
  
-#endif /* GUARD_ReadEncodersRequest */
+#endif /* GUARD_ReadBaseTelemetryRequest */

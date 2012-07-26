@@ -9,10 +9,9 @@ include_directories(
 rosbuild_add_executable(
   data_robot_tests
   TestRunner.cpp
-  ./core/EncoderCountsReaderTests.cpp
+  ./core/BaseTelemetryReaderTests.cpp
   ./core/RollOverHelpersTests.cpp
   ./core/BumpersProcessorTests.cpp
-  ./application_services/EncoderCountsReportingServiceTests.cpp
   ./application_services/TickVelocityCommandServiceTests.cpp
 )
 
