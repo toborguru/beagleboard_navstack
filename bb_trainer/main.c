@@ -45,6 +45,9 @@
 #define SHELL_POWER_PORT  D
 #define SHELL_POWER_PIN   0
 
+#define E_STOP_PORT C
+#define E_STOP_PIN  0
+
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
 #define INVALID_COMMAND         0xFFFF
 
@@ -98,6 +101,8 @@ int main( void )
   OUTPUT_PIN(SHELL_POWER_PORT, SHELL_POWER_PIN);
   OUTPUT_PIN(KILL_PORT, KILL_PIN);
 
+  INPUT_PIN(E_STOP_PORT, E_STOP_PIN);
+
   AnalogInInit();
   Motors_Init();
   Motion_Control_Init();
@@ -144,7 +149,7 @@ void CheckVoltage()
   // Perform Motion Step
   if ( Clock_Diff(step_time, g_system_clock) <= 0 )
   {
-    step_time += 10;
+    step_time += 100; // Millis
 
     if ( (gp_telemetry_write->voltage > 0) && (gp_telemetry_write->voltage < VOLTAGE_KILL_LIMIT) )
     { 
@@ -155,7 +160,7 @@ void CheckVoltage()
       limit_reached = 0;
     }
 
-    // 1 full second of limit reached...
+    // 10 full seconds of limit reached...
     if ( limit_reached > 100 ) 
     {
       BIT_SET(_PORT(KILL_PORT), KILL_PIN);
@@ -165,8 +170,10 @@ void CheckVoltage()
 
 void UpdateTelemetry()
 {
-  gp_telemetry_write->voltage = g_analog_values[ ANALOG_VOLTAGE_INDEX ];
   gp_telemetry_write->current = g_analog_values[ ANALOG_CURRENT_INDEX ];
+  gp_telemetry_write->voltage = g_analog_values[ ANALOG_VOLTAGE_INDEX ];
+  // TODO Remove !
+  gp_telemetry_write->status_flag = ! READ_PIN( E_STOP_PORT, E_STOP_PIN );
 }
 
 void UpdateTelemetryClock()

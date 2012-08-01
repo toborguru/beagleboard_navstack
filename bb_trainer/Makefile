@@ -59,6 +59,7 @@ util/checksum.c \
 util/clamp.c \
 util/ascii_print.c \
 util/pid.c \
+util/QD.c \
 
 # If there is more than one source file, append them above, or modify and
 # uncomment the following:

@@ -16,7 +16,7 @@
 #include "motors.h"
 #include "shaft_encoders.h"
 
-#define STATIS_WHEEL_EN 0
+#define ENCODERS_STATIS_WHEEL_ENABLE  1
 
 #define ENCODERS_LEFT_TICKS_PORT    D
 #define ENCODERS_LEFT_TICKS_PIN     3
@@ -31,18 +31,17 @@
 #define ENCODERS_RIGHT_DIR_PIN      4
 #define ENCODERS_RIGHT_INTERRUPT    INT0
 #define ENCODERS_RIGHT_INT_VECT     INT0_vect
-
 #define ENCODERS_EICRA_MASK         BIT( ISC00 ) | BIT( ISC10 ) 
 
-#if ENCODERS_STATIS_WHEEL_EN
-#define STASIS_EICRB_MASK       BIT( ISC50 ) | BIT( ISC51 )
-#endif
-     
-#if STATIS_WHEEL_EN
-#define ENCODERS_STASIS_TICKS_PORT  E
-#define ENCODERS_STASIS_TICKS_PIN   5
-#define ENCODERS_STASIS_DIR_PORT    A
-#define ENCODERS_STASIS_DIR_PIN     7
+#if ENCODERS_STATIS_WHEEL_ENABLE
+#define ENCODERS_STASIS_A_PORT  D
+#define ENCODERS_STASIS_A_PIN   6
+#define ENCODERS_STASIS_B_PORT  D
+#define ENCODERS_STASIS_B_PIN   7
+#define ENCODERS_STASIS_A_INTERRUPT   PCINT22
+#define ENCODERS_STASIS_B_INTERRUPT   PCINT23
+#define ENCODERS_STASIS_INT_VECT    PCI2_vect
+#define ENCODERS_STASIS_PCICR_MASK  BIT( PCIE2 )
 #endif
 
 #define ENCODERS_RISING_EDGE    0
@@ -64,7 +63,7 @@ void Shaft_Encoders_Init( void  )
     INPUT_PIN( ENCODERS_RIGHT_TICKS_PORT, ENCODERS_RIGHT_TICKS_PIN );
     INPUT_PIN( ENCODERS_RIGHT_DIR_PORT, ENCODERS_RIGHT_DIR_PIN );
 
-#if STATIS_WHEEL_EN
+#if ENCODERS_STASIS_WHEEL_ENABLE
     INPUT_PIN( ENCODERS_STASIS_TICKS_PORT, ENCODERS_STASIS_TICKS_PIN );
     INPUT_PIN( ENCODERS_STASIS_DIR_PORT, ENCODERS_STASIS_DIR_PIN );
 #endif
@@ -76,19 +75,23 @@ void Shaft_Encoders_Init( void  )
     DISABLE_PULLUP( ENCODERS_LEFT_DIR_PORT, ENCODERS_LEFT_DIR_PIN );
     DISABLE_PULLUP( ENCODERS_RIGHT_DIR_PORT, ENCODERS_RIGHT_DIR_PIN );
 
+#if ENCODERS_STASIS_WHEEL_ENABLE
+    DISABLE_PULLUP( ENCODERS_STASIS_A_PORT, ENCODERS_STASIS_A_PIN );
+    DISABLE_PULLUP( ENCODERS_STASIS_B_PORT, ENCODERS_STASIS_B_PIN );
+#endif
+
     // Set interupts as rising edge triggered
     EICRA |= ENCODERS_EICRA_MASK;
-
-
-#if STATIS_WHEEL_EN
-    EICRB |= STASIS_EICRB_MASK;  
-#endif
 
     // Enable the interupts - Interrupts should be globally disabled
     EIMSK |= BIT( ENCODERS_LEFT_INTERRUPT ) | BIT( ENCODERS_RIGHT_INTERRUPT );
 
-#if STATIS_WHEEL_EN
-    EIMSK |= BIT ( STASIS_WHEEL_INTERRUPT );
+    // Setup stasis wheel interrupts
+#if ENCODERS_STASIS_WHEEL_ENABLE
+    PCMSK2 = BIT( ENCODERS_STASIS_A_INTERRUPT ) | BIT( ENCODERS_STASIS_B_INTERRUPT );
+
+    // Enable the interrupt
+    PCICR |= ENCODERS_STASIS_PCICR_MASK;  
 #endif
 }
  
@@ -117,43 +120,15 @@ ISR( ENCODERS_RIGHT_INT_VECT )
 }  
 
 #if STATIS_WHEEL_EN
-ISR( INT5_vect )
+ISR( ENCODERS_STASIS_INT_VECT )
 {
-    uint8_t eimsk, eicrb;
+  static uint8_t prev_state = 0;
+  uint8_t state;
 
-    eicrb = EICRB;
+  state = READ_PIN( ENCODERS_STASIS_A_PORT, ENCODERS_STASIS_A_PIN ) << 1 
+          | READ_PIN( ENCODERS_STASIS_B_PORT, ENCODERS_STASIS_B_PIN );
 
-    if ( BIT_TEST( eicrb, ISC50 ) )  // Just caught the rising edge
-    {
-        if ( READ_PIN( ENCODERS_STASIS_DIR_PORT, ENCODERS_STASIS_DIR_PIN ) )
-        {
-            --g_shaft_encoders_stasis_count;
-        }
-        else
-        {
-            ++g_shaft_encoders_stasis_count;
-        }
-
-        eimsk = EIMSK;
-        EIMSK = BIT_CLEAR( eimsk, INT5 );   // Disable the interrupt to clear it
-        EICRB = BIT_CLEAR( eicrb , ISC50 ); // Set to falling edge
-        EIMSK = BIT_SET( eimsk , INT5 );    // Enable the interrupt
-    }
-    else // Just caught rising edge
-    {
-        if ( _READ_PIN( ENCODERS_STASIS_DIR_PORT, ENCODERS_STASIS_DIR_PIN ) )
-        {
-            ++g_shaft_encoders_stasis_count;
-        }
-        else
-        {
-            --g_shaft_encoders_stasis_count;
-        }
-
-        eimsk = EIMSK;
-        EIMSK = BIT_CLEAR( eimsk, INT5 );   // Disable the interrupt to clear it
-        EICRB = BIT_SET( eicrb , ISC50 );   // Set to rising edge
-        EIMSK = BIT_SET( eimsk , INT5 );    // Enable the interrupt
-    }
+  g_shaft_encoders_stasis_count += QD_gIncrement[ prev_state ].increment[ state ];
+  prev_state = state; 
 }  
 #endif
