@@ -21,7 +21,7 @@ PowerStateProcessor::PowerStateProcessor()
 
 /** Function to 
  */
-void PowerStateProcessor::AddNewData( uint16_t current,  uint16_t voltage ) 
+void PowerStateProcessor::AddNewData( uint16_t current,  uint16_t voltage, uint16_t milli_seconds ) 
 {
   int32_t total_current = 0;
   int32_t total_voltage = 0;
@@ -46,6 +46,7 @@ void PowerStateProcessor::AddNewData( uint16_t current,  uint16_t voltage )
 
   _power_state.current_draw = ( CURRENT_M * (float) avg_current ) + CURRENT_B;
   _power_state.battery_voltage = (VOLTAGE_M * (float) avg_voltage ) + VOLTAGE_B;
+  _power_state.power_draw = _power_state.current_draw * _power_state.battery_voltage;
 }
 
 data_robot::PowerState PowerStateProcessor::GetPowerState()

@@ -1,4 +1,6 @@
 // BaseTelemetryReportingService.cpp
+
+#include "ros/ros.h"
  
 #include "diff_drive/EncoderCounts.h"
 
@@ -71,7 +73,7 @@ void BaseTelemetryReportingService::OnBaseTelemetryAvailableEvent(const data_rob
     _p_encoder_counts_endpoint->Publish( encoder_counts );
 
     // Power State
-    _p_power_state_processor->AddNewData( telemetry.current, telemetry.voltage );
+    _p_power_state_processor->AddNewData( telemetry.current, telemetry.voltage, 0 );
     power_state = _p_power_state_processor->GetPowerState();
 
     _p_power_state_endpoint->Publish( power_state );

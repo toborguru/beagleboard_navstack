@@ -17,7 +17,7 @@ public:
 
   PowerStateProcessor();
 
-  void AddNewData( uint16_t current,  uint16_t voltage );
+  void AddNewData( uint16_t current,  uint16_t voltage, uint16_t milli_seconds );
 
   data_robot::PowerState GetPowerState();
 
