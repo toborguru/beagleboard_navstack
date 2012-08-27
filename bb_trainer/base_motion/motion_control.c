@@ -11,10 +11,10 @@
 #include "motion_control.h"
 #include "shaft_encoders.h"
 
-#define MOTION_CONTROL_KP   20
-#define MOTION_CONTROL_KD   2
-#define MOTION_CONTROL_KI   5
-#define MOTION_CONTROL_KO   1 // Output Scale: Used for fractional gains => Kp=kp/ko, Kd=kd/ko, Ki=ki/ko
+#define MOTION_CONTROL_KP   100
+#define MOTION_CONTROL_KD   0
+#define MOTION_CONTROL_KI   25
+#define MOTION_CONTROL_KO   5 // Output Scale: Used for fractional gains => Kp=kp/ko, Kd=kd/ko, Ki=ki/ko
 #define MOTION_CONTROL_MAX_CORRECTION   0xFF
 #define MOTION_CONTROL_MAX_I_ERROR      0x30
 

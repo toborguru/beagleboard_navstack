@@ -45,8 +45,8 @@
 #define SHELL_POWER_PORT  D
 #define SHELL_POWER_PIN   0
 
-#define E_STOP_PORT C
-#define E_STOP_PIN  0
+#define E_STOP_PORT D
+#define E_STOP_PIN  1
 
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
 #define INVALID_COMMAND         0xFFFF
@@ -101,7 +101,7 @@ int main( void )
   OUTPUT_PIN(SHELL_POWER_PORT, SHELL_POWER_PIN);
   OUTPUT_PIN(KILL_PORT, KILL_PIN);
 
-  INPUT_PIN(E_STOP_PORT, E_STOP_PIN);
+  //INPUT_PIN(E_STOP_PORT, E_STOP_PIN);
 
   AnalogInInit();
   Motors_Init();
@@ -173,7 +173,7 @@ void UpdateTelemetry()
   gp_telemetry_write->current = g_analog_values[ ANALOG_CURRENT_INDEX ];
   gp_telemetry_write->voltage = g_analog_values[ ANALOG_VOLTAGE_INDEX ];
   // TODO Remove !
-  gp_telemetry_write->status_flag = ! READ_PIN( E_STOP_PORT, E_STOP_PIN );
+  //gp_telemetry_write->status_flag = ! READ_PIN( E_STOP_PORT, E_STOP_PIN );
 }
 
 void UpdateTelemetryClock()

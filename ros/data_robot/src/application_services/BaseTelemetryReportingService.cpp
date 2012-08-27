@@ -67,6 +67,7 @@ void BaseTelemetryReportingService::OnBaseTelemetryAvailableEvent(const data_rob
 
     encoder_counts = _p_encoder_counts_processor->GetEncoderCounts();
 
+    //encoder_counts.stasis_count = telemetry.stasis_encoder;
     encoder_counts.reading_time.sec = telemetry.seconds;
     encoder_counts.reading_time.nsec = telemetry.nano_seconds;
 

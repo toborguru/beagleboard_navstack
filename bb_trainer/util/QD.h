@@ -60,6 +60,8 @@ typedef struct
 
 } QD_Increment_t;
 
+extern QD_Increment_t QD_gIncrement[ 4 ];
+
 #if defined( CFG_QD_COUNTER_TYPE )
 
 typedef CFG_QD_COUNTER_TYPE QD_Counter_t;
