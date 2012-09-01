@@ -22,6 +22,10 @@ OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryE
     _p_base_model( base_model ),
     _is_reporting( false )
 {
+  _p_encoder_counts_endpoint->Attach( _odometry_integrator );
+
+  _odometry_integrator.Attach( *this);
+  _odometry_integrator.SetBaseModel(*_p_base_model );
 }
 
 /** Do everything required to start count listening and odometry reporting.

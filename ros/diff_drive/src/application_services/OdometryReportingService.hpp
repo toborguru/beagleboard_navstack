@@ -12,7 +12,7 @@
  
 namespace diff_drive_application_services
 {
-class OdometryReportingService
+class OdometryReportingService : public diff_drive_core::IOdometryListener
 {
 public:
   explicit OdometryReportingService(  boost::shared_ptr<diff_drive_core::IOdometryEndpoint> odometry_endpoint,
