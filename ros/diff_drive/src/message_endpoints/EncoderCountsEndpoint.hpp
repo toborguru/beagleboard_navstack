@@ -19,6 +19,7 @@ public:
 
   void Subscribe();
   void Unsubscribe();
+  bool IsSubscribed();
   void Attach( diff_drive_core::IEncoderCountsListener& encoder_counts_listener );
 
   void NewEncoderCountsReceived( const diff_drive::EncoderCounts& encoder_counts );

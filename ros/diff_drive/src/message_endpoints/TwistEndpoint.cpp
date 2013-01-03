@@ -55,6 +55,13 @@ void TwistEndpoint::Unsubscribe()
   }
 }
 
+/** Returns the thread status.
+ */
+bool TwistEndpoint::IsSubscribed()
+{
+  return _running;
+}
+
 /** Provides a call-back mechanism for objects interested in receiving 
  *  messages when they are available.
  */

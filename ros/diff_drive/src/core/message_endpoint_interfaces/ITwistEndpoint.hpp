@@ -14,6 +14,7 @@ public:
   virtual ~ITwistEndpoint() {}
   virtual void Subscribe() = 0;
   virtual void Unsubscribe() = 0;
+  virtual bool IsSubscribed() = 0;
   virtual void Attach( ITwistListener& twist_listener ) = 0; 
 };
 }

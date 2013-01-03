@@ -12,7 +12,7 @@ namespace diff_drive_core
     public:
       // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
       virtual ~IMovementStatusEndpoint() {}
-      virtual void Publish(const diff_drive::MovementStatus& status) const = 0;
+      virtual void Publish(const diff_drive::MovementStatus& status) = 0;
   };
 }
  

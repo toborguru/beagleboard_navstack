@@ -75,6 +75,11 @@ struct TwistGenerator : public diff_drive_core::ITwistEndpoint
     _subscribed = false;
   }
   
+  bool IsSubscribed()
+  {
+    return _subscribed;
+  }
+  
   void Attach( ITwistListener& twist_listener )
   {
     _twist_listeners.push_back(&twist_listener);

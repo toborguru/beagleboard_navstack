@@ -1,0 +1,3 @@
+#!/bin/bash
+
+i2c -d /dev/i2c-2 0x06 rb4 18 

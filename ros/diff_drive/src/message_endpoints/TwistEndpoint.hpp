@@ -19,6 +19,7 @@ public:
 
   void Subscribe();
   void Unsubscribe();
+  bool IsSubscribed();
   void Attach( diff_drive_core::ITwistListener& twist_listener );
 
   void NewTwistReceived( const geometry_msgs::Twist& twist );

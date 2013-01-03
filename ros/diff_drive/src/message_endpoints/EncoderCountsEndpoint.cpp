@@ -56,6 +56,13 @@ void EncoderCountsEndpoint::Unsubscribe()
   }
 }
 
+/** Returns the status of the thread.
+ */
+bool EncoderCountsEndpoint::IsSubscribed()
+{
+  return _running;
+}
+
 /** Provides a call-back mechanism for objects interested in receiving 
  *  messages when they are available.
  */

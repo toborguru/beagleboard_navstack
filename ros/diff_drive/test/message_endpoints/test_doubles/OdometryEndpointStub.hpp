@@ -14,7 +14,7 @@ namespace diff_drive_test_message_endpoints_test_doubles
   { 
     public:
       OdometryEndpointStub()
-        : _count_of_odometrys_published(0),
+        : _count_of_messages_published(0),
           _x(0.0),
           _y(0.0),
           _theta(0.0),
@@ -23,7 +23,7 @@ namespace diff_drive_test_message_endpoints_test_doubles
           _covariance(0.0)
       { }
 
-      mutable int _count_of_odometrys_published;
+      mutable int _count_of_messages_published;
       mutable double _x;
       mutable double _y;
       mutable double _theta;
@@ -33,7 +33,7 @@ namespace diff_drive_test_message_endpoints_test_doubles
 
       void Publish(const nav_msgs::Odometry& odometry)
       {
-        _count_of_odometrys_published++;
+        _count_of_messages_published++;
 
         _x = odometry.pose.pose.position.x;
         _y = odometry.pose.pose.position.y;

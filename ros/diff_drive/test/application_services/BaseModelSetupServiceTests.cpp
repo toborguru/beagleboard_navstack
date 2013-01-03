@@ -38,8 +38,8 @@ namespace diff_drive_test_application_services
     wheel_ticks3 = p_base_model->GetWheelTicks();
 
     // Assert
-    EXPECT_EQ( 100, wheel_ticks1);
-    EXPECT_EQ( 100, wheel_ticks2);
+    EXPECT_EQ( 0, wheel_ticks1);
+    EXPECT_EQ( 0, wheel_ticks2);
     EXPECT_EQ( 200, wheel_ticks3);
   }
 }

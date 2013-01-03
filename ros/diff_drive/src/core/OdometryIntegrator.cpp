@@ -3,6 +3,10 @@
  *  Encoder Counts Reader Class File
  *
  *  @details
+ *  This class uses @BaseModel class physical attributes to compute distances, 
+ *  velocities, and motion state from incoming encoder counts. This class 
+ *  optionally supports a stasis wheel, if properly defined in the @BaseModel 
+ *  class.
  *  
  *  @author Sawyer Larkin (SJL toborguru)
  *
@@ -45,11 +49,21 @@ static const double OdometryCovarianceLow[36] =
 /** Default constructor.
  */
 OdometryIntegrator::OdometryIntegrator()
-                   : _p_base_model(NULL)
+                   : _p_base_model(NULL),
+                     _average_index(0),
+                     _linear_average_total(0.0),
+                     _stasis_average_total(0.0)
 {
   _odometry_listeners.reserve(1);
+  _movement_status_listeners.reserve(1);
 
   _current_position.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+
+  for (int i = 0; i < AVERAGE_NUM_READINGS; i++)
+  {
+    _linear_velocities[i] = 0.0;
+    _stasis_velocities[i] = 0.0;
+  }
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
@@ -58,6 +72,14 @@ OdometryIntegrator::OdometryIntegrator()
 void OdometryIntegrator::Attach(IOdometryListener& odometry_listener) 
 {
   _odometry_listeners.push_back(&odometry_listener);
+}
+
+/** Provides a call-back mechanism for objects interested in receiving 
+ *  movement status messages when they are available.
+ */
+void OdometryIntegrator::Attach(IMovementStatusListener& movement_status_listener) 
+{
+  _movement_status_listeners.push_back(&movement_status_listener);
 }
 
 /** Sets the BaseModel object to use for ticks to SI conversion.
@@ -71,25 +93,36 @@ void OdometryIntegrator::SetBaseModel( const BaseModel& base_model )
  */
 void OdometryIntegrator::OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts )
 {
-  _current_position = AddNewCounts( encoder_counts, _current_position ); 
+  AddNewCounts( encoder_counts ); 
+}
 
+/** This function is used to perform all updates when new counts are ready.
+ *
+ */
+void OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCounts& counts )
+{
+  _current_position = CalculatePosition( &_velocities, counts, _current_position ); 
+
+  _movement_status = CalculateMovementStatus( _velocities );
+
+  // Set the covariance data
+  CalculateCovariance( &_current_position, _movement_status );
+  
   NotifyOdometryListeners( _current_position );
+  NotifyMovementStatusListeners( _movement_status );
 }
 
 /** This function uses the BaseModel class to translate encoder counts into SI
  *  Units and integrates the delta motions into an estimated speed and position.
  *
- *  If a stasis wheel is in use than the covariance estimates are drastically
- *  reduced if the Linear and Stasis velocities do not match.
- *
  */
-nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCounts counts, 
-                                                     const nav_msgs::Odometry last_position ) 
+nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T *p_velocities,
+                                                            const diff_drive::EncoderCounts counts, 
+                                                            const nav_msgs::Odometry last_position ) 
 {
   nav_msgs::Odometry new_position;
 
   BaseDistance_T delta_position;
-  BaseVelocities_T  velocities;
 
   const double *p_covariance;
 
@@ -102,9 +135,11 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
   double angular;
 
   // Run base model here
-  if (_p_base_model != NULL)
+  if (  (_p_base_model != NULL) && 
+        (_p_base_model->GetSetupValid() == true) && 
+        (counts.dt_ms > 0) )
   {
-    _p_base_model->ConvertCounts( &delta_position, &velocities, counts );
+    _p_base_model->ConvertCounts( &delta_position, p_velocities, counts );
 
     old_theta = tf::getYaw(last_position.pose.pose.orientation);
 
@@ -119,18 +154,8 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
     // Then the full turn estimate is reported
     theta = old_theta + delta_position.theta;
 
-    linear = velocities.linear;
-    angular = velocities.angular;
-
-    // TODO stasis wheel check
-    if ( _p_base_model->GetStasisTicks() > 0 )
-    {
-      p_covariance = OdometryCovariance;
-    }
-    else
-    {
-      p_covariance = OdometryCovariance;
-    }
+    linear = p_velocities->linear;
+    angular = p_velocities->angular;
   }
   else
   {
@@ -139,8 +164,6 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
     theta = 0.0;
     linear = 0.0;
     angular = 0.0;
-
-    p_covariance = OdometryCovarianceLow;
   }
 
 #if 0
@@ -169,14 +192,133 @@ nav_msgs::Odometry OdometryIntegrator::AddNewCounts( const diff_drive::EncoderCo
   new_position.twist.twist.angular.y = 0.0;
   new_position.twist.twist.angular.z = angular;
 
+  return new_position;
+}
+
+/** This function checks all of the available parameters to determine the status
+ *  of our movement attempts ie. moving, stalled, or unconfigured.
+ *
+ */
+diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const BaseVelocities_T  velocities )
+{
+  float linear_average;
+  float stasis_average;
+  float abs_linear;
+  float abs_stasis;
+  float lower_limit;
+  float upper_limit;
+
+  diff_drive::MovementStatus movement_status;
+
+  _stasis_window = 0.50; // %
+  _stasis_lower_limit = 0.03; // m/s
+
+  if (_p_base_model == NULL) // No base model
+  {
+    movement_status.motors_state = diff_drive::MovementStatus::SETUP_ERROR;
+    movement_status.stasis_wheel_enabled = false;
+    movement_status.linear_velocity = 0.0;
+    movement_status.linear_velocity_average = 0.0;
+    movement_status.stasis_velocity = 0.0;
+    movement_status.stasis_velocity_average = 0.0;
+  }
+  else if ( _p_base_model->GetSetupValid() == false )
+  {
+    movement_status.motors_state = diff_drive::MovementStatus::SETUP_ERROR;
+    movement_status.stasis_wheel_enabled = false;
+    movement_status.linear_velocity = 0.0;
+    movement_status.linear_velocity_average = 0.0;
+    movement_status.stasis_velocity = 0.0;
+    movement_status.stasis_velocity_average = 0.0;
+  }
+  else
+  {
+    // Copute averages and compare
+    _linear_average_total -= _linear_velocities[ _average_index ];
+    _linear_velocities[ _average_index ] = velocities.linear;
+    _linear_average_total += _linear_velocities[ _average_index ]; 
+
+    _stasis_average_total -= _stasis_velocities[ _average_index ];
+    _stasis_velocities[ _average_index ] = velocities.stasis;
+    _stasis_average_total += _stasis_velocities[ _average_index ]; 
+
+    linear_average = ldexp( _linear_average_total, -1 * AVERAGE_2N_READINGS );
+    stasis_average = ldexp( _stasis_average_total, -1 * AVERAGE_2N_READINGS );
+
+    abs_linear = fabs( linear_average );
+    abs_stasis = fabs( stasis_average );
+
+    float lower_limit = abs_linear * ( 1.0 - _stasis_window );
+    float upper_limit = abs_linear * ( 1.0 + _stasis_window );
+
+    movement_status.linear_velocity = velocities.linear;
+    movement_status.linear_velocity_average = linear_average;
+    movement_status.stasis_velocity = velocities.stasis;
+    movement_status.stasis_velocity_average = stasis_average;
+
+    _average_index++;
+    _average_index %= AVERAGE_NUM_READINGS;
+
+    if ( _p_base_model->GetStasisValid() == false )
+    {
+      movement_status.motors_state = diff_drive::MovementStatus::CORRECT;
+      movement_status.stasis_wheel_enabled = false;
+    }
+    else // Stasis Wheel Active
+    {
+      movement_status.stasis_wheel_enabled = true;
+
+      if ( abs_linear > _stasis_lower_limit ) // going fast enough to register stasis wheel movement
+      {
+        if (abs_stasis > upper_limit)
+        {
+          movement_status.motors_state = diff_drive::MovementStatus::FREE_WHEELING;
+        }
+        else if (abs_stasis < lower_limit)
+        {
+          movement_status.motors_state = diff_drive::MovementStatus::STASIS;
+        }
+        else
+        {
+          movement_status.motors_state = diff_drive::MovementStatus::CORRECT;
+        }
+      }
+      else // assume good
+      {
+        movement_status.motors_state = diff_drive::MovementStatus::CORRECT;
+      }
+    }
+  }
+
+  return movement_status;
+}
+
+/** This function computes covariance data based on the movement status state.
+ *
+ *  If a stasis wheel is in use than the covariance estimates are drastically
+ *  reduced if the Linear and Stasis velocities do not match.
+ *
+ */
+void OdometryIntegrator::CalculateCovariance( nav_msgs::Odometry *p_position,
+                                                const diff_drive::MovementStatus movement_status )
+{
+  const double *p_covariance;
+
+  if ( movement_status.motors_state == diff_drive::MovementStatus::CORRECT )
+  {
+    p_covariance = OdometryCovariance;
+  }
+  else
+  {
+    p_covariance = OdometryCovarianceLow;
+  } 
+
   // Set the covariance data
   for (int i = 0; i < 36; i++)
   {
-    new_position.pose.covariance[i] = p_covariance[i];
-    new_position.twist.covariance[i] = p_covariance[i];
+    p_position->pose.covariance[i] = p_covariance[i];
+    p_position->twist.covariance[i] = p_covariance[i];
   }
-  
-  return new_position;
 }
 
 /** Calls the callback function for all registered odometry listeners.
@@ -186,6 +328,16 @@ void OdometryIntegrator::NotifyOdometryListeners(const nav_msgs::Odometry& odome
   for (int i= 0; i < _odometry_listeners.size(); i++) 
   {
       _odometry_listeners[i]->OnOdometryAvailableEvent(odometry);
+  }
+}
+
+/** Calls the callback function for all registered movement status listeners.
+ */  
+void OdometryIntegrator::NotifyMovementStatusListeners(const diff_drive::MovementStatus& movement_status)
+{
+  for (int i= 0; i < _movement_status_listeners.size(); i++) 
+  {
+      _movement_status_listeners[i]->OnMovementStatusAvailableEvent(movement_status);
   }
 }
 }

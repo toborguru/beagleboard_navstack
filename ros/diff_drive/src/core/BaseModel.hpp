@@ -43,9 +43,9 @@ namespace diff_drive_core
   {
     public:
   
-      BaseModel(  double    wheel_radius  = 0.5, 
-                  uint16_t  wheel_ticks   = 100,
-                  double    wheel_base    = 1.0,
+      BaseModel(  double    wheel_radius  = 0.0, 
+                  uint16_t  wheel_ticks   = 0,
+                  double    wheel_base    = 0,
                   double    wheel_ratio   = 1.0,
                   double    stasis_radius = 0.0,
                   int16_t   stasis_ticks  = -1 );
@@ -61,6 +61,9 @@ namespace diff_drive_core
       // Base Geometry Functions
       BaseGeometry_T  GetBaseGeometry() const;
       void            SetBaseGeometry( BaseGeometry_T geometry );
+
+      bool      GetSetupValid() const;
+      bool      GetStasisValid() const;
 
       double    GetWheelRadius() const;
       void      SetWheelRadius(double wheel_radius);

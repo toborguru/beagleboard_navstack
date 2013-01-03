@@ -18,7 +18,7 @@ namespace diff_drive_message_endpoints
 
       virtual ~MovementStatusEndpoint();
  
-      virtual void Publish( const diff_drive::MovementStatus& status ) const;
+      virtual void Publish( const diff_drive::MovementStatus& status );
  
     private:
       // Create handle to node

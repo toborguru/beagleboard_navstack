@@ -15,45 +15,106 @@ namespace diff_drive_application_services
  *  destroyed.
  */
 OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryEndpoint> odometry_endpoint,
+                                                    boost::shared_ptr<diff_drive_core::IMovementStatusEndpoint> movement_status_endpoint,
                                                     boost::shared_ptr<IEncoderCountsEndpoint> encoder_counts_endpoint, 
                                                     boost::shared_ptr<const diff_drive_core::BaseModel> base_model )
   : _p_odometry_endpoint( odometry_endpoint ),
+    _p_movement_status_endpoint( movement_status_endpoint ),
     _p_encoder_counts_endpoint( encoder_counts_endpoint ),
     _p_base_model( base_model ),
-    _is_reporting( false )
+    _is_reporting_odometry( false ),
+    _is_reporting_movement_status( false )
 {
   _p_encoder_counts_endpoint->Attach( _odometry_integrator );
 
-  _odometry_integrator.Attach( *this);
+  _odometry_integrator.Attach( * dynamic_cast<IOdometryListener*>(this));
+
+  _odometry_integrator.Attach( * dynamic_cast<IMovementStatusListener*>(this));
+
   _odometry_integrator.SetBaseModel(*_p_base_model );
 }
 
-/** Do everything required to start count listening and odometry reporting.
+/** Do everything required to start all listening and reporting.
  */
 void OdometryReportingService::BeginReporting() 
 {
-  _is_reporting = true;
+  BeginReportingOdometry();
+  BeginReportingMovementStatus();
+}
+
+/** Do everything required to stop all listening and reporting.
+ */
+void OdometryReportingService::StopReporting()
+{
+  StopReportingOdometry();
+  StopReportingMovementStatus();
+}
+
+/** Do everything required to start odometry reporting.
+ */
+void OdometryReportingService::BeginReportingOdometry() 
+{
+  _is_reporting_odometry = true;
 
   _p_encoder_counts_endpoint->Subscribe();
 }
 
-/** Do everything required to stop count listening and odometry reporting.
+/** Do everything required to stop odometry reporting.
  */
-void OdometryReportingService::StopReporting()
+void OdometryReportingService::StopReportingOdometry()
 {
-  _p_encoder_counts_endpoint->Unsubscribe();
+  // TODO Replace this with a counting semaphore
+  // Check if everybody is done
+  if ( ! _is_reporting_movement_status )
+  {
+    _p_encoder_counts_endpoint->Unsubscribe();
+  }
 
-  _is_reporting = false;
+  _is_reporting_odometry = false;
+}
+
+/** Do everything required to start movement status reporting.
+ */
+void OdometryReportingService::BeginReportingMovementStatus() 
+{
+  _is_reporting_movement_status = true;
+
+  _p_encoder_counts_endpoint->Subscribe();
+}
+
+/** Do everything required to stop movement status reporting.
+ */
+void OdometryReportingService::StopReportingMovementStatus()
+{
+  // TODO Replace this with a counting semaphore
+  // Check if everybody is done
+  if ( ! _is_reporting_odometry )
+  {
+    _p_encoder_counts_endpoint->Unsubscribe();
+  }
+
+  _is_reporting_movement_status = false;
 }
 
 /** This class is an odometry listener, act on new odometry available.
  */
 void OdometryReportingService::OnOdometryAvailableEvent(const nav_msgs::Odometry& odometry)
 {
-  if ( _is_reporting )
+  if ( _is_reporting_odometry )
   {
     // Send odometry to the message end point
     _p_odometry_endpoint->Publish( odometry );
+  }
+};
+
+/** This class is an movement status listener, and publishes any new messages available.
+ */
+void OdometryReportingService::OnMovementStatusAvailableEvent(const diff_drive::MovementStatus& movement_status)
+{
+  if ( _is_reporting_movement_status )
+  {
+    // Send movement_status to the message end point
+    _p_movement_status_endpoint->Publish( movement_status );
   }
 };
 }

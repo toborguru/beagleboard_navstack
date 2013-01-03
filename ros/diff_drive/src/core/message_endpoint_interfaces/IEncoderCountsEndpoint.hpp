@@ -14,6 +14,7 @@ public:
   virtual ~IEncoderCountsEndpoint() {}
   virtual void Subscribe() = 0;
   virtual void Unsubscribe() = 0;
+  virtual bool IsSubscribed() = 0;
   virtual void Attach( IEncoderCountsListener& encoder_counts_listener ) = 0; 
 };
 }

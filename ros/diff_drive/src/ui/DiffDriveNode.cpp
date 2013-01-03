@@ -4,6 +4,7 @@
 #include "TwistCommandService.hpp"
 
 #include "OdometryEndpoint.hpp"
+#include "MovementStatusEndpoint.hpp"
 #include "TickVelocityEndpoint.hpp"
 #include "TwistEndpoint.hpp"
 #include "EncoderCountsEndpoint.hpp"
@@ -34,10 +35,14 @@ int main(int argc, char **argv)
     boost::shared_ptr<OdometryEndpoint> odometry_endpoint =
         boost::shared_ptr<OdometryEndpoint>( new OdometryEndpoint() );
 
+    boost::shared_ptr<MovementStatusEndpoint> movement_status_endpoint =
+        boost::shared_ptr<MovementStatusEndpoint>( new MovementStatusEndpoint() );
+
     boost::shared_ptr<EncoderCountsEndpoint> encoder_counts_endpoint =
         boost::shared_ptr<EncoderCountsEndpoint>( new EncoderCountsEndpoint() );
 
     OdometryReportingService odometry_reporting_service(  odometry_endpoint, 
+                                                          movement_status_endpoint, 
                                                           encoder_counts_endpoint,
                                                           base_model );
 

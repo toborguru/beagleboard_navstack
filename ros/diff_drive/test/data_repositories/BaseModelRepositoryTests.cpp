@@ -1,6 +1,8 @@
 // BaseModelRepositoryTests.cpp
  
 #include <gtest/gtest.h>
+#include <ros/ros.h>
+
 
 #include "BaseModelRepository.hpp"
  

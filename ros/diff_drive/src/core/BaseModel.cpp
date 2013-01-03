@@ -111,6 +111,46 @@ void BaseModel::SetBaseGeometry( BaseGeometry_T geometry )
   _base_geometry = geometry;
 }
 
+bool BaseModel::GetSetupValid() const
+{
+  bool valid = true;
+
+  if ( GetWheelRadius() <= 0.0 )
+  {
+    valid = false;
+  }
+  else if ( GetWheelTicks() <= 0 )
+  {
+    valid = false;
+  }
+  else if ( GetWheelBase() <= 0.0 )
+  {
+    valid = false;
+  }
+  else if ( GetWheelRatio() <= 0.0 )
+  {
+    valid = false;
+  }
+
+  return valid;
+}
+
+bool BaseModel::GetStasisValid() const
+{
+  bool valid = true;
+
+  if ( GetStasisRadius() <= 0.0 )
+  {
+    valid = false;
+  }
+  else if ( GetStasisTicks() <= 0 )
+  {
+    valid = false;
+  }
+
+  return valid;
+}
+
 /** Returns the drive wheel radius in meters.
  */
 double BaseModel::GetWheelRadius() const

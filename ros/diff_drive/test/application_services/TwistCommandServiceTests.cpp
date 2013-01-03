@@ -90,7 +90,7 @@ namespace diff_drive_test_application_services
         boost::shared_ptr<TwistEndpointStub>( new TwistEndpointStub() );
 
     boost::shared_ptr<diff_drive_core::BaseModel> base_model = 
-        boost::shared_ptr<diff_drive_core::BaseModel>( new diff_drive_core::BaseModel() );
+        boost::shared_ptr<diff_drive_core::BaseModel>( new diff_drive_core::BaseModel( 0.5, 100, 1.0 ) );
     
     TwistCommandService twist_command_service(  tick_velocity_endpoint_stub, 
                                                           twist_endpoint_stub,
