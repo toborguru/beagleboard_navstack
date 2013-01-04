@@ -75,11 +75,6 @@ namespace diff_drive_test_message_endpoints
     angular2 = _tick_velocity.angular_ticks_sec;
 
     // Assert
-    // Nothing to assert other than using terminal windows to 
-    // watch publication activity. Alternatively, for better testing, 
-    // you could create a subscriber and subscribe to the reports 
-    // You could then track how many reports were received and 
-    // assert checks, accordingly.
     EXPECT_EQ( 4, count1 );
     EXPECT_EQ( 10, linear1 );
     EXPECT_EQ( 5, angular1 );
