@@ -9,9 +9,12 @@
   <review status="unreviewed" notes=""/>
   <url>www.therobotguy.com</url>
 
+  <depend package="tf"/>
+  <depend package="roscpp"/> 
   <depend package="geometry_msgs"/> 
   <depend package="nav_msgs"/> 
-  <depend package="tf"/>
+  <depend package="turtlesim"/> 
+
 </package>
 
 

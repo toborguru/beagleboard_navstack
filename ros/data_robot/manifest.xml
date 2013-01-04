@@ -9,6 +9,7 @@
   <url></url>
 
   <depend package="diff_drive" />
+  <depend package="roscpp" />
 </package>
 
 
