@@ -124,9 +124,9 @@ namespace diff_drive_test_application_services
     EXPECT_EQ( 8, received_movement_status_4 );
     EXPECT_EQ( 8, received_movement_status_5 );
 
-    EXPECT_EQ( false, subscribed_1 );
-    EXPECT_EQ( true, subscribed_2 );
-    EXPECT_EQ( false, subscribed_3 );
+    EXPECT_FALSE( subscribed_1 );
+    EXPECT_TRUE( subscribed_2 );
+    EXPECT_FALSE( subscribed_3 );
 
   }
 

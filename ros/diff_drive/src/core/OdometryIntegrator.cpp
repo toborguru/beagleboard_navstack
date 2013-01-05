@@ -49,10 +49,10 @@ static const double OdometryCovarianceLow[36] =
 /** Default constructor.
  */
 OdometryIntegrator::OdometryIntegrator()
-                   : _p_base_model(NULL),
-                     _average_index(0),
+                   : _average_index(0),
                      _linear_average_total(0.0),
-                     _stasis_average_total(0.0)
+                     _stasis_average_total(0.0),
+                     _p_base_model(NULL)
 {
   _odometry_listeners.reserve(1);
   _movement_status_listeners.reserve(1);
@@ -123,8 +123,6 @@ nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T *p_
   nav_msgs::Odometry new_position;
 
   BaseDistance_T delta_position;
-
-  const double *p_covariance;
 
   double x;
   double y;
@@ -205,8 +203,6 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
   float stasis_average;
   float abs_linear;
   float abs_stasis;
-  float lower_limit;
-  float upper_limit;
 
   diff_drive::MovementStatus movement_status;
 
@@ -325,7 +321,7 @@ void OdometryIntegrator::CalculateCovariance( nav_msgs::Odometry *p_position,
  */  
 void OdometryIntegrator::NotifyOdometryListeners(const nav_msgs::Odometry& odometry)
 {
-  for (int i= 0; i < _odometry_listeners.size(); i++) 
+  for (unsigned int i= 0; i < _odometry_listeners.size(); i++) 
   {
       _odometry_listeners[i]->OnOdometryAvailableEvent(odometry);
   }
@@ -335,7 +331,7 @@ void OdometryIntegrator::NotifyOdometryListeners(const nav_msgs::Odometry& odome
  */  
 void OdometryIntegrator::NotifyMovementStatusListeners(const diff_drive::MovementStatus& movement_status)
 {
-  for (int i= 0; i < _movement_status_listeners.size(); i++) 
+  for (unsigned int i= 0; i < _movement_status_listeners.size(); i++) 
   {
       _movement_status_listeners[i]->OnMovementStatusAvailableEvent(movement_status);
   }

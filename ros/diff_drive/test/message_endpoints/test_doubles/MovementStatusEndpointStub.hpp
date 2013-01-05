@@ -42,7 +42,7 @@ namespace diff_drive_test_message_endpoints_test_doubles
         _stasis_average = movement_status.stasis_velocity_average;
         _stasis_enabled = movement_status.stasis_wheel_enabled;
 
-#if 1
+#if 0
         // Output the read values to the terminal; this isn't the
         // unit test, but merely a helpful means to show what's going on.
         std::cout << "MovementStatus published on MovementStatusEndpoint with state: " 

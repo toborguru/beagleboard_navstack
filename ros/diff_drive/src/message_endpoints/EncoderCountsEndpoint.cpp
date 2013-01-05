@@ -77,7 +77,7 @@ void EncoderCountsEndpoint::NewEncoderCountsReceived( const diff_drive::EncoderC
 {
   NotifyEncoderCountsListeners( encoder_counts );
 
-  ROS_DEBUG(  "EncoderCountsEndpoint", "Counts received: left: %d right %d stasis: %d dt: %d",
+  ROS_DEBUG_NAMED(  "EncoderCountsEndpoint", "Counts received: left: %d right %d stasis: %d dt: %d",
               encoder_counts.left_count, encoder_counts.right_count, encoder_counts.stasis_count, 
               encoder_counts.dt_ms );
 }
@@ -106,7 +106,7 @@ void EncoderCountsEndpoint::ReceiveEncoderCountsMessages()
  */
 void EncoderCountsEndpoint::NotifyEncoderCountsListeners( const diff_drive::EncoderCounts& encoder_counts )
 {
-  for (int i= 0; i < _encoder_counts_listeners.size(); i++)
+  for (unsigned int i= 0; i < _encoder_counts_listeners.size(); i++)
   {
     _encoder_counts_listeners[i]->OnEncoderCountsAvailableEvent( encoder_counts );
   }

@@ -107,7 +107,7 @@ struct MovementStatusReceiver : public diff_drive_core::IMovementStatusListener
     _state  = status.motors_state;
     _stasis_enabled = status.stasis_wheel_enabled;
 
-#if 1
+#if 0
     // Output the read values to the terminal; this isn't the
     // unit test, but merely a helpful means to show what's going on.
     std::cout << "MovementStatus sent to MovementStatusReceiver with state: " 
@@ -385,14 +385,17 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   double linear_1;
   double linear_2;
   double linear_3;
+  double linear_4;
   
   double stasis_1;
   double stasis_2;
   double stasis_3;
+  double stasis_4;
 
   int state_1;
   int state_2;
   int state_3;
+  int state_4;
 
   OdometryIntegrator odometry_integrator;
   EncoderCountsGenerator count_generator;
@@ -412,37 +415,54 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   new_counts.dt_ms = 100;
 
   // Act
-  
+ 
+  // All Wheels same speed, size and count
   count_generator.AddTicks(new_counts);
   state_1 = movement_status_receiver._state;  
   linear_1 = movement_status_receiver._linear;  
   stasis_1 = movement_status_receiver._stasis;  
 
+  // No movement of the main drive wheels
+  new_counts.left_count = 0;
+  new_counts.right_count = 0;
   base_model.SetStasisTicks( 50 );
   count_generator.AddTicks(new_counts);
   state_2 = movement_status_receiver._state;  
   linear_2 = movement_status_receiver._linear;  
   stasis_2 = movement_status_receiver._stasis;  
 
-  base_model.SetStasisTicks( 250 );
+  // Stasis wheel spinning slow
+  new_counts.left_count = 50;
+  new_counts.right_count = 50;
+  base_model.SetStasisTicks( 200 );
   count_generator.AddTicks(new_counts);
   state_3 = movement_status_receiver._state;  
   linear_3 = movement_status_receiver._linear;  
   stasis_3 = movement_status_receiver._stasis;  
 
+  // Stasis wheel not spinning
+  new_counts.stasis_count = 0;
+  count_generator.AddTicks(new_counts);
+  state_4 = movement_status_receiver._state;  
+  linear_4 = movement_status_receiver._linear;  
+  stasis_4 = movement_status_receiver._stasis;  
+
   // Assert
 
-  EXPECT_EQ( state_1, diff_drive::MovementStatus::CORRECT );
-  EXPECT_EQ( state_2, diff_drive::MovementStatus::FREE_WHEELING );
-  EXPECT_EQ( state_3, diff_drive::MovementStatus::STASIS );
+  EXPECT_EQ( diff_drive::MovementStatus::CORRECT, state_1 );
+  EXPECT_EQ( diff_drive::MovementStatus::FREE_WHEELING, state_2 );
+  EXPECT_EQ( diff_drive::MovementStatus::CORRECT, state_3 );
+  EXPECT_EQ( diff_drive::MovementStatus::STASIS, state_4 );
 
-  EXPECT_FLOAT_EQ( linear_1, 5.0 );
-  EXPECT_FLOAT_EQ( linear_2, 5.0 );
-  EXPECT_FLOAT_EQ( linear_3, 5.0 );
+  EXPECT_FLOAT_EQ( 5.0, linear_1 );
+  EXPECT_FLOAT_EQ( 0.0, linear_2 );
+  EXPECT_FLOAT_EQ( 5.0, linear_3 );
+  EXPECT_FLOAT_EQ( 5.0, linear_4 );
 
-  EXPECT_FLOAT_EQ( stasis_1, 5.0 );
-  EXPECT_FLOAT_EQ( stasis_2, 10.0 );
-  EXPECT_FLOAT_EQ( stasis_3, 2.5 );
+  EXPECT_FLOAT_EQ( 5.0, stasis_1 );
+  EXPECT_FLOAT_EQ( 10.0, stasis_2 );
+  EXPECT_FLOAT_EQ( 2.5, stasis_3 );
+  EXPECT_FLOAT_EQ( 0.0, stasis_4 );
 }
 
 }

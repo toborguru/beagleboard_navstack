@@ -70,7 +70,7 @@ diff_drive::TickVelocity TwistConverter::ConvertTwist( const geometry_msgs::Twis
  */  
 void TwistConverter::NotifyTickVelocityListeners(const diff_drive::TickVelocity& tick_velocity)
 {
-  for (int i= 0; i < _tick_velocity_listeners.size(); i++) 
+  for (unsigned int i= 0; i < _tick_velocity_listeners.size(); i++) 
   {
       _tick_velocity_listeners[i]->OnTickVelocityAvailableEvent(tick_velocity);
   }
