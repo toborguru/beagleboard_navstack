@@ -1,5 +1,5 @@
 # Create the core library
-add_library (
+rosbuild_add_library (
   data_robot_core
   BumpersProcessor.cpp
   BaseTelemetryReader.cpp

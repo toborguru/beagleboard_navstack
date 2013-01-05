@@ -1,5 +1,5 @@
 # Create the library
-add_library(
+rosbuild_add_library(
   diff_drive_data_repositories
   BaseModelRepository.cpp
 )

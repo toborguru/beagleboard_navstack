@@ -1,5 +1,5 @@
 # Create the library
-add_library(
+rosbuild_add_library(
   data_robot_message_endpoints
   BumpersEndpoint.cpp
   EncoderCountsEndpoint.cpp

@@ -1,5 +1,5 @@
 # Create the library
-add_library(
+rosbuild_add_library(
   diff_drive_message_endpoints
   EncoderCountsEndpoint.cpp
   MovementStatusEndpoint.cpp
