@@ -18,9 +18,8 @@ namespace diff_drive_application_services
       boost::shared_ptr<diff_drive_core::BaseModel> GetBaseModel();
  
     private:
-      // Forward declare the implementation class
-      class BaseModelSetupServiceImpl;
-      boost::shared_ptr<BaseModelSetupServiceImpl> _p_impl;
+      boost::shared_ptr<diff_drive_core::BaseModel> _p_base_model;
+      boost::shared_ptr<diff_drive_core::IBaseModelRepository> _p_base_model_repository;
   };
 }
  
