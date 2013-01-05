@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     BaseModelRepository base_model_repository;
 
     boost::shared_ptr<BaseModel> base_model = 
-        boost::shared_ptr<BaseModel>( new BaseModel( base_model_repository.QueryBaseGeometry( )) );
+        boost::shared_ptr<BaseModel>( new BaseModel(base_model_repository.QueryBaseGeometry( )) );
 
     // Odometry Reporting Service
     boost::shared_ptr<OdometryEndpoint> odometry_endpoint =
