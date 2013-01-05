@@ -10,9 +10,9 @@ include_directories(
 rosbuild_add_executable(
   diff_drive_tests
   TestRunner.cpp
+  ./core/BaseModelTests.cpp
   ./core/OdometryIntegratorTests.cpp
   ./core/TwistConverterTests.cpp
-  ./core/BaseModelTests.cpp
   ./application_services/BaseModelSetupServiceTests.cpp
   ./application_services/OdometryReportingServiceTests.cpp
   ./application_services/TwistCommandServiceTests.cpp

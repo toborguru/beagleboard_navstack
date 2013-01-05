@@ -1,5 +1,5 @@
 # Motors State Enum Types
-uint8 CORRECT = 0           # Robot is tracking commands accurately
+uint8 CORRECT = 0           # Robots stasis wheel is spinning at the same speed as drive wheels
 uint8 STALLED = 1           # Robots wheels are not spinning
 uint8 STASIS  = 2           # Robots wheels are spinning and the stasis wheel is not
 uint8 FREE_WHEELING = 3     # Stasis wheel is spinning faster then robot wheels

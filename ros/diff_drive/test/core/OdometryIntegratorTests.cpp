@@ -136,7 +136,7 @@ struct EncoderCountsGenerator : public diff_drive_core::IEncoderCountsEndpoint
 
   void AddTicks( const diff_drive::EncoderCounts encoder_counts )
   {
-    for (unsigned int i= 0; i < _encoder_counts_listeners.size(); i++) 
+    for ( unsigned int i= 0; i < _encoder_counts_listeners.size(); i++ ) 
     {
       _encoder_counts_listeners[i]->OnEncoderCountsAvailableEvent(encoder_counts);
     }
@@ -237,7 +237,7 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   theta = odometry_receiver._theta;
   angular = odometry_receiver._angular;
 
-  // Normilization check on -pi/pi (roll over on theta = 4.0)
+  // Normilization check on -pi/pi (roll over (@ Pi) on theta = 4.0)
   count_generator.AddTicks(new_counts);
 
   // Assert
@@ -249,7 +249,7 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   EXPECT_FLOAT_EQ( angular, 10.0 );
 
   // Check roll over
-  EXPECT_LT( odometry_receiver._theta, -2.25 );
+  EXPECT_GT( -2.25, odometry_receiver._theta );
 }
 
 // Define the unit test to verify ability to set and adjust the covariance
@@ -291,9 +291,9 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
 
   // Assert
 
-  EXPECT_FLOAT_EQ(cov1, 1e-1);
-  EXPECT_FLOAT_EQ(cov2, 1e-9);
-  EXPECT_FLOAT_EQ(cov3, 1e-1);
+  EXPECT_FLOAT_EQ( 1e-1, cov1 );
+  EXPECT_FLOAT_EQ( 1e-9, cov2 );
+  EXPECT_FLOAT_EQ( 1e-1, cov3 );
 }
 
 // Define the unit test to verify ability to receive MovementStatus messages when counts are added
@@ -320,7 +320,7 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveMovementStatus )
   // Assert
 
   // Check the results of adding four counts
-  EXPECT_TRUE(movement_status_receiver._count_of_messages_received == 4);
+  EXPECT_EQ( 4, movement_status_receiver._count_of_messages_received );
 }
 
 // Define the unit test to verify ability to set and adjust the covariance
@@ -342,6 +342,7 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
 
   odometry_integrator.Attach(movement_status_receiver);
+  odometry_integrator.SetAverage2nReadings(0); // Only average 1 reading
 
   count_generator.Attach(odometry_integrator);
 
@@ -369,13 +370,13 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
 
   // Assert
 
-  EXPECT_EQ( state_1, diff_drive::MovementStatus::SETUP_ERROR );
-  EXPECT_EQ( state_2, diff_drive::MovementStatus::CORRECT );
-  EXPECT_EQ( state_3, diff_drive::MovementStatus::CORRECT );
+  EXPECT_EQ( diff_drive::MovementStatus::SETUP_ERROR, state_1  );
+  EXPECT_EQ( diff_drive::MovementStatus::CORRECT, state_2 );
+  EXPECT_EQ( diff_drive::MovementStatus::CORRECT, state_3 );
 
-  EXPECT_EQ( stasis_enabled_1, false );
-  EXPECT_EQ( stasis_enabled_2, false );
-  EXPECT_EQ( stasis_enabled_3, true );
+  EXPECT_FALSE( stasis_enabled_1 );
+  EXPECT_FALSE( stasis_enabled_2 );
+  EXPECT_TRUE( stasis_enabled_3 );
 }
 
 // Define the unit test to verify ability to integrate and estimate stasis wheel velocity
@@ -404,6 +405,7 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   BaseModel base_model( 0.5 / M_PI, 100, 0.5, 1.0, 0.5 / M_PI, 100);
 
   odometry_integrator.Attach(movement_status_receiver);
+  odometry_integrator.SetAverage2nReadings(0); // Only average 1 reading
 
   count_generator.Attach(odometry_integrator);
 
@@ -451,7 +453,7 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
 
   EXPECT_EQ( diff_drive::MovementStatus::CORRECT, state_1 );
   EXPECT_EQ( diff_drive::MovementStatus::FREE_WHEELING, state_2 );
-  EXPECT_EQ( diff_drive::MovementStatus::CORRECT, state_3 );
+  EXPECT_EQ( diff_drive::MovementStatus::STASIS, state_3 );
   EXPECT_EQ( diff_drive::MovementStatus::STASIS, state_4 );
 
   EXPECT_FLOAT_EQ( 5.0, linear_1 );
@@ -463,6 +465,251 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   EXPECT_FLOAT_EQ( 10.0, stasis_2 );
   EXPECT_FLOAT_EQ( 2.5, stasis_3 );
   EXPECT_FLOAT_EQ( 0.0, stasis_4 );
+}
+
+// Define the unit test to verify ability to correctly calculate the average velocities
+// specifically when less than the number of readings to averages have been received.
+TEST( OdometryIntegratorTests, canCalculateAverageVelocities ) 
+{
+  unsigned int size_index = 0;
+  unsigned int velocity_index = 0;
+
+  double linear[ 18 ];
+  double linear_average[ 18 ];
+  double stasis[ 18 ];
+  double stasis_average[ 18 ];
+
+  double expected_linear[ 18 ];
+  double expected_linear_average[ 18 ];
+  double expected_stasis[ 18 ];
+  double expected_stasis_average[ 18 ];
+
+  int average_2n[ 3 ];
+  int average_num[ 3 ];
+
+  int expected_average_2n[ 3 ];
+  int expected_average_num[ 3 ];
+
+  // Establish Context
+  OdometryIntegrator odometry_integrator;
+  EncoderCountsGenerator count_generator;
+  MovementStatusReceiver movement_status_receiver;
+  diff_drive::EncoderCounts new_counts;
+  BaseModel base_model( 0.5 / M_PI, 1, 0.5, 1.0, 0.5 / M_PI, 1);
+
+  odometry_integrator.Attach(movement_status_receiver);
+
+  count_generator.Attach(odometry_integrator);
+
+  odometry_integrator.SetBaseModel(base_model);
+
+  // Act
+  // 1) Set average size
+  //    Send 0 counts
+  //    Verify 0 readings
+  // 2) Send several matching counts
+  //    Verify averages and velocities match
+  // 3) Set size to the same size
+  //    Send 0 counts
+  //    Verify 0 readings
+  // 4) Send positive counts
+  //    Send 0 counts
+  //    Verify that the average is halved
+  // 5) Send 2 different size counts to fill half the buffer
+  //    Verify the average is the average of the 2 counts
+  // 6) Send 2 different size counts to saturate the buffer
+  //    Verify the average is the average of the 2 counts
+  
+  // Average size loop
+  for ( int i = 5; i > 0; i -= 2 )
+  {
+    // 1)
+    new_counts.left_count = 0;
+    new_counts.right_count = 0;
+    new_counts.stasis_count = 0;
+    new_counts.dt_ms = 1000;
+
+    odometry_integrator.SetAverage2nReadings(i);
+    count_generator.AddTicks(new_counts);
+
+    average_2n[ size_index ]                  = odometry_integrator.GetAverage2nReadings();
+    average_num[ size_index ]                 = odometry_integrator.GetAverageNumReadings();
+
+    expected_average_2n[ size_index ]         = i;
+    expected_average_num[ size_index ]        = ldexp( 1.0, i );
+
+    linear[ velocity_index ]                  = movement_status_receiver._linear;  
+    linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
+    stasis[ velocity_index ]                  = movement_status_receiver._stasis;  
+    stasis_average[ velocity_index ]          = movement_status_receiver._stasis_average;  
+
+    expected_linear[ velocity_index ]         = 0;
+    expected_linear_average[ velocity_index ] = 0;
+    expected_stasis[ velocity_index ]         = 0;
+    expected_stasis_average[ velocity_index ] = 0;
+
+    velocity_index++;
+
+    // 2)
+    new_counts.left_count = 32;
+    new_counts.right_count = 32;
+    new_counts.stasis_count = 32;
+    new_counts.dt_ms = 1000;
+
+    // Reset the averaging 
+    odometry_integrator.SetAverage2nReadings(i);
+
+    count_generator.AddTicks(new_counts);
+    count_generator.AddTicks(new_counts);
+
+    linear[ velocity_index ]                  = movement_status_receiver._linear;  
+    linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
+    stasis[ velocity_index ]                  = movement_status_receiver._stasis;  
+    stasis_average[ velocity_index ]          = movement_status_receiver._stasis_average;  
+
+    expected_linear[ velocity_index ]         = 32;
+    expected_linear_average[ velocity_index ] = 32;
+    expected_stasis[ velocity_index ]         = 32;
+    expected_stasis_average[ velocity_index ] = 32;
+
+    velocity_index++;
+
+    // 3)
+    new_counts.left_count = 0;
+    new_counts.right_count = 0;
+    new_counts.stasis_count = 0;
+    new_counts.dt_ms = 1000;
+
+    odometry_integrator.SetAverage2nReadings(i);
+    count_generator.AddTicks(new_counts);
+
+    linear[ velocity_index ]                  = movement_status_receiver._linear;  
+    linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
+    stasis[ velocity_index ]                  = movement_status_receiver._stasis;  
+    stasis_average[ velocity_index ]          = movement_status_receiver._stasis_average;  
+
+    expected_linear[ velocity_index ]         = 0;
+    expected_linear_average[ velocity_index ] = 0;
+    expected_stasis[ velocity_index ]         = 0;
+    expected_stasis_average[ velocity_index ] = 0;
+
+    velocity_index++;
+
+    // 4)
+    new_counts.left_count = 32;
+    new_counts.right_count = 32;
+    new_counts.stasis_count = 32;
+    new_counts.dt_ms = 1000;
+
+    // Reset the averaging 
+    odometry_integrator.SetAverage2nReadings(i);
+
+    count_generator.AddTicks(new_counts);
+
+    new_counts.left_count = 0;
+    new_counts.right_count = 0;
+    new_counts.stasis_count = 0;
+    new_counts.dt_ms = 1000;
+
+    count_generator.AddTicks(new_counts);
+
+    linear[ velocity_index ]                  = movement_status_receiver._linear;  
+    linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
+    stasis[ velocity_index ]                  = movement_status_receiver._stasis;  
+    stasis_average[ velocity_index ]          = movement_status_receiver._stasis_average;  
+
+    expected_linear[ velocity_index ]         = 0;
+    expected_linear_average[ velocity_index ] = 16;
+    expected_stasis[ velocity_index ]         = 0;
+    expected_stasis_average[ velocity_index ] = 16;
+
+    velocity_index++;
+
+    // 5)
+    // Reset the averaging 
+    odometry_integrator.SetAverage2nReadings(i);
+
+    // This is actually ( buffer / 2) + 1 to accommodate buffer size of 2 
+    for ( int j = 0; j <= (average_num[ size_index ] / 4); j++ )
+    {
+      new_counts.left_count = 32;
+      new_counts.right_count = 32;
+      new_counts.stasis_count = 32;
+      new_counts.dt_ms = 1000;
+      count_generator.AddTicks(new_counts);
+
+      new_counts.left_count = 16;
+      new_counts.right_count = 16;
+      new_counts.stasis_count = 16;
+      new_counts.dt_ms = 1000;
+      count_generator.AddTicks(new_counts);
+    }
+
+    linear[ velocity_index ]                  = movement_status_receiver._linear;  
+    linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
+    stasis[ velocity_index ]                  = movement_status_receiver._stasis;  
+    stasis_average[ velocity_index ]          = movement_status_receiver._stasis_average;  
+
+    expected_linear[ velocity_index ]         = 16;
+    expected_linear_average[ velocity_index ] = 24;
+    expected_stasis[ velocity_index ]         = 16;
+    expected_stasis_average[ velocity_index ] = 24;
+
+    velocity_index++;
+
+    // 6)
+    // Reset the averaging 
+    odometry_integrator.SetAverage2nReadings(i);
+
+    // This should fill the buffer twice
+    for ( int j = 0; j < average_num[ size_index ]; j++ )
+    {
+      new_counts.left_count = 32;
+      new_counts.right_count = 32;
+      new_counts.stasis_count = 32;
+      new_counts.dt_ms = 1000;
+      count_generator.AddTicks(new_counts);
+
+      new_counts.left_count = 16;
+      new_counts.right_count = 16;
+      new_counts.stasis_count = 16;
+      new_counts.dt_ms = 1000;
+      count_generator.AddTicks(new_counts);
+    }
+
+    linear[ velocity_index ]                  = movement_status_receiver._linear;  
+    linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
+    stasis[ velocity_index ]                  = movement_status_receiver._stasis;  
+    stasis_average[ velocity_index ]          = movement_status_receiver._stasis_average;  
+
+    expected_linear[ velocity_index ]         = 16;
+    expected_linear_average[ velocity_index ] = 24;
+    expected_stasis[ velocity_index ]         = 16;
+    expected_stasis_average[ velocity_index ] = 24;
+
+    velocity_index++;
+
+    size_index++;
+  }
+
+  // Assert
+
+  for ( int i = 0; i < 3; i++ )
+  {
+    EXPECT_EQ( expected_average_2n[ i ], average_2n[ i ] );
+    EXPECT_EQ( expected_average_num[ i ], average_num[ i ] );
+  }
+
+  for ( int i = 0; i < 18; i++ )
+  {
+    // Debugging statement - where are my errors
+    //std::cout << "i: " << i << std::endl;
+
+    EXPECT_FLOAT_EQ( expected_linear[ i ], linear[ i ] );
+    EXPECT_FLOAT_EQ( expected_linear_average[ i ], linear_average[ i ] );
+    EXPECT_FLOAT_EQ( expected_stasis[ i ], stasis[ i ] );
+    EXPECT_FLOAT_EQ( expected_stasis_average[ i ], stasis_average[ i ] );
+  }
 }
 
 }

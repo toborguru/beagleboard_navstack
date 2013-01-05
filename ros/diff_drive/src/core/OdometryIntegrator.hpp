@@ -14,8 +14,9 @@
 #include "IOdometryListener.hpp"
 #include "IEncoderCountsListener.hpp"
 
-#define AVERAGE_2N_READINGS 3
-#define AVERAGE_NUM_READINGS (1 << AVERAGE_2N_READINGS)
+// Trying to avoid dynamic memory allocation... (embedded system)
+#define MAX_AVERAGE_2N_READINGS 5
+#define MAX_AVERAGE_NUM_READINGS 32
 
 namespace diff_drive_core
 {
@@ -31,6 +32,11 @@ class OdometryIntegrator : public IEncoderCountsListener
     void SetBaseModel( const BaseModel& base_model );
 
     void OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts );
+
+    unsigned int GetAverage2nReadings();
+    void SetAverage2nReadings( unsigned int average_2n_readings );
+
+    unsigned int GetAverageNumReadings();
 
   private:
     void AddNewCounts( const diff_drive::EncoderCounts& encoder_counts );
@@ -59,11 +65,15 @@ class OdometryIntegrator : public IEncoderCountsListener
     float _stasis_window;
     float _stasis_lower_limit;
   
-    int   _average_index;
+    unsigned int  _average_index;
+    unsigned int  _num_readings_read;
+    unsigned int  _average_2n_readings;
+    unsigned int  _average_num_readings;
+
     float _linear_average_total;
     float _stasis_average_total;
-    float _linear_velocities[ AVERAGE_NUM_READINGS ]; 
-    float _stasis_velocities[ AVERAGE_NUM_READINGS ]; 
+    float _linear_velocities[ MAX_AVERAGE_NUM_READINGS ]; 
+    float _stasis_velocities[ MAX_AVERAGE_NUM_READINGS ]; 
 
     const BaseModel* _p_base_model;
 };

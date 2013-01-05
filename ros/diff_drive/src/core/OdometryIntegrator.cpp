@@ -49,9 +49,7 @@ static const double OdometryCovarianceLow[36] =
 /** Default constructor.
  */
 OdometryIntegrator::OdometryIntegrator()
-                   : _average_index(0),
-                     _linear_average_total(0.0),
-                     _stasis_average_total(0.0),
+                   : _average_2n_readings(MAX_AVERAGE_2N_READINGS),
                      _p_base_model(NULL)
 {
   _odometry_listeners.reserve(1);
@@ -59,11 +57,7 @@ OdometryIntegrator::OdometryIntegrator()
 
   _current_position.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
 
-  for (int i = 0; i < AVERAGE_NUM_READINGS; i++)
-  {
-    _linear_velocities[i] = 0.0;
-    _stasis_velocities[i] = 0.0;
-  }
+  SetAverage2nReadings( _average_2n_readings );
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
@@ -94,6 +88,49 @@ void OdometryIntegrator::SetBaseModel( const BaseModel& base_model )
 void OdometryIntegrator::OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts )
 {
   AddNewCounts( encoder_counts ); 
+}
+
+/** Returns actual number of velocity readings that will be averaged prior to
+ *  comparison.
+ */
+unsigned int OdometryIntegrator::GetAverageNumReadings()
+{
+  return _average_num_readings;
+}
+
+/** Returns average_2n_readings in the eq: 2^average_2n_readings velocity 
+ *  readings will be averaged before comparison.
+ */
+unsigned int OdometryIntegrator::GetAverage2nReadings()
+{
+  return _average_2n_readings;
+}
+
+/** 2^average_2n_readings velocity readings will be averaged before comparison.
+ */
+void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings )
+{
+  // Clear averaging arrays
+  for ( unsigned int i = 0; i < ldexp(1.0, MAX_AVERAGE_2N_READINGS); i++ )
+  {
+    _linear_velocities[ i ] = 0.0;
+    _stasis_velocities[ i ] = 0.0;
+  }
+
+  // Don't overrun the allocated buffers
+  if ( average_2n_readings > MAX_AVERAGE_2N_READINGS )
+  {
+    average_2n_readings = MAX_AVERAGE_2N_READINGS;
+  }
+
+  _average_2n_readings = average_2n_readings;
+  _average_num_readings = ldexp( 1.0, _average_2n_readings );
+
+  // Reset averaging state
+  _average_index = 0;
+  _num_readings_read = 0;
+  _linear_average_total = 0.0;
+  _stasis_average_total = 0.0;
 }
 
 /** This function is used to perform all updates when new counts are ready.
@@ -206,7 +243,8 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
 
   diff_drive::MovementStatus movement_status;
 
-  _stasis_window = 0.50; // %
+  // TODO Add access functions...
+  _stasis_window = 0.25; // %
   _stasis_lower_limit = 0.03; // m/s
 
   if (_p_base_model == NULL) // No base model
@@ -229,7 +267,7 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
   }
   else
   {
-    // Copute averages and compare
+    // Compute averages and compare
     _linear_average_total -= _linear_velocities[ _average_index ];
     _linear_velocities[ _average_index ] = velocities.linear;
     _linear_average_total += _linear_velocities[ _average_index ]; 
@@ -238,8 +276,23 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
     _stasis_velocities[ _average_index ] = velocities.stasis;
     _stasis_average_total += _stasis_velocities[ _average_index ]; 
 
-    linear_average = ldexp( _linear_average_total, -1 * AVERAGE_2N_READINGS );
-    stasis_average = ldexp( _stasis_average_total, -1 * AVERAGE_2N_READINGS );
+    // Correctly compute the average velocity
+    if ( _num_readings_read < _average_num_readings )
+    {
+      // Account for the reading that called this function
+      // I could add this outside the if and prevent run-away in the else 
+      // block but I figure 1 extra division loop is better than two 
+      // assignments during every loop of normal operation
+      _num_readings_read++;
+
+      linear_average = _linear_average_total / _num_readings_read;
+      stasis_average = _stasis_average_total / _num_readings_read;
+    }
+    else
+    {
+      linear_average = ldexp( _linear_average_total, -1 * _average_2n_readings );
+      stasis_average = ldexp( _stasis_average_total, -1 * _average_2n_readings );
+    }
 
     abs_linear = fabs( linear_average );
     abs_stasis = fabs( stasis_average );
@@ -253,7 +306,7 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
     movement_status.stasis_velocity_average = stasis_average;
 
     _average_index++;
-    _average_index %= AVERAGE_NUM_READINGS;
+    _average_index %= _average_num_readings;
 
     if ( _p_base_model->GetStasisValid() == false )
     {
@@ -263,8 +316,9 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
     else // Stasis Wheel Active
     {
       movement_status.stasis_wheel_enabled = true;
-
-      if ( abs_linear > _stasis_lower_limit ) // going fast enough to register stasis wheel movement
+      
+      // going fast enough to register stasis wheel movement
+      if ( (abs_linear > _stasis_lower_limit) || (abs_stasis > _stasis_lower_limit) )
       {
         if (abs_stasis > upper_limit)
         {
