@@ -36,7 +36,7 @@ namespace data_robot_test_message_endpoints
     } 
 
     printf( "Encoder Counts: " );
-    for ( int i = 0; i < read_telemetry_request.GetDataBufferSize(); i++ )
+    for ( unsigned int i = 0; i < read_telemetry_request.GetDataBufferSize(); i++ )
     {
       printf( "0x%02X ", read_telemetry_request.GetDataBuffer()[i] );
     }
@@ -45,12 +45,12 @@ namespace data_robot_test_message_endpoints
     motor_velocity_request.SetVelocity( 128, -8 );
 
     printf( "Motor Velocities Address: " );
-    for ( int i = 0; i < motor_velocity_request.GetAddressBufferSize(); i++ )
+    for ( unsigned int i = 0; i < motor_velocity_request.GetAddressBufferSize(); i++ )
     {
       printf( "0x%02X ", motor_velocity_request.GetAddressBuffer()[i] );
     }
     printf( "\nMotor Velocities: " );
-    for ( int i = 0; i < motor_velocity_request.GetDataBufferSize(); i++ )
+    for ( unsigned int i = 0; i < motor_velocity_request.GetDataBufferSize(); i++ )
     {
       printf( "0x%02X ", motor_velocity_request.GetDataBuffer()[i] );
     }

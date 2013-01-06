@@ -39,7 +39,7 @@ FrontShellTelemetry_T ReadFrontTelemetryRequest::GetTelemetry()
   }
   else
   {
-    ROS_ERROR( "Data Buffer Size of: %d, is not large enough to hold: %u bytes!\n", GetDataBufferSize(), sizeof(telemetry) );
+    ROS_ERROR( "Data Buffer Size of: %u, is not large enough to hold: %lu bytes!\n", GetDataBufferSize(), sizeof(telemetry) );
   }
 
   if ( set_lock )

@@ -38,7 +38,7 @@ extern "C" {
 #define I2C_USE_CRC 1
 #define I2C_NO_CRC  0
 
-#define I2C_MAX_DATA_LEN  1024
+#define I2C_MAX_DATA_LEN  252
 
 typedef int I2C_Addr_t;
 

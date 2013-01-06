@@ -44,8 +44,8 @@ private:
 
   pthread_t _thread;
 
-  std::string _device_name;
   int _i2c_fd;
+  std::string _device_name;
 
   static void * ProcessBusMessagesFunction(void * This) 
   {

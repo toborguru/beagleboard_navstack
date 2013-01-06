@@ -134,7 +134,7 @@ void BaseTelemetryReader::ReadBaseTelemetry()
  */
 void BaseTelemetryReader::NotifyBaseTelemetryListeners( const BaseTelemetry_T& telemetry ) 
 {
-  for (int i= 0; i < _telemetry_listeners.size(); i++) 
+  for (unsigned int i= 0; i < _telemetry_listeners.size(); i++) 
   {
     _telemetry_listeners[i]->OnBaseTelemetryAvailableEvent( telemetry );
   }

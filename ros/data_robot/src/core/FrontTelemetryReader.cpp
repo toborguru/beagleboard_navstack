@@ -138,7 +138,7 @@ void FrontTelemetryReader::ReadFrontTelemetry()
  */
 void FrontTelemetryReader::NotifyFrontTelemetryListeners( const FrontShellTelemetry_T& telemetry ) 
 {
-  for (int i= 0; i < _telemetry_listeners.size(); i++) 
+  for (unsigned int i= 0; i < _telemetry_listeners.size(); i++) 
   {
       _telemetry_listeners[i]->OnFrontTelemetryAvailableEvent( telemetry );
   }

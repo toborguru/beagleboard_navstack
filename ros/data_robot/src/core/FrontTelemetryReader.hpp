@@ -36,17 +36,17 @@ private:
 
   void NotifyFrontTelemetryListeners( const FrontShellTelemetry_T& telemetry );
 
-  IExternalBusEndpoint *_p_external_bus;
-
   std::vector<IFrontTelemetryListener*> _telemetry_listeners;
-
-  bool _block_for_request;
 
   // Basic threading support as suggested by Jeremy Friesner at
   // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
   volatile bool _stop_requested;
   volatile bool _running;
   pthread_t _thread;
+
+  bool _block_for_request;
+
+  IExternalBusEndpoint *_p_external_bus;
 
   static void * ReadFrontTelemetryFunction(void * This) {
     ((FrontTelemetryReader *)This)->ReadFrontTelemetry();

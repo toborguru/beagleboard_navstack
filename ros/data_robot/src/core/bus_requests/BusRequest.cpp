@@ -5,15 +5,15 @@
 namespace data_robot_core
 {
 BusRequest::BusRequest( bool is_blockable, bool is_lockable )
-          : _address_size(0),
-            _address_bytes(0),
-            _p_address_buffer(NULL),
-            _data_size(0),
-            _data_bytes(0),
-            _p_data_buffer(NULL),
-            _is_locked(false),
+          : _is_locked(false),
             _is_blocked(false),
-            _request_complete(false)
+            _request_complete(false),
+            _address_bytes(0),
+            _address_size(0),
+            _p_address_buffer(NULL),
+            _data_bytes(0),
+            _data_size(0),
+            _p_data_buffer(NULL)
 {
   if( is_blockable	)
   {
@@ -176,7 +176,7 @@ void  BusRequest::SetRequestType( RequestType_T new_type )
 
 /** Sets the address buffer size in bytes and allocates a new buffer.
  */
-void  BusRequest::SetAddressBufferSize( int new_size )
+void  BusRequest::SetAddressBufferSize( unsigned int new_size )
 {
   if ( new_size != _address_size )
   {
@@ -194,14 +194,14 @@ void  BusRequest::SetAddressBufferSize( int new_size )
 /** Copies the contents of the address buffer into @p dest.
  *  @returns the number of bytes copied.
  */
-int   BusRequest::GetAddress( uint8_t* dest, int max_bytes ) const
+unsigned int  BusRequest::GetAddress( uint8_t* dest, unsigned int max_bytes ) const
 {
   if ( max_bytes > _address_bytes )
   {   
     max_bytes = _address_bytes;
   }
 
-  for ( int i = 0; i < max_bytes; i++ )
+  for ( unsigned int i = 0; i < max_bytes; i++ )
   {
     dest[i] = _p_address_buffer[i];
   }
@@ -212,7 +212,7 @@ int   BusRequest::GetAddress( uint8_t* dest, int max_bytes ) const
 /** Copies the contents of src into the address buffer, re-allocating the buffer 
  *  if it is not big enough.
  */
-int   BusRequest::SetAddress( const uint8_t* src, int num_bytes )
+int   BusRequest::SetAddress( const uint8_t* src, unsigned int num_bytes )
 {
   if ( num_bytes > _address_size )
   {
@@ -231,7 +231,7 @@ int   BusRequest::SetAddress( const uint8_t* src, int num_bytes )
 
 /** Sets the data buffer size in bytes and allocates a new buffer.
  */
-void  BusRequest::SetDataBufferSize( int new_size )
+void  BusRequest::SetDataBufferSize( unsigned int new_size )
 {
   if ( new_size != _data_size )
   {
@@ -249,14 +249,14 @@ void  BusRequest::SetDataBufferSize( int new_size )
 /** Copies the contents of the data buffer into @p dest.
  *  @returns the number of bytes copied.
  */
-int   BusRequest::GetData( uint8_t* dest, int max_bytes ) const
+int   BusRequest::GetData( uint8_t* dest, unsigned int max_bytes ) const
 {
   if ( max_bytes > _data_bytes )
   {   
     max_bytes = _data_bytes;
   }
 
-  for ( int i = 0; i < max_bytes; i++ )
+  for ( unsigned int i = 0; i < max_bytes; i++ )
   {
     dest[i] = _p_data_buffer[i];
   }
@@ -267,7 +267,7 @@ int   BusRequest::GetData( uint8_t* dest, int max_bytes ) const
 /** Copies the contents of src into the data buffer, re-allocating the buffer 
  *  if it is not big enough.
  */
-int   BusRequest::SetData( const uint8_t* src, int num_bytes )
+int   BusRequest::SetData( const uint8_t* src, unsigned int num_bytes )
 {
   if ( num_bytes > _data_size )
   {
@@ -276,7 +276,7 @@ int   BusRequest::SetData( const uint8_t* src, int num_bytes )
 
   _data_bytes = num_bytes;
 
-  for ( int i = 0; i < _data_bytes; i++ )
+  for ( unsigned int i = 0; i < _data_bytes; i++ )
   {
     _p_data_buffer[i] = src[i];
   }

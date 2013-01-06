@@ -32,7 +32,7 @@ TickVelocityEndpoint::~TickVelocityEndpoint()
  */
 void TickVelocityEndpoint::Subscribe()
 {
-  if (! _running) 
+  if ( ! _running ) 
   {
     _running = true;
     _stop_requested = false;
@@ -45,7 +45,7 @@ void TickVelocityEndpoint::Subscribe()
  */
 void TickVelocityEndpoint::Unsubscribe()
 {
-  if (_running) 
+  if ( _running ) 
   {
     _running = false;
     _stop_requested = true;
@@ -60,7 +60,7 @@ void TickVelocityEndpoint::Unsubscribe()
  */
 void TickVelocityEndpoint::Attach( ITickVelocityListener& tick_velocity_listener )
 {
-  _tick_velocity_listeners.push_back(&tick_velocity_listener);
+  _tick_velocity_listeners.push_back( &tick_velocity_listener );
 }
 
 /** Notifies the endpoint that there there is a new message @p tick_velocity.
@@ -84,7 +84,7 @@ void TickVelocityEndpoint::ReceiveTickVelocityMessages()
 
   ros::Rate r(100); // 100 hz
 
-  while (!_stop_requested && ros::ok()) 
+  while ( !_stop_requested && ros::ok() ) 
   {
     ros::spinOnce();
     r.sleep();
@@ -97,7 +97,7 @@ void TickVelocityEndpoint::ReceiveTickVelocityMessages()
  */
 void TickVelocityEndpoint::NotifyTickVelocityListeners( const diff_drive::TickVelocity& tick_velocity )
 {
-  for (int i= 0; i < _tick_velocity_listeners.size(); i++)
+  for ( unsigned int i= 0; i < _tick_velocity_listeners.size(); i++ )
   {
     _tick_velocity_listeners[i]->OnTickVelocityAvailableEvent( tick_velocity );
   }

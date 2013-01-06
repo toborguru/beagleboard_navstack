@@ -24,8 +24,8 @@ BaseTelemetryReportingService::BaseTelemetryReportingService( boost::shared_ptr<
                                                               boost::shared_ptr<EncoderCountsProcessor> encoder_counts_processor,
                                                               boost::shared_ptr<PowerStateProcessor> power_state_processor )
   : _p_encoder_counts_endpoint( encoder_counts_endpoint ),
-    _p_power_state_endpoint( power_state_endpoint ),
     _p_external_bus_endpoint( external_bus_endpoint ),
+    _p_power_state_endpoint( power_state_endpoint ),
     _p_encoder_counts_processor( encoder_counts_processor ),
     _p_power_state_processor( power_state_processor ),
     _is_reporting( false )

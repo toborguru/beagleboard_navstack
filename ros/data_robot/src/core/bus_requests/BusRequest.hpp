@@ -49,18 +49,18 @@ public:
   virtual void  SetRequestComplete( bool request_complete ) { _request_complete = request_complete; }
 
   /** Returns the current size of the address buffer in bytes. */
-  virtual int   GetAddressBufferSize() const  { return _address_size; }
-  virtual void  SetAddressBufferSize( int new_size );
-  virtual int   GetAddress( uint8_t* dest, int max_bytes ) const;
-  virtual int   SetAddress( const uint8_t* src, int num_bytes );
-  virtual uint8_t*  GetAddressBuffer()  const { return _p_address_buffer; }
+  virtual unsigned int  GetAddressBufferSize() const  { return _address_size; }
+  virtual void          SetAddressBufferSize( unsigned int new_size );
+  virtual unsigned int  GetAddress( uint8_t* dest, unsigned int max_bytes ) const;
+  virtual int           SetAddress( const uint8_t* src, unsigned int num_bytes );
+  virtual uint8_t*      GetAddressBuffer()  const { return _p_address_buffer; }
  
   /** Returns the size of the data buffer in bytes. */
-  virtual int   GetDataBufferSize() const { return _data_size; }
-  virtual void  SetDataBufferSize( int new_size );
-  virtual int   GetData( uint8_t* dest, int max_bytes ) const;
-  virtual int   SetData( const uint8_t* src, int num_bytes );
-  virtual uint8_t*  GetDataBuffer() const { return _p_data_buffer; }
+  virtual unsigned int  GetDataBufferSize() const { return _data_size; }
+  virtual void          SetDataBufferSize( unsigned int new_size );
+  virtual int           GetData( uint8_t* dest, unsigned int max_bytes ) const;
+  virtual int           SetData( const uint8_t* src, unsigned int num_bytes );
+  virtual uint8_t*      GetDataBuffer() const { return _p_data_buffer; }
 
   /** Returns the time last set. */
   virtual struct timespec GetTimeStamp() const { return _time; }

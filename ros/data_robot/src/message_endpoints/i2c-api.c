@@ -31,9 +31,6 @@
 
 #include "Crc8.h"
 
-//#include "DumpMem.h"
-//#include "Log.h"
-
 #define LogDebug  printf
 #define LogError  printf
 
@@ -45,7 +42,6 @@
 
 static  I2C_Addr_t  gI2cAddr;
 static  int         gUseCrc;
-static  int         gDebug = 0;
 
 // ---- Private Function Prototypes -----------------------------------------
 
@@ -133,7 +129,7 @@ int I2cTransfer
               cmd, wrLen, rdLen, wrBlock, rdBlock );
     if ( wrData != NULL )
     {
-        LogDebug( "----- wrData:0x%08x *wrData:0x%02x -----\n", (unsigned int)wrData, *(const uint8_t *)wrData ); 
+        LogDebug( "----- wrData:0x%p *wrData:0x%02x -----\n", wrData, *(const uint8_t *)wrData ); 
     }
 
     rdLen &= 0x7f;
@@ -204,14 +200,6 @@ int I2cTransfer
         }
     }
 
-    if ( gDebug )
-    {
-        Log( "msg[ 0 ].addr  = 0x%02x\n", msg[ 0 ].addr );
-        Log( "msg[ 0 ].flags = 0x%04x\n", msg[ 0 ].flags );
-        Log( "msg[ 0 ].len   = %d\n",     msg[ 0 ].len );
-        DumpMem( "I2cTransfer W", 0, &wrBuf[ 0 ], msg[ 0 ].len );
-    }
-
     rdwr.msgs = msg;
     rdwr.nmsgs = 1;
 
@@ -229,13 +217,6 @@ int I2cTransfer
         if ( gUseCrc )
         {
             crc = Crc8( crc, ( gI2cAddr << 1 ) | 1 );
-        }
-
-        if ( gDebug )
-        {
-            Log( "msg[ 1 ].addr  = 0x%02x\n", msg[ 1 ].addr );
-            Log( "msg[ 1 ].flags = 0x%04x\n", msg[ 1 ].flags );
-            Log( "msg[ 1 ].len   = %d\n",     msg[ 1 ].len );
         }
     }
 
@@ -273,10 +254,6 @@ int I2cTransfer
             }
         }
         
-        if ( gDebug )
-        {
-            DumpMem( "I2cTransfer R", 0, &rdBuf[ 0 ], msg[ 1 ].len );
-        }
         memcpy( rdData, &rdBuf[ rdBlock ], rdLen );
 
         if ( bytesReadp != NULL )
@@ -399,7 +376,7 @@ int I2cWriteByte
 )
 {
     LogDebug( "----- I2cWriteByte cmd: 0x%02x wrByte:0x%02x -----\n", cmd, wrByte );
-    LogDebug( "----- &wrByte = 0x%08x wrByte = 0x%02x -----\n", (unsigned int)&wrByte, *&wrByte );
+    LogDebug( "----- &wrByte = 0x%p wrByte = 0x%02x -----\n", &wrByte, *&wrByte );
 
     return I2cTransfer( i2cDev, cmd, &wrByte, 1, NULL, 0, NULL );
 

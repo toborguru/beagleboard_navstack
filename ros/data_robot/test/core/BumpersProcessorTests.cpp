@@ -212,6 +212,7 @@ TEST(BumpersProcessorTests, canSetBumperMaskesAndCalculateDirection)
   EXPECT_EQ( data_robot::Bumpers::FRONT,        dir7 );
   EXPECT_EQ( data_robot::Bumpers::FRONT_RIGHT,  dir8 );
   EXPECT_EQ( data_robot::Bumpers::FRONT,        dir9 );
+  EXPECT_EQ( data_robot::Bumpers::FRONT,        dir10 );
   EXPECT_EQ( data_robot::Bumpers::FRONT,        dir11 );
   EXPECT_EQ( data_robot::Bumpers::FRONT_LEFT,   dir12 );
   EXPECT_EQ( data_robot::Bumpers::FRONT_RIGHT,  dir13 );
