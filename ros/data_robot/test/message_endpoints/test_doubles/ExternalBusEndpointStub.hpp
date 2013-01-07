@@ -27,7 +27,7 @@ public:
     }
 
     // We have the Lock, alter the request
-    for ( int i = 0; i < p_bus_request->GetDataBufferSize(); i++ )
+    for ( unsigned int i = 0; i < p_bus_request->GetDataBufferSize(); i++ )
     {
       p_bus_request->GetDataBuffer()[i] += i;
     }

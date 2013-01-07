@@ -17,6 +17,9 @@ rosbuild_add_executable(
 
 rosbuild_add_gtest_build_flags(data_robot_tests)
 
+# I am specifically causing a variety of overflow conditions in the RollOverHelpers test.
+rosbuild_add_compile_flags(data_robot_tests "-Wno-overflow")
+
 # Link the libraries
 target_link_libraries(
   data_robot_tests
