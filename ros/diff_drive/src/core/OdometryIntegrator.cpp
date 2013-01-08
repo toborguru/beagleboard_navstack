@@ -49,7 +49,10 @@ static const double OdometryCovarianceLow[36] =
 /** Default constructor.
  */
 OdometryIntegrator::OdometryIntegrator()
-                   : _average_2n_readings(MAX_AVERAGE_2N_READINGS),
+                   : _average_2n_readings(3),
+                     _average_num_readings(0),
+                     _p_linear_velocities(NULL),
+                     _p_stasis_velocities(NULL),
                      _p_base_model(NULL)
 {
   _odometry_listeners.reserve(1);
@@ -58,6 +61,21 @@ OdometryIntegrator::OdometryIntegrator()
   _current_position.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
 
   SetAverage2nReadings( _average_2n_readings );
+}
+
+/** Default destructor.
+ */
+OdometryIntegrator::~OdometryIntegrator()
+{
+  if ( _p_linear_velocities != NULL )
+  { 
+    delete [] _p_linear_velocities;
+  }
+
+  if ( _p_stasis_velocities != NULL )
+  { 
+    delete [] _p_stasis_velocities;
+  }
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
@@ -110,21 +128,34 @@ unsigned int OdometryIntegrator::GetAverage2nReadings()
  */
 void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings )
 {
-  // Clear averaging arrays
-  for ( unsigned int i = 0; i < ldexp(1.0, MAX_AVERAGE_2N_READINGS); i++ )
-  {
-    _linear_velocities[ i ] = 0.0;
-    _stasis_velocities[ i ] = 0.0;
-  }
-
-  // Don't overrun the allocated buffers
-  if ( average_2n_readings > MAX_AVERAGE_2N_READINGS )
-  {
-    average_2n_readings = MAX_AVERAGE_2N_READINGS;
-  }
+  unsigned int new_num_readings;
 
   _average_2n_readings = average_2n_readings;
-  _average_num_readings = ldexp( 1.0, _average_2n_readings );
+  new_num_readings = ldexp( 1.0, _average_2n_readings );
+
+  if ( new_num_readings != _average_num_readings )
+  {
+    if ( _p_linear_velocities != NULL )
+    { 
+      delete [] _p_linear_velocities;
+    }
+
+    if ( _p_stasis_velocities != NULL )
+    { 
+      delete [] _p_stasis_velocities;
+    }
+
+    _p_linear_velocities = new float [ new_num_readings ];
+    _p_stasis_velocities = new float [ new_num_readings ];
+    _average_num_readings = new_num_readings;
+  }
+
+  // Clear averaging arrays
+  for ( unsigned int i = 0; i < _average_num_readings; i++ )
+  {
+    _p_linear_velocities[ i ] = 0.0;
+    _p_stasis_velocities[ i ] = 0.0;
+  }
 
   // Reset averaging state
   _average_index = 0;
@@ -268,13 +299,13 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
   else
   {
     // Compute averages and compare
-    _linear_average_total -= _linear_velocities[ _average_index ];
-    _linear_velocities[ _average_index ] = velocities.linear;
-    _linear_average_total += _linear_velocities[ _average_index ]; 
+    _linear_average_total -= _p_linear_velocities[ _average_index ];
+    _p_linear_velocities[ _average_index ] = velocities.linear;
+    _linear_average_total += _p_linear_velocities[ _average_index ]; 
 
-    _stasis_average_total -= _stasis_velocities[ _average_index ];
-    _stasis_velocities[ _average_index ] = velocities.stasis;
-    _stasis_average_total += _stasis_velocities[ _average_index ]; 
+    _stasis_average_total -= _p_stasis_velocities[ _average_index ];
+    _p_stasis_velocities[ _average_index ] = velocities.stasis;
+    _stasis_average_total += _p_stasis_velocities[ _average_index ]; 
 
     // Correctly compute the average velocity
     if ( _num_readings_read < _average_num_readings )
