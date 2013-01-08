@@ -467,6 +467,101 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   EXPECT_FLOAT_EQ( 0.0, stasis_4 );
 }
 
+// Define the unit test to verify ability to set and change the 
+// averaging buffers
+TEST( OdometryIntegratorTests, canChangeAndReadAverageBufferSizes )
+{
+  int average_2n_1;
+  int average_2n_2;
+  int average_2n_3;
+  int average_2n_4;
+  int average_2n_5;
+  int average_2n_6;
+  int average_2n_7;
+  int average_2n_8;
+  int average_2n_9;
+
+  int average_num_1;
+  int average_num_2;
+  int average_num_3;
+  int average_num_4;
+  int average_num_5;
+  int average_num_6;
+  int average_num_7;
+  int average_num_8;
+  int average_num_9;
+
+  // Establish Context
+  OdometryIntegrator odometry_integrator;
+  
+  // Act
+  // Check defaults
+  average_2n_1 = odometry_integrator.GetAverage2nReadings();
+  average_num_1 = odometry_integrator.GetAverageNumReadings();
+ 
+  odometry_integrator.SetAverage2nReadings( 4 );
+  average_2n_2 = odometry_integrator.GetAverage2nReadings();
+  average_num_2 = odometry_integrator.GetAverageNumReadings();
+  
+  odometry_integrator.SetAverage2nReadings( 0 );
+  average_2n_3 = odometry_integrator.GetAverage2nReadings();
+  average_num_3 = odometry_integrator.GetAverageNumReadings();
+  
+  odometry_integrator.SetAverageNumReadings( 4 );
+  average_2n_4 = odometry_integrator.GetAverage2nReadings();
+  average_num_4 = odometry_integrator.GetAverageNumReadings();
+  
+  odometry_integrator.SetAverageNumReadings( 0 );
+  average_2n_5 = odometry_integrator.GetAverage2nReadings();
+  average_num_5 = odometry_integrator.GetAverageNumReadings();
+  
+  odometry_integrator.SetAverage2nReadings( 32 );
+  average_2n_6 = odometry_integrator.GetAverage2nReadings();
+  average_num_6 = odometry_integrator.GetAverageNumReadings();
+  
+  odometry_integrator.SetAverageNumReadings( 1000000 );
+  average_2n_7 = odometry_integrator.GetAverage2nReadings();
+  average_num_7 = odometry_integrator.GetAverageNumReadings();
+  
+  odometry_integrator.SetAverageNumReadings( 10 );
+  average_2n_8 = odometry_integrator.GetAverage2nReadings();
+  average_num_8 = odometry_integrator.GetAverageNumReadings();
+  
+  odometry_integrator.SetAverageNumReadings( 100 );
+  average_2n_9 = odometry_integrator.GetAverage2nReadings();
+  average_num_9 = odometry_integrator.GetAverageNumReadings();
+  
+  // Assert
+
+  EXPECT_EQ( 3, average_2n_1 );
+  EXPECT_EQ( 8, average_num_1 );
+
+  EXPECT_EQ( 4, average_2n_2 );
+  EXPECT_EQ( 16, average_num_2 );
+
+  EXPECT_EQ( 0, average_2n_3 );
+  EXPECT_EQ( 1, average_num_3 );
+
+  EXPECT_EQ( 2, average_2n_4 );
+  EXPECT_EQ( 4, average_num_4 );
+
+  EXPECT_EQ( 0, average_2n_5 );
+  EXPECT_EQ( 1, average_num_5 );
+
+  EXPECT_EQ( 16, average_2n_6 );
+  EXPECT_EQ( 65536, average_num_6 );
+
+  EXPECT_EQ( 16, average_2n_7 );
+  EXPECT_EQ( 65536, average_num_7 );
+
+  EXPECT_EQ( 3, average_2n_8 );
+  EXPECT_EQ( 8, average_num_8 );
+
+  EXPECT_EQ( 6, average_2n_9 );
+  EXPECT_EQ( 64, average_num_9 );
+
+}
+
 // Define the unit test to verify ability to correctly calculate the average velocities
 // specifically when less than the number of readings to averages have been received.
 TEST( OdometryIntegratorTests, canCalculateAverageVelocities ) 

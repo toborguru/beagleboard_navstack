@@ -16,6 +16,9 @@
 
 namespace diff_drive_core
 {
+
+#define MAX_2N_AVERAGES 16
+
 class OdometryIntegrator : public IEncoderCountsListener
 {
   public:

@@ -116,6 +116,31 @@ unsigned int OdometryIntegrator::GetAverageNumReadings()
   return _average_num_readings;
 }
 
+/** Sets the size of the buffers used to averages the velocity readings.
+ *  Because the buffers need to be 2^n in size, this function will choose 
+ *  the largest 2^n number that will fit inside. Ex: 10=>8, 100=>64.
+ */
+void OdometryIntegrator::SetAverageNumReadings( unsigned int average_num_readings )
+{
+  unsigned int average_2n = MAX_2N_AVERAGES;
+
+  if ( average_num_readings <= 0 )
+  {
+    average_num_readings = 1;
+  }
+
+  for ( unsigned int i = 0; i < MAX_2N_AVERAGES; i++ )
+  {
+    if ( average_num_readings < ldexp(1.0, i) )
+    {
+      average_2n = i - 1;
+      break; 
+    }
+  }
+
+  SetAverage2nReadings( average_2n );
+}
+
 /** Returns average_2n_readings in the eq: 2^average_2n_readings velocity 
  *  readings will be averaged before comparison.
  */
@@ -129,6 +154,12 @@ unsigned int OdometryIntegrator::GetAverage2nReadings()
 void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings )
 {
   unsigned int new_num_readings;
+
+  // 64K readings buffer...
+  if ( average_2n_readings > MAX_2N_AVERAGES )
+  {
+    average_2n_readings = MAX_2N_AVERAGES;
+  }
 
   _average_2n_readings = average_2n_readings;
   new_num_readings = ldexp( 1.0, _average_2n_readings );
