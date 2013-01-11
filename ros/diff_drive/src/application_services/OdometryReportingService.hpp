@@ -34,6 +34,15 @@ public:
   void OnOdometryAvailableEvent(  const nav_msgs::Odometry& odometry );
   void OnMovementStatusAvailableEvent(  const diff_drive::MovementStatus& movement_status );
 
+  unsigned int GetAverageNumReadings() const;
+  void SetAverageNumReadings( const unsigned int new_average_num_readings );
+
+  float GetStasisPercentage() const;
+  void SetStasisPercentage( float percentage );
+
+  float GetVelocityLowerLimit() const;
+  void SetVelocityLowerLimit( float velocity_limit );
+
 private:
 
   diff_drive_core::OdometryIntegrator  _odometry_integrator;

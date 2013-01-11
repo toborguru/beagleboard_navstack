@@ -49,7 +49,9 @@ static const double OdometryCovarianceLow[36] =
 /** Default constructor.
  */
 OdometryIntegrator::OdometryIntegrator()
-                   : _average_2n_readings(3),
+                   : _stasis_percentage(0.10),
+                     _velocity_lower_limit(0.05),
+                     _average_2n_readings(3),
                      _average_num_readings(0),
                      _p_linear_velocities(NULL),
                      _p_stasis_velocities(NULL),
@@ -111,7 +113,7 @@ void OdometryIntegrator::OnEncoderCountsAvailableEvent( const diff_drive::Encode
 /** Returns actual number of velocity readings that will be averaged prior to
  *  comparison.
  */
-unsigned int OdometryIntegrator::GetAverageNumReadings()
+unsigned int OdometryIntegrator::GetAverageNumReadings() const
 {
   return _average_num_readings;
 }
@@ -144,7 +146,7 @@ void OdometryIntegrator::SetAverageNumReadings( unsigned int average_num_reading
 /** Returns average_2n_readings in the eq: 2^average_2n_readings velocity 
  *  readings will be averaged before comparison.
  */
-unsigned int OdometryIntegrator::GetAverage2nReadings()
+unsigned int OdometryIntegrator::GetAverage2nReadings() const
 {
   return _average_2n_readings;
 }
@@ -193,6 +195,52 @@ void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings 
   _num_readings_read = 0;
   _linear_average_total = 0.0;
   _stasis_average_total = 0.0;
+}
+
+/** Access function.
+ */
+float OdometryIntegrator::GetStasisPercentage() const
+{
+  return _stasis_percentage;
+}
+
+/** Access function.
+ *  Negative numbers will be multiplied by -1. Numbers greater than 1 will
+ *  be inverted. 
+ */
+void OdometryIntegrator::SetStasisPercentage( float percentage )
+{
+  if ( percentage < 0.0 )
+  {
+    percentage *= -1.0;
+  }
+
+  if ( percentage > 1.0 )
+  {
+    percentage = 1.0 / percentage;
+  }
+
+  _stasis_percentage = percentage;
+}
+
+/** Access function.
+ */
+float OdometryIntegrator::GetVelocityLowerLimit() const
+{
+  return _velocity_lower_limit;
+}
+
+/** Access function.
+ *  Negative numbers will be multiplied by -1.
+ */
+void OdometryIntegrator::SetVelocityLowerLimit( float velocity_limit )
+{
+  if ( velocity_limit < 0.0 )
+  {
+    velocity_limit *= -1.0;
+  }
+
+  _velocity_lower_limit = velocity_limit;
 }
 
 /** This function is used to perform all updates when new counts are ready.
@@ -305,10 +353,6 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
 
   diff_drive::MovementStatus movement_status;
 
-  // TODO Add access functions...
-  _stasis_window = 0.25; // %
-  _stasis_lower_limit = 0.03; // m/s
-
   if (_p_base_model == NULL) // No base model
   {
     movement_status.motors_state = diff_drive::MovementStatus::SETUP_ERROR;
@@ -359,8 +403,8 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
     abs_linear = fabs( linear_average );
     abs_stasis = fabs( stasis_average );
 
-    float lower_limit = abs_linear * ( 1.0 - _stasis_window );
-    float upper_limit = abs_linear * ( 1.0 + _stasis_window );
+    float lower_limit = abs_linear * ( 1.0 - _stasis_percentage );
+    float upper_limit = abs_linear * ( 1.0 + _stasis_percentage );
 
     movement_status.linear_velocity = velocities.linear;
     movement_status.linear_velocity_average = linear_average;
@@ -380,7 +424,7 @@ diff_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const Ba
       movement_status.stasis_wheel_enabled = true;
       
       // going fast enough to register stasis wheel movement
-      if ( (abs_linear > _stasis_lower_limit) || (abs_stasis > _stasis_lower_limit) )
+      if ( (abs_linear > _velocity_lower_limit) || (abs_stasis > _velocity_lower_limit) )
       {
         if (abs_stasis > upper_limit)
         {

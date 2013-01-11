@@ -33,11 +33,17 @@ class OdometryIntegrator : public IEncoderCountsListener
 
     void OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& encoder_counts );
 
-    unsigned int GetAverage2nReadings();
+    unsigned int GetAverage2nReadings() const;
     void SetAverage2nReadings( unsigned int average_2n_readings );
 
-    unsigned int GetAverageNumReadings();
+    unsigned int GetAverageNumReadings() const;
     void SetAverageNumReadings( unsigned int average_num_readings );
+
+    float GetStasisPercentage() const;
+    void SetStasisPercentage( float percentage );
+
+    float GetVelocityLowerLimit() const;
+    void SetVelocityLowerLimit( float velocity_limit );
 
   private:
     void AddNewCounts( const diff_drive::EncoderCounts& encoder_counts );
@@ -63,8 +69,8 @@ class OdometryIntegrator : public IEncoderCountsListener
 
     BaseVelocities_T  _velocities;
   
-    float _stasis_window;
-    float _stasis_lower_limit;
+    float _stasis_percentage;
+    float _velocity_lower_limit;
   
     unsigned int  _average_index;
     unsigned int  _num_readings_read;

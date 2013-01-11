@@ -105,7 +105,7 @@ void OdometryReportingService::OnOdometryAvailableEvent(const nav_msgs::Odometry
     // Send odometry to the message end point
     _p_odometry_endpoint->Publish( odometry );
   }
-};
+}
 
 /** This class is an movement status listener, and publishes any new messages available.
  */
@@ -116,5 +116,47 @@ void OdometryReportingService::OnMovementStatusAvailableEvent(const diff_drive::
     // Send movement_status to the message end point
     _p_movement_status_endpoint->Publish( movement_status );
   }
-};
+}
+
+/** Access function.
+ */
+unsigned int OdometryReportingService::GetAverageNumReadings() const
+{
+  return _odometry_integrator.GetAverageNumReadings();
+}
+
+/** Access function, value will be truncated to a power of 2.
+ */
+void OdometryReportingService::SetAverageNumReadings( const unsigned int new_average_num_readings )
+{
+  _odometry_integrator.SetAverageNumReadings( new_average_num_readings );
+}
+
+/** Access function.
+ */
+float OdometryReportingService::GetStasisPercentage() const\
+{
+  _odometry_integrator.GetStasisPercentage();
+}
+
+/** Access function.
+ */
+void OdometryReportingService::SetStasisPercentage( float percentage )
+{
+  _odometry_integrator.SetStasisPercentage( percentage );
+}
+
+/** Access function.
+ */
+float OdometryReportingService::GetVelocityLowerLimit() const
+{
+  _odometry_integrator.GetVelocityLowerLimit();
+}
+
+/** Access function.
+ */
+void OdometryReportingService::SetVelocityLowerLimit( float velocity_limit )
+{
+  _odometry_integrator.SetVelocityLowerLimit( velocity_limit );
+}
 }
