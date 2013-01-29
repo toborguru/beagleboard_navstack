@@ -8,13 +8,13 @@
 
 #include "data_robot/Bumpers.h"
 
-#include "BumpersEndpoint.hpp"
+#include "BumpersPublisherEndpoint.hpp"
  
 namespace data_robot_message_endpoints
 {
 /** Default constructor, advertises on the ROS @e "bumpers" topic.
  */
-BumpersEndpoint::BumpersEndpoint() 
+BumpersPublisherEndpoint::BumpersPublisherEndpoint() 
   // Setup topic for publishing 
   : _bumpers_publisher(
     _bumpers_node.advertise<data_robot::Bumpers>("bumpers", 10)) 
@@ -24,7 +24,7 @@ BumpersEndpoint::BumpersEndpoint()
 /** Publishes the @p bumpers msg and broadcasts the coordinate frame 
  *  transform.
  */
-void BumpersEndpoint::Publish( const data_robot::Bumpers& bumpers )
+void BumpersPublisherEndpoint::Publish( const data_robot::Bumpers& bumpers )
 {
   // and publish the bumpers msg
   _bumpers_publisher.publish(bumpers);

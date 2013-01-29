@@ -34,7 +34,7 @@ struct BaseTelemetryReceiver : public data_robot_core::IBaseTelemetryListener
 };
 
 // Will be used by unit test to handle bus request events
-struct BusRequestReceiver : public data_robot_core::IExternalBusEndpoint
+struct BusRequestReceiver : public data_robot_core::IBusRequestProcessorEndpoint
 {
   BusRequestReceiver()
     : count_of_bus_requests_received(0) { }

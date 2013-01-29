@@ -1,17 +1,17 @@
-// EncoderCountsEndpointStub.hpp
+// EncoderCountsPublisherEndpointStub.hpp
  
-#ifndef GUARD_EncoderCountsEndpointStub
-#define GUARD_EncoderCountsEndpointStub
+#ifndef GUARD_EncoderCountsPublisherEndpointStub
+#define GUARD_EncoderCountsPublisherEndpointStub
  
 #include "diff_drive/EncoderCounts.h"
-#include "IEncoderCountsEndpoint.hpp"
+#include "IEncoderCountsPublisherEndpoint.hpp"
  
 namespace data_robot_test_message_endpoints_test_doubles
 {
-class EncoderCountsEndpointStub : public data_robot_core::IEncoderCountsEndpoint
+class EncoderCountsPublisherEndpointStub : public data_robot_core::IEncoderCountsPublisherEndpoint
 { 
 public:
-  EncoderCountsEndpointStub()
+  EncoderCountsPublisherEndpointStub()
     : _count_of_encoder_counts_published(0),
       _left(0),
       _right(0)
@@ -31,7 +31,7 @@ public:
 #if 0
     // Output the read values to the terminal; this isn't the
     // unit test, but merely a helpful means to show what's going on.
-    std::cout << "EncoderCounts published on EncoderCountsEndpoint with L: " 
+    std::cout << "EncoderCounts published on EncoderCountsPublisherEndpoint with L: " 
               << _left
               << ", R: "
               << _right
@@ -41,4 +41,4 @@ public:
 };
 }
  
-#endif /* GUARD_EncoderCountsEndpointStub */
+#endif /* GUARD_EncoderCountsPublisherEndpointStub */

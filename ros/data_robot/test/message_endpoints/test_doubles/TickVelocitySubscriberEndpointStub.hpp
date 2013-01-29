@@ -1,16 +1,16 @@
-// TickVelocityEndpointStub.hpp
+// TickVelocitySubscriberEndpointStub.hpp
  
-#ifndef GUARD_TickVelocityEndpointStub
-#define GUARD_TickVelocityEndpointStub
+#ifndef GUARD_TickVelocitySubscriberEndpointStub
+#define GUARD_TickVelocitySubscriberEndpointStub
  
-#include "ITickVelocityEndpoint.hpp"
+#include "ITickVelocitySubscriberEndpoint.hpp"
  
 namespace data_robot_test_message_endpoints_test_doubles
 {
-class TickVelocityEndpointStub : public data_robot_core::ITickVelocityEndpoint
+class TickVelocitySubscriberEndpointStub : public data_robot_core::ITickVelocitySubscriberEndpoint
 { 
 public:
-  TickVelocityEndpointStub() 
+  TickVelocitySubscriberEndpointStub() 
     : _subscribed(false)
   {}
 
@@ -46,4 +46,4 @@ private:
 };
 }
  
-#endif /* GUARD_TickVelocityEndpointStub */
+#endif /* GUARD_TickVelocitySubscriberEndpointStub */

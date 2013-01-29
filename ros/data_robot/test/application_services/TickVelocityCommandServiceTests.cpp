@@ -2,8 +2,8 @@
  
 #include <gtest/gtest.h>
 
-#include "TickVelocityEndpointStub.hpp"
-#include "ExternalBusEndpointStub.hpp"
+#include "TickVelocitySubscriberEndpointStub.hpp"
+#include "BusRequestProcessorEndpointStub.hpp"
 #include "TickVelocityCommandService.hpp"
  
 using namespace data_robot_application_services;
@@ -21,11 +21,11 @@ namespace data_robot_test_application_services
     int received3;
 
     // Establish Context
-    boost::shared_ptr<TickVelocityEndpointStub> tick_velocity_endpoint_stub =
-        boost::shared_ptr<TickVelocityEndpointStub>( new TickVelocityEndpointStub() );
+    boost::shared_ptr<TickVelocitySubscriberEndpointStub> tick_velocity_endpoint_stub =
+        boost::shared_ptr<TickVelocitySubscriberEndpointStub>( new TickVelocitySubscriberEndpointStub() );
 
-    boost::shared_ptr<ExternalBusEndpointStub> external_bus_endpoint_stub =
-        boost::shared_ptr<ExternalBusEndpointStub>( new ExternalBusEndpointStub() );
+    boost::shared_ptr<BusRequestProcessorEndpointStub> external_bus_endpoint_stub =
+        boost::shared_ptr<BusRequestProcessorEndpointStub>( new BusRequestProcessorEndpointStub() );
 
     TickVelocityCommandService tick_velocity_command_service( tick_velocity_endpoint_stub, 
                                                               external_bus_endpoint_stub );
@@ -72,11 +72,11 @@ namespace data_robot_test_application_services
   TEST(TickVelocityCommandServiceTests, canCanSendCommandsToTickVelocityCommandService) 
   {
     // Establish Context
-    boost::shared_ptr<TickVelocityEndpointStub> tick_velocity_endpoint_stub =
-        boost::shared_ptr<TickVelocityEndpointStub>( new TickVelocityEndpointStub() );
+    boost::shared_ptr<TickVelocitySubscriberEndpointStub> tick_velocity_endpoint_stub =
+        boost::shared_ptr<TickVelocitySubscriberEndpointStub>( new TickVelocitySubscriberEndpointStub() );
 
-    boost::shared_ptr<ExternalBusEndpointStub> external_bus_endpoint_stub =
-        boost::shared_ptr<ExternalBusEndpointStub>( new ExternalBusEndpointStub() );
+    boost::shared_ptr<BusRequestProcessorEndpointStub> external_bus_endpoint_stub =
+        boost::shared_ptr<BusRequestProcessorEndpointStub>( new BusRequestProcessorEndpointStub() );
 
     TickVelocityCommandService tick_velocity_command_service( tick_velocity_endpoint_stub, 
                                                               external_bus_endpoint_stub );

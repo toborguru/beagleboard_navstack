@@ -1,7 +1,5 @@
 include_directories(
   "message_endpoints/test_doubles"
-#  "data_repositories/test_doubles"
-  "core"
 )
 
 # rosbuild_add_gtest will automatically run tests but may segfault with threads.
@@ -37,8 +35,8 @@ target_link_libraries(
 rosbuild_add_executable(
   data_robot_ros_tests
   TestRunner.cpp
-  ./message_endpoints/TickVelocityEndpointTests.cpp
-  ./message_endpoints/EncoderCountsEndpointTests.cpp
+  ./message_endpoints/TickVelocitySubscriberEndpointTests.cpp
+  ./message_endpoints/EncoderCountsPublisherEndpointTests.cpp
 )
 
 rosbuild_add_gtest_build_flags(data_robot_ros_tests)
@@ -60,7 +58,7 @@ target_link_libraries(
 rosbuild_add_executable(
   data_robot_bb_tests
   TestRunner.cpp
-  ./message_endpoints/I2CBusEndpointTests.cpp
+  ./message_endpoints/I2CBusRequestProcessorEndpointTests.cpp
 )
 
 rosbuild_add_gtest_build_flags(data_robot_bb_tests)

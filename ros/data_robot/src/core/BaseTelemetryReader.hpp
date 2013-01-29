@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "IBaseTelemetryListener.hpp"
-#include "IExternalBusEndpoint.hpp"
+#include "IBusRequestProcessorEndpoint.hpp"
 
 #include "Telemetry.hpp"
 
@@ -15,7 +15,7 @@ class BaseTelemetryReader
 {
 public:
   BaseTelemetryReader();
-  BaseTelemetryReader( IExternalBusEndpoint *p_external_bus );
+  BaseTelemetryReader( IBusRequestProcessorEndpoint *p_external_bus );
   
   ~BaseTelemetryReader();
 
@@ -23,7 +23,7 @@ public:
   void StopReading();
 
   // Provides an interface to request counts from
-  void SetExternalBus( IExternalBusEndpoint *p_external_bus );
+  void SetExternalBus( IBusRequestProcessorEndpoint *p_external_bus );
 
   bool GetBlockForBusRequest() const { return _block_for_request; }
   void SetBlockForBusRequest( bool block ) { _block_for_request = block; }
@@ -46,7 +46,7 @@ private:
 
   bool _block_for_request;
 
-  IExternalBusEndpoint *_p_external_bus;
+  IBusRequestProcessorEndpoint *_p_external_bus;
 
   static void * ReadBaseTelemetryFunction(void * This) {
     ((BaseTelemetryReader *)This)->ReadBaseTelemetry();

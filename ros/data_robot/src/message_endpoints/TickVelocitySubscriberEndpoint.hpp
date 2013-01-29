@@ -1,21 +1,21 @@
 // TickVelocityI2CEndpoint.hpp
  
-#ifndef GUARD_TickVelocityEndpoint
-#define GUARD_TickVelocityEndpoint
+#ifndef GUARD_TickVelocitySubscriberEndpoint
+#define GUARD_TickVelocitySubscriberEndpoint
  
 #include <ros/ros.h>
 #include <pthread.h>
 #include <vector>
 
-#include "ITickVelocityEndpoint.hpp"
+#include "ITickVelocitySubscriberEndpoint.hpp"
  
 namespace data_robot_message_endpoints
 {
-class TickVelocityEndpoint : public data_robot_core::ITickVelocityEndpoint
+class TickVelocitySubscriberEndpoint : public data_robot_core::ITickVelocitySubscriberEndpoint
 { 
 public:
-  TickVelocityEndpoint();
-  ~TickVelocityEndpoint();
+  TickVelocitySubscriberEndpoint();
+  ~TickVelocitySubscriberEndpoint();
 
   void Subscribe();
   void Unsubscribe();
@@ -44,10 +44,10 @@ private:
 
   static void * ReceiveTickVelocityMessagesFunction(void * This) 
   {
-    ((TickVelocityEndpoint*)This)->ReceiveTickVelocityMessages();
+    ((TickVelocitySubscriberEndpoint*)This)->ReceiveTickVelocityMessages();
     return 0;
   }
 };
 }
  
-#endif /* GUARD_TickVelocityEndpoint */
+#endif /* GUARD_TickVelocitySubscriberEndpoint */

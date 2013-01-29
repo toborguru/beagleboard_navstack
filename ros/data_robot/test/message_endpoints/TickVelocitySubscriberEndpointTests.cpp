@@ -1,9 +1,9 @@
-// TickVelocityEndpointTests.cpp
+// TickVelocitySubscriberEndpointTests.cpp
  
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
-#include "TickVelocityEndpoint.hpp"
+#include "TickVelocitySubscriberEndpoint.hpp"
 //#include "TickVelocityCommandService.hpp"
  
 //using namespace data_robot_application_services;
@@ -46,7 +46,7 @@ struct TickVelocityReceiver : public data_robot_core::ITickVelocityListener
 
   // Define unit test to verify ability to publish laser scans 
   // to ROS using the concrete message endpoint.
-  TEST(TickVelocityEndpointTests, canSubscribeAndUnsubscribeToTickVelocityWithEndpoint) 
+  TEST(TickVelocitySubscriberEndpointTests, canSubscribeAndUnsubscribeToTickVelocityWithEndpoint) 
   {
     // Establish Context
     std::string name("tick_velocity_endpoint_tester");
@@ -69,7 +69,7 @@ struct TickVelocityReceiver : public data_robot_core::ITickVelocityListener
     int count2;
     int count3;
     
-    TickVelocityEndpoint tick_velocity_endpoint;
+    TickVelocitySubscriberEndpoint tick_velocity_endpoint;
     TickVelocityReceiver tick_velocity_receiver;
 
     diff_drive::TickVelocity tick_velocity;
@@ -152,12 +152,12 @@ struct TickVelocityReceiver : public data_robot_core::ITickVelocityListener
   // service using the concrete message endpoint. This is more of a 
   // package integration test than a unit test, making sure that all 
   // of the pieces are playing together nicely within the package.
-  TEST(TickVelocityEndpointTests, canStartAndStopTickVelocityCommandServiceWithEndpoint) {
+  TEST(TickVelocitySubscriberEndpointTests, canStartAndStopTickVelocityCommandServiceWithEndpoint) {
     // Establish Context
     boost::shared_ptr<OdometryEndpoint> odometryEndpoint =
       boost::shared_ptr<OdometryEndpoint>(new OdometryEndpoint());
 
-    TickVelocityEndpoint* tick_velocity_Endpoint = new TickVelocityEndpoint();
+    TickVelocitySubscriberEndpoint* tick_velocity_Endpoint = new TickVelocitySubscriberEndpoint();
 
     OdometryCommandService OdometryCommandService(odometryEndpoint, *tick_velocity_Endpoint);
  
@@ -171,7 +171,7 @@ struct TickVelocityReceiver : public data_robot_core::ITickVelocityListener
  
     // Assert
     // See assertion note above from 
-    // TickVelocityEndpointTests.canPublishTickVelocityWithEndpoint
+    // TickVelocitySubscriberEndpointTests.canPublishTickVelocityWithEndpoint
   }
 #endif
 }

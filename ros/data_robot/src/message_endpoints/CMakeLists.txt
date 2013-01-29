@@ -1,11 +1,11 @@
 # Create the library
 rosbuild_add_library(
   data_robot_message_endpoints
-  BumpersEndpoint.cpp
-  EncoderCountsEndpoint.cpp
-  PowerStateEndpoint.cpp
-  TickVelocityEndpoint.cpp
-  I2CBusEndpoint.cpp
+  BumpersPublisherEndpoint.cpp
+  EncoderCountsPublisherEndpoint.cpp
+  PowerStatePublisherEndpoint.cpp
+  TickVelocitySubscriberEndpoint.cpp
+  I2CBusRequestProcessorEndpoint.cpp
   Crc8.c
   i2c-api.c
 )

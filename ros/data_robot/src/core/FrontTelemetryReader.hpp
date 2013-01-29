@@ -7,7 +7,7 @@
 #include "Telemetry.hpp"
 
 #include "IFrontTelemetryListener.hpp"
-#include "IExternalBusEndpoint.hpp"
+#include "IBusRequestProcessorEndpoint.hpp"
  
 namespace data_robot_core
 {
@@ -15,7 +15,7 @@ class FrontTelemetryReader
 {
 public:
   FrontTelemetryReader();
-  FrontTelemetryReader( IExternalBusEndpoint *p_external_bus );
+  FrontTelemetryReader( IBusRequestProcessorEndpoint *p_external_bus );
   
   ~FrontTelemetryReader();
 
@@ -23,7 +23,7 @@ public:
   void StopReading();
 
   // Provides an interface to request telemetry from
-  void SetExternalBus( IExternalBusEndpoint *p_external_bus );
+  void SetExternalBus( IBusRequestProcessorEndpoint *p_external_bus );
 
   bool GetBlockForBusRequest() const { return _block_for_request; }
   void SetBlockForBusRequest( bool block ) { _block_for_request = block; }
@@ -46,7 +46,7 @@ private:
 
   bool _block_for_request;
 
-  IExternalBusEndpoint *_p_external_bus;
+  IBusRequestProcessorEndpoint *_p_external_bus;
 
   static void * ReadFrontTelemetryFunction(void * This) {
     ((FrontTelemetryReader *)This)->ReadFrontTelemetry();

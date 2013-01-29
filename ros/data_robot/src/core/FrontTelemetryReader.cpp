@@ -19,9 +19,9 @@ FrontTelemetryReader::FrontTelemetryReader()
   _telemetry_listeners.reserve( 1 );
 }
 
-/** Constructor which takes an IExternalBusEndpoint to communicate on.
+/** Constructor which takes an IBusRequestProcessorEndpoint to communicate on.
  */
-FrontTelemetryReader::FrontTelemetryReader( IExternalBusEndpoint *p_external_bus )
+FrontTelemetryReader::FrontTelemetryReader( IBusRequestProcessorEndpoint *p_external_bus )
                     : _stop_requested( false ), 
                       _running( false ),
                       _block_for_request( true ),
@@ -39,7 +39,7 @@ FrontTelemetryReader::~FrontTelemetryReader()
  *  
  *  Setting this value to NULL will disable the reader.
  */
-void FrontTelemetryReader::SetExternalBus( IExternalBusEndpoint *p_external_bus )
+void FrontTelemetryReader::SetExternalBus( IBusRequestProcessorEndpoint *p_external_bus )
 {
   _p_external_bus = p_external_bus; 
 }

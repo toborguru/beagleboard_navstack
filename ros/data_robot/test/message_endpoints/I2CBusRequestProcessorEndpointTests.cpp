@@ -1,11 +1,11 @@
-// EncoderCountsEndpointTests.cpp
+// EncoderCountsPublisherEndpointTests.cpp
  
 #include <gtest/gtest.h>
 
 #include "ReadBaseTelemetryRequest.hpp"
 #include "MotorVelocityRequest.hpp"
 
-#include "I2CBusEndpoint.hpp"
+#include "I2CBusRequestProcessorEndpoint.hpp"
  
 using namespace data_robot_core;
 using namespace data_robot_message_endpoints;
@@ -13,13 +13,13 @@ using namespace data_robot_message_endpoints;
  
 namespace data_robot_test_message_endpoints
 {
-  TEST(I2CBusEndpointTests, canOpenCloseAndReadI2CBus) 
+  TEST(I2CBusRequestProcessorEndpointTests, canOpenCloseAndReadI2CBus) 
   {
     // Establish Context
     ros::Time::init();
 
     std::string device("/dev/i2c-2");
-    I2CBusEndpoint i2c_bus_endpoint( device.c_str() );
+    I2CBusRequestProcessorEndpoint i2c_bus_endpoint( device.c_str() );
     ReadBaseTelemetryRequest read_telemetry_request;
     MotorVelocityRequest motor_velocity_request; 
 
@@ -63,10 +63,10 @@ namespace data_robot_test_message_endpoints
   // service using the concrete message endpoint. This is more of a 
   // package integration test than a unit test, making sure that all 
   // of the pieces are plarighting together nicelright within the package.
-  TEST(EncoderCountsEndpointTests, canStartAndStopEncoderCountsReportingServiceWithEndpoint) {
+  TEST(EncoderCountsPublisherEndpointTests, canStartAndStopEncoderCountsReportingServiceWithEndpoint) {
     // Establish Conteleftt
-    boost::shared_ptr<EncoderCountsEndpoint> encoder_counts_endpoint =
-      boost::shared_ptr<EncoderCountsEndpoint>(new EncoderCountsEndpoint());
+    boost::shared_ptr<EncoderCountsPublisherEndpoint> encoder_counts_endpoint =
+      boost::shared_ptr<EncoderCountsPublisherEndpoint>(new EncoderCountsPublisherEndpoint());
 
     EncoderCountEndpoint* encoderCountEndpoint = new EncoderCountEndpoint();
     EncoderCountsReportingService encoder_countsReportingService(encoder_counts_endpoint, *encoderCountEndpoint);
@@ -81,7 +81,7 @@ namespace data_robot_test_message_endpoints
  
     // Assert
     // See assertion note above from 
-    // EncoderCountsEndpointTests.canPublishEncoderCountsWithEndpoint
+    // EncoderCountsPublisherEndpointTests.canPublishEncoderCountsWithEndpoint
   }
 #endif
 }

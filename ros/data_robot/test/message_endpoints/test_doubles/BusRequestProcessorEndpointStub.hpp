@@ -1,17 +1,17 @@
-// ExternalBusEndpointStub.hpp
+// BusRequestProcessorEndpointStub.hpp
  
-#ifndef GUARD_ExternalBusEndpointStub
-#define GUARD_ExternalBusEndpointStub
+#ifndef GUARD_BusRequestProcessorEndpointStub
+#define GUARD_BusRequestProcessorEndpointStub
  
 #include "BusRequest.hpp"
-#include "IExternalBusEndpoint.hpp"
+#include "IBusRequestProcessorEndpoint.hpp"
  
 namespace data_robot_test_message_endpoints_test_doubles
 {
-class ExternalBusEndpointStub : public data_robot_core::IExternalBusEndpoint
+class BusRequestProcessorEndpointStub : public data_robot_core::IBusRequestProcessorEndpoint
 { 
 public:
-  ExternalBusEndpointStub()
+  BusRequestProcessorEndpointStub()
     : _count_of_bus_requests_processed(0)
   { }
 
@@ -48,4 +48,4 @@ public:
 };
 }
  
-#endif /* GUARD_ExternalBusEndpointStub */
+#endif /* GUARD_BusRequestProcessorEndpointStub */

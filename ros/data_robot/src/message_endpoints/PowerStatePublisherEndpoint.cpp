@@ -8,13 +8,13 @@
 
 #include "data_robot/PowerState.h"
 
-#include "PowerStateEndpoint.hpp"
+#include "PowerStatePublisherEndpoint.hpp"
  
 namespace data_robot_message_endpoints
 {
 /** Default constructor, advertises on the ROS @e "power_state" topic.
  */
-PowerStateEndpoint::PowerStateEndpoint() 
+PowerStatePublisherEndpoint::PowerStatePublisherEndpoint() 
   // Setup topic for publishing 
   : _power_state_publisher(
     _power_state_node.advertise<data_robot::PowerState>("power_state", 10)) 
@@ -24,7 +24,7 @@ PowerStateEndpoint::PowerStateEndpoint()
 /** Publishes the @p power_state msg and broadcasts the coordinate frame 
  *  transform.
  */
-void PowerStateEndpoint::Publish( const data_robot::PowerState& power_state )
+void PowerStatePublisherEndpoint::Publish( const data_robot::PowerState& power_state )
 {
   // and publish the power_state msg
   _power_state_publisher.publish(power_state);

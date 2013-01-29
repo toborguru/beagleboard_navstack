@@ -18,9 +18,9 @@ namespace data_robot_application_services
  *  of objects. The object pointed to will be destroyed when all pointers to the object have been
  *  destroyed.
  */
-BaseTelemetryReportingService::BaseTelemetryReportingService( boost::shared_ptr<IEncoderCountsEndpoint> encoder_counts_endpoint,
-                                                              boost::shared_ptr<IPowerStateEndpoint> power_state_endpoint,
-                                                              boost::shared_ptr<IExternalBusEndpoint> external_bus_endpoint,
+BaseTelemetryReportingService::BaseTelemetryReportingService( boost::shared_ptr<IEncoderCountsPublisherEndpoint> encoder_counts_endpoint,
+                                                              boost::shared_ptr<IPowerStatePublisherEndpoint> power_state_endpoint,
+                                                              boost::shared_ptr<IBusRequestProcessorEndpoint> external_bus_endpoint,
                                                               boost::shared_ptr<EncoderCountsProcessor> encoder_counts_processor,
                                                               boost::shared_ptr<PowerStateProcessor> power_state_processor )
   : _p_encoder_counts_endpoint( encoder_counts_endpoint ),

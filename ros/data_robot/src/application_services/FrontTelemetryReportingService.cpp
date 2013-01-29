@@ -13,8 +13,8 @@ namespace data_robot_application_services
  *  of objects. The object pointed to will be destroyed when all pointers to the object have been
  *  destroyed.
  */
-FrontTelemetryReportingService::FrontTelemetryReportingService( boost::shared_ptr<IBumpersEndpoint> bumpers_endpoint,
-                                                                boost::shared_ptr<IExternalBusEndpoint> external_bus_endpoint,
+FrontTelemetryReportingService::FrontTelemetryReportingService( boost::shared_ptr<IBumpersPublisherEndpoint> bumpers_endpoint,
+                                                                boost::shared_ptr<IBusRequestProcessorEndpoint> external_bus_endpoint,
                                                                 boost::shared_ptr<BumpersProcessor> bumpers_processor )
   : _p_bumpers_endpoint( bumpers_endpoint ),
     _p_external_bus_endpoint( external_bus_endpoint ),

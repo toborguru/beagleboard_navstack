@@ -12,8 +12,8 @@ namespace data_robot_application_services
    *  of objects. The object pointed to will be destroyed when all pointers to the object have been
    *  destroyed.
    */
-  TickVelocityCommandService::TickVelocityCommandService( boost::shared_ptr<ITickVelocityEndpoint> tick_velocity_endpoint,
-                                            boost::shared_ptr<IExternalBusEndpoint> external_bus_endpoint )
+  TickVelocityCommandService::TickVelocityCommandService( boost::shared_ptr<ITickVelocitySubscriberEndpoint> tick_velocity_endpoint,
+                                            boost::shared_ptr<IBusRequestProcessorEndpoint> external_bus_endpoint )
     : _p_tick_velocity_endpoint( tick_velocity_endpoint ),
       _p_external_bus_endpoint( external_bus_endpoint ),
       _is_accepting_commands( false )

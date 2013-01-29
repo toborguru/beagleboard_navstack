@@ -1,21 +1,21 @@
-// ITickVelocityEndpoint.hpp
+// ITickVelocitySubscriberEndpoint.hpp
 
-#ifndef GUARD_ITickVelocityEndpoint
-#define GUARD_ITickVelocityEndpoint
+#ifndef GUARD_ITickVelocitySubscriberEndpoint
+#define GUARD_ITickVelocitySubscriberEndpoint
 
 #include "ITickVelocityListener.hpp"
 
 namespace data_robot_core
 {
-class ITickVelocityEndpoint
+class ITickVelocitySubscriberEndpoint
 {
 public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
-  virtual ~ITickVelocityEndpoint() {}
+  virtual ~ITickVelocitySubscriberEndpoint() {}
   virtual void Subscribe() = 0;
   virtual void Unsubscribe() = 0;
   virtual void Attach( ITickVelocityListener& tick_velocity_listener ) = 0; 
 };
 }
 
-#endif /* GUARD_ITickVelocityEndpoint */
+#endif /* GUARD_ITickVelocitySubscriberEndpoint */

@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <ros/ros.h>
 
-#include "I2CBusEndpoint.hpp"
+#include "I2CBusRequestProcessorEndpoint.hpp"
 
 #include "i2c-api.h"
 
@@ -16,14 +16,14 @@ namespace data_robot_message_endpoints
 {
 /** Default Constructor
  */
-I2CBusEndpoint::I2CBusEndpoint()    
+I2CBusRequestProcessorEndpoint::I2CBusRequestProcessorEndpoint()    
               : _stop_requested(false), 
                 _running(false),
                 _i2c_fd(-1)
 {
 }
 
-I2CBusEndpoint::I2CBusEndpoint( const char* dev_name )    
+I2CBusRequestProcessorEndpoint::I2CBusRequestProcessorEndpoint( const char* dev_name )    
               : _stop_requested(false), 
                 _running(false),
                 _i2c_fd(-1),
@@ -33,21 +33,21 @@ I2CBusEndpoint::I2CBusEndpoint( const char* dev_name )
 
 /** Destructor
  */
-I2CBusEndpoint::~I2CBusEndpoint()
+I2CBusRequestProcessorEndpoint::~I2CBusRequestProcessorEndpoint()
 {
   Close();
 }
 
 /** Opens the previously set device.
  */
-int I2CBusEndpoint::Open()
+int I2CBusRequestProcessorEndpoint::Open()
 {
   return Open( _device_name.c_str() );
 }
 
 /** Opens the previously set device.
  */
-int I2CBusEndpoint::Open( const char* dev_name )
+int I2CBusRequestProcessorEndpoint::Open( const char* dev_name )
 {
   int ret_val;
 
@@ -74,7 +74,7 @@ int I2CBusEndpoint::Open( const char* dev_name )
 
 /** Closes the previously opened device.
  */
-void I2CBusEndpoint::Close()
+void I2CBusRequestProcessorEndpoint::Close()
 {
   if ( _running )
   {
@@ -90,7 +90,7 @@ void I2CBusEndpoint::Close()
 
 /** Spawns the worker thread to wait for and process bus requests.
  */
-void I2CBusEndpoint::StartProcessingThread()
+void I2CBusRequestProcessorEndpoint::StartProcessingThread()
 {
   if (! _running) 
   {
@@ -103,7 +103,7 @@ void I2CBusEndpoint::StartProcessingThread()
 
 /** Requests thread stop, and joins worker thread.
  */
-void I2CBusEndpoint::StopProcessingThread()
+void I2CBusRequestProcessorEndpoint::StopProcessingThread()
 {
   if (_running) 
   {
@@ -118,14 +118,14 @@ void I2CBusEndpoint::StopProcessingThread()
 /** Provides a way for other objects to pass requests for data transfer messages 
  *  when the bus is free.
  */
-void I2CBusEndpoint::ProcessRequest( BusRequest *p_bus_request )
+void I2CBusRequestProcessorEndpoint::ProcessRequest( BusRequest *p_bus_request )
 {
   _bus_request_queue.push( p_bus_request );
 }
 
 /** Worker thread. Subscribes to the ROS topic and checks for ROS or class stop request.
  */
-void I2CBusEndpoint::ProcessBusMessages()
+void I2CBusRequestProcessorEndpoint::ProcessBusMessages()
 {
   ros::Rate r(1000); // 100 hz
 
@@ -148,7 +148,7 @@ void I2CBusEndpoint::ProcessBusMessages()
 
 /** Performs the data transaction described in @a p_bus_request.
  */
-void I2CBusEndpoint::ExecuteBusRequest( BusRequest *p_bus_request )
+void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_request )
 {
   int request_type;
   uint8_t addr;

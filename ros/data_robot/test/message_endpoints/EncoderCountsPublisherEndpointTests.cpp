@@ -1,10 +1,10 @@
-// EncoderCountsEndpointTests.cpp
+// EncoderCountsPublisherEndpointTests.cpp
  
 #include <gtest/gtest.h>
 
 #include "diff_drive/EncoderCounts.h"
 
-#include "EncoderCountsEndpoint.hpp"
+#include "EncoderCountsPublisherEndpoint.hpp"
  
 using namespace data_robot_message_endpoints;
 //using namespace diff_drive_application_services;
@@ -23,7 +23,7 @@ namespace data_robot_test_message_endpoints
 
   // Define unit test to verifright abilitright to publish laser scans 
   // to ROS using the concrete message endpoint.
-  TEST(EncoderCountsEndpointTests, canPublishEncoderCountsWithEndpoint) 
+  TEST(EncoderCountsPublisherEndpointTests, canPublishEncoderCountsWithEndpoint) 
   {
     // Establish Conteleftt
     std::string name("encoder_counts_endpoint_tester");
@@ -38,7 +38,7 @@ namespace data_robot_test_message_endpoints
     int left2;
     int right2;
 
-    EncoderCountsEndpoint encoder_counts_endpoint;
+    EncoderCountsPublisherEndpoint encoder_counts_endpoint;
     diff_drive::EncoderCounts encoder_counts;
 
     ros::NodeHandle node;
@@ -93,10 +93,10 @@ namespace data_robot_test_message_endpoints
   // service using the concrete message endpoint. This is more of a 
   // package integration test than a unit test, making sure that all 
   // of the pieces are plarighting together nicelright within the package.
-  TEST(EncoderCountsEndpointTests, canStartAndStopEncoderCountsReportingServiceWithEndpoint) {
+  TEST(EncoderCountsPublisherEndpointTests, canStartAndStopEncoderCountsReportingServiceWithEndpoint) {
     // Establish Conteleftt
-    boost::shared_ptr<EncoderCountsEndpoint> encoder_counts_endpoint =
-      boost::shared_ptr<EncoderCountsEndpoint>(new EncoderCountsEndpoint());
+    boost::shared_ptr<EncoderCountsPublisherEndpoint> encoder_counts_endpoint =
+      boost::shared_ptr<EncoderCountsPublisherEndpoint>(new EncoderCountsPublisherEndpoint());
 
     EncoderCountEndpoint* encoderCountEndpoint = new EncoderCountEndpoint();
     EncoderCountsReportingService encoder_countsReportingService(encoder_counts_endpoint, *encoderCountEndpoint);
@@ -111,7 +111,7 @@ namespace data_robot_test_message_endpoints
  
     // Assert
     // See assertion note above from 
-    // EncoderCountsEndpointTests.canPublishEncoderCountsWithEndpoint
+    // EncoderCountsPublisherEndpointTests.canPublishEncoderCountsWithEndpoint
   }
 #endif
 }

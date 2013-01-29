@@ -9,11 +9,11 @@
 
 #include "BumperIndexesRepository.hpp"
 
-#include "BumpersEndpoint.hpp"
-#include "EncoderCountsEndpoint.hpp"
-#include "I2CBusEndpoint.hpp"
-#include "PowerStateEndpoint.hpp"
-#include "TickVelocityEndpoint.hpp"
+#include "BumpersPublisherEndpoint.hpp"
+#include "EncoderCountsPublisherEndpoint.hpp"
+#include "I2CBusRequestProcessorEndpoint.hpp"
+#include "PowerStatePublisherEndpoint.hpp"
+#include "TickVelocitySubscriberEndpoint.hpp"
 
 using namespace data_robot_application_services;
 using namespace data_robot_core;
@@ -37,8 +37,8 @@ int main(int argc, char **argv)
 
 
     // I2C Bus
-    boost::shared_ptr<I2CBusEndpoint> i2c_bus_endpoint =
-        boost::shared_ptr<I2CBusEndpoint>( new I2CBusEndpoint() );
+    boost::shared_ptr<I2CBusRequestProcessorEndpoint> i2c_bus_endpoint =
+        boost::shared_ptr<I2CBusRequestProcessorEndpoint>( new I2CBusRequestProcessorEndpoint() );
 
 
     // SERVICES
@@ -51,14 +51,14 @@ int main(int argc, char **argv)
 
 
     // Base Telemetry Reporting Service
-    boost::shared_ptr<EncoderCountsEndpoint> encoder_counts_endpoint =
-        boost::shared_ptr<EncoderCountsEndpoint>( new EncoderCountsEndpoint() );
+    boost::shared_ptr<EncoderCountsPublisherEndpoint> encoder_counts_endpoint =
+        boost::shared_ptr<EncoderCountsPublisherEndpoint>( new EncoderCountsPublisherEndpoint() );
 
     boost::shared_ptr<EncoderCountsProcessor> encoder_counts_processor =
         boost::shared_ptr<EncoderCountsProcessor>( new EncoderCountsProcessor() );
 
-    boost::shared_ptr<PowerStateEndpoint> power_state_endpoint =
-        boost::shared_ptr<PowerStateEndpoint>( new PowerStateEndpoint() );
+    boost::shared_ptr<PowerStatePublisherEndpoint> power_state_endpoint =
+        boost::shared_ptr<PowerStatePublisherEndpoint>( new PowerStatePublisherEndpoint() );
 
     boost::shared_ptr<PowerStateProcessor> power_state_processor =
         boost::shared_ptr<PowerStateProcessor>( new PowerStateProcessor() );
@@ -71,8 +71,8 @@ int main(int argc, char **argv)
 
 
     // Front Telemetry Reporting Service
-    boost::shared_ptr<BumpersEndpoint> bumpers_endpoint =
-        boost::shared_ptr<BumpersEndpoint>( new BumpersEndpoint() );
+    boost::shared_ptr<BumpersPublisherEndpoint> bumpers_endpoint =
+        boost::shared_ptr<BumpersPublisherEndpoint>( new BumpersPublisherEndpoint() );
 
     FrontTelemetryReportingService front_telemetry_reporting_service( bumpers_endpoint,
                                                                       i2c_bus_endpoint,
@@ -80,8 +80,8 @@ int main(int argc, char **argv)
 
     
     // Twist Command Service
-    boost::shared_ptr<TickVelocityEndpoint> tick_velocity_endpoint =
-        boost::shared_ptr<TickVelocityEndpoint>( new TickVelocityEndpoint() );
+    boost::shared_ptr<TickVelocitySubscriberEndpoint> tick_velocity_endpoint =
+        boost::shared_ptr<TickVelocitySubscriberEndpoint>( new TickVelocitySubscriberEndpoint() );
 
     TickVelocityCommandService tick_velocity_command_service( tick_velocity_endpoint, 
                                                               i2c_bus_endpoint );

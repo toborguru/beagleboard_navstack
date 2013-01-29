@@ -13,7 +13,7 @@ TickVelocityForwarder::TickVelocityForwarder()
  *  
  *  Setting this value to NULL will disable the forwarder.
  */
-void TickVelocityForwarder::SetExternalBus( IExternalBusEndpoint *p_external_bus )
+void TickVelocityForwarder::SetExternalBus( IBusRequestProcessorEndpoint *p_external_bus )
 {
   _p_external_bus = p_external_bus;
 }

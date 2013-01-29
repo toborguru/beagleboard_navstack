@@ -7,7 +7,7 @@ rosbuild_add_library (
   FrontTelemetryReader.cpp
   PowerStateProcessor.cpp
   TickVelocityForwarder.cpp
-  bus_requests/BusRequest.cpp
+  BusRequest.cpp
   bus_requests/BaseCommandRequest.cpp
   bus_requests/MotorVelocityRequest.cpp
   bus_requests/ReadBaseTelemetryRequest.cpp

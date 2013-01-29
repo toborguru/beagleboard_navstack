@@ -1,22 +1,22 @@
 // I2CBusI2CEndpoint.hpp
  
-#ifndef GUARD_I2CBusEndpoint
-#define GUARD_I2CBusEndpoint
+#ifndef GUARD_I2CBusRequestProcessorEndpoint
+#define GUARD_I2CBusRequestProcessorEndpoint
  
 #include <ros/ros.h>
 #include <pthread.h>
 #include <queue>
 
-#include "IExternalBusEndpoint.hpp"
+#include "IBusRequestProcessorEndpoint.hpp"
  
 namespace data_robot_message_endpoints
 {
-class I2CBusEndpoint : public data_robot_core::IExternalBusEndpoint
+class I2CBusRequestProcessorEndpoint : public data_robot_core::IBusRequestProcessorEndpoint
 { 
 public:
-  I2CBusEndpoint();
-  I2CBusEndpoint( const char* dev_name );
-  ~I2CBusEndpoint();
+  I2CBusRequestProcessorEndpoint();
+  I2CBusRequestProcessorEndpoint( const char* dev_name );
+  ~I2CBusRequestProcessorEndpoint();
 
   int   Open( const char* dev_name );
   int   Open();
@@ -49,10 +49,10 @@ private:
 
   static void * ProcessBusMessagesFunction(void * This) 
   {
-    ((I2CBusEndpoint*)This)->ProcessBusMessages();
+    ((I2CBusRequestProcessorEndpoint*)This)->ProcessBusMessages();
     return 0;
   }
 };
 }
  
-#endif /* GUARD_I2CBusEndpoint */
+#endif /* GUARD_I2CBusRequestProcessorEndpoint */

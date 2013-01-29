@@ -6,7 +6,7 @@
 #include "diff_drive/TickVelocity.h"
 
 #include "ITickVelocityListener.hpp"
-#include "IExternalBusEndpoint.hpp"
+#include "IBusRequestProcessorEndpoint.hpp"
 #include "MotorVelocityRequest.hpp"
 
 namespace data_robot_core
@@ -16,13 +16,13 @@ class TickVelocityForwarder : public ITickVelocityListener
 public:
   TickVelocityForwarder();
 
-  void SetExternalBus( IExternalBusEndpoint *p_external_bus );
+  void SetExternalBus( IBusRequestProcessorEndpoint *p_external_bus );
 
   void OnTickVelocityAvailableEvent( const diff_drive::TickVelocity& tick_velocity );
 
 private:
   MotorVelocityRequest  _velocity_request;
-  IExternalBusEndpoint *_p_external_bus;
+  IBusRequestProcessorEndpoint *_p_external_bus;
 };
 }
 

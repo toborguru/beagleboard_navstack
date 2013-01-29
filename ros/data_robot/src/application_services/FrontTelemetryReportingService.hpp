@@ -7,9 +7,9 @@
 
 #include "BumpersProcessor.hpp"
 #include "FrontTelemetryReader.hpp"
-#include "IBumpersEndpoint.hpp"
-#include "IFrontTelemetryEndpoint.hpp"
-#include "IExternalBusEndpoint.hpp"
+#include "IBumpersPublisherEndpoint.hpp"
+#include "IFrontTelemetryListener.hpp"
+#include "IBusRequestProcessorEndpoint.hpp"
 #include "Telemetry.hpp"
  
 namespace data_robot_application_services
@@ -17,8 +17,8 @@ namespace data_robot_application_services
 class FrontTelemetryReportingService : public data_robot_core::IFrontTelemetryListener
 {
 public:
-  explicit FrontTelemetryReportingService(  boost::shared_ptr<data_robot_core::IBumpersEndpoint> bumpers_endpoint,
-                                            boost::shared_ptr<data_robot_core::IExternalBusEndpoint> external_bus_endpoint,
+  explicit FrontTelemetryReportingService(  boost::shared_ptr<data_robot_core::IBumpersPublisherEndpoint> bumpers_endpoint,
+                                            boost::shared_ptr<data_robot_core::IBusRequestProcessorEndpoint> external_bus_endpoint,
                                             boost::shared_ptr<data_robot_core::BumpersProcessor> bumpers_processor );
 
   void BeginReporting();
@@ -30,8 +30,8 @@ private:
 
   data_robot_core::FrontTelemetryReader _telemetry_reader;
 
-  boost::shared_ptr<data_robot_core::IBumpersEndpoint>      _p_bumpers_endpoint; 
-  boost::shared_ptr<data_robot_core::IExternalBusEndpoint>  _p_external_bus_endpoint;
+  boost::shared_ptr<data_robot_core::IBumpersPublisherEndpoint>      _p_bumpers_endpoint; 
+  boost::shared_ptr<data_robot_core::IBusRequestProcessorEndpoint>  _p_external_bus_endpoint;
   boost::shared_ptr<data_robot_core::BumpersProcessor>      _p_bumpers_processor;
 
   bool  _is_reporting;
