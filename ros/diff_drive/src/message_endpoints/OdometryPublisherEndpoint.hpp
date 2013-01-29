@@ -1,23 +1,23 @@
-// OdometryEndpoint.hpp
+// OdometryPublisherEndpoint.hpp
  
-#ifndef GUARD_OdometryEndpoint
-#define GUARD_OdometryEndpoint
+#ifndef GUARD_OdometryPublisherEndpoint
+#define GUARD_OdometryPublisherEndpoint
  
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 
 #include "nav_msgs/Odometry.h"
 
-#include "IOdometryEndpoint.hpp"
+#include "IOdometryPublisherEndpoint.hpp"
  
 namespace diff_drive_message_endpoints
 {
-  class OdometryEndpoint : public diff_drive_core::IOdometryEndpoint
+  class OdometryPublisherEndpoint : public diff_drive_core::IOdometryPublisherEndpoint
   { 
     public:
-      OdometryEndpoint();
+      OdometryPublisherEndpoint();
 
-      virtual ~OdometryEndpoint() {};
+      virtual ~OdometryPublisherEndpoint() {};
  
       virtual void Publish(const nav_msgs::Odometry& odometry_scan);
  
@@ -31,4 +31,4 @@ namespace diff_drive_message_endpoints
   };
 }
  
-#endif /* GUARD_OdometryEndpoint */
+#endif /* GUARD_OdometryPublisherEndpoint */

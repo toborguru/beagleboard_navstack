@@ -1,9 +1,9 @@
-// EncoderCountsEndpointTests.cpp
+// EncoderCountsSubscriberEndpointTests.cpp
  
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
-#include "EncoderCountsEndpoint.hpp"
+#include "EncoderCountsSubscriberEndpoint.hpp"
 #include "OdometryReportingService.hpp"
  
 using namespace diff_drive_application_services;
@@ -46,7 +46,7 @@ struct EncoderCountsReceiver : public diff_drive_core::IEncoderCountsListener
 
   // Define unit test to verify ability to publish laser scans 
   // to ROS using the concrete message endpoint.
-  TEST(EncoderCountsEndpointTests, canSubscribeAndUnsubscribeToEncoderCountsWithEndpoint) 
+  TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCountsWithEndpoint) 
   {
     // Establish Context
     std::string name("encoder_counts_endpoint_tester");
@@ -69,7 +69,7 @@ struct EncoderCountsReceiver : public diff_drive_core::IEncoderCountsListener
     int count2;
     int count3;
     
-    EncoderCountsEndpoint encoder_counts_endpoint;
+    EncoderCountsSubscriberEndpoint encoder_counts_endpoint;
     EncoderCountsReceiver encoder_counts_receiver;
 
     diff_drive::EncoderCounts encoder_counts;
@@ -152,12 +152,12 @@ struct EncoderCountsReceiver : public diff_drive_core::IEncoderCountsListener
   // service using the concrete message endpoint. This is more of a 
   // package integration test than a unit test, making sure that all 
   // of the pieces are playing together nicely within the package.
-  TEST(EncoderCountsEndpointTests, canStartAndStopEncoderCountsCommandServiceWithEndpoint) {
+  TEST(EncoderCountsSubscriberEndpointTests, canStartAndStopEncoderCountsCommandServiceWithEndpoint) {
     // Establish Context
-    boost::shared_ptr<OdometryEndpoint> odometryEndpoint =
-      boost::shared_ptr<OdometryEndpoint>(new OdometryEndpoint());
+    boost::shared_ptr<OdometryPublisherEndpoint> odometryEndpoint =
+      boost::shared_ptr<OdometryPublisherEndpoint>(new OdometryPublisherEndpoint());
 
-    EncoderCountsEndpoint* encoder_counts_Endpoint = new EncoderCountsEndpoint();
+    EncoderCountsSubscriberEndpoint* encoder_counts_Endpoint = new EncoderCountsSubscriberEndpoint();
 
     OdometryCommandService OdometryCommandService(odometryEndpoint, *encoder_counts_Endpoint);
  
@@ -171,7 +171,7 @@ struct EncoderCountsReceiver : public diff_drive_core::IEncoderCountsListener
  
     // Assert
     // See assertion note above from 
-    // EncoderCountsEndpointTests.canPublishEncoderCountsWithEndpoint
+    // EncoderCountsSubscriberEndpointTests.canPublishEncoderCountsWithEndpoint
   }
 #endif
 }

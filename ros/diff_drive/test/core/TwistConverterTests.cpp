@@ -10,7 +10,7 @@
 
 #include "TwistConverter.hpp"
 #include "ITickVelocityListener.hpp"
-#include "ITwistEndpoint.hpp"
+#include "ITwistSubscriberEndpoint.hpp"
 #include "BaseModel.hpp"
 
 using namespace diff_drive_core;
@@ -51,7 +51,7 @@ struct TickVelocityReceiver : public diff_drive_core::ITickVelocityListener
 };
 
 // Will be used by the unit test to produce encoder ticks
-struct TwistGenerator : public diff_drive_core::ITwistEndpoint
+struct TwistGenerator : public diff_drive_core::ITwistSubscriberEndpoint
 {
   TwistGenerator() 
     : _subscribed(false)

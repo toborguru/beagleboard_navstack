@@ -11,7 +11,7 @@
 #include "OdometryIntegrator.hpp"
 #include "IOdometryListener.hpp"
 #include "IMovementStatusListener.hpp"
-#include "IEncoderCountsEndpoint.hpp"
+#include "IEncoderCountsSubscriberEndpoint.hpp"
 #include "BaseModel.hpp"
 
 using namespace diff_drive_core;
@@ -128,7 +128,7 @@ struct MovementStatusReceiver : public diff_drive_core::IMovementStatusListener
 };
 
 // Will be used by the unit test to produce encoder ticks
-struct EncoderCountsGenerator : public diff_drive_core::IEncoderCountsEndpoint
+struct EncoderCountsGenerator : public diff_drive_core::IEncoderCountsSubscriberEndpoint
 {
   EncoderCountsGenerator() 
     : _subscribed(false)

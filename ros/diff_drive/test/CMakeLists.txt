@@ -24,10 +24,11 @@ rosbuild_add_executable(
 rosbuild_add_executable(
   diff_drive_ros_tests
   TestRunner.cpp
-  ./message_endpoints/OdometryEndpointTests.cpp
-  ./message_endpoints/TickVelocityEndpointTests.cpp
-  ./message_endpoints/TwistEndpointTests.cpp
-  ./message_endpoints/EncoderCountsEndpointTests.cpp
+  ./message_endpoints/EncoderCountsSubscriberEndpointTests.cpp
+  ./message_endpoints/OdometryPublisherEndpointTests.cpp
+  ./message_endpoints/MovementStatusPublisherEndpointTests.cpp
+  ./message_endpoints/TickVelocityPublisherEndpointTests.cpp
+  ./message_endpoints/TwistSubscriberEndpointTests.cpp
   ./data_repositories/BaseModelRepositoryTests.cpp
 )
 

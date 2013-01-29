@@ -12,8 +12,8 @@ namespace diff_drive_application_services
 *  of objects. The object pointed to will be destroyed when all pointers to the object have been
 *  destroyed.
 */
-TwistCommandService::TwistCommandService( boost::shared_ptr<ITickVelocityEndpoint> tick_velocity_endpoint,
-                                          boost::shared_ptr<ITwistEndpoint> twist_endpoint, 
+TwistCommandService::TwistCommandService( boost::shared_ptr<ITickVelocityPublisherEndpoint> tick_velocity_endpoint,
+                                          boost::shared_ptr<ITwistSubscriberEndpoint> twist_endpoint, 
                                           boost::shared_ptr<const diff_drive_core::BaseModel> base_model )
 : _p_tick_velocity_endpoint( tick_velocity_endpoint ),
   _p_twist_endpoint( twist_endpoint ),

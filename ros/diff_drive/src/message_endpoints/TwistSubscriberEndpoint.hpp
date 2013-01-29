@@ -1,21 +1,21 @@
 // TwistI2CEndpoint.hpp
  
-#ifndef GUARD_TwistEndpoint
-#define GUARD_TwistEndpoint
+#ifndef GUARD_TwistSubscriberEndpoint
+#define GUARD_TwistSubscriberEndpoint
  
 #include <ros/ros.h>
 #include <pthread.h>
 #include <vector>
 
-#include "ITwistEndpoint.hpp"
+#include "ITwistSubscriberEndpoint.hpp"
  
 namespace diff_drive_message_endpoints
 {
-class TwistEndpoint : public diff_drive_core::ITwistEndpoint
+class TwistSubscriberEndpoint : public diff_drive_core::ITwistSubscriberEndpoint
 { 
 public:
-  TwistEndpoint();
-  ~TwistEndpoint();
+  TwistSubscriberEndpoint();
+  ~TwistSubscriberEndpoint();
 
   void Subscribe();
   void Unsubscribe();
@@ -44,11 +44,11 @@ private:
   pthread_t _thread;
 
   static void * ReceiveTwistMessagesFunction(void * This) {
-    ((TwistEndpoint*)This)->ReceiveTwistMessages();
+    ((TwistSubscriberEndpoint*)This)->ReceiveTwistMessages();
     return 0;
   }
 
 };
 }
  
-#endif /* GUARD_TwistEndpoint */
+#endif /* GUARD_TwistSubscriberEndpoint */

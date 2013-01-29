@@ -3,11 +3,11 @@
 #include "OdometryReportingService.hpp"
 #include "TwistCommandService.hpp"
 
-#include "OdometryEndpoint.hpp"
-#include "MovementStatusEndpoint.hpp"
-#include "TickVelocityEndpoint.hpp"
-#include "TwistEndpoint.hpp"
-#include "EncoderCountsEndpoint.hpp"
+#include "OdometryPublisherEndpoint.hpp"
+#include "MovementStatusPublisherEndpoint.hpp"
+#include "TickVelocityPublisherEndpoint.hpp"
+#include "TwistSubscriberEndpoint.hpp"
+#include "EncoderCountsSubscriberEndpoint.hpp"
 
 #include "BaseModelRepository.hpp"
 
@@ -32,14 +32,14 @@ int main(int argc, char **argv)
         boost::shared_ptr<BaseModel>( new BaseModel(base_model_repository.QueryBaseGeometry( )) );
 
     // Odometry Reporting Service
-    boost::shared_ptr<OdometryEndpoint> odometry_endpoint =
-        boost::shared_ptr<OdometryEndpoint>( new OdometryEndpoint() );
+    boost::shared_ptr<OdometryPublisherEndpoint> odometry_endpoint =
+        boost::shared_ptr<OdometryPublisherEndpoint>( new OdometryPublisherEndpoint() );
 
-    boost::shared_ptr<MovementStatusEndpoint> movement_status_endpoint =
-        boost::shared_ptr<MovementStatusEndpoint>( new MovementStatusEndpoint() );
+    boost::shared_ptr<MovementStatusPublisherEndpoint> movement_status_endpoint =
+        boost::shared_ptr<MovementStatusPublisherEndpoint>( new MovementStatusPublisherEndpoint() );
 
-    boost::shared_ptr<EncoderCountsEndpoint> encoder_counts_endpoint =
-        boost::shared_ptr<EncoderCountsEndpoint>( new EncoderCountsEndpoint() );
+    boost::shared_ptr<EncoderCountsSubscriberEndpoint> encoder_counts_endpoint =
+        boost::shared_ptr<EncoderCountsSubscriberEndpoint>( new EncoderCountsSubscriberEndpoint() );
 
     OdometryReportingService odometry_reporting_service(  odometry_endpoint, 
                                                           movement_status_endpoint, 
@@ -48,11 +48,11 @@ int main(int argc, char **argv)
 
     
     // Twist Command Service
-    boost::shared_ptr<TickVelocityEndpoint> tick_velocity_endpoint =
-        boost::shared_ptr<TickVelocityEndpoint>( new TickVelocityEndpoint() );
+    boost::shared_ptr<TickVelocityPublisherEndpoint> tick_velocity_endpoint =
+        boost::shared_ptr<TickVelocityPublisherEndpoint>( new TickVelocityPublisherEndpoint() );
 
-    boost::shared_ptr<TwistEndpoint> twist_endpoint =
-        boost::shared_ptr<TwistEndpoint>( new TwistEndpoint() );
+    boost::shared_ptr<TwistSubscriberEndpoint> twist_endpoint =
+        boost::shared_ptr<TwistSubscriberEndpoint>( new TwistSubscriberEndpoint() );
 
     TwistCommandService twist_command_service(  tick_velocity_endpoint, 
                                                 twist_endpoint,

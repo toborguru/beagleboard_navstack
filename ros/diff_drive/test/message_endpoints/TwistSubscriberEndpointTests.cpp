@@ -1,9 +1,9 @@
-// TwistEndpointTests.cpp
+// TwistSubscriberEndpointTests.cpp
  
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
-#include "TwistEndpoint.hpp"
+#include "TwistSubscriberEndpoint.hpp"
 #include "TwistCommandService.hpp"
  
 using namespace diff_drive_application_services;
@@ -46,7 +46,7 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
 
   // Define unit test to verify ability to publish laser scans 
   // to ROS using the concrete message endpoint.
-  TEST(TwistEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint) 
+  TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint) 
   {
     // Establish Context
     std::string name("twist_endpoint_tester");
@@ -69,7 +69,7 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
     int count2;
     int count3;
     
-    TwistEndpoint twist_endpoint;
+    TwistSubscriberEndpoint twist_endpoint;
     TwistReceiver twist_receiver;
 
     geometry_msgs::Twist twist;
@@ -152,12 +152,12 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
   // service using the concrete message endpoint. This is more of a 
   // package integration test than a unit test, making sure that all 
   // of the pieces are playing together nicely within the package.
-  TEST(TwistEndpointTests, canStartAndStopTwistCommandServiceWithEndpoint) {
+  TEST(TwistSubscriberEndpointTests, canStartAndStopTwistCommandServiceWithEndpoint) {
     // Establish Context
-    boost::shared_ptr<OdometryEndpoint> odometryEndpoint =
-      boost::shared_ptr<OdometryEndpoint>(new OdometryEndpoint());
+    boost::shared_ptr<OdometryPublisherEndpoint> odometryEndpoint =
+      boost::shared_ptr<OdometryPublisherEndpoint>(new OdometryPublisherEndpoint());
 
-    TwistEndpoint* twist_Endpoint = new TwistEndpoint();
+    TwistSubscriberEndpoint* twist_Endpoint = new TwistSubscriberEndpoint();
 
     OdometryCommandService OdometryCommandService(odometryEndpoint, *twist_Endpoint);
  
@@ -171,7 +171,7 @@ struct TwistReceiver : public diff_drive_core::ITwistListener
  
     // Assert
     // See assertion note above from 
-    // TwistEndpointTests.canPublishTwistWithEndpoint
+    // TwistSubscriberEndpointTests.canPublishTwistWithEndpoint
   }
 #endif
 }

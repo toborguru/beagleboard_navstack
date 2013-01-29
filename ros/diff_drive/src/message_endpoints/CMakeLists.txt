@@ -1,11 +1,11 @@
 # Create the library
 rosbuild_add_library(
   diff_drive_message_endpoints
-  EncoderCountsEndpoint.cpp
-  MovementStatusEndpoint.cpp
-  OdometryEndpoint.cpp
-  TickVelocityEndpoint.cpp
-  TwistEndpoint.cpp
+  EncoderCountsSubscriberEndpoint.cpp
+  MovementStatusPublisherEndpoint.cpp
+  OdometryPublisherEndpoint.cpp
+  TickVelocityPublisherEndpoint.cpp
+  TwistSubscriberEndpoint.cpp
 )
 
 target_link_libraries(

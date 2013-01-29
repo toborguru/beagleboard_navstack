@@ -3,8 +3,8 @@
 #include <gtest/gtest.h>
 
 #include "BaseModel.hpp"
-#include "TickVelocityEndpointStub.hpp"
-#include "TwistEndpointStub.hpp"
+#include "TickVelocityPublisherEndpointStub.hpp"
+#include "TwistSubscriberEndpointStub.hpp"
 #include "TwistCommandService.hpp"
  
 using namespace diff_drive_application_services;
@@ -22,11 +22,11 @@ namespace diff_drive_test_application_services
     int received3;
 
     // Establish Context
-    boost::shared_ptr<TickVelocityEndpointStub> tick_velocity_endpoint_stub =
-        boost::shared_ptr<TickVelocityEndpointStub>( new TickVelocityEndpointStub() );
+    boost::shared_ptr<TickVelocityPublisherEndpointStub> tick_velocity_endpoint_stub =
+        boost::shared_ptr<TickVelocityPublisherEndpointStub>( new TickVelocityPublisherEndpointStub() );
 
-    boost::shared_ptr<TwistEndpointStub> twist_endpoint_stub =
-        boost::shared_ptr<TwistEndpointStub>( new TwistEndpointStub() );
+    boost::shared_ptr<TwistSubscriberEndpointStub> twist_endpoint_stub =
+        boost::shared_ptr<TwistSubscriberEndpointStub>( new TwistSubscriberEndpointStub() );
 
     boost::shared_ptr<diff_drive_core::BaseModel> base_model = 
         boost::shared_ptr<diff_drive_core::BaseModel>( new diff_drive_core::BaseModel() );
@@ -83,11 +83,11 @@ namespace diff_drive_test_application_services
     int angular2;
 
     // Establish Context
-    boost::shared_ptr<TickVelocityEndpointStub> tick_velocity_endpoint_stub =
-        boost::shared_ptr<TickVelocityEndpointStub>( new TickVelocityEndpointStub() );
+    boost::shared_ptr<TickVelocityPublisherEndpointStub> tick_velocity_endpoint_stub =
+        boost::shared_ptr<TickVelocityPublisherEndpointStub>( new TickVelocityPublisherEndpointStub() );
 
-    boost::shared_ptr<TwistEndpointStub> twist_endpoint_stub =
-        boost::shared_ptr<TwistEndpointStub>( new TwistEndpointStub() );
+    boost::shared_ptr<TwistSubscriberEndpointStub> twist_endpoint_stub =
+        boost::shared_ptr<TwistSubscriberEndpointStub>( new TwistSubscriberEndpointStub() );
 
     boost::shared_ptr<diff_drive_core::BaseModel> base_model = 
         boost::shared_ptr<diff_drive_core::BaseModel>( new diff_drive_core::BaseModel( 0.5, 100, 1.0 ) );

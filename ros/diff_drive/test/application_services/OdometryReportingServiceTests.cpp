@@ -3,9 +3,9 @@
 #include <gtest/gtest.h>
 
 #include "BaseModel.hpp"
-#include "OdometryEndpointStub.hpp"
-#include "MovementStatusEndpointStub.hpp"
-#include "EncoderCountsEndpointStub.hpp"
+#include "OdometryPublisherEndpointStub.hpp"
+#include "MovementStatusPublisherEndpointStub.hpp"
+#include "EncoderCountsSubscriberEndpointStub.hpp"
 #include "OdometryReportingService.hpp"
  
 using namespace diff_drive_application_services;
@@ -35,14 +35,14 @@ namespace diff_drive_test_application_services
     bool subscribed_3;
 
     // Establish Context
-    boost::shared_ptr<OdometryEndpointStub> odometry_endpoint_stub =
-        boost::shared_ptr<OdometryEndpointStub>( new OdometryEndpointStub() );
+    boost::shared_ptr<OdometryPublisherEndpointStub> odometry_endpoint_stub =
+        boost::shared_ptr<OdometryPublisherEndpointStub>( new OdometryPublisherEndpointStub() );
 
-    boost::shared_ptr<MovementStatusEndpointStub> movement_status_endpoint_stub =
-        boost::shared_ptr<MovementStatusEndpointStub>( new MovementStatusEndpointStub() );
+    boost::shared_ptr<MovementStatusPublisherEndpointStub> movement_status_endpoint_stub =
+        boost::shared_ptr<MovementStatusPublisherEndpointStub>( new MovementStatusPublisherEndpointStub() );
 
-    boost::shared_ptr<EncoderCountsEndpointStub> encoder_counts_endpoint_stub =
-        boost::shared_ptr<EncoderCountsEndpointStub>( new EncoderCountsEndpointStub() );
+    boost::shared_ptr<EncoderCountsSubscriberEndpointStub> encoder_counts_endpoint_stub =
+        boost::shared_ptr<EncoderCountsSubscriberEndpointStub>( new EncoderCountsSubscriberEndpointStub() );
 
     boost::shared_ptr<diff_drive_core::BaseModel> base_model = 
         boost::shared_ptr<diff_drive_core::BaseModel>( new diff_drive_core::BaseModel() );
@@ -136,14 +136,14 @@ namespace diff_drive_test_application_services
     diff_drive::EncoderCounts encoder_counts;
 
     // Establish Context
-    boost::shared_ptr<OdometryEndpointStub> odometry_endpoint_stub =
-        boost::shared_ptr<OdometryEndpointStub>( new OdometryEndpointStub() );
+    boost::shared_ptr<OdometryPublisherEndpointStub> odometry_endpoint_stub =
+        boost::shared_ptr<OdometryPublisherEndpointStub>( new OdometryPublisherEndpointStub() );
 
-    boost::shared_ptr<MovementStatusEndpointStub> movement_status_endpoint_stub =
-        boost::shared_ptr<MovementStatusEndpointStub>( new MovementStatusEndpointStub() );
+    boost::shared_ptr<MovementStatusPublisherEndpointStub> movement_status_endpoint_stub =
+        boost::shared_ptr<MovementStatusPublisherEndpointStub>( new MovementStatusPublisherEndpointStub() );
 
-    boost::shared_ptr<EncoderCountsEndpointStub> encoder_counts_endpoint_stub =
-        boost::shared_ptr<EncoderCountsEndpointStub>( new EncoderCountsEndpointStub() );
+    boost::shared_ptr<EncoderCountsSubscriberEndpointStub> encoder_counts_endpoint_stub =
+        boost::shared_ptr<EncoderCountsSubscriberEndpointStub>( new EncoderCountsSubscriberEndpointStub() );
 
     boost::shared_ptr<diff_drive_core::BaseModel> base_model = 
         boost::shared_ptr<diff_drive_core::BaseModel>( new diff_drive_core::BaseModel( 0.5, 100, 1.0 ) );

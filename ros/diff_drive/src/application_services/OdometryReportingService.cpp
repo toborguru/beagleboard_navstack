@@ -14,9 +14,9 @@ namespace diff_drive_application_services
  *  of objects. The object pointed to will be destroyed when all pointers to the object have been
  *  destroyed.
  */
-OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryEndpoint> odometry_endpoint,
-                                                    boost::shared_ptr<diff_drive_core::IMovementStatusEndpoint> movement_status_endpoint,
-                                                    boost::shared_ptr<IEncoderCountsEndpoint> encoder_counts_endpoint, 
+OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryPublisherEndpoint> odometry_endpoint,
+                                                    boost::shared_ptr<diff_drive_core::IMovementStatusPublisherEndpoint> movement_status_endpoint,
+                                                    boost::shared_ptr<IEncoderCountsSubscriberEndpoint> encoder_counts_endpoint, 
                                                     boost::shared_ptr<const diff_drive_core::BaseModel> base_model )
   : _p_odometry_endpoint( odometry_endpoint ),
     _p_movement_status_endpoint( movement_status_endpoint ),
@@ -134,9 +134,9 @@ void OdometryReportingService::SetAverageNumReadings( const unsigned int new_ave
 
 /** Access function.
  */
-float OdometryReportingService::GetStasisPercentage() const\
+float OdometryReportingService::GetStasisPercentage() const
 {
-  _odometry_integrator.GetStasisPercentage();
+  return _odometry_integrator.GetStasisPercentage();
 }
 
 /** Access function.
@@ -150,7 +150,7 @@ void OdometryReportingService::SetStasisPercentage( float percentage )
  */
 float OdometryReportingService::GetVelocityLowerLimit() const
 {
-  _odometry_integrator.GetVelocityLowerLimit();
+  return _odometry_integrator.GetVelocityLowerLimit();
 }
 
 /** Access function.

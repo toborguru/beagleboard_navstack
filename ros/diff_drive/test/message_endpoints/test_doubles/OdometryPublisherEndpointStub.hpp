@@ -1,19 +1,19 @@
-// OdometryEndpointStub.hpp
+// OdometryPublisherEndpointStub.hpp
  
-#ifndef GUARD_OdometryEndpointStub
-#define GUARD_OdometryEndpointStub
+#ifndef GUARD_OdometryPublisherEndpointStub
+#define GUARD_OdometryPublisherEndpointStub
  
 #include "tf/transform_datatypes.h"
 
 #include "nav_msgs/Odometry.h"
-#include "IOdometryEndpoint.hpp"
+#include "IOdometryPublisherEndpoint.hpp"
  
 namespace diff_drive_test_message_endpoints_test_doubles
 {
-  class OdometryEndpointStub : public diff_drive_core::IOdometryEndpoint
+  class OdometryPublisherEndpointStub : public diff_drive_core::IOdometryPublisherEndpoint
   { 
     public:
-      OdometryEndpointStub()
+      OdometryPublisherEndpointStub()
         : _count_of_messages_published(0),
           _x(0.0),
           _y(0.0),
@@ -45,7 +45,7 @@ namespace diff_drive_test_message_endpoints_test_doubles
 #if 0
         // Output the read values to the terminal; this isn't the
         // unit test, but merely a helpful means to show what's going on.
-        std::cout << "Odometry published on OdometryEndpoint with x: " 
+        std::cout << "Odometry published on OdometryPublisherEndpoint with x: " 
                   << _x
                   << ", y: "
                   << _y
@@ -57,4 +57,4 @@ namespace diff_drive_test_message_endpoints_test_doubles
   };
 }
  
-#endif /* GUARD_OdometryEndpointStub */
+#endif /* GUARD_OdometryPublisherEndpointStub */

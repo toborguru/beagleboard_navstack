@@ -4,22 +4,22 @@
  
 #include <ros/ros.h>
 #include "diff_drive/MovementStatus.h"
-#include "MovementStatusEndpoint.hpp"
+#include "MovementStatusPublisherEndpoint.hpp"
  
 namespace diff_drive_message_endpoints
 {
-MovementStatusEndpoint::MovementStatusEndpoint() 
+MovementStatusPublisherEndpoint::MovementStatusPublisherEndpoint() 
   // Setup topic for publishing laser scans to
   : _status_publisher(
     _status_node.advertise<diff_drive::MovementStatus>( "movement_status", 5 )) 
 { 
 }
 
-MovementStatusEndpoint::~MovementStatusEndpoint() 
+MovementStatusPublisherEndpoint::~MovementStatusPublisherEndpoint() 
 {
 }
 
-void MovementStatusEndpoint::Publish( const diff_drive::MovementStatus& status )
+void MovementStatusPublisherEndpoint::Publish( const diff_drive::MovementStatus& status )
 {
   _status_publisher.publish(status);
 

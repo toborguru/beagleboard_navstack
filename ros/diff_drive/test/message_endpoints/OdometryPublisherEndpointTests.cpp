@@ -1,10 +1,10 @@
-// OdometryEndpointTests.cpp
+// OdometryPublisherEndpointTests.cpp
  
 #include <gtest/gtest.h>
 
 #include "nav_msgs/Odometry.h"
 
-#include "OdometryEndpoint.hpp"
+#include "OdometryPublisherEndpoint.hpp"
  
 using namespace diff_drive_message_endpoints;
 //using namespace nav_msgs_application_services;
@@ -23,7 +23,7 @@ namespace diff_drive_test_message_endpoints
 
   // Define unit test to verify ability to publish laser scans 
   // to ROS using the concrete message endpoint.
-  TEST(OdometryEndpointTests, canPublishOdometryWithEndpoint) 
+  TEST(OdometryPublisherEndpointTests, canPublishOdometryWithEndpoint) 
   {
     // Establish Context
     std::string name("odometry_endpoint_tester");
@@ -38,7 +38,7 @@ namespace diff_drive_test_message_endpoints
     int x2;
     int y2;
 
-    OdometryEndpoint odometry_endpoint;
+    OdometryPublisherEndpoint odometry_endpoint;
     nav_msgs::Odometry odometry;
 
     ros::NodeHandle node;
@@ -93,10 +93,10 @@ namespace diff_drive_test_message_endpoints
   // service using the concrete message endpoint. This is more of a 
   // package integration test than a unit test, making sure that all 
   // of the pieces are playing together nicely within the package.
-  TEST(OdometryEndpointTests, canStartAndStopOdometryReportingServiceWithEndpoint) {
+  TEST(OdometryPublisherEndpointTests, canStartAndStopOdometryReportingServiceWithEndpoint) {
     // Establish Context
-    boost::shared_ptr<OdometryEndpoint> odometry_endpoint =
-      boost::shared_ptr<OdometryEndpoint>(new OdometryEndpoint());
+    boost::shared_ptr<OdometryPublisherEndpoint> odometry_endpoint =
+      boost::shared_ptr<OdometryPublisherEndpoint>(new OdometryPublisherEndpoint());
 
     EncoderCountEndpoint* encoderCountEndpoint = new EncoderCountEndpoint();
     OdometryReportingService odometryReportingService(odometry_endpoint, *encoderCountEndpoint);
@@ -111,7 +111,7 @@ namespace diff_drive_test_message_endpoints
  
     // Assert
     // See assertion note above from 
-    // OdometryEndpointTests.canPublishOdometryWithEndpoint
+    // OdometryPublisherEndpointTests.canPublishOdometryWithEndpoint
   }
 #endif
 }

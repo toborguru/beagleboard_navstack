@@ -1,21 +1,21 @@
-// EncoderCountsEndpoint.hpp
+// EncoderCountsSubscriberEndpoint.hpp
  
-#ifndef GUARD_EncoderCountsEndpoint
-#define GUARD_EncoderCountsEndpoint
+#ifndef GUARD_EncoderCountsSubscriberEndpoint
+#define GUARD_EncoderCountsSubscriberEndpoint
  
 #include <ros/ros.h>
 #include <pthread.h>
 #include <vector>
 
-#include "IEncoderCountsEndpoint.hpp"
+#include "IEncoderCountsSubscriberEndpoint.hpp"
  
 namespace diff_drive_message_endpoints
 {
-class EncoderCountsEndpoint : public diff_drive_core::IEncoderCountsEndpoint
+class EncoderCountsSubscriberEndpoint : public diff_drive_core::IEncoderCountsSubscriberEndpoint
 { 
 public:
-  EncoderCountsEndpoint();
-  ~EncoderCountsEndpoint();
+  EncoderCountsSubscriberEndpoint();
+  ~EncoderCountsSubscriberEndpoint();
 
   void Subscribe();
   void Unsubscribe();
@@ -44,10 +44,10 @@ private:
   pthread_t _thread;
 
   static void * ReceiveEncoderCountsMessagesFunction(void * This) {
-    ((EncoderCountsEndpoint*)This)->ReceiveEncoderCountsMessages();
+    ((EncoderCountsSubscriberEndpoint*)This)->ReceiveEncoderCountsMessages();
     return 0;
   }
 };
 }
  
-#endif /* GUARD_EncoderCountsEndpoint */
+#endif /* GUARD_EncoderCountsSubscriberEndpoint */

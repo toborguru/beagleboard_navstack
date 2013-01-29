@@ -1,16 +1,16 @@
-// TwistEndpointStub.hpp
+// TwistSubscriberEndpointStub.hpp
  
-#ifndef GUARD_TwistEndpointStub
-#define GUARD_TwistEndpointStub
+#ifndef GUARD_TwistSubscriberEndpointStub
+#define GUARD_TwistSubscriberEndpointStub
  
-#include "ITwistEndpoint.hpp"
+#include "ITwistSubscriberEndpoint.hpp"
  
 namespace diff_drive_test_message_endpoints_test_doubles
 {
-class TwistEndpointStub : public diff_drive_core::ITwistEndpoint
+class TwistSubscriberEndpointStub : public diff_drive_core::ITwistSubscriberEndpoint
 { 
 public:
-  TwistEndpointStub() 
+  TwistSubscriberEndpointStub() 
     : _subscribed(false)
   {}
 
@@ -48,4 +48,4 @@ private:
 };
 }
  
-#endif /* GUARD_TwistEndpointStub */
+#endif /* GUARD_TwistSubscriberEndpointStub */

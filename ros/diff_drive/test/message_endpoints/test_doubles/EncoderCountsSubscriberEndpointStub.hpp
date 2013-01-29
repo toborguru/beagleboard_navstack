@@ -1,16 +1,16 @@
-// EncoderCountsEndpointStub.hpp
+// EncoderCountsSubscriberEndpointStub.hpp
  
-#ifndef GUARD_EncoderCountsEndpointStub
-#define GUARD_EncoderCountsEndpointStub
+#ifndef GUARD_EncoderCountsSubscriberEndpointStub
+#define GUARD_EncoderCountsSubscriberEndpointStub
  
-#include "IEncoderCountsEndpoint.hpp"
+#include "IEncoderCountsSubscriberEndpoint.hpp"
  
 namespace diff_drive_test_message_endpoints_test_doubles
 {
-class EncoderCountsEndpointStub : public diff_drive_core::IEncoderCountsEndpoint
+class EncoderCountsSubscriberEndpointStub : public diff_drive_core::IEncoderCountsSubscriberEndpoint
 { 
 public:
-  EncoderCountsEndpointStub() 
+  EncoderCountsSubscriberEndpointStub() 
     : _subscribed(false)
   {}
 
@@ -48,4 +48,4 @@ private:
 };
 }
  
-#endif /* GUARD_EncoderCountsEndpointStub */
+#endif /* GUARD_EncoderCountsSubscriberEndpointStub */

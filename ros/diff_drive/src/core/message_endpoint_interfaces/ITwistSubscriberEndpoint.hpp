@@ -1,17 +1,17 @@
-// ITwistEndpoint.hpp
+// ITwistSubscriberEndpoint.hpp
 
-#ifndef GUARD_ITwistEndpoint
-#define GUARD_ITwistEndpoint
+#ifndef GUARD_ITwistSubscriberEndpoint
+#define GUARD_ITwistSubscriberEndpoint
 
 #include "ITwistListener.hpp"
 
 namespace diff_drive_core
 {
-class ITwistEndpoint
+class ITwistSubscriberEndpoint
 {
 public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
-  virtual ~ITwistEndpoint() {}
+  virtual ~ITwistSubscriberEndpoint() {}
   virtual void Subscribe() = 0;
   virtual void Unsubscribe() = 0;
   virtual bool IsSubscribed() = 0;
@@ -19,4 +19,4 @@ public:
 };
 }
 
-#endif /* GUARD_ITwistEndpoint */
+#endif /* GUARD_ITwistSubscriberEndpoint */

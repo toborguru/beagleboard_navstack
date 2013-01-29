@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <ros/ros.h>
 
-#include "TwistEndpoint.hpp"
+#include "TwistSubscriberEndpoint.hpp"
 
 using namespace diff_drive_core;
  
@@ -14,7 +14,7 @@ namespace diff_drive_message_endpoints
 {
 /** Default Constructor
  */
-TwistEndpoint::TwistEndpoint()    
+TwistSubscriberEndpoint::TwistSubscriberEndpoint()    
               : _stop_requested(false), 
                 _running(false) 
 {
@@ -23,14 +23,14 @@ TwistEndpoint::TwistEndpoint()
 
 /** Destructor
  */
-TwistEndpoint::~TwistEndpoint()
+TwistSubscriberEndpoint::~TwistSubscriberEndpoint()
 {
   Unsubscribe();
 }
 
 /** Spawns the worker thread to connect and subscribe to ROS topic. 
  */
-void TwistEndpoint::Subscribe()
+void TwistSubscriberEndpoint::Subscribe()
 {
   if (! _running) 
   {
@@ -43,7 +43,7 @@ void TwistEndpoint::Subscribe()
 
 /** Requests thread stop, and joins worker thread.
  */
-void TwistEndpoint::Unsubscribe()
+void TwistSubscriberEndpoint::Unsubscribe()
 {
   if (_running) 
   {
@@ -57,7 +57,7 @@ void TwistEndpoint::Unsubscribe()
 
 /** Returns the thread status.
  */
-bool TwistEndpoint::IsSubscribed()
+bool TwistSubscriberEndpoint::IsSubscribed()
 {
   return _running;
 }
@@ -65,14 +65,14 @@ bool TwistEndpoint::IsSubscribed()
 /** Provides a call-back mechanism for objects interested in receiving 
  *  messages when they are available.
  */
-void TwistEndpoint::Attach( ITwistListener& twist_listener )
+void TwistSubscriberEndpoint::Attach( ITwistListener& twist_listener )
 {
   _twist_listeners.push_back(&twist_listener);
 }
 
 /** Notifies the endpoint that there there is a new message @p twist.
  */
-void TwistEndpoint::NewTwistReceived( const geometry_msgs::Twist& twist )
+void TwistSubscriberEndpoint::NewTwistReceived( const geometry_msgs::Twist& twist )
 {
   NotifyTwistListeners( twist );
 
@@ -82,11 +82,11 @@ void TwistEndpoint::NewTwistReceived( const geometry_msgs::Twist& twist )
 
 /** Worker thread. Subscribes to the ROS topic and checks for ROS or class stop request.
  */
-void TwistEndpoint::ReceiveTwistMessages()
+void TwistSubscriberEndpoint::ReceiveTwistMessages()
 {
   ros::Subscriber twist_subscriber = _twist_node.subscribe( "cmd_vel", 
                                                             1, 
-                                                            &TwistEndpoint::NewTwistReceived,
+                                                            &TwistSubscriberEndpoint::NewTwistReceived,
                                                             this );
 
   ros::Rate r(100); // 100 hz
@@ -102,7 +102,7 @@ void TwistEndpoint::ReceiveTwistMessages()
 
 /** When called all attached listeners will be notified and sent a copy of @p encoder_counts.
  */
-void TwistEndpoint::NotifyTwistListeners( const geometry_msgs::Twist& twist )
+void TwistSubscriberEndpoint::NotifyTwistListeners( const geometry_msgs::Twist& twist )
 {
   for (unsigned int i= 0; i < _twist_listeners.size(); i++)
   {

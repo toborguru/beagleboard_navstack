@@ -1,10 +1,10 @@
-// TickVelocityEndpointTests.cpp
+// TickVelocityPublisherEndpointTests.cpp
  
 #include <gtest/gtest.h>
 
 #include "diff_drive/TickVelocity.h"
 
-#include "TickVelocityEndpoint.hpp"
+#include "TickVelocityPublisherEndpoint.hpp"
  
 using namespace diff_drive_message_endpoints;
 //using namespace diff_drive_application_services;
@@ -23,7 +23,7 @@ namespace diff_drive_test_message_endpoints
 
   // Define unit test to verify ability to publish laser scans 
   // to ROS using the concrete message endpoint.
-  TEST(TickVelocityEndpointTests, canPublishTickVelocityWithEndpoint) 
+  TEST(TickVelocityPublisherEndpointTests, canPublishTickVelocityWithEndpoint) 
   {
     // Establish Context
     std::string name("tick_velocity_endpoint_tester");
@@ -38,7 +38,7 @@ namespace diff_drive_test_message_endpoints
     int linear2;
     int angular2;
 
-    TickVelocityEndpoint tick_velocity_endpoint;
+    TickVelocityPublisherEndpoint tick_velocity_endpoint;
     diff_drive::TickVelocity tick_velocity;
 
     ros::NodeHandle node;
@@ -88,10 +88,10 @@ namespace diff_drive_test_message_endpoints
   // service using the concrete message endpoint. This is more of a 
   // package integration test than a unit test, making sure that all 
   // of the pieces are playing together nicely within the package.
-  TEST(TickVelocityEndpointTests, canStartAndStopTickVelocityReportingServiceWithEndpoint) {
+  TEST(TickVelocityPublisherEndpointTests, canStartAndStopTickVelocityReportingServiceWithEndpoint) {
     // Establish Context
-    boost::shared_ptr<TickVelocityEndpoint> tick_velocity_endpoint =
-      boost::shared_ptr<TickVelocityEndpoint>(new TickVelocityEndpoint());
+    boost::shared_ptr<TickVelocityPublisherEndpoint> tick_velocity_endpoint =
+      boost::shared_ptr<TickVelocityPublisherEndpoint>(new TickVelocityPublisherEndpoint());
 
     EncoderCountEndpoint* encoderCountEndpoint = new EncoderCountEndpoint();
     TickVelocityReportingService tick_velocityReportingService(tick_velocity_endpoint, *encoderCountEndpoint);
@@ -106,7 +106,7 @@ namespace diff_drive_test_message_endpoints
  
     // Assert
     // See assertion note above from 
-    // TickVelocityEndpointTests.canPublishTickVelocityWithEndpoint
+    // TickVelocityPublisherEndpointTests.canPublishTickVelocityWithEndpoint
   }
 #endif
 }

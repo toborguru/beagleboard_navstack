@@ -1,10 +1,10 @@
-// MovementStatusEndpointTests.cpp
+// MovementStatusPublisherEndpointTests.cpp
  
 #include <gtest/gtest.h>
 
 #include "diff_drive/MovementStatus.h"
 
-#include "MovementStatusEndpoint.hpp"
+#include "MovementStatusPublisherEndpoint.hpp"
  
 using namespace diff_drive_message_endpoints;
 //using namespace diff_drive_application_services;
@@ -18,11 +18,12 @@ namespace diff_drive_test_message_endpoints
   {
     _count++;
     _movement_status.linear_velocity = msg->linear_velocity;
+    _movement_status.stasis_velocity = msg->stasis_velocity;
   }
 
   // Define unit test to verify ability to publish laser scans 
   // to ROS using the concrete message endpoint.
-  TEST(MovementStatusEndpointTests, canPublishMovementStatusWithEndpoint) 
+  TEST(MovementStatusPublisherEndpointTests, canPublishMovementStatusWithEndpoint) 
   {
     // Establish Context
     std::string name("movement_status_endpoint_tester");
@@ -37,7 +38,7 @@ namespace diff_drive_test_message_endpoints
     int x2;
     int y2;
 
-    MovementStatusEndpoint movement_status_endpoint;
+    MovementStatusPublisherEndpoint movement_status_endpoint;
     diff_drive::MovementStatus movement_status;
 
     ros::NodeHandle node;
@@ -59,19 +60,19 @@ namespace diff_drive_test_message_endpoints
     ros::spinOnce();
 
     count1 = _count;
-    x1 = _movement_status.pose.pose.position.x;
-    y1 = _movement_status.pose.pose.position.y;
+    x1 = _movement_status.linear_velocity;
+    y1 = _movement_status.stasis_velocity;
 
-    movement_status.pose.pose.position.x = 15;
-    movement_status.pose.pose.position.y = 25;
+    movement_status.linear_velocity = 15;
+    movement_status.stasis_velocity = 25;
     movement_status_endpoint.Publish(movement_status);
     movement_status_endpoint.Publish(movement_status);
     usleep( 25000 );
     ros::spinOnce();
  
     count2 = _count;
-    x2 = _movement_status.pose.pose.position.x;
-    y2 = _movement_status.pose.pose.position.y;
+    x2 = _movement_status.linear_velocity;
+    y2 = _movement_status.stasis_velocity;
 
     // Assert
     // Nothing to assert other than using terminal windows to 
@@ -92,10 +93,10 @@ namespace diff_drive_test_message_endpoints
   // service using the concrete message endpoint. This is more of a 
   // package integration test than a unit test, making sure that all 
   // of the pieces are playing together nicely within the package.
-  TEST(MovementStatusEndpointTests, canStartAndStopMovementStatusReportingServiceWithEndpoint) {
+  TEST(MovementStatusPublisherEndpointTests, canStartAndStopMovementStatusReportingServiceWithEndpoint) {
     // Establish Context
-    boost::shared_ptr<MovementStatusEndpoint> movement_status_endpoint =
-      boost::shared_ptr<MovementStatusEndpoint>(new MovementStatusEndpoint());
+    boost::shared_ptr<MovementStatusPublisherEndpoint> movement_status_endpoint =
+      boost::shared_ptr<MovementStatusPublisherEndpoint>(new MovementStatusPublisherEndpoint());
 
     EncoderCountEndpoint* encoderCountEndpoint = new EncoderCountEndpoint();
     MovementStatusReportingService movement_statusReportingService(movement_status_endpoint, *encoderCountEndpoint);
@@ -110,7 +111,7 @@ namespace diff_drive_test_message_endpoints
  
     // Assert
     // See assertion note above from 
-    // MovementStatusEndpointTests.canPublishMovementStatusWithEndpoint
+    // MovementStatusPublisherEndpointTests.canPublishMovementStatusWithEndpoint
   }
 #endif
 }

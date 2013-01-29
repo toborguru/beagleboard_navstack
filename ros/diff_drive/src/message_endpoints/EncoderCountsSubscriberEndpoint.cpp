@@ -7,7 +7,7 @@
 
 #include <ros/ros.h>
 
-#include "EncoderCountsEndpoint.hpp"
+#include "EncoderCountsSubscriberEndpoint.hpp"
 
 using namespace diff_drive_core;
  
@@ -15,7 +15,7 @@ namespace diff_drive_message_endpoints
 {
 /** Default Constructor
  */
-EncoderCountsEndpoint::EncoderCountsEndpoint()    
+EncoderCountsSubscriberEndpoint::EncoderCountsSubscriberEndpoint()    
               : _stopRequested(false), 
                 _running(false) 
 {
@@ -24,14 +24,14 @@ EncoderCountsEndpoint::EncoderCountsEndpoint()
 
 /** Destructor
  */
-EncoderCountsEndpoint::~EncoderCountsEndpoint()
+EncoderCountsSubscriberEndpoint::~EncoderCountsSubscriberEndpoint()
 { 
   Unsubscribe();
 }
 
 /** Spawns the worker thread to connect and subscribe to ROS topic. 
  */
-void EncoderCountsEndpoint::Subscribe()
+void EncoderCountsSubscriberEndpoint::Subscribe()
 {
   if (! _running) 
   {
@@ -44,7 +44,7 @@ void EncoderCountsEndpoint::Subscribe()
 
 /** Requests thread stop, and joins worker thread.
  */
-void EncoderCountsEndpoint::Unsubscribe()
+void EncoderCountsSubscriberEndpoint::Unsubscribe()
 {
   if (_running) 
   {
@@ -58,7 +58,7 @@ void EncoderCountsEndpoint::Unsubscribe()
 
 /** Returns the status of the thread.
  */
-bool EncoderCountsEndpoint::IsSubscribed()
+bool EncoderCountsSubscriberEndpoint::IsSubscribed()
 {
   return _running;
 }
@@ -66,29 +66,29 @@ bool EncoderCountsEndpoint::IsSubscribed()
 /** Provides a call-back mechanism for objects interested in receiving 
  *  messages when they are available.
  */
-void EncoderCountsEndpoint::Attach( IEncoderCountsListener& encoder_counts_listener )
+void EncoderCountsSubscriberEndpoint::Attach( IEncoderCountsListener& encoder_counts_listener )
 {
   _encoder_counts_listeners.push_back(&encoder_counts_listener);
 }
 
 /** Notifies the endpoint that there there is a new message @p encoder_counts.
  */
-void EncoderCountsEndpoint::NewEncoderCountsReceived( const diff_drive::EncoderCounts& encoder_counts )
+void EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived( const diff_drive::EncoderCounts& encoder_counts )
 {
   NotifyEncoderCountsListeners( encoder_counts );
 
-  ROS_DEBUG_NAMED(  "EncoderCountsEndpoint", "Counts received: left: %d right %d stasis: %d dt: %d",
+  ROS_DEBUG_NAMED(  "EncoderCountsSubscriberEndpoint", "Counts received: left: %d right %d stasis: %d dt: %d",
               encoder_counts.left_count, encoder_counts.right_count, encoder_counts.stasis_count, 
               encoder_counts.dt_ms );
 }
 
 /** Worker thread. Subscribes to the ROS topic and checks for ROS or class stop request.
  */
-void EncoderCountsEndpoint::ReceiveEncoderCountsMessages()
+void EncoderCountsSubscriberEndpoint::ReceiveEncoderCountsMessages()
 {
   ros::Subscriber encoder_counts_subscriber = _encoder_counts_node.subscribe( "encoder_counts", 
                                                             1, 
-                                                            &EncoderCountsEndpoint::NewEncoderCountsReceived,
+                                                            &EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived,
                                                             this );
 
   ros::Rate r(100); // 100 hz
@@ -104,7 +104,7 @@ void EncoderCountsEndpoint::ReceiveEncoderCountsMessages()
 
 /** When called all attached listeners will be notified and sent a copy of @a encoder_counts.
  */
-void EncoderCountsEndpoint::NotifyEncoderCountsListeners( const diff_drive::EncoderCounts& encoder_counts )
+void EncoderCountsSubscriberEndpoint::NotifyEncoderCountsListeners( const diff_drive::EncoderCounts& encoder_counts )
 {
   for (unsigned int i= 0; i < _encoder_counts_listeners.size(); i++)
   {

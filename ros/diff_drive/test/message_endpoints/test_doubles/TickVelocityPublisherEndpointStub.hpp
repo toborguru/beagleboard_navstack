@@ -1,16 +1,16 @@
-// TickVelocityEndpointStub.hpp
+// TickVelocityPublisherEndpointStub.hpp
  
-#ifndef GUARD_TickVelocityEndpointStub
-#define GUARD_TickVelocityEndpointStub
+#ifndef GUARD_TickVelocityPublisherEndpointStub
+#define GUARD_TickVelocityPublisherEndpointStub
  
-#include "ITickVelocityEndpoint.hpp"
+#include "ITickVelocityPublisherEndpoint.hpp"
  
 namespace diff_drive_test_message_endpoints_test_doubles
 {
-  class TickVelocityEndpointStub : public diff_drive_core::ITickVelocityEndpoint
+  class TickVelocityPublisherEndpointStub : public diff_drive_core::ITickVelocityPublisherEndpoint
   { 
     public:
-      TickVelocityEndpointStub()
+      TickVelocityPublisherEndpointStub()
         : _count_of_tick_velocities_published(0),
           _linear( 0 ),
           _angular( 0 )
@@ -30,7 +30,7 @@ namespace diff_drive_test_message_endpoints_test_doubles
 #if 0
         // Output the read values to the terminal; this isn't the
         // unit test, but merely a helpful means to show what's going on.
-        std::cout << "TickVelocity published on TickVelocityEndpoint with x: " 
+        std::cout << "TickVelocity published on TickVelocityPublisherEndpoint with x: " 
                   << _x
                   << ", y: "
                   << _y
@@ -42,4 +42,4 @@ namespace diff_drive_test_message_endpoints_test_doubles
   };
 }
  
-#endif /* GUARD_TickVelocityEndpointStub */
+#endif /* GUARD_TickVelocityPublisherEndpointStub */

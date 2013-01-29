@@ -11,16 +11,16 @@
 #include "TwistConverter.hpp"
 #include "TwistConverter.hpp"
 #include "ITickVelocityListener.hpp"
-#include "ITickVelocityEndpoint.hpp"
-#include "ITwistEndpoint.hpp"
+#include "ITickVelocityPublisherEndpoint.hpp"
+#include "ITwistSubscriberEndpoint.hpp"
  
 namespace diff_drive_application_services
 {
 class TwistCommandService : public diff_drive_core::ITickVelocityListener
 {
 public:
-  explicit TwistCommandService( boost::shared_ptr<diff_drive_core::ITickVelocityEndpoint> tick_velocity_endpoint,
-                                boost::shared_ptr<diff_drive_core::ITwistEndpoint>        twist_endpoint,
+  explicit TwistCommandService( boost::shared_ptr<diff_drive_core::ITickVelocityPublisherEndpoint> tick_velocity_endpoint,
+                                boost::shared_ptr<diff_drive_core::ITwistSubscriberEndpoint>        twist_endpoint,
                                 boost::shared_ptr<const diff_drive_core::BaseModel>       base_model );
 
   void OnTickVelocityAvailableEvent(const diff_drive::TickVelocity& tick_velocity);
@@ -31,8 +31,8 @@ public:
 private:
   diff_drive_core::TwistConverter _twist_converter;
 
-  boost::shared_ptr<diff_drive_core::ITickVelocityEndpoint> _p_tick_velocity_endpoint;
-  boost::shared_ptr<diff_drive_core::ITwistEndpoint>        _p_twist_endpoint;
+  boost::shared_ptr<diff_drive_core::ITickVelocityPublisherEndpoint> _p_tick_velocity_endpoint;
+  boost::shared_ptr<diff_drive_core::ITwistSubscriberEndpoint>        _p_twist_endpoint;
   boost::shared_ptr<const diff_drive_core::BaseModel>       _p_base_model;
 
   bool  _is_accepting_commands;

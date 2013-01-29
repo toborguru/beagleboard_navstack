@@ -1,19 +1,19 @@
-// MovementStatusEndpointStub.hpp
+// MovementStatusPublisherEndpointStub.hpp
  
-#ifndef GUARD_MovementStatusEndpointStub
-#define GUARD_MovementStatusEndpointStub
+#ifndef GUARD_MovementStatusPublisherEndpointStub
+#define GUARD_MovementStatusPublisherEndpointStub
  
 #include "tf/transform_datatypes.h"
 
 #include "diff_drive/MovementStatus.h"
-#include "IMovementStatusEndpoint.hpp"
+#include "IMovementStatusPublisherEndpoint.hpp"
  
 namespace diff_drive_test_message_endpoints_test_doubles
 {
-  class MovementStatusEndpointStub : public diff_drive_core::IMovementStatusEndpoint
+  class MovementStatusPublisherEndpointStub : public diff_drive_core::IMovementStatusPublisherEndpoint
   { 
     public:
-      MovementStatusEndpointStub()
+      MovementStatusPublisherEndpointStub()
         : _count_of_messages_published(0),
           _linear(0.0),
           _linear_average(0.0),
@@ -45,7 +45,7 @@ namespace diff_drive_test_message_endpoints_test_doubles
 #if 0
         // Output the read values to the terminal; this isn't the
         // unit test, but merely a helpful means to show what's going on.
-        std::cout << "MovementStatus published on MovementStatusEndpoint with state: " 
+        std::cout << "MovementStatus published on MovementStatusPublisherEndpoint with state: " 
                   << _state
                   << ", linear: "
                   << _linear
@@ -63,4 +63,4 @@ namespace diff_drive_test_message_endpoints_test_doubles
   };
 }
  
-#endif /* GUARD_MovementStatusEndpointStub */
+#endif /* GUARD_MovementStatusPublisherEndpointStub */

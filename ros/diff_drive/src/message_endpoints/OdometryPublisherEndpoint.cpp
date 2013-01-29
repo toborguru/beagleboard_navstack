@@ -8,13 +8,13 @@
 
 #include "nav_msgs/Odometry.h"
 
-#include "OdometryEndpoint.hpp"
+#include "OdometryPublisherEndpoint.hpp"
  
 namespace diff_drive_message_endpoints
 {
 /** Default constructor, advertises on the ROS @e "odometry" topic.
  */
-OdometryEndpoint::OdometryEndpoint() 
+OdometryPublisherEndpoint::OdometryPublisherEndpoint() 
   // Setup topic for publishing laser scans to
   : _odometry_publisher(
     _odometry_node.advertise<nav_msgs::Odometry>("odometry", 10)) 
@@ -24,7 +24,7 @@ OdometryEndpoint::OdometryEndpoint()
 /** Publishes the @p odometry msg and broadcasts the coordinate frame 
  *  transform.
  */
-void OdometryEndpoint::Publish( const nav_msgs::Odometry& odometry )
+void OdometryPublisherEndpoint::Publish( const nav_msgs::Odometry& odometry )
 {
   nav_msgs::Odometry stamped_odometry;
   geometry_msgs::TransformStamped odometry_transform;
