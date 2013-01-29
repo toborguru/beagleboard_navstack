@@ -54,7 +54,7 @@ struct TickVelocityReceiver : public data_robot_core::ITickVelocityListener
     ros::init( argc, (char**)NULL, name );
 
     ros::NodeHandle node;
-    ros::Publisher pub = node.advertise<diff_drive::TickVelocity>("cmd_vel", 12);
+    ros::Publisher pub = node.advertise<diff_drive::TickVelocity>("cmd_ticks", 12);
     usleep( 25000 );
 
     int linear1;
