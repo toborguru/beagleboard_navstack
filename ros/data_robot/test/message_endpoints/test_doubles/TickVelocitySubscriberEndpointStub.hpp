@@ -14,7 +14,7 @@ public:
     : _subscribed(false)
   {}
 
-  void AddTicks( const diff_drive::TickVelocity tick_velocity )
+  void AddTicks( const differential_drive::TickVelocity tick_velocity )
   { 
     if ( _subscribed )
     {

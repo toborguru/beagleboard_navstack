@@ -19,7 +19,7 @@ public:
   void BeginAcceptingCommands();
   void StopAcceptingCommands();
 
-  void OnTickVelocityAvailableEvent(  const diff_drive::TickVelocity& tick_velocity );
+  void OnTickVelocityAvailableEvent(  const differential_drive::TickVelocity& tick_velocity );
 
 private:
   data_robot_core::TickVelocityForwarder  _tick_velocity_forwarder;

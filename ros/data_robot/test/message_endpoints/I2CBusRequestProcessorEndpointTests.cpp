@@ -9,7 +9,7 @@
  
 using namespace data_robot_core;
 using namespace data_robot_message_endpoints;
-//using namespace diff_drive_application_services;
+//using namespace differential_drive_application_services;
  
 namespace data_robot_test_message_endpoints
 {

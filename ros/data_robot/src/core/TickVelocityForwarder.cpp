@@ -20,7 +20,7 @@ void TickVelocityForwarder::SetExternalBus( IBusRequestProcessorEndpoint *p_exte
 
 /** Callback for ITickVelocityListener
  */
-void TickVelocityForwarder::OnTickVelocityAvailableEvent( const diff_drive::TickVelocity& tick_velocity )
+void TickVelocityForwarder::OnTickVelocityAvailableEvent( const differential_drive::TickVelocity& tick_velocity )
 {
   _velocity_request.Lock();
   _velocity_request.SetVelocity( tick_velocity.linear_ticks_sec, tick_velocity.angular_ticks_sec );

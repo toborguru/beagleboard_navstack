@@ -65,7 +65,7 @@ void TickVelocitySubscriberEndpoint::Attach( ITickVelocityListener& tick_velocit
 
 /** Notifies the endpoint that there there is a new message @p tick_velocity.
  */
-void TickVelocitySubscriberEndpoint::NewTickVelocityReceived( const diff_drive::TickVelocity& tick_velocity )
+void TickVelocitySubscriberEndpoint::NewTickVelocityReceived( const differential_drive::TickVelocity& tick_velocity )
 {
   NotifyTickVelocityListeners( tick_velocity );
 
@@ -95,7 +95,7 @@ void TickVelocitySubscriberEndpoint::ReceiveTickVelocityMessages()
 
 /** When called all attached listeners will be notified and sent a copy of @p encoder_counts.
  */
-void TickVelocitySubscriberEndpoint::NotifyTickVelocityListeners( const diff_drive::TickVelocity& tick_velocity )
+void TickVelocitySubscriberEndpoint::NotifyTickVelocityListeners( const differential_drive::TickVelocity& tick_velocity )
 {
   for ( unsigned int i= 0; i < _tick_velocity_listeners.size(); i++ )
   {

@@ -8,7 +8,7 @@
   <review status="unreviewed" notes=""/>
   <url></url>
 
-  <depend package="diff_drive" />
+  <depend package="differential_drive" />
   <depend package="roscpp" />
 </package>
 

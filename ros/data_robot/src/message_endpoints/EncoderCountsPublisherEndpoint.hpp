@@ -5,7 +5,7 @@
  
 #include <ros/ros.h>
 
-#include "diff_drive/EncoderCounts.h"
+#include "differential_drive/EncoderCounts.h"
 
 #include "IEncoderCountsPublisherEndpoint.hpp"
  
@@ -18,7 +18,7 @@ namespace data_robot_message_endpoints
 
       virtual ~EncoderCountsPublisherEndpoint() {};
  
-      virtual void Publish( const diff_drive::EncoderCounts& encoder_counts );
+      virtual void Publish( const differential_drive::EncoderCounts& encoder_counts );
  
     private:
       // Create handle to node

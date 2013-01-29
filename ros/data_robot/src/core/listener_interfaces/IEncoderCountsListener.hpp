@@ -3,7 +3,7 @@
 #ifndef GUARD_IEncoderCountsListener
 #define GUARD_IEncoderCountsListener
 
-#include "diff_drive/EncoderCounts.h"
+#include "differential_drive/EncoderCounts.h"
  
 namespace data_robot_core
 {
@@ -12,7 +12,7 @@ namespace data_robot_core
     public:
       // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
       virtual ~IEncoderCountsListener() {}
-      virtual void OnEncoderCountsAvailableEvent( const diff_drive::EncoderCounts& telemetry ) = 0;
+      virtual void OnEncoderCountsAvailableEvent( const differential_drive::EncoderCounts& telemetry ) = 0;
   };
 }
  

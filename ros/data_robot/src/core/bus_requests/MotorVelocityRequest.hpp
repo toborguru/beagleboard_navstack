@@ -1,6 +1,6 @@
 // MotorVelocityRequest.hpp
 
-#include "diff_drive/TickVelocity.h"
+#include "differential_drive/TickVelocity.h"
 
 #include "BusRequest.hpp"
 

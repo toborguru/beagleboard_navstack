@@ -21,12 +21,12 @@ public:
   void Unsubscribe();
   void Attach( data_robot_core::ITickVelocityListener& tick_velocity_listener );
 
-  void NewTickVelocityReceived( const diff_drive::TickVelocity& tick_velocity );
+  void NewTickVelocityReceived( const differential_drive::TickVelocity& tick_velocity );
 
 private:
   void ReceiveTickVelocityMessages();
 
-  void NotifyTickVelocityListeners( const diff_drive::TickVelocity& tick_velocity );
+  void NotifyTickVelocityListeners( const differential_drive::TickVelocity& tick_velocity );
 
   std::vector<data_robot_core::ITickVelocityListener*> _tick_velocity_listeners;
 

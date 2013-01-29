@@ -36,7 +36,7 @@ void EncoderCountsProcessor::AddNewData( int16_t left_count, int16_t right_count
 /** Access Function. 
  *  @returns New counts since previous AddNewData call.
  */
-diff_drive::EncoderCounts EncoderCountsProcessor::GetEncoderCounts() const
+differential_drive::EncoderCounts EncoderCountsProcessor::GetEncoderCounts() const
 {
   return _encoder_counts;
 }
