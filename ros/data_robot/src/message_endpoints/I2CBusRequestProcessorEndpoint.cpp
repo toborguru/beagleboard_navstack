@@ -123,11 +123,11 @@ void I2CBusRequestProcessorEndpoint::ProcessRequest( BusRequest *p_bus_request )
   _bus_request_queue.push( p_bus_request );
 }
 
-/** Worker thread. Subscribes to the ROS topic and checks for ROS or class stop request.
+/** Worker thread. 
  */
 void I2CBusRequestProcessorEndpoint::ProcessBusMessages()
 {
-  ros::Rate r(1000); // 100 hz
+  ros::Rate r(1000); // 1000 hz
 
   while ( !_stop_requested && (_i2c_fd > 0) )
   {
