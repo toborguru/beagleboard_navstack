@@ -51,6 +51,7 @@ void TwistSubscriberEndpoint::Unsubscribe()
   {
     _running = false;
     _stop_requested = true;
+    _spinner.stop();
 
     // Wait to return until _thread has completed
     pthread_join(_thread, 0);
@@ -92,10 +93,14 @@ void TwistSubscriberEndpoint::ReceiveTwistMessages()
                                                             this );
 
   _spinner.start();
+  ros::Rate r(5);
+
   while (!_stop_requested && ros::ok()) 
   {
+    // Sleep most of the time
+    r.sleep();
   }
-  _spinner.stop();
+
   _running = false;
 }
 

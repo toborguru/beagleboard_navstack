@@ -48,6 +48,7 @@ void EncoderCountsSubscriberEndpoint::Unsubscribe()
   {
     _running = false;
     _stopRequested = true;
+    _spinner.stop();
 
     // Wait to return until _thread has completed
     pthread_join(_thread, 0);
@@ -90,10 +91,14 @@ void EncoderCountsSubscriberEndpoint::ReceiveEncoderCountsMessages()
                                                             this );
 
   _spinner.start();
+  ros::Rate r(5);
+
   while (!_stopRequested && ros::ok()) 
   {
+    // Sleep most of the time
+    r.sleep();
   }
-  _spinner.stop();
+
   _running = false;
 }
 
