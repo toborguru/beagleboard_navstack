@@ -3,10 +3,6 @@
  *  received messages along to all attached listeners.
  */
  
-#include <fcntl.h>
-
-#include <ros/ros.h>
-
 #include "EncoderCountsSubscriberEndpoint.hpp"
 
 using namespace differential_drive_core;
@@ -16,7 +12,8 @@ namespace differential_drive_message_endpoints
 /** Default Constructor
  */
 EncoderCountsSubscriberEndpoint::EncoderCountsSubscriberEndpoint()    
-              : _stopRequested(false), 
+              : _spinner(1),
+                _stopRequested(false), 
                 _running(false) 
 {
   _encoder_counts_listeners.reserve(1);
@@ -37,7 +34,8 @@ void EncoderCountsSubscriberEndpoint::Subscribe()
   {
     _running = true;
     _stopRequested = false;
-    // Spawn async thread for reading laser scans
+
+    // Spawn async worker thread
     pthread_create(&_thread, 0, ReceiveEncoderCountsMessagesFunction, this);
   }
 }
@@ -91,14 +89,11 @@ void EncoderCountsSubscriberEndpoint::ReceiveEncoderCountsMessages()
                                                             &EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived,
                                                             this );
 
-  ros::Rate r(100); // 100 hz
-
+  _spinner.start();
   while (!_stopRequested && ros::ok()) 
   {
-    ros::spinOnce();
-    r.sleep();
   }
-
+  _spinner.stop();
   _running = false;
 }
 

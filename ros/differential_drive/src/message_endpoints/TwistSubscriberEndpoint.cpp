@@ -15,7 +15,8 @@ namespace differential_drive_message_endpoints
 /** Default Constructor
  */
 TwistSubscriberEndpoint::TwistSubscriberEndpoint()    
-              : _stop_requested(false), 
+              : _spinner(1),
+                _stop_requested(false), 
                 _running(false) 
 {
   _twist_listeners.reserve(1);
@@ -36,6 +37,7 @@ void TwistSubscriberEndpoint::Subscribe()
   {
     _running = true;
     _stop_requested = false;
+
     // Spawn async thread for reading laser scans
     pthread_create(&_thread, 0, ReceiveTwistMessagesFunction, this);
   }
@@ -89,14 +91,11 @@ void TwistSubscriberEndpoint::ReceiveTwistMessages()
                                                             &TwistSubscriberEndpoint::NewTwistReceived,
                                                             this );
 
-  ros::Rate r(100); // 100 hz
-
+  _spinner.start();
   while (!_stop_requested && ros::ok()) 
   {
-    ros::spinOnce();
-    r.sleep();
   }
-
+  _spinner.stop();
   _running = false;
 }
 
