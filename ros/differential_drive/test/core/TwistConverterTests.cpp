@@ -85,6 +85,18 @@ struct TwistGenerator : public differential_drive_core::ITwistSubscriberEndpoint
     _twist_listeners.push_back(&twist_listener);
   }
 
+  void Detach( ITwistListener& twist_listener )
+  { 
+    // Using the remove-erase idiom
+    std::vector<ITwistListener*>& vec = _twist_listeners; // use shorter name
+    vec.erase( std::remove(vec.begin(), vec.end(), &twist_listener), vec.end() );
+
+    if ( _twist_listeners.size() == 0 )
+    { 
+      Unsubscribe();
+    }
+  }
+
   bool _subscribed;
   std::vector<ITwistListener*> _twist_listeners;
 };

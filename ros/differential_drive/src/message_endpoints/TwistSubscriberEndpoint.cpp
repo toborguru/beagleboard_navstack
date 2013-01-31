@@ -71,6 +71,21 @@ void TwistSubscriberEndpoint::Attach( ITwistListener& twist_listener )
   _twist_listeners.push_back(&twist_listener);
 }
 
+/** Allows a listener to stop receiving call-backs. If this is the last listener
+ *  the class will automatically call Unsubscribe.
+ */
+void TwistSubscriberEndpoint::Detach( ITwistListener& twist_listener )
+{
+  // Using the remove-erase idiom
+  std::vector<ITwistListener*>& vec = _twist_listeners; // use shorter name
+  vec.erase( std::remove(vec.begin(), vec.end(), &twist_listener), vec.end() );
+
+  if ( _twist_listeners.size() == 0 )
+  {
+    Unsubscribe();
+  }
+}
+
 /** Notifies the endpoint that there there is a new message @p twist.
  */
 void TwistSubscriberEndpoint::NewTwistReceived( const geometry_msgs::Twist& twist )

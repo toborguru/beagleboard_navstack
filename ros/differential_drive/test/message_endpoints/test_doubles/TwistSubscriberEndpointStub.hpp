@@ -42,6 +42,18 @@ public:
     _twist_listeners.push_back(&twist_listener);
   }
 
+  void Detach( differential_drive_core::ITwistListener& twist_listener )
+  { 
+    // Using the remove-erase idiom
+    std::vector<differential_drive_core::ITwistListener*>& vec = _twist_listeners; // use shorter name
+    vec.erase( std::remove(vec.begin(), vec.end(), &twist_listener), vec.end() );
+
+    if ( _twist_listeners.size() == 0 )
+    { 
+      Unsubscribe();
+    }
+  }
+
 private:
   bool _subscribed;
   std::vector<differential_drive_core::ITwistListener*> _twist_listeners;

@@ -21,6 +21,7 @@ public:
   void Unsubscribe();
   bool IsSubscribed();
   void Attach( differential_drive_core::ITwistListener& twist_listener );
+  void Detach( differential_drive_core::ITwistListener& twist_listener );
 
   void NewTwistReceived( const geometry_msgs::Twist& twist );
 

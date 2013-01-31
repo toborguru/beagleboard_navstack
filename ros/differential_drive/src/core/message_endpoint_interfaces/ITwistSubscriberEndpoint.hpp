@@ -16,6 +16,7 @@ public:
   virtual void Unsubscribe() = 0;
   virtual bool IsSubscribed() = 0;
   virtual void Attach( ITwistListener& twist_listener ) = 0; 
+  virtual void Detach( ITwistListener& twist_listener ) = 0; 
 };
 }
 
