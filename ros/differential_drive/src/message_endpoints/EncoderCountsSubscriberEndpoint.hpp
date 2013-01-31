@@ -21,6 +21,7 @@ public:
   void Unsubscribe();
   bool IsSubscribed();
   void Attach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener );
+  void Detach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener );
 
   void NewEncoderCountsReceived( const differential_drive::EncoderCounts& encoder_counts );
 
@@ -35,8 +36,6 @@ private:
   ros::NodeHandle _encoder_counts_node;
 
   ros::Subscriber _encoder_counts_subscriber;
-
-  ros::AsyncSpinner _spinner;
 
   // Basic threading support as suggested by Jeremy Friesner at
   // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class

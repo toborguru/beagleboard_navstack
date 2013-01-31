@@ -42,6 +42,18 @@ public:
     _encoder_counts_listeners.push_back(&encoder_counts_listener);
   }
 
+  void Detach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener )
+  { 
+    // Using the remove-erase idiom
+    std::vector<differential_drive_core::IEncoderCountsListener*>& vec = _encoder_counts_listeners; // use shorter name
+    vec.erase( std::remove(vec.begin(), vec.end(), &encoder_counts_listener), vec.end() );
+
+    if ( _encoder_counts_listeners.size() == 0 )
+    { 
+      Unsubscribe();
+    }
+  }
+
 private:
   bool _subscribed;
   std::vector<differential_drive_core::IEncoderCountsListener*> _encoder_counts_listeners;

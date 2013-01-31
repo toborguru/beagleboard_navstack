@@ -36,8 +36,6 @@ private:
 
   ros::Subscriber _twist_subscriber;
 
-  ros::AsyncSpinner _spinner;
-
   // Basic threading support as suggested by Jeremy Friesner at
   // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
   volatile bool _stop_requested;

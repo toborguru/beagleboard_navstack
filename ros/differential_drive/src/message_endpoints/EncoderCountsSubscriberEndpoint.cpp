@@ -12,8 +12,7 @@ namespace differential_drive_message_endpoints
 /** Default Constructor
  */
 EncoderCountsSubscriberEndpoint::EncoderCountsSubscriberEndpoint()    
-              : _spinner(1),
-                _stopRequested(false), 
+              : _stopRequested(false), 
                 _running(false) 
 {
   _encoder_counts_listeners.reserve(1);
@@ -48,7 +47,6 @@ void EncoderCountsSubscriberEndpoint::Unsubscribe()
   {
     _running = false;
     _stopRequested = true;
-    _spinner.stop();
 
     // Wait to return until _thread has completed
     pthread_join(_thread, 0);
@@ -68,6 +66,21 @@ bool EncoderCountsSubscriberEndpoint::IsSubscribed()
 void EncoderCountsSubscriberEndpoint::Attach( IEncoderCountsListener& encoder_counts_listener )
 {
   _encoder_counts_listeners.push_back(&encoder_counts_listener);
+}
+
+/** Allows a listener to stop receiving call-backs. If this is the last listener
+ *  the class will automatically call Unsubscribe.
+ */
+void EncoderCountsSubscriberEndpoint::Detach( IEncoderCountsListener& encoder_counts_listener )
+{
+  // Using the remove-erase idiom
+  std::vector<IEncoderCountsListener*>& vec = _encoder_counts_listeners; // use shorter name
+  vec.erase( std::remove(vec.begin(), vec.end(), &encoder_counts_listener), vec.end() );
+
+  if ( _encoder_counts_listeners.size() == 0 )
+  {
+    Unsubscribe();
+  }
 }
 
 /** Notifies the endpoint that there there is a new message @p encoder_counts.
@@ -90,16 +103,18 @@ void EncoderCountsSubscriberEndpoint::ReceiveEncoderCountsMessages()
                                                             &EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived,
                                                             this );
 
-  _spinner.start();
-  ros::Rate r(5);
+  ros::AsyncSpinner spinner(1);
 
+  spinner.start();
+
+  ros::Rate r(5);
   while (!_stopRequested && ros::ok()) 
   {
     // Sleep most of the time
     r.sleep();
   }
 
-  _running = false;
+  spinner.stop();
 }
 
 /** When called all attached listeners will be notified and sent a copy of @a encoder_counts.

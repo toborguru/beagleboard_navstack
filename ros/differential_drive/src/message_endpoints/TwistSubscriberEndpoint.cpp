@@ -15,8 +15,7 @@ namespace differential_drive_message_endpoints
 /** Default Constructor
  */
 TwistSubscriberEndpoint::TwistSubscriberEndpoint()    
-              : _spinner(1),
-                _stop_requested(false), 
+              : _stop_requested(false), 
                 _running(false) 
 {
   _twist_listeners.reserve(1);
@@ -51,7 +50,6 @@ void TwistSubscriberEndpoint::Unsubscribe()
   {
     _running = false;
     _stop_requested = true;
-    _spinner.stop();
 
     // Wait to return until _thread has completed
     pthread_join(_thread, 0);
@@ -92,16 +90,17 @@ void TwistSubscriberEndpoint::ReceiveTwistMessages()
                                                             &TwistSubscriberEndpoint::NewTwistReceived,
                                                             this );
 
-  _spinner.start();
-  ros::Rate r(5);
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
 
+  ros::Rate r(5);
   while (!_stop_requested && ros::ok()) 
   {
     // Sleep most of the time
     r.sleep();
   }
 
-  _running = false;
+  spinner.stop();
 }
 
 /** When called all attached listeners will be notified and sent a copy of @p encoder_counts.

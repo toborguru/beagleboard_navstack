@@ -16,6 +16,7 @@ public:
   virtual void Unsubscribe() = 0;
   virtual bool IsSubscribed() = 0;
   virtual void Attach( IEncoderCountsListener& encoder_counts_listener ) = 0; 
+  virtual void Detach( IEncoderCountsListener& encoder_counts_listener ) = 0; 
 };
 }
 

@@ -162,6 +162,18 @@ struct EncoderCountsGenerator : public differential_drive_core::IEncoderCountsSu
     _encoder_counts_listeners.push_back(&encoder_counts_listener);
   }
 
+  void Detach( IEncoderCountsListener& encoder_counts_listener )
+  { 
+    // Using the remove-erase idiom
+    std::vector<IEncoderCountsListener*>& vec = _encoder_counts_listeners; // use shorter name
+    vec.erase( std::remove(vec.begin(), vec.end(), &encoder_counts_listener), vec.end() );
+
+    if ( _encoder_counts_listeners.size() == 0 )
+    { 
+      Unsubscribe();
+    }
+  }
+
   bool _subscribed;
   std::vector<IEncoderCountsListener*> _encoder_counts_listeners;
 };
