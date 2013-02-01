@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="differential_drive" type="differential_drive_node" name="differential_drive">
+    <param name="drive_wheel_radius"  value="1.0"/>
+    <param name="drive_wheel_base"    value="0.5"/>
+    <param name="drive_wheel_encoder_ticks" value="128"/>
+  </node>
+  <test test-name="differential_drive_ros_tests" pkg="differential_drive" type="differential_drive_ros_tests" />
+</launch>
