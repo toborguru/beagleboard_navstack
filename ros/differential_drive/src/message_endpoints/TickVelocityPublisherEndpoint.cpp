@@ -26,7 +26,5 @@ void TickVelocityPublisherEndpoint::Publish( const differential_drive::TickVeloc
   ROS_DEBUG(  "Published tick_velocity with linear, angular of: %d, %d", 
               tick_velocity.linear_ticks_sec,
               tick_velocity.angular_ticks_sec );
-              
-  ros::spinOnce();
 }
 }

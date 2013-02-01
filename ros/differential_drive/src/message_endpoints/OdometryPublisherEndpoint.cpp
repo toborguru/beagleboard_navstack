@@ -51,8 +51,6 @@ void OdometryPublisherEndpoint::Publish( const nav_msgs::Odometry& odometry )
   // send the transform
   _transform_broadcaster.sendTransform(odometry_transform);
 
-  ros::spinOnce();
-
   ROS_DEBUG(  "Published odometry with x, y of: %f, %f", 
               odometry.pose.pose.position.x, odometry.pose.pose.position.y );
 }

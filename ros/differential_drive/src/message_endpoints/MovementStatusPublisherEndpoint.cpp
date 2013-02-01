@@ -30,7 +30,5 @@ void MovementStatusPublisherEndpoint::Publish( const differential_drive::Movemen
               status.stasis_velocity,
               status.stasis_velocity_average,
               status.stasis_wheel_enabled  );
-
-  ros::spinOnce();
 }
 }
