@@ -41,7 +41,7 @@ rosbuild_add_executable(
 )
 rosbuild_add_gtest_build_flags(test/differential_drive_ros_tests)
 # Make sure rostest launches test/mynode.test during "make test"
-rosbuild_add_rostest(${PROJECT_SOURCE_DIR}/test/differential_drive.test)
+rosbuild_add_rostest(${PROJECT_SOURCE_DIR}/test/ros_message_endpoints.test)
 
 # Link the libraries
 target_link_libraries(
