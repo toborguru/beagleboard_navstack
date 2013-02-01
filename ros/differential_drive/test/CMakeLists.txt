@@ -32,12 +32,12 @@ target_link_libraries(
 rosbuild_add_executable(
   test/differential_drive_ros_tests
   TestRunner.cpp
-  ./message_endpoints/EncoderCountsSubscriberEndpointTests.cpp
-  ./message_endpoints/OdometryPublisherEndpointTests.cpp
-  ./message_endpoints/MovementStatusPublisherEndpointTests.cpp
-  ./message_endpoints/TickVelocityPublisherEndpointTests.cpp
+#  ./message_endpoints/EncoderCountsSubscriberEndpointTests.cpp
+#  ./message_endpoints/OdometryPublisherEndpointTests.cpp
+#  ./message_endpoints/MovementStatusPublisherEndpointTests.cpp
+#  ./message_endpoints/TickVelocityPublisherEndpointTests.cpp
   ./message_endpoints/TwistSubscriberEndpointTests.cpp
-  ./data_repositories/BaseModelRepositoryTests.cpp
+#  ./data_repositories/BaseModelRepositoryTests.cpp
 )
 rosbuild_add_gtest_build_flags(test/differential_drive_ros_tests)
 # Make sure rostest launches test/mynode.test during "make test"

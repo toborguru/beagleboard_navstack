@@ -44,109 +44,241 @@ struct EncoderCountsReceiver : public differential_drive_core::IEncoderCountsLis
   }
 };
 
-  // Define unit test to verify ability to publish laser scans 
-  // to ROS using the concrete message endpoint.
-  TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCountsWithEndpoint) 
-  {
-    // Establish Context
-    std::string name("encoder_counts_endpoint_tester");
-    int argc = 0;
-    ros::init( argc, (char**)NULL, name );
+// Define unit test to verify ability to subscribe to encoder counts messages
+// using the concrete message endpoint.
+TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCountsWithEndpoint) 
+{
+  // Establish Context
+  std::string name("encoder_counts_endpoint_tester");
+  int argc = 0;
+  ros::init( argc, (char**)NULL, name );
 
-    ros::NodeHandle node;
-    ros::Publisher pub = node.advertise<differential_drive::EncoderCounts>("encoder_counts", 12);
-    usleep( 25000 );
+  ros::NodeHandle node;
+  ros::Publisher pub = node.advertise<differential_drive::EncoderCounts>("encoder_counts", 12);
+  usleep( 25000 );
 
-    double left_count1;
-    double left_count2;
-    double left_count3;
-    
-    double right_count1;
-    double right_count2;
-    double right_count3;
+  double left_count1;
+  double left_count2;
+  double left_count3;
+  
+  double right_count1;
+  double right_count2;
+  double right_count3;
 
-    int count1;
-    int count2;
-    int count3;
-    
-    EncoderCountsSubscriberEndpoint encoder_counts_endpoint;
-    EncoderCountsReceiver encoder_counts_receiver;
+  int count1;
+  int count2;
+  int count3;
+  
+  EncoderCountsSubscriberEndpoint encoder_counts_endpoint;
+  EncoderCountsReceiver encoder_counts_receiver;
 
-    differential_drive::EncoderCounts encoder_counts;
-    
-    encoder_counts_endpoint.Attach( encoder_counts_receiver );
-   
-    // ACT
-    usleep( 25000 );
+  differential_drive::EncoderCounts encoder_counts;
+  
+  encoder_counts_endpoint.Attach( encoder_counts_receiver );
+ 
+  // ACT
+  usleep( 25000 );
 
-    encoder_counts.left_count = 10;
-    encoder_counts.right_count = -15;
+  encoder_counts.left_count = 10;
+  encoder_counts.right_count = -15;
 
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
 
-    count1 = encoder_counts_receiver._count_of_encoder_counts_received; 
-    left_count1 = encoder_counts_receiver._left_count; 
-    right_count1 = encoder_counts_receiver._right_count; 
+  count1 = encoder_counts_receiver._count_of_encoder_counts_received; 
+  left_count1 = encoder_counts_receiver._left_count; 
+  right_count1 = encoder_counts_receiver._right_count; 
 
-    encoder_counts_endpoint.Subscribe();
+  encoder_counts_endpoint.Subscribe();
 
-    usleep( 25000 );
+  usleep( 25000 );
 
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
 
-    count2 = encoder_counts_receiver._count_of_encoder_counts_received; 
-    left_count2 = encoder_counts_receiver._left_count; 
-    right_count2 = encoder_counts_receiver._right_count; 
+  count2 = encoder_counts_receiver._count_of_encoder_counts_received; 
+  left_count2 = encoder_counts_receiver._left_count; 
+  right_count2 = encoder_counts_receiver._right_count; 
 
-    encoder_counts_endpoint.Unsubscribe();
+  encoder_counts_endpoint.Unsubscribe();
 
-    usleep( 25000 );
+  usleep( 25000 );
 
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
-    pub.publish( encoder_counts );
-    usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
 
-    count3 = encoder_counts_receiver._count_of_encoder_counts_received; 
-    left_count3 = encoder_counts_receiver._left_count; 
-    right_count3 = encoder_counts_receiver._right_count; 
+  count3 = encoder_counts_receiver._count_of_encoder_counts_received; 
+  left_count3 = encoder_counts_receiver._left_count; 
+  right_count3 = encoder_counts_receiver._right_count; 
 
-    // Assert
-    // Nothing to assert other than using terminal windows to 
-    // watch publication activity. Alternatively, for better testing, 
-    // you could create a subscriber and subscribe to the reports 
-    // You could then track how many reports were received and 
-    // assert checks, accordingly.
-    EXPECT_EQ( 0, count1 ); 
-    EXPECT_FLOAT_EQ( 0.0, left_count1 ); 
-    EXPECT_FLOAT_EQ( 0.0, right_count1 ); 
+  // Assert
+  // Nothing to assert other than using terminal windows to 
+  // watch publication activity. Alternatively, for better testing, 
+  // you could create a subscriber and subscribe to the reports 
+  // You could then track how many reports were received and 
+  // assert checks, accordingly.
+  EXPECT_EQ( 0, count1 ); 
+  EXPECT_FLOAT_EQ( 0.0, left_count1 ); 
+  EXPECT_FLOAT_EQ( 0.0, right_count1 ); 
 
-    EXPECT_EQ( 4, count2 ); 
-    EXPECT_FLOAT_EQ( 10, left_count2 ); 
-    EXPECT_FLOAT_EQ( -15, right_count2 ); 
+  EXPECT_EQ( 4, count2 ); 
+  EXPECT_FLOAT_EQ( 10, left_count2 ); 
+  EXPECT_FLOAT_EQ( -15, right_count2 ); 
 
-    EXPECT_EQ( 4, count3 ); 
-    EXPECT_FLOAT_EQ( 10, left_count3 ); 
-    EXPECT_FLOAT_EQ( -15, right_count3 ); 
-  }
+  EXPECT_EQ( 4, count3 ); 
+  EXPECT_FLOAT_EQ( 10, left_count3 ); 
+  EXPECT_FLOAT_EQ( -15, right_count3 ); 
+}
+
+#define FINISHED_CODING 0 // Will cause errors! :) I guess I'll fix it... I need to add a similar section to Twist Endpoint
+#if FINISHED_CODING
+// Define unit test to verify ability to attach and detach multiple listeners to the 
+// the message endpoint.
+TEST(EncoderCountsSubscriberEndpointTests, canAttachAndDetachMultipleEncoderCountsEndpoints) 
+{
+  // Establish Context
+  std::string name("encoder_counts_endpoint_tester");
+  int argc = 0;
+  ros::init( argc, (char**)NULL, name );
+
+  ros::NodeHandle node;
+  ros::Publisher pub = node.advertise<differential_drive::EncoderCounts>("encoder_counts", 12);
+  usleep( 25000 );
+
+  double left_count_a_1;
+  double left_count_a_2;
+  double left_count_a_3;
+  double left_count_a_4;
+  double left_count_a_5;
+  
+  double left_count_b_1;
+  double left_count_b_2;
+  double left_count_b_3;
+  double left_count_b_4;
+  double left_count_b_5;
+  
+  int count_a_1;
+  int count_a_2;
+  int count_a_3;
+  int count_a_4;
+  int count_a_5;
+
+  int count_b_1;
+  int count_b_2;
+  int count_b_3;
+  int count_b_4;
+  int count_b_5;
+
+  bool is_subscribed_a_1;
+  bool is_subscribed_a_2;
+  bool is_subscribed_a_3;
+  bool is_subscribed_a_4;
+  bool is_subscribed_a_5;
+  
+  bool is_subscribed_b_1;
+  bool is_subscribed_b_2;
+  bool is_subscribed_b_3;
+  bool is_subscribed_b_4;
+  bool is_subscribed_b_5;
+  
+  EncoderCountsSubscriberEndpoint encoder_counts_endpoint;
+  EncoderCountsReceiver encoder_counts_receiver_a;
+  EncoderCountsReceiver encoder_counts_receiver_b;
+
+  differential_drive::EncoderCounts encoder_counts;
+  
+  encoder_counts_endpoint.Attach( encoder_counts_receiver );
+ 
+  // ACT
+  usleep( 25000 );
+
+  encoder_counts.left_count = 10;
+  encoder_counts.right_count = -15;
+
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+
+  count1 = encoder_counts_receiver._count_of_encoder_counts_received; 
+  left_count1 = encoder_counts_receiver._left_count; 
+  right_count1 = encoder_counts_receiver._right_count; 
+
+  encoder_counts_endpoint.Subscribe();
+
+  usleep( 25000 );
+
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+
+  count2 = encoder_counts_receiver._count_of_encoder_counts_received; 
+  left_count2 = encoder_counts_receiver._left_count; 
+  right_count2 = encoder_counts_receiver._right_count; 
+
+  encoder_counts_endpoint.Unsubscribe();
+
+  usleep( 25000 );
+
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+  pub.publish( encoder_counts );
+  usleep( 25000 );
+
+  count3 = encoder_counts_receiver._count_of_encoder_counts_received; 
+  left_count3 = encoder_counts_receiver._left_count; 
+  right_count3 = encoder_counts_receiver._right_count; 
+
+  // Assert
+  // Nothing to assert other than using terminal windows to 
+  // watch publication activity. Alternatively, for better testing, 
+  // you could create a subscriber and subscribe to the reports 
+  // You could then track how many reports were received and 
+  // assert checks, accordingly.
+  EXPECT_EQ( 0, count1 ); 
+  EXPECT_FLOAT_EQ( 0.0, left_count1 ); 
+  EXPECT_FLOAT_EQ( 0.0, right_count1 ); 
+
+  EXPECT_EQ( 4, count2 ); 
+  EXPECT_FLOAT_EQ( 10, left_count2 ); 
+  EXPECT_FLOAT_EQ( -15, right_count2 ); 
+
+  EXPECT_EQ( 4, count3 ); 
+  EXPECT_FLOAT_EQ( 10, left_count3 ); 
+  EXPECT_FLOAT_EQ( -15, right_count3 ); 
+}
+#endif
 #if 0 
   // Define unit test to verify ability to leverage the reporting 
   // service using the concrete message endpoint. This is more of a 
