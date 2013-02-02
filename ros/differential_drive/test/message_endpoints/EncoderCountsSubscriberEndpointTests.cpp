@@ -91,6 +91,8 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
   pub.publish( encoder_counts );
   usleep( 25000 );
 
+  ros::spinOnce();
+
   count1 = encoder_counts_receiver._count_of_encoder_counts_received; 
   left_count1 = encoder_counts_receiver._left_count; 
   right_count1 = encoder_counts_receiver._right_count; 
@@ -108,6 +110,8 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
   pub.publish( encoder_counts );
   usleep( 25000 );
 
+  ros::spinOnce();
+
   count2 = encoder_counts_receiver._count_of_encoder_counts_received; 
   left_count2 = encoder_counts_receiver._left_count; 
   right_count2 = encoder_counts_receiver._right_count; 
@@ -124,6 +128,8 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
   usleep( 25000 );
   pub.publish( encoder_counts );
   usleep( 25000 );
+
+  ros::spinOnce();
 
   count3 = encoder_counts_receiver._count_of_encoder_counts_received; 
   left_count3 = encoder_counts_receiver._left_count; 
@@ -228,6 +234,8 @@ TEST(EncoderCountsSubscriberEndpointTests, canAttachAndDetachMultipleEncoderCoun
 
   encoder_counts_endpoint.Subscribe();
 
+  ros::spinOnce();
+
   usleep( 25000 );
 
   pub.publish( encoder_counts );
@@ -238,6 +246,8 @@ TEST(EncoderCountsSubscriberEndpointTests, canAttachAndDetachMultipleEncoderCoun
   usleep( 25000 );
   pub.publish( encoder_counts );
   usleep( 25000 );
+
+  ros::spinOnce();
 
   count2 = encoder_counts_receiver._count_of_encoder_counts_received; 
   left_count2 = encoder_counts_receiver._left_count; 
@@ -255,6 +265,8 @@ TEST(EncoderCountsSubscriberEndpointTests, canAttachAndDetachMultipleEncoderCoun
   usleep( 25000 );
   pub.publish( encoder_counts );
   usleep( 25000 );
+
+  ros::spinOnce();
 
   count3 = encoder_counts_receiver._count_of_encoder_counts_received; 
   left_count3 = encoder_counts_receiver._left_count; 

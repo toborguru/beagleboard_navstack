@@ -44,109 +44,137 @@ struct TwistReceiver : public differential_drive_core::ITwistListener
   }
 };
 
-  // Define unit test to verify ability to publish laser scans 
-  // to ROS using the concrete message endpoint.
-  TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint) 
-  {
-    // Establish Context
-    std::string name("twist_endpoint_tester");
-    int argc = 0;
-    ros::init( argc, (char**)NULL, name );
+// Define unit test to verify ability to publish laser scans 
+// to ROS using the concrete message endpoint.
+TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint) 
+{
+  // Establish Context
+  std::string name("twist_endpoint_tester");
+  int argc = 0;
+  ros::init( argc, (char**)NULL, name );
 
-    ros::NodeHandle node;
-    ros::Publisher pub = node.advertise<geometry_msgs::Twist>("cmd_vel", 12);
-    usleep( 25000 );
+  ros::NodeHandle node;
+  ros::Publisher pub = node.advertise<geometry_msgs::Twist>("cmd_vel", 12);
+  usleep( 25000 );
 
-    double linear1;
-    double linear2;
-    double linear3;
-    
-    double angular1;
-    double angular2;
-    double angular3;
+  double linear1;
+  double linear2;
+  double linear3;
+  double linear4;
 
-    int count1;
-    int count2;
-    int count3;
-    
-    TwistSubscriberEndpoint twist_endpoint;
-    TwistReceiver twist_receiver;
+  double angular1;
+  double angular2;
+  double angular3;
+  double angular4;
 
-    geometry_msgs::Twist twist;
-    
-    twist_endpoint.Attach( twist_receiver );
-   
-    // ACT
-    usleep( 25000 );
+  int count1;
+  int count2;
+  int count3;
+  int count4;
 
-    twist.linear.x = 2.5;
-    twist.angular.z = -0.5;
+  TwistSubscriberEndpoint twist_endpoint;
+  TwistReceiver twist_receiver;
 
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
+  geometry_msgs::Twist twist;
 
-    count1 = twist_receiver._count_of_twists_received; 
-    linear1 = twist_receiver._linear; 
-    angular1 = twist_receiver._angular; 
+  twist_endpoint.Attach( twist_receiver );
 
-    twist_endpoint.Subscribe();
+  // ACT
+  usleep( 25000 );
 
-    usleep( 25000 );
+  twist.linear.x = 2.5;
+  twist.angular.z = -0.5;
 
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
+  pub.publish( twist );
+  usleep( 25000 );
+  pub.publish( twist );
+  usleep( 25000 );
+  pub.publish( twist );
+  usleep( 25000 );
+  pub.publish( twist );
+  usleep( 25000 );
 
-    count2 = twist_receiver._count_of_twists_received; 
-    linear2 = twist_receiver._linear; 
-    angular2 = twist_receiver._angular; 
+  ros::spinOnce();
 
-    twist_endpoint.Unsubscribe();
+  count1 = twist_receiver._count_of_twists_received; 
+  linear1 = twist_receiver._linear; 
+  angular1 = twist_receiver._angular; 
 
-    usleep( 25000 );
+  twist_endpoint.Subscribe();
 
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
-    pub.publish( twist );
-    usleep( 25000 );
+  usleep( 500000 );
 
-    count3 = twist_receiver._count_of_twists_received; 
-    linear3 = twist_receiver._linear; 
-    angular3 = twist_receiver._angular; 
+  pub.publish( twist );
+  usleep( 25000 );
+  pub.publish( twist );
+  usleep( 25000 );
+  pub.publish( twist );
+  usleep( 25000 );
+  pub.publish( twist );
+  usleep( 25000 );
 
-    // Assert
-    // Nothing to assert other than using terminal windows to 
-    // watch publication activity. Alternatively, for better testing, 
-    // you could create a subscriber and subscribe to the reports 
-    // You could then track how many reports were received and 
-    // assert checks, accordingly.
-    EXPECT_EQ( 0, count1 ); 
-    EXPECT_FLOAT_EQ( 0.0, linear1 ); 
-    EXPECT_FLOAT_EQ( 0.0, angular1 ); 
+  ros::spinOnce();
 
-    EXPECT_EQ( 4, count2 ); 
-    EXPECT_FLOAT_EQ( 2.5, linear2 ); 
-    EXPECT_FLOAT_EQ( -0.5, angular2 ); 
+  count2 = twist_receiver._count_of_twists_received; 
+  linear2 = twist_receiver._linear; 
+  angular2 = twist_receiver._angular; 
 
-    EXPECT_EQ( 4, count3 ); 
-    EXPECT_FLOAT_EQ( 2.5, linear3 ); 
-    EXPECT_FLOAT_EQ( -0.5, angular3 ); 
-  }
+  pub.publish( twist );
+  usleep( 25000 );
+  ros::spinOnce();
+  pub.publish( twist );
+  usleep( 25000 );
+  ros::spinOnce();
+  pub.publish( twist );
+  usleep( 25000 );
+  ros::spinOnce();
+  pub.publish( twist );
+  usleep( 25000 );
+  ros::spinOnce();
+
+  count3 = twist_receiver._count_of_twists_received; 
+  linear3 = twist_receiver._linear; 
+  angular3 = twist_receiver._angular; 
+
+  twist_endpoint.Unsubscribe();
+
+  usleep( 500000 );
+
+  pub.publish( twist );
+  ros::spinOnce();
+  pub.publish( twist );
+  ros::spinOnce();
+  pub.publish( twist );
+  ros::spinOnce();
+  pub.publish( twist );
+  ros::spinOnce();
+
+  count4 = twist_receiver._count_of_twists_received; 
+  linear4 = twist_receiver._linear; 
+  angular4 = twist_receiver._angular; 
+
+  // Assert
+  // Nothing to assert other than using terminal windows to 
+  // watch publication activity. Alternatively, for better testing, 
+  // you could create a subscriber and subscribe to the reports 
+  // You could then track how many reports were received and 
+  // assert checks, accordingly.
+  EXPECT_EQ( 0, count1 ); 
+  EXPECT_FLOAT_EQ( 0.0, linear1 ); 
+  EXPECT_FLOAT_EQ( 0.0, angular1 ); 
+
+  EXPECT_EQ( 1, count2 ); 
+  EXPECT_FLOAT_EQ( 2.5, linear2 ); 
+  EXPECT_FLOAT_EQ( -0.5, angular2 ); 
+
+  EXPECT_EQ( 5, count3 ); 
+  EXPECT_FLOAT_EQ( 2.5, linear3 ); 
+  EXPECT_FLOAT_EQ( -0.5, angular3 ); 
+
+  EXPECT_EQ( 5, count4 ); 
+  EXPECT_FLOAT_EQ( 2.5, linear4 ); 
+  EXPECT_FLOAT_EQ( -0.5, angular4 ); 
+}
 #if 0 
   // Define unit test to verify ability to leverage the reporting 
   // service using the concrete message endpoint. This is more of a 

@@ -4,7 +4,6 @@
  */
  
 #include "EncoderCountsSubscriberEndpoint.hpp"
-#include "AsyncSpinnerWrapper.hpp"
 
 using namespace differential_drive_core;
  
@@ -100,13 +99,9 @@ void EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived( const differenti
 void EncoderCountsSubscriberEndpoint::ReceiveEncoderCountsMessages()
 {
   ros::Subscriber encoder_counts_subscriber = _encoder_counts_node.subscribe( "encoder_counts", 
-                                                            1, 
+                                                            10, 
                                                             &EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived,
                                                             this );
-
-  AsyncSpinnerWrapper spinner;
-
-  spinner.Start();
 
   ros::Rate r(5);
   while (!_stopRequested && ros::ok()) 
@@ -114,8 +109,6 @@ void EncoderCountsSubscriberEndpoint::ReceiveEncoderCountsMessages()
     // Sleep most of the time
     r.sleep();
   }
-
-  spinner.Stop();
 }
 
 /** When called all attached listeners will be notified and sent a copy of @a encoder_counts.

@@ -7,7 +7,6 @@
 #include <ros/ros.h>
 
 #include "TwistSubscriberEndpoint.hpp"
-#include "AsyncSpinnerWrapper.hpp"
 
 using namespace differential_drive_core;
  
@@ -106,17 +105,12 @@ void TwistSubscriberEndpoint::ReceiveTwistMessages()
                                                             &TwistSubscriberEndpoint::NewTwistReceived,
                                                             this );
 
-  AsyncSpinnerWrapper spinner;
-  spinner.Start();
-
   ros::Rate r(5);
   while (!_stop_requested && ros::ok()) 
   {
     // Sleep most of the time
     r.sleep();
   }
-
-  spinner.Stop();
 }
 
 /** When called all attached listeners will be notified and sent a copy of @p encoder_counts.
