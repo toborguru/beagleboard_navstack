@@ -1,7 +1,6 @@
 # Create the library
 rosbuild_add_library(
   differential_drive_message_endpoints
-  AsyncSpinnerWrapper.cpp
   EncoderCountsSubscriberEndpoint.cpp
   MovementStatusPublisherEndpoint.cpp
   OdometryPublisherEndpoint.cpp

@@ -15,8 +15,7 @@ namespace differential_drive_message_endpoints
 /** Default Constructor
  */
 TwistSubscriberEndpoint::TwistSubscriberEndpoint()    
-              : _stop_requested(false), 
-                _running(false) 
+              : _is_subscribed(false) 
 {
   _twist_listeners.reserve(1);
 }
@@ -28,39 +27,36 @@ TwistSubscriberEndpoint::~TwistSubscriberEndpoint()
   Unsubscribe();
 }
 
-/** Spawns the worker thread to connect and subscribe to ROS topic. 
+/** Connect and subscribe to ROS topic. 
  */
 void TwistSubscriberEndpoint::Subscribe()
 {
-  if (! _running) 
+  if (! _is_subscribed) 
   {
-    _running = true;
-    _stop_requested = false;
-
-    // Spawn async thread for reading laser scans
-    pthread_create(&_thread, 0, ReceiveTwistMessagesFunction, this);
+    _is_subscribed = true;
+    _twist_subscriber = _twist_node.subscribe( "cmd_vel", 
+                                               1, 
+                                               &TwistSubscriberEndpoint::NewTwistReceived,
+                                               this );
   }
 }
 
-/** Requests thread stop, and joins worker thread.
+/** Stop processing incoming messages.
  */
 void TwistSubscriberEndpoint::Unsubscribe()
 {
-  if (_running) 
+  if (_is_subscribed) 
   {
-    _running = false;
-    _stop_requested = true;
-
-    // Wait to return until _thread has completed
-    pthread_join(_thread, 0);
+    _is_subscribed = false;
+    _twist_subscriber.shutdown();
   }
 }
 
-/** Returns the thread status.
+/** Access Function.
  */
 bool TwistSubscriberEndpoint::IsSubscribed()
 {
-  return _running;
+  return _is_subscribed;
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
@@ -94,23 +90,6 @@ void TwistSubscriberEndpoint::NewTwistReceived( const geometry_msgs::Twist& twis
 
   ROS_DEBUG(  "Twist received: linear: %f angular %f",
               twist.linear.x, twist.angular.z );
-}
-
-/** Worker thread. Subscribes to the ROS topic and checks for ROS or class stop request.
- */
-void TwistSubscriberEndpoint::ReceiveTwistMessages()
-{
-  ros::Subscriber twist_subscriber = _twist_node.subscribe( "cmd_vel", 
-                                                            1, 
-                                                            &TwistSubscriberEndpoint::NewTwistReceived,
-                                                            this );
-
-  ros::Rate r(5);
-  while (!_stop_requested && ros::ok()) 
-  {
-    // Sleep most of the time
-    r.sleep();
-  }
 }
 
 /** When called all attached listeners will be notified and sent a copy of @p encoder_counts.

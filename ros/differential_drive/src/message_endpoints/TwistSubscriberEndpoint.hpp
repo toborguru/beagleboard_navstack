@@ -32,23 +32,12 @@ private:
 
   std::vector<differential_drive_core::ITwistListener*> _twist_listeners;
 
+  bool _is_subscribed;
+
   // Create handle to node
   ros::NodeHandle _twist_node;
 
   ros::Subscriber _twist_subscriber;
-
-  // Basic threading support as suggested by Jeremy Friesner at
-  // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
-  volatile bool _stop_requested;
-  volatile bool _running;
-
-  pthread_t _thread;
-
-  static void * ReceiveTwistMessagesFunction(void * This) {
-    ((TwistSubscriberEndpoint*)This)->ReceiveTwistMessages();
-    return 0;
-  }
-
 };
 }
  

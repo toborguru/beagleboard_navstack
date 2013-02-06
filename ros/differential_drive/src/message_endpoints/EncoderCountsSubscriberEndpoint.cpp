@@ -12,8 +12,7 @@ namespace differential_drive_message_endpoints
 /** Default Constructor
  */
 EncoderCountsSubscriberEndpoint::EncoderCountsSubscriberEndpoint()    
-              : _stopRequested(false), 
-                _running(false) 
+              : _is_subscribed(false)
 {
   _encoder_counts_listeners.reserve(1);
 }
@@ -22,42 +21,38 @@ EncoderCountsSubscriberEndpoint::EncoderCountsSubscriberEndpoint()
  */
 EncoderCountsSubscriberEndpoint::~EncoderCountsSubscriberEndpoint()
 { 
-  Unsubscribe();
 }
 
-/** Spawns the worker thread to connect and subscribe to ROS topic. 
+/** Connect and subscribe to ROS topic. 
  */
 void EncoderCountsSubscriberEndpoint::Subscribe()
-{
-  if (! _running) 
+{ 
+  if ( !_is_subscribed )
   {
-    _running = true;
-    _stopRequested = false;
-
-    // Spawn async worker thread
-    pthread_create(&_thread, 0, ReceiveEncoderCountsMessagesFunction, this);
+    _is_subscribed = true;
+    _encoder_counts_subscriber = _encoder_counts_node.subscribe( "encoder_counts",
+                                                                 10,
+                                                                 &EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived,
+                                                                 this );  
   }
 }
 
-/** Requests thread stop, and joins worker thread.
+/** Stop processing incoming messages.
  */
 void EncoderCountsSubscriberEndpoint::Unsubscribe()
 {
-  if (_running) 
+  if ( _is_subscribed )
   {
-    _running = false;
-    _stopRequested = true;
-
-    // Wait to return until _thread has completed
-    pthread_join(_thread, 0);
+    _is_subscribed = false;
+    _encoder_counts_subscriber.shutdown();
   }
 }
 
-/** Returns the status of the thread.
+/** Access function.
  */
 bool EncoderCountsSubscriberEndpoint::IsSubscribed()
 {
-  return _running;
+  return _is_subscribed;
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
@@ -83,7 +78,7 @@ void EncoderCountsSubscriberEndpoint::Detach( IEncoderCountsListener& encoder_co
   }
 }
 
-/** Notifies the endpoint that there there is a new message @p encoder_counts.
+/** Notifies the endpoint that there there is a new message.
  */
 void EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived( const differential_drive::EncoderCounts& encoder_counts )
 {
@@ -92,23 +87,6 @@ void EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived( const differenti
   ROS_DEBUG_NAMED(  "EncoderCountsSubscriberEndpoint", "Counts received: left: %d right %d stasis: %d dt: %d",
               encoder_counts.left_count, encoder_counts.right_count, encoder_counts.stasis_count, 
               encoder_counts.dt_ms );
-}
-
-/** Worker thread. Subscribes to the ROS topic and checks for ROS or class stop request.
- */
-void EncoderCountsSubscriberEndpoint::ReceiveEncoderCountsMessages()
-{
-  ros::Subscriber encoder_counts_subscriber = _encoder_counts_node.subscribe( "encoder_counts", 
-                                                            10, 
-                                                            &EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived,
-                                                            this );
-
-  ros::Rate r(5);
-  while (!_stopRequested && ros::ok()) 
-  {
-    // Sleep most of the time
-    r.sleep();
-  }
 }
 
 /** When called all attached listeners will be notified and sent a copy of @a encoder_counts.
