@@ -13,6 +13,7 @@
   <depend package="tf"/>
   <depend package="geometry_msgs"/> 
   <depend package="nav_msgs"/> 
+  <depend package="dynamic_reconfigure"/> 
 
 </package>
 

@@ -1,10 +1,10 @@
 <launch>
   <node pkg="differential_drive" type="differential_drive_node" name="differential_drive">
-    <param name="drive_wheel_radius"  value="0.030"/>
-    <param name="drive_wheel_base"    value="0.180"/>
-    <param name="drive_wheel_encoder_ticks" value="128"/>
-    <param name="stasis_wheel_radius"  value="0.0195"/>
-    <param name="stasis_wheel_encoder_ticks" value="16"/>
+    <param name="drive_wheel_diameter"        value="0.060"/>
+    <param name="drive_wheel_base"            value="0.180"/>
+    <param name="drive_wheel_encoder_ticks"   value="128"/>
+    <param name="stasis_wheel_diameter"       value="0.039"/>
+    <param name="stasis_wheel_encoder_ticks"  value="16"/>
     <remap from="tick_velocity" to="cmd_ticks"/>
   </node>
 
