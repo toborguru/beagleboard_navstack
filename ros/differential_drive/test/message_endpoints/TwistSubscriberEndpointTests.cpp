@@ -100,9 +100,10 @@ TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint
   linear1 = twist_receiver._linear; 
   angular1 = twist_receiver._angular; 
 
-  twist_endpoint.Subscribe();
+  twist_endpoint.Unsubscribe();
 
-  usleep( 500000 );
+  twist.linear.x = 3.5;
+  twist.angular.z = -5.5;
 
   pub.publish( twist );
   usleep( 25000 );
@@ -118,6 +119,8 @@ TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint
   count2 = twist_receiver._count_of_twists_received; 
   linear2 = twist_receiver._linear; 
   angular2 = twist_receiver._angular; 
+
+  twist_endpoint.Subscribe();
 
   pub.publish( twist );
   usleep( 25000 );
@@ -136,44 +139,18 @@ TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint
   linear3 = twist_receiver._linear; 
   angular3 = twist_receiver._angular; 
 
-  twist_endpoint.Unsubscribe();
-
-  usleep( 500000 );
-
-  pub.publish( twist );
-  ros::spinOnce();
-  pub.publish( twist );
-  ros::spinOnce();
-  pub.publish( twist );
-  ros::spinOnce();
-  pub.publish( twist );
-  ros::spinOnce();
-
-  count4 = twist_receiver._count_of_twists_received; 
-  linear4 = twist_receiver._linear; 
-  angular4 = twist_receiver._angular; 
-
   // Assert
-  // Nothing to assert other than using terminal windows to 
-  // watch publication activity. Alternatively, for better testing, 
-  // you could create a subscriber and subscribe to the reports 
-  // You could then track how many reports were received and 
-  // assert checks, accordingly.
-  EXPECT_EQ( 0, count1 ); 
-  EXPECT_FLOAT_EQ( 0.0, linear1 ); 
-  EXPECT_FLOAT_EQ( 0.0, angular1 ); 
+  EXPECT_EQ( 1, count1 ); 
+  EXPECT_FLOAT_EQ( 2.5, linear1 ); 
+  EXPECT_FLOAT_EQ( -0.5, angular1 ); 
 
   EXPECT_EQ( 1, count2 ); 
   EXPECT_FLOAT_EQ( 2.5, linear2 ); 
   EXPECT_FLOAT_EQ( -0.5, angular2 ); 
 
   EXPECT_EQ( 5, count3 ); 
-  EXPECT_FLOAT_EQ( 2.5, linear3 ); 
-  EXPECT_FLOAT_EQ( -0.5, angular3 ); 
-
-  EXPECT_EQ( 5, count4 ); 
-  EXPECT_FLOAT_EQ( 2.5, linear4 ); 
-  EXPECT_FLOAT_EQ( -0.5, angular4 ); 
+  EXPECT_FLOAT_EQ( 3.5, linear3 ); 
+  EXPECT_FLOAT_EQ( -5.5, angular3 ); 
 }
 #if 0 
   // Define unit test to verify ability to leverage the reporting 

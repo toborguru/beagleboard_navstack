@@ -65,6 +65,12 @@ bool TwistSubscriberEndpoint::IsSubscribed()
 void TwistSubscriberEndpoint::Attach( ITwistListener& twist_listener )
 {
   _twist_listeners.push_back(&twist_listener);
+
+  // If this is the first one to attach, automatically subscribe.
+  if ( !_is_subscribed && (_twist_listeners.size() == 1) )
+  {
+    Subscribe();
+  }
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener

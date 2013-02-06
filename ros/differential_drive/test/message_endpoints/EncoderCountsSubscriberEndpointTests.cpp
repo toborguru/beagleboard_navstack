@@ -97,7 +97,10 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
   left_count1 = encoder_counts_receiver._left_count; 
   right_count1 = encoder_counts_receiver._right_count; 
 
-  encoder_counts_endpoint.Subscribe();
+  encoder_counts_endpoint.Unsubscribe();
+
+  encoder_counts.left_count = 20;
+  encoder_counts.right_count = -35;
 
   usleep( 25000 );
 
@@ -116,7 +119,7 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
   left_count2 = encoder_counts_receiver._left_count; 
   right_count2 = encoder_counts_receiver._right_count; 
 
-  encoder_counts_endpoint.Unsubscribe();
+  encoder_counts_endpoint.Subscribe();
 
   usleep( 25000 );
 
@@ -136,22 +139,17 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
   right_count3 = encoder_counts_receiver._right_count; 
 
   // Assert
-  // Nothing to assert other than using terminal windows to 
-  // watch publication activity. Alternatively, for better testing, 
-  // you could create a subscriber and subscribe to the reports 
-  // You could then track how many reports were received and 
-  // assert checks, accordingly.
-  EXPECT_EQ( 0, count1 ); 
-  EXPECT_FLOAT_EQ( 0.0, left_count1 ); 
-  EXPECT_FLOAT_EQ( 0.0, right_count1 ); 
+  EXPECT_EQ( 4, count1 ); 
+  EXPECT_FLOAT_EQ( 10, left_count1 ); 
+  EXPECT_FLOAT_EQ( -15, right_count1 ); 
 
   EXPECT_EQ( 4, count2 ); 
   EXPECT_FLOAT_EQ( 10, left_count2 ); 
   EXPECT_FLOAT_EQ( -15, right_count2 ); 
 
-  EXPECT_EQ( 4, count3 ); 
-  EXPECT_FLOAT_EQ( 10, left_count3 ); 
-  EXPECT_FLOAT_EQ( -15, right_count3 ); 
+  EXPECT_EQ( 8, count3 ); 
+  EXPECT_FLOAT_EQ( 20, left_count3 ); 
+  EXPECT_FLOAT_EQ( -35, right_count3 ); 
 }
 
 #define FINISHED_CODING 0 // Will cause errors! :) I guess I'll fix it... I need to add a similar section to Twist Endpoint

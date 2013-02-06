@@ -61,6 +61,12 @@ bool EncoderCountsSubscriberEndpoint::IsSubscribed()
 void EncoderCountsSubscriberEndpoint::Attach( IEncoderCountsListener& encoder_counts_listener )
 {
   _encoder_counts_listeners.push_back(&encoder_counts_listener);
+
+  // If this is the first one to attach, automatically subscribe.
+  if ( !_is_subscribed && (_encoder_counts_listeners.size() == 1) )
+  {
+    Subscribe();
+  }
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener
