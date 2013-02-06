@@ -41,8 +41,8 @@ void TwistConverter::SetBaseModel( const BaseModel& base_model )
 void TwistConverter::OnTwistAvailableEvent( const geometry_msgs::Twist& twist )
 {
   differential_drive::TickVelocity tick_velocity;
-  tick_velocity = ConvertTwist( twist ); 
 
+  tick_velocity = ConvertTwist( twist ); 
   NotifyTickVelocityListeners( tick_velocity );
 }
 
