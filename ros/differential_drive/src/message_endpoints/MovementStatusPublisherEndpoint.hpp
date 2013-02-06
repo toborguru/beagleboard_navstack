@@ -11,21 +11,23 @@
  
 namespace differential_drive_message_endpoints
 {
-  class MovementStatusPublisherEndpoint : public differential_drive_core::IMovementStatusPublisherEndpoint
-  { 
-    public:
-      MovementStatusPublisherEndpoint();
+class MovementStatusPublisherEndpoint : public differential_drive_core::IMovementStatusPublisherEndpoint
+{ 
+public:
+  MovementStatusPublisherEndpoint();
 
-      virtual ~MovementStatusPublisherEndpoint();
- 
-      virtual void Publish( const differential_drive::MovementStatus& status );
- 
-    private:
-      // Create handle to node
-      ros::NodeHandle _status_node;
- 
-      ros::Publisher _status_publisher;
-  };
+  ~MovementStatusPublisherEndpoint();
+
+  void OnMovementStatusAvailableEvent(  const differential_drive::MovementStatus& movement_status );
+
+  void Publish( const differential_drive::MovementStatus& status );
+
+private:
+  // Create handle to node
+  ros::NodeHandle _status_node;
+
+  ros::Publisher _status_publisher;
+};
 }
  
 #endif /* GUARD_MovementStatusPublisherEndpoint */

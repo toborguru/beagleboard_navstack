@@ -30,10 +30,6 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   int received_movement_status_4;
   int received_movement_status_5;
 
-  bool subscribed_1;
-  bool subscribed_2;
-  bool subscribed_3;
-
   // Establish Context
   boost::shared_ptr<OdometryPublisherEndpointStub> odometry_endpoint_stub =
       boost::shared_ptr<OdometryPublisherEndpointStub>( new OdometryPublisherEndpointStub() );
@@ -56,6 +52,7 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   encoder_counts.left_count = 100;
   encoder_counts.right_count = 100;
 
+  // These commands will get processed when the thread gets started
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
@@ -65,7 +62,6 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
 
   received_odometry_1 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_1 = movement_status_endpoint_stub->_count_of_messages_published;
-  subscribed_1 = encoder_counts_endpoint_stub->IsSubscribed();    
 
   odometry_reporting_service.BeginReporting();
 
@@ -90,7 +86,6 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
 
   received_odometry_3 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_3 = movement_status_endpoint_stub->_count_of_messages_published;
-  subscribed_2 = encoder_counts_endpoint_stub->IsSubscribed();    
   
   odometry_reporting_service.BeginReportingOdometry();
   odometry_reporting_service.StopReportingMovementStatus();
@@ -116,28 +111,22 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
 
   received_odometry_5 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_5 = movement_status_endpoint_stub->_count_of_messages_published;
-  subscribed_3 = encoder_counts_endpoint_stub->IsSubscribed();    
   
   // Assert
 
   // Arguably, this test is a bit light but makes sure odometry msgs are being pushed 
   // to the message endpoint for publication.
   EXPECT_EQ( 0, received_odometry_1 );
-  EXPECT_EQ( 4, received_odometry_2 );
-  EXPECT_EQ( 4, received_odometry_3 );
-  EXPECT_EQ( 8, received_odometry_4 );
-  EXPECT_EQ( 8, received_odometry_5 );
+  EXPECT_EQ( 8, received_odometry_2 );
+  EXPECT_EQ( 8, received_odometry_3 );
+  EXPECT_EQ( 12, received_odometry_4 );
+  EXPECT_EQ( 12, received_odometry_5 );
 
   EXPECT_EQ( 0, received_movement_status_1 );
-  EXPECT_EQ( 4, received_movement_status_2 );
-  EXPECT_EQ( 8, received_movement_status_3 );
-  EXPECT_EQ( 8, received_movement_status_4 );
-  EXPECT_EQ( 8, received_movement_status_5 );
-
-  EXPECT_FALSE( subscribed_1 );
-  EXPECT_TRUE( subscribed_2 );
-  EXPECT_FALSE( subscribed_3 );
-
+  EXPECT_EQ( 8, received_movement_status_2 );
+  EXPECT_EQ( 12, received_movement_status_3 );
+  EXPECT_EQ( 12, received_movement_status_4 );
+  EXPECT_EQ( 12, received_movement_status_5 );
 }
 
 // Define the unit test to verify ability to leverage the reporting service using the message endpoint stub

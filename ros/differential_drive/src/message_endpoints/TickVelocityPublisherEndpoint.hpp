@@ -11,21 +11,23 @@
  
 namespace differential_drive_message_endpoints
 {
-  class TickVelocityPublisherEndpoint : public differential_drive_core::ITickVelocityPublisherEndpoint
-  { 
-    public:
-      TickVelocityPublisherEndpoint();
+class TickVelocityPublisherEndpoint : public differential_drive_core::ITickVelocityPublisherEndpoint
+{ 
+public:
+  TickVelocityPublisherEndpoint();
 
-      virtual ~TickVelocityPublisherEndpoint();
- 
-      virtual void Publish( const differential_drive::TickVelocity& tick_velocity ) const;
- 
-    private:
-      // Create handle to node
-      ros::NodeHandle _tick_velocity_node;
- 
-      ros::Publisher _tick_velocity_publisher;
-  };
+  ~TickVelocityPublisherEndpoint();
+
+  void OnTickVelocityAvailableEvent(const differential_drive::TickVelocity& tick_velocity);  
+
+  void Publish( const differential_drive::TickVelocity& tick_velocity ) const;
+
+private:
+  // Create handle to node
+  ros::NodeHandle _tick_velocity_node;
+
+  ros::Publisher _tick_velocity_publisher;
+};
 }
  
 #endif /* GUARD_TickVelocityPublisherEndpoint */

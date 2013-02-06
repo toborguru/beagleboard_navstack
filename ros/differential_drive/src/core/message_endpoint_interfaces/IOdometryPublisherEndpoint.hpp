@@ -4,10 +4,12 @@
 #define GUARD_IOdometryPublisherEndpoint
  
 #include "nav_msgs/Odometry.h"
+
+#include "IOdometryListener.hpp"
  
 namespace differential_drive_core
 {
-class IOdometryPublisherEndpoint
+class IOdometryPublisherEndpoint : public IOdometryListener
 {
 public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]

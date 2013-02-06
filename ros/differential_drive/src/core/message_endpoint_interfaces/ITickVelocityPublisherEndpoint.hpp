@@ -4,10 +4,12 @@
 #define GUARD_ITickVelocityPublisherEndpoint
  
 #include "differential_drive/TickVelocity.h"
- 
+
+#include "ITickVelocityListener.hpp"
+
 namespace differential_drive_core
 {
-class ITickVelocityPublisherEndpoint
+class ITickVelocityPublisherEndpoint : public ITickVelocityListener
 {
 public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]

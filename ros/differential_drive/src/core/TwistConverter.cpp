@@ -24,9 +24,19 @@ TwistConverter::TwistConverter()
 /** Provides a call-back mechanism for objects interested in receiving 
  *  tick_velocity messages when they are available.
  */
-void TwistConverter::Attach(ITickVelocityListener& tick_velocity_listener) 
+void TwistConverter::Attach( ITickVelocityListener& tick_velocity_listener ) 
 {
   _tick_velocity_listeners.push_back(&tick_velocity_listener);
+}
+
+/** Allows a listener to stop receiving call-backs. If this is the last listener
+ *  the class will automatically call Unsubscribe.
+ */
+void TwistConverter::Detach( ITickVelocityListener& tick_velocity_listener ) 
+{ 
+  // Using the remove-erase idiom
+  std::vector<ITickVelocityListener*>& vec = _tick_velocity_listeners; // use shorter name
+  vec.erase( std::remove(vec.begin(), vec.end(), &tick_velocity_listener), vec.end() );
 }
 
 /** Sets the BaseModel object to use for SI to ticks conversion.

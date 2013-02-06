@@ -60,17 +60,14 @@ TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint
   double linear1;
   double linear2;
   double linear3;
-  double linear4;
 
   double angular1;
   double angular2;
   double angular3;
-  double angular4;
 
   int count1;
   int count2;
   int count3;
-  int count4;
 
   TwistSubscriberEndpoint twist_endpoint;
   TwistReceiver twist_receiver;

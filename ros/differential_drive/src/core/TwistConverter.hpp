@@ -20,6 +20,7 @@ namespace differential_drive_core
       TwistConverter();
 
       void Attach( ITickVelocityListener& tick_velocity_listener );
+      void Detach( ITickVelocityListener& tick_velocity_listener );
 
       void SetBaseModel( const BaseModel& base_model );
 

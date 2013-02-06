@@ -19,6 +19,13 @@ TickVelocityPublisherEndpoint::~TickVelocityPublisherEndpoint()
 {
 }
 
+/** This class is a tick velocity listener, act on new tick velocity available.
+ */
+void TickVelocityPublisherEndpoint::OnTickVelocityAvailableEvent(const differential_drive::TickVelocity& tick_velocity)
+{
+  Publish( tick_velocity );
+}
+
 void TickVelocityPublisherEndpoint::Publish( const differential_drive::TickVelocity& tick_velocity ) const 
 {
   _tick_velocity_publisher.publish(tick_velocity);

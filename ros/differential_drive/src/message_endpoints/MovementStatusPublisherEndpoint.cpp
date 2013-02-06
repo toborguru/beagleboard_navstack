@@ -19,6 +19,13 @@ MovementStatusPublisherEndpoint::~MovementStatusPublisherEndpoint()
 {
 }
 
+/** This class is an movement status listener, and publishes any new messages available.
+ */
+void MovementStatusPublisherEndpoint::OnMovementStatusAvailableEvent(const differential_drive::MovementStatus& movement_status)
+{
+  Publish( movement_status );
+}
+
 void MovementStatusPublisherEndpoint::Publish( const differential_drive::MovementStatus& status )
 {
   _status_publisher.publish(status);

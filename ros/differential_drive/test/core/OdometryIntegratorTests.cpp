@@ -199,7 +199,7 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveOdometry )
   count_generator.AddTicks(new_counts);
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   // Assert
 
@@ -237,7 +237,7 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   count_generator.AddTicks(new_counts);
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   x = odometry_receiver._x;
   linear = odometry_receiver._linear;
@@ -249,7 +249,7 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   count_generator.AddTicks(new_counts);
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   y = odometry_receiver._y;
   theta = odometry_receiver._theta;
@@ -258,7 +258,7 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   // Normilization check on -pi/pi (roll over (@ Pi) on theta = 4.0)
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   // Assert
 
@@ -297,7 +297,7 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
   new_counts.dt_ms = 100;
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   cov1 = odometry_receiver._covariance;
 
@@ -305,7 +305,7 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
 
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   cov2 = odometry_receiver._covariance;
 
@@ -314,7 +314,7 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
 
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   cov3 = odometry_receiver._covariance;
 
@@ -346,7 +346,7 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveMovementStatus )
   count_generator.AddTicks(new_counts);
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   // Assert
 
@@ -386,7 +386,7 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   state_1 = movement_status_receiver._state;  
   stasis_enabled_1 = movement_status_receiver._stasis_enabled;  
@@ -394,7 +394,7 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   odometry_integrator.SetBaseModel(base_model);
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   state_2 = movement_status_receiver._state;  
   stasis_enabled_2 = movement_status_receiver._stasis_enabled;  
@@ -403,7 +403,7 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   base_model.SetStasisTicks( 100 );
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   state_3 = movement_status_receiver._state;  
   stasis_enabled_3 = movement_status_receiver._stasis_enabled;  
@@ -461,7 +461,7 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   // All Wheels same speed, size and count
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   state_1 = movement_status_receiver._state;  
   linear_1 = movement_status_receiver._linear;  
@@ -473,7 +473,7 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   base_model.SetStasisTicks( 50 );
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   state_2 = movement_status_receiver._state;  
   linear_2 = movement_status_receiver._linear;  
@@ -485,7 +485,7 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   base_model.SetStasisTicks( 200 );
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   state_3 = movement_status_receiver._state;  
   linear_3 = movement_status_receiver._linear;  
@@ -495,7 +495,7 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   new_counts.stasis_count = 0;
   count_generator.AddTicks(new_counts);
 
-  usleep(25000);
+  usleep(2500);
 
   state_4 = movement_status_receiver._state;  
   linear_4 = movement_status_receiver._linear;  
@@ -679,7 +679,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     odometry_integrator.SetAverage2nReadings(i);
     count_generator.AddTicks(new_counts);
 
-    usleep(25000);
+    usleep(2500);
 
     average_2n[ size_index ]                  = odometry_integrator.GetAverage2nReadings();
     average_num[ size_index ]                 = odometry_integrator.GetAverageNumReadings();
@@ -711,7 +711,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     count_generator.AddTicks(new_counts);
     count_generator.AddTicks(new_counts);
 
-    usleep(25000);
+    usleep(2500);
 
     linear[ velocity_index ]                  = movement_status_receiver._linear;  
     linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
@@ -734,7 +734,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     odometry_integrator.SetAverage2nReadings(i);
     count_generator.AddTicks(new_counts);
 
-    usleep(25000);
+    usleep(2500);
 
     linear[ velocity_index ]                  = movement_status_receiver._linear;  
     linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
@@ -759,7 +759,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
 
     count_generator.AddTicks(new_counts);
 
-    usleep(25000);
+    usleep(2500);
 
     new_counts.left_count = 0;
     new_counts.right_count = 0;
@@ -768,7 +768,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
 
     count_generator.AddTicks(new_counts);
 
-    usleep(25000);
+    usleep(2500);
 
     linear[ velocity_index ]                  = movement_status_receiver._linear;  
     linear_average[ velocity_index ]          = movement_status_receiver._linear_average;  
@@ -795,7 +795,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
       new_counts.dt_ms = 1000;
       count_generator.AddTicks(new_counts);
 
-      usleep(25000);
+      usleep(2500);
 
       new_counts.left_count = 16;
       new_counts.right_count = 16;
@@ -803,7 +803,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
       new_counts.dt_ms = 1000;
       count_generator.AddTicks(new_counts);
 
-      usleep(25000);
+      usleep(2500);
     }
 
     linear[ velocity_index ]                  = movement_status_receiver._linear;  
@@ -831,7 +831,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
       new_counts.dt_ms = 1000;
       count_generator.AddTicks(new_counts);
 
-      usleep(25000);
+      usleep(2500);
 
       new_counts.left_count = 16;
       new_counts.right_count = 16;
@@ -839,7 +839,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
       new_counts.dt_ms = 1000;
       count_generator.AddTicks(new_counts);
 
-      usleep(25000);
+      usleep(2500);
     }
 
     linear[ velocity_index ]                  = movement_status_receiver._linear;  

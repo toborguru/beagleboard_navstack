@@ -21,6 +21,13 @@ OdometryPublisherEndpoint::OdometryPublisherEndpoint()
 { 
 }
 
+/** This class is an odometry listener, act on new odometry available.
+ *  */
+void OdometryPublisherEndpoint::OnOdometryAvailableEvent(const nav_msgs::Odometry& odometry)
+{
+  Publish( odometry );
+}
+
 /** Publishes the @p odometry msg and broadcasts the coordinate frame 
  *  transform.
  */
