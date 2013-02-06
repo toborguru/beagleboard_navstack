@@ -4,6 +4,7 @@
 #define GUARD_OdometryIntegrator
  
 #include <vector>
+#include <queue>
 
 #include "nav_msgs/Odometry.h"
 #include "differential_drive/EncoderCounts.h"
@@ -26,8 +27,10 @@ class OdometryIntegrator : public IEncoderCountsListener
     ~OdometryIntegrator();
 
     void Attach( IOdometryListener& odometry_listener );
+    void Detach( IOdometryListener& odometry_listener );
 
     void Attach( IMovementStatusListener& movement_status_listener );
+    void Detach( IMovementStatusListener& movement_status_listener );
 
     void SetBaseModel( const BaseModel& base_model );
 
@@ -63,6 +66,8 @@ class OdometryIntegrator : public IEncoderCountsListener
     void NotifyMovementStatusListeners(const differential_drive::MovementStatus& movement_status);
     std::vector<IMovementStatusListener*> _movement_status_listeners;
 
+    std::queue<const differential_drive::EncoderCounts*> _encoder_counts_messages;
+
     nav_msgs::Odometry _current_position;
 
     differential_drive::MovementStatus _movement_status;
@@ -83,6 +88,25 @@ class OdometryIntegrator : public IEncoderCountsListener
     float  *_p_stasis_velocities; 
 
     const BaseModel* _p_base_model;
+
+    // Basic threading support as suggested by Jeremy Friesner at
+    // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
+    void ProcessOdometry();
+    void StartProcessingOdometry();
+    void StopProcessingOdometry();
+
+    volatile bool _stop_requested;
+    volatile bool _is_running;
+    pthread_t _thread;
+
+    pthread_mutex_t  *_p_processing_mutex;
+    pthread_mutex_t  *_p_message_mutex;
+    pthread_cond_t   *_p_message_cond;
+
+    static void * ProcessOdometryFunction(void * This) {
+      ( (OdometryIntegrator*)This )->ProcessOdometry();
+      return 0;
+    }
 };
 }
 
