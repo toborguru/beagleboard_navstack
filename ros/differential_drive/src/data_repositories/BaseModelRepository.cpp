@@ -4,9 +4,44 @@
  
 namespace differential_drive_data_repositories
 {
+BaseModelRepository::BaseModelRepository()
+{
+}
+
+BaseModelRepository::BaseModelRepository( differential_drive_core::BaseModel* p_new_model )
+{
+  SetBaseModel( p_new_model );
+}
+
+BaseModelRepository::~BaseModelRepository()
+{
+}
+
+void BaseModelRepository::QueryBaseGeometry()
+{
+  _p_base_model->SetBaseGeometry( RosQueryBaseGeometry() );
+}
+
+void BaseModelRepository::PersistBaseGeometry()
+{
+}
+
+void BaseModelRepository::StartListeningForUpdates()
+{
+}
+
+void BaseModelRepository::StopListeningForUpdates()
+{
+}
+
+void BaseModelRepository::SetBaseModel( differential_drive_core::BaseModel* p_new_model )
+{
+  _p_base_model = p_new_model;
+}
+
 /** Returns a @c BaseGeometry_T from ROS parameters or assigns defaults.
  */
-differential_drive_core::BaseGeometry_T BaseModelRepository::QueryBaseGeometry() const
+differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometry() const
 {
   differential_drive_core::BaseGeometry_T base_geometry;
 
@@ -62,7 +97,7 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::QueryBaseGeometry()
       {
         ROS_ERROR_NAMED(  "BaseModelRepository", "stasis_wheel_encoder_ticks <= 0! Disabling stasis wheel." );
 
-        stasis_diameter = 1.0;
+        stasis_diameter = 2.0;
         stasis_ticks = -1;
       }
     }
@@ -70,16 +105,15 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::QueryBaseGeometry()
     {
       ROS_ERROR_NAMED(  "BaseModelRepository", "stasis_wheel_diameter <= 0! Disabling stasis wheel." );
 
-      stasis_diameter = 1.0;
+      stasis_diameter = 2.0;
       stasis_ticks = -1;
     }
   }
   else
   {
-    stasis_diameter = 1.0;
+    stasis_diameter = 2.0;
     stasis_ticks = -1;
   }
-
 
   // Assign return values
   base_geometry.wheel_radius = wheel_diameter / 2.0;

@@ -12,23 +12,17 @@ namespace differential_drive_application_services
  *  of objects. The object pointed to will be destroyed when all pointers to the object have been
  *  destroyed.
  */
-BaseModelSetupService::BaseModelSetupService( boost::shared_ptr<IBaseModelRepository> base_model_repository )
+BaseModelSetupService::BaseModelSetupService( boost::shared_ptr<IBaseModelRepository> base_model_repository,
+                                              boost::shared_ptr<differential_drive_core::BaseModel> base_model )
   : _p_base_model_repository( base_model_repository )
 { 
-  _p_base_model = boost::shared_ptr<BaseModel>( new BaseModel() );
+  _p_base_model_repository->SetBaseModel( base_model.get() );
 }
 
 /** Request updated parameters for the internal BaseModel from the data repository.
  */
 void BaseModelSetupService::Update()
 {
-  _p_base_model->SetBaseGeometry( _p_base_model_repository->QueryBaseGeometry() );
-}
-
-/** Returns boost::shared_ptr to the internal BaseModel.
- */
-boost::shared_ptr<BaseModel> BaseModelSetupService::GetBaseModel()
-{
-  return _p_base_model;
+  _p_base_model_repository->QueryBaseGeometry();
 }
 }

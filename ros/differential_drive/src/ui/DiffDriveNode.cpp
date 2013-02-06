@@ -2,6 +2,7 @@
 
 #include "OdometryReportingService.hpp"
 #include "TwistCommandService.hpp"
+#include "BaseModelSetupService.hpp"
 
 #include "OdometryPublisherEndpoint.hpp"
 #include "MovementStatusPublisherEndpoint.hpp"
@@ -25,11 +26,9 @@ int main(int argc, char **argv)
     ROS_INFO( "differential_drive node started." );
 
     // 2) Application services must be initialized before being used
-    // Base Model Setup
-    BaseModelRepository base_model_repository;
-
+    // Base Model 
     boost::shared_ptr<BaseModel> base_model = 
-        boost::shared_ptr<BaseModel>( new BaseModel(base_model_repository.QueryBaseGeometry( )) );
+        boost::shared_ptr<BaseModel>( new BaseModel() );
 
     // Odometry Reporting Service
     boost::shared_ptr<OdometryPublisherEndpoint> odometry_endpoint =
@@ -59,7 +58,18 @@ int main(int argc, char **argv)
                                                 base_model );
 
 
+    // Base Model Setup Service
+    boost::shared_ptr<BaseModelRepository> base_model_repository =
+        boost::shared_ptr<BaseModelRepository>( new BaseModelRepository() );
+
+    BaseModelSetupService base_model_setup_service( base_model_repository,
+                                                    base_model );
+  
+
     // 3) Start the services
+    ROS_INFO( "Starting the Base Setup Service..." );
+    base_model_setup_service.Update();
+
     ROS_INFO( "Starting Odometry Reporting Service..." );
     odometry_reporting_service.StartReporting();
 

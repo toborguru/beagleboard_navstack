@@ -128,6 +128,8 @@ private:
   BaseGeometry_T  _base_geometry;                                  
 
   TickRates_T     _tick_rates; 
+
+  pthread_mutex_t  *_p_lock_mutex;
 };
 }
 

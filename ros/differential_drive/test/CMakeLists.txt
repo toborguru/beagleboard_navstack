@@ -12,7 +12,7 @@ rosbuild_add_gtest(
   ./core/BaseModelTests.cpp
   ./core/OdometryIntegratorTests.cpp
   ./core/TwistConverterTests.cpp
-  ./application_services/BaseModelSetupServiceTests.cpp
+#  ./application_services/BaseModelSetupServiceTests.cpp
   ./application_services/OdometryReportingServiceTests.cpp
   ./application_services/TwistCommandServiceTests.cpp
 )

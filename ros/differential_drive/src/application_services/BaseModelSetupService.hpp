@@ -11,14 +11,12 @@ namespace differential_drive_application_services
 class BaseModelSetupService
 {
 public:
-  explicit BaseModelSetupService( boost::shared_ptr<differential_drive_core::IBaseModelRepository> base_model_repository );
+  explicit BaseModelSetupService( boost::shared_ptr<differential_drive_core::IBaseModelRepository> base_model_repository,
+                                  boost::shared_ptr<differential_drive_core::BaseModel> base_model );
 
   void Update();
 
-  boost::shared_ptr<differential_drive_core::BaseModel> GetBaseModel();
-
 private:
-  boost::shared_ptr<differential_drive_core::BaseModel> _p_base_model;
   boost::shared_ptr<differential_drive_core::IBaseModelRepository> _p_base_model_repository;
 };
 }
