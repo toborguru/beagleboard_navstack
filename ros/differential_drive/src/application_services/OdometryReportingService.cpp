@@ -21,35 +21,62 @@ OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryP
   : _p_odometry_endpoint( odometry_endpoint ),
     _p_movement_status_endpoint( movement_status_endpoint ),
     _p_encoder_counts_endpoint( encoder_counts_endpoint ),
-    _p_base_model( base_model )
+    _p_base_model( base_model ),
+    _is_reporting_odometry(false),
+    _is_reporting_movement_status(false),
+    _is_processing_encoder_counts(false)
 {
-  // Always listen so even if not reporting the integration occurs
-  _p_encoder_counts_endpoint->Attach( _odometry_integrator );
-
   _odometry_integrator.SetBaseModel(*_p_base_model );
 }
 
 /** Do everything required to start all listening and reporting.
  */
-void OdometryReportingService::BeginReporting() 
+void OdometryReportingService::StartReporting() 
 {
-  BeginReportingOdometry();
-  BeginReportingMovementStatus();
+  StartReportingOdometry();
+  StartReportingMovementStatus();
+  StartProcessingEncoderCounts();
 }
 
 /** Do everything required to stop all listening and reporting.
  */
 void OdometryReportingService::StopReporting()
 {
+  StopProcessingEncoderCounts(); 
   StopReportingOdometry();
   StopReportingMovementStatus();
 }
 
+/** Start reading and processing incoming encoder counts.
+ */
+void OdometryReportingService::StartProcessingEncoderCounts()
+{
+  if ( !_is_processing_encoder_counts )
+  {
+    _p_encoder_counts_endpoint->Attach( _odometry_integrator );
+  }
+
+  _is_processing_encoder_counts = true;
+}
+
+/** Stop reading and processing incoming encoder counts.
+ */
+void OdometryReportingService::StopProcessingEncoderCounts()
+{
+  _p_encoder_counts_endpoint->Detach( _odometry_integrator );
+  _is_processing_encoder_counts = false;
+}
+
 /** Do everything required to start odometry reporting.
  */
-void OdometryReportingService::BeginReportingOdometry() 
+void OdometryReportingService::StartReportingOdometry() 
 {
-  _odometry_integrator.Attach( *_p_odometry_endpoint );
+  if ( !_is_reporting_odometry )
+  {
+    _odometry_integrator.Attach( *_p_odometry_endpoint );
+  }
+
+  _is_reporting_odometry = true;
 }
 
 /** Do everything required to stop odometry reporting.
@@ -57,13 +84,19 @@ void OdometryReportingService::BeginReportingOdometry()
 void OdometryReportingService::StopReportingOdometry()
 {
   _odometry_integrator.Detach( *_p_odometry_endpoint );
+  _is_reporting_odometry = false;
 }
 
 /** Do everything required to start movement status reporting.
  */
-void OdometryReportingService::BeginReportingMovementStatus() 
+void OdometryReportingService::StartReportingMovementStatus() 
 {
-  _odometry_integrator.Attach( *_p_movement_status_endpoint );
+  if ( !_is_reporting_movement_status )
+  {
+    _odometry_integrator.Attach( *_p_movement_status_endpoint );
+  }
+
+  _is_reporting_movement_status = true;
 }
 
 /** Do everything required to stop movement status reporting.
@@ -71,6 +104,7 @@ void OdometryReportingService::BeginReportingMovementStatus()
 void OdometryReportingService::StopReportingMovementStatus()
 {
   _odometry_integrator.Detach( *_p_movement_status_endpoint );
+  _is_reporting_movement_status = false;
 }
 
 /** Access function.

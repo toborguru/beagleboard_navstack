@@ -46,7 +46,7 @@ namespace differential_drive_test_application_services
  
     received1 = tick_velocity_endpoint_stub->_count_of_tick_velocities_published;
    
-    twist_command_service.BeginAcceptingCommands();
+    twist_command_service.StartAcceptingCommands();
 
     twist_endpoint_stub->AddTicks( twist );
     twist_endpoint_stub->AddTicks( twist );
@@ -100,7 +100,7 @@ namespace differential_drive_test_application_services
     twist.linear.x = 1.0;
     twist.angular.z = 0.0;
 
-    twist_command_service.BeginAcceptingCommands();
+    twist_command_service.StartAcceptingCommands();
 
     twist_endpoint_stub->AddTicks( twist );
 

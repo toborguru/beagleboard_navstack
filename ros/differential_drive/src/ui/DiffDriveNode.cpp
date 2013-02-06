@@ -61,10 +61,10 @@ int main(int argc, char **argv)
 
     // 3) Start the services
     ROS_INFO( "Starting Odometry Reporting Service..." );
-    odometry_reporting_service.BeginReporting();
+    odometry_reporting_service.StartReporting();
 
     ROS_INFO( "Starting Twist Command Service..." );
-    twist_command_service.BeginAcceptingCommands();
+    twist_command_service.StartAcceptingCommands();
 
     ros::spin();
 

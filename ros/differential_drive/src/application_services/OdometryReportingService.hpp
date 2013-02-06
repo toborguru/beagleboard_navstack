@@ -21,16 +21,16 @@ public:
                                       boost::shared_ptr<differential_drive_core::IEncoderCountsSubscriberEndpoint> encoder_count_endpoint,
                                       boost::shared_ptr<const differential_drive_core::BaseModel> base_model );
 
-  void BeginProcessing();
-  void StopProcessing();
+  void StartProcessingEncoderCounts();
+  void StopProcessingEncoderCounts();
 
-  void BeginReporting();
+  void StartReporting();
   void StopReporting();
 
-  void BeginReportingOdometry();
+  void StartReportingOdometry();
   void StopReportingOdometry();
 
-  void BeginReportingMovementStatus();
+  void StartReportingMovementStatus();
   void StopReportingMovementStatus();
 
   unsigned int GetAverageNumReadings() const;
@@ -50,6 +50,10 @@ private:
   boost::shared_ptr<differential_drive_core::IMovementStatusPublisherEndpoint> _p_movement_status_endpoint;
   boost::shared_ptr<differential_drive_core::IEncoderCountsSubscriberEndpoint>  _p_encoder_counts_endpoint;
   boost::shared_ptr<const differential_drive_core::BaseModel>         _p_base_model;
+
+  bool _is_reporting_odometry;
+  bool _is_reporting_movement_status;
+  bool _is_processing_encoder_counts;
 };
 }
  
