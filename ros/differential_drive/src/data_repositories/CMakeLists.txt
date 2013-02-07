@@ -2,7 +2,7 @@
 rosbuild_add_library(
   differential_drive_data_repositories
   BaseModelRepository.cpp
-  MovementStatusParametersRepository.cpp
+#  MovementStatusParametersRepository.cpp
 )
 
 target_link_libraries(
