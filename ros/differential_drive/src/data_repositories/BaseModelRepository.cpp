@@ -5,16 +5,19 @@
 namespace differential_drive_data_repositories
 {
 BaseModelRepository::BaseModelRepository()
+                    : _p_geometry_reconfigure_server(NULL)
 {
 }
 
 BaseModelRepository::BaseModelRepository( differential_drive_core::BaseModel* p_new_model )
+                    : _p_geometry_reconfigure_server(NULL)
 {
   SetBaseModel( p_new_model );
 }
 
 BaseModelRepository::~BaseModelRepository()
 {
+  StopListeningForUpdates();
 }
 
 void BaseModelRepository::QueryBaseGeometry()
@@ -24,14 +27,43 @@ void BaseModelRepository::QueryBaseGeometry()
 
 void BaseModelRepository::PersistBaseGeometry()
 {
+  RosPersistBaseGeometry( _p_base_model->GetBaseGeometry() );
 }
 
 void BaseModelRepository::StartListeningForUpdates()
 {
+  if ( _p_geometry_reconfigure_server == NULL )
+  {
+    _p_geometry_reconfigure_server = new dynamic_reconfigure::Server<differential_drive::BaseGeometryConfig>;
+    dynamic_reconfigure::Server<differential_drive::BaseGeometryConfig>::CallbackType call_back_type;
+
+    call_back_type = boost::bind( &BaseModelRepository::UpdateBaseGeometryCallBack, this, _1, _2 );
+  }
 }
 
 void BaseModelRepository::StopListeningForUpdates()
 {
+  if ( _p_geometry_reconfigure_server != NULL )
+  {
+    delete _p_geometry_reconfigure_server;
+    _p_geometry_reconfigure_server = NULL;
+  }
+}
+
+void BaseModelRepository::UpdateBaseGeometryCallBack( differential_drive::BaseGeometryConfig &config, uint32_t level)
+{
+  differential_drive_core::BaseGeometry_T base_geometry;
+
+  base_geometry.wheel_radius  = config.drive_wheel_diameter / 2.0;
+  base_geometry.wheel_base    = config.drive_wheel_base;
+  base_geometry.wheel_ratio   = config.drive_wheel_ratio;
+  base_geometry.wheel_ticks   = config.drive_wheel_encoder_ticks;
+
+  base_geometry.stasis_radius = config.stasis_wheel_diameter / 2.0;
+  base_geometry.stasis_ticks =  config.stasis_wheel_encoder_ticks;
+
+  _p_base_model->SetBaseGeometry( base_geometry );
+  PersistBaseGeometry();
 }
 
 void BaseModelRepository::SetBaseModel( differential_drive_core::BaseModel* p_new_model )
@@ -96,7 +128,8 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometr
       if ( stasis_ticks <= 0.0 )
       {
         ROS_ERROR_NAMED(  "BaseModelRepository", "stasis_wheel_encoder_ticks <= 0! Disabling stasis wheel." );
-
+        
+        ros::param::set("~stasis_wheel_enabled", false );
         stasis_diameter = 2.0;
         stasis_ticks = -1;
       }
@@ -105,12 +138,14 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometr
     {
       ROS_ERROR_NAMED(  "BaseModelRepository", "stasis_wheel_diameter <= 0! Disabling stasis wheel." );
 
+      ros::param::set("~stasis_wheel_enabled", false );
       stasis_diameter = 2.0;
       stasis_ticks = -1;
     }
   }
   else
   {
+    ros::param::set("~stasis_wheel_enabled", false );
     stasis_diameter = 2.0;
     stasis_ticks = -1;
   }
@@ -124,5 +159,35 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometr
   base_geometry.stasis_ticks = stasis_ticks;
 
   return base_geometry;
+}
+
+void BaseModelRepository::RosPersistBaseGeometry( differential_drive_core::BaseGeometry_T geometry ) const
+{
+  double wheel_diameter;
+  double stasis_diameter;
+
+  wheel_diameter = geometry.wheel_radius * 2.0;
+  stasis_diameter = geometry.stasis_radius * 2.0;
+
+  ros::param::set( "~drive_wheel_diameter", wheel_diameter );
+  ros::param::set( "~drive_wheel_base", geometry.wheel_base );
+  ros::param::set( "~drive_wheel_encoder_ticks", geometry.wheel_ticks);
+
+  if ( (geometry.wheel_ratio != 1.0) || (ros::param::has( "~drive_wheel_ratio" )) )
+  {
+    ros::param::set( "~drive_wheel_ratio", geometry.wheel_ratio );
+  }
+
+  ros::param::set( "~stasis_wheel_diameter", stasis_diameter );
+  ros::param::set( "~stasis_wheel_encoder_ticks", geometry.stasis_ticks );
+
+  if ( (geometry.stasis_ticks > 0) && (stasis_diameter > 0.0) )
+  {
+    ros::param::set( "~stasis_wheel_enabled", true );
+  }
+  else
+  {
+    ros::param::set( "~stasis_wheel_enabled", false );
+  }
 }
 }

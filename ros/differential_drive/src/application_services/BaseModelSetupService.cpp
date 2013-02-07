@@ -19,6 +19,20 @@ BaseModelSetupService::BaseModelSetupService( boost::shared_ptr<IBaseModelReposi
   _p_base_model_repository->SetBaseModel( base_model.get() );
 }
 
+/** Registers with ROS dynamic reconfigure for base parameter updates.
+ */
+void BaseModelSetupService::StartUpdating()
+{
+  _p_base_model_repository->StartListeningForUpdates();
+}
+
+/** Registers with ROS dynamic reconfigure for base parameter updates.
+ */
+void BaseModelSetupService::StopUpdating()
+{
+  _p_base_model_repository->StopListeningForUpdates();
+}
+
 /** Request updated parameters for the internal BaseModel from the data repository.
  */
 void BaseModelSetupService::Update()

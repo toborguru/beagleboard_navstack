@@ -14,6 +14,9 @@ public:
   explicit BaseModelSetupService( boost::shared_ptr<differential_drive_core::IBaseModelRepository> base_model_repository,
                                   boost::shared_ptr<differential_drive_core::BaseModel> base_model );
 
+  void StartUpdating();
+  void StopUpdating();
+
   void Update();
 
 private:

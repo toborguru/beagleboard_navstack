@@ -67,8 +67,9 @@ int main(int argc, char **argv)
   
 
     // 3) Start the services
-    ROS_INFO( "Starting the Base Setup Service..." );
+    ROS_INFO( "Starting the Base Model Setup Service..." );
     base_model_setup_service.Update();
+    base_model_setup_service.StartUpdating();
 
     ROS_INFO( "Starting Odometry Reporting Service..." );
     odometry_reporting_service.StartReporting();
