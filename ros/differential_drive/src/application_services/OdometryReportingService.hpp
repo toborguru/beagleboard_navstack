@@ -9,6 +9,7 @@
 #include "IOdometryPublisherEndpoint.hpp"
 #include "IMovementStatusPublisherEndpoint.hpp"
 #include "IEncoderCountsSubscriberEndpoint.hpp"
+#include "IMovementStatusParametersRepository.hpp"
 #include "OdometryIntegrator.hpp"
  
 namespace differential_drive_application_services
@@ -19,6 +20,7 @@ public:
   explicit OdometryReportingService(  boost::shared_ptr<differential_drive_core::IOdometryPublisherEndpoint> odometry_endpoint,
                                       boost::shared_ptr<differential_drive_core::IMovementStatusPublisherEndpoint> movement_status_endpoint,
                                       boost::shared_ptr<differential_drive_core::IEncoderCountsSubscriberEndpoint> encoder_count_endpoint,
+                                      boost::shared_ptr<differential_drive_core::IMovementStatusParametersRepository> parameters_repository,
                                       boost::shared_ptr<const differential_drive_core::BaseModel> base_model );
 
   void StartProcessingEncoderCounts();
@@ -33,14 +35,10 @@ public:
   void StartReportingMovementStatus();
   void StopReportingMovementStatus();
 
-  unsigned int GetAverageNumReadings() const;
-  void SetAverageNumReadings( const unsigned int new_average_num_readings );
+  void StartUpdatingParameters();
+  void StopUpdatingParameters();
 
-  float GetStasisPercentage() const;
-  void SetStasisPercentage( float percentage );
-
-  float GetVelocityLowerLimit() const;
-  void SetVelocityLowerLimit( float velocity_limit );
+  void UpdateParameters();
 
 private:
 
@@ -49,6 +47,7 @@ private:
   boost::shared_ptr<differential_drive_core::IOdometryPublisherEndpoint>       _p_odometry_endpoint;
   boost::shared_ptr<differential_drive_core::IMovementStatusPublisherEndpoint> _p_movement_status_endpoint;
   boost::shared_ptr<differential_drive_core::IEncoderCountsSubscriberEndpoint>  _p_encoder_counts_endpoint;
+  boost::shared_ptr<differential_drive_core::IMovementStatusParametersRepository> _p_movement_status_parameters_repository;
   boost::shared_ptr<const differential_drive_core::BaseModel>         _p_base_model;
 
   bool _is_reporting_odometry;

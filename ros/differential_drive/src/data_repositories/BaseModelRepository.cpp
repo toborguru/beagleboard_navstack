@@ -5,7 +5,8 @@
 namespace differential_drive_data_repositories
 {
 BaseModelRepository::BaseModelRepository()
-                    : _p_geometry_reconfigure_server(NULL)
+                    : _p_base_model(NULL),
+                      _p_geometry_reconfigure_server(NULL)
 {
 }
 

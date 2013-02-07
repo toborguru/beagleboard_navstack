@@ -17,16 +17,19 @@ namespace differential_drive_application_services
 OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryPublisherEndpoint> odometry_endpoint,
                                                     boost::shared_ptr<differential_drive_core::IMovementStatusPublisherEndpoint> movement_status_endpoint,
                                                     boost::shared_ptr<IEncoderCountsSubscriberEndpoint> encoder_counts_endpoint, 
+                                                    boost::shared_ptr<IMovementStatusParametersRepository> parameters_repository,
                                                     boost::shared_ptr<const differential_drive_core::BaseModel> base_model )
   : _p_odometry_endpoint( odometry_endpoint ),
     _p_movement_status_endpoint( movement_status_endpoint ),
     _p_encoder_counts_endpoint( encoder_counts_endpoint ),
+    _p_movement_status_parameters_repository( parameters_repository ), 
     _p_base_model( base_model ),
     _is_reporting_odometry(false),
     _is_reporting_movement_status(false),
     _is_processing_encoder_counts(false)
 {
   _odometry_integrator.SetBaseModel( *_p_base_model );
+  _p_movement_status_parameters_repository->SetOdometryIntegrator( &_odometry_integrator );
 }
 
 /** Do everything required to start all listening and reporting.
@@ -107,45 +110,24 @@ void OdometryReportingService::StopReportingMovementStatus()
   _is_reporting_movement_status = false;
 }
 
-/** Access function.
+/** Registers with ROS dynamic reconfigure for base parameter updates.
  */
-unsigned int OdometryReportingService::GetAverageNumReadings() const
+void OdometryReportingService::StartUpdatingParameters()
 {
-  return _odometry_integrator.GetAverageNumReadings();
+  _p_movement_status_parameters_repository->StartListeningForUpdates();
 }
 
-/** Access function, value will be truncated to a power of 2.
+/** Registers with ROS dynamic reconfigure for base parameter updates.
  */
-void OdometryReportingService::SetAverageNumReadings( const unsigned int new_average_num_readings )
+void OdometryReportingService::StopUpdatingParameters()
 {
-  _odometry_integrator.SetAverageNumReadings( new_average_num_readings );
+  _p_movement_status_parameters_repository->StopListeningForUpdates();
 }
 
-/** Access function.
+/** Request updated parameters for the internal OdometryIntegrator from the data repository.
  */
-float OdometryReportingService::GetStasisPercentage() const
+void OdometryReportingService::UpdateParameters()
 {
-  return _odometry_integrator.GetStasisPercentage();
-}
-
-/** Access function.
- */
-void OdometryReportingService::SetStasisPercentage( float percentage )
-{
-  _odometry_integrator.SetStasisPercentage( percentage );
-}
-
-/** Access function.
- */
-float OdometryReportingService::GetVelocityLowerLimit() const
-{
-  return _odometry_integrator.GetVelocityLowerLimit();
-}
-
-/** Access function.
- */
-void OdometryReportingService::SetVelocityLowerLimit( float velocity_limit )
-{
-  _odometry_integrator.SetVelocityLowerLimit( velocity_limit );
+  _p_movement_status_parameters_repository->QueryParameters();
 }
 }

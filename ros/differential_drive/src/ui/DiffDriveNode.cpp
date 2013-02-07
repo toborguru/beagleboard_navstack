@@ -10,6 +10,7 @@
 #include "TwistSubscriberEndpoint.hpp"
 #include "EncoderCountsSubscriberEndpoint.hpp"
 
+#include "MovementStatusParametersRepository.hpp"
 #include "BaseModelRepository.hpp"
 
 using namespace differential_drive_application_services;
@@ -40,9 +41,13 @@ int main(int argc, char **argv)
     boost::shared_ptr<EncoderCountsSubscriberEndpoint> encoder_counts_endpoint =
         boost::shared_ptr<EncoderCountsSubscriberEndpoint>( new EncoderCountsSubscriberEndpoint() );
 
+    boost::shared_ptr<MovementStatusParametersRepository> parameters_repository = 
+        boost::shared_ptr<MovementStatusParametersRepository>( new MovementStatusParametersRepository );
+
     OdometryReportingService odometry_reporting_service(  odometry_endpoint, 
                                                           movement_status_endpoint, 
                                                           encoder_counts_endpoint,
+                                                          parameters_repository,
                                                           base_model );
 
     
@@ -72,6 +77,8 @@ int main(int argc, char **argv)
     base_model_setup_service.StartUpdating();
 
     ROS_INFO( "Starting Odometry Reporting Service..." );
+    odometry_reporting_service.UpdateParameters();
+    odometry_reporting_service.StartUpdatingParameters();
     odometry_reporting_service.StartReporting();
 
     ROS_INFO( "Starting Twist Command Service..." );
