@@ -38,6 +38,8 @@ void BaseModelRepository::StartListeningForUpdates()
     dynamic_reconfigure::Server<differential_drive::BaseGeometryConfig>::CallbackType call_back_type;
 
     call_back_type = boost::bind( &BaseModelRepository::UpdateBaseGeometryCallBack, this, _1, _2 );
+
+    _p_geometry_reconfigure_server->setCallback( call_back_type );
   }
 }
 
