@@ -173,7 +173,7 @@ bool EscapeCollision( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction )
       if ( integration_bucket == 0 )
       {
         rand_num = rand();
-        left = rand_num % 2;
+        left = rand_num & 0x1;
 
         integration_bucket += BUMP_FIRST_MULT * BUMP_CENTER;
         response_value = integration_bucket;
@@ -228,7 +228,7 @@ bool EscapeCollision( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction )
       if ( integration_bucket == 0 )
       {
         rand_num = rand();
-        left = rand_num % 2;
+        left = rand_num & 0x01;
 
         integration_bucket += BUMP_FIRST_MULT * BUMP_CENTER;
         response_value = integration_bucket;
@@ -386,7 +386,7 @@ bool EscapeStasis( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction )
       if ( integration_bucket == 0 )
       {
         rand_num = rand();
-        left = rand_num % 2;
+        left = rand_num & 0x01;
 
         integration_bucket += BUMP_FIRST_MULT * BUMP_CENTER;
         response_value = integration_bucket;
@@ -405,7 +405,7 @@ bool EscapeStasis( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction )
       if ( integration_bucket == 0 )
       {
         rand_num = rand();
-        left = rand_num % 2;
+        left = rand_num & 0x01;
 
         integration_bucket += BUMP_FIRST_MULT * BUMP_CENTER;
         response_value = integration_bucket;
