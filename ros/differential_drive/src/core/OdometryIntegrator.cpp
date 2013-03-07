@@ -216,7 +216,7 @@ void OdometryIntegrator::SetAverageNumReadings( unsigned int average_num_reading
     average_num_readings = 1;
   }
 
-  for ( unsigned int i = 0; i < MAX_2N_AVERAGES; i++ )
+  for ( unsigned int i = 0; i < MAX_2N_AVERAGES; ++i )
   {
     if ( average_num_readings < ldexp(1.0, i) )
     {
@@ -271,7 +271,7 @@ void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings 
   }
 
   // Clear averaging arrays
-  for ( unsigned int i = 0; i < _average_num_readings; i++ )
+  for ( unsigned int i = 0; i < _average_num_readings; ++i )
   {
     _p_linear_velocities[ i ] = 0.0;
     _p_stasis_velocities[ i ] = 0.0;
@@ -486,7 +486,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
       // I could add this outside the if and prevent run-away in the else 
       // block but I figure 1 extra division loop is better than two 
       // assignments during every loop of normal operation
-      _num_readings_read++;
+      ++_num_readings_read;
 
       linear_average = _linear_average_total / _num_readings_read;
       stasis_average = _stasis_average_total / _num_readings_read;
@@ -508,7 +508,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
     movement_status.stasis_velocity = velocities.stasis;
     movement_status.stasis_velocity_average = stasis_average;
 
-    _average_index++;
+    ++_average_index;
     _average_index %= _average_num_readings;
 
     if ( _p_base_model->GetStasisValid() == false )
@@ -567,7 +567,7 @@ void OdometryIntegrator::CalculateCovariance( nav_msgs::Odometry *p_position,
   } 
 
   // Set the covariance data
-  for (int i = 0; i < 36; i++)
+  for (int i = 0; i < 36; ++i)
   {
     p_position->pose.covariance[i] = p_covariance[i];
     p_position->twist.covariance[i] = p_covariance[i];
@@ -578,7 +578,7 @@ void OdometryIntegrator::CalculateCovariance( nav_msgs::Odometry *p_position,
  */  
 void OdometryIntegrator::NotifyOdometryListeners(const nav_msgs::Odometry& odometry)
 {
-  for (unsigned int i= 0; i < _odometry_listeners.size(); i++) 
+  for (unsigned int i= 0; i < _odometry_listeners.size(); ++i) 
   {
       _odometry_listeners[i]->OnOdometryAvailableEvent(odometry);
   }
@@ -588,7 +588,7 @@ void OdometryIntegrator::NotifyOdometryListeners(const nav_msgs::Odometry& odome
  */  
 void OdometryIntegrator::NotifyMovementStatusListeners(const differential_drive::MovementStatus& movement_status)
 {
-  for (unsigned int i= 0; i < _movement_status_listeners.size(); i++) 
+  for (unsigned int i= 0; i < _movement_status_listeners.size(); ++i) 
   {
       _movement_status_listeners[i]->OnMovementStatusAvailableEvent(movement_status);
   }
