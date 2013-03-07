@@ -24,8 +24,12 @@ ISR(ADC_vect)
     g_analog_values[current_channel] = ADC;
 
     // Increment channel for next reading
-    current_channel++;
-    current_channel %= ANALOG_NUM_CHANNELS;
+    ++current_channel;
+
+    if ( current_channel >= ANALOG_NUM_CHANNELS )
+    {
+      current_channel = 0;
+    }
 
     // Set new channel first so that it takes effect for next reading.
     ADMUX = admux_settings + current_channel + ANALOG_CHANNEL_FIRST;

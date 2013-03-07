@@ -203,7 +203,7 @@ void BaseMotion()
 
     motion_step_time += MOTION_STEP_DELAY;
     motion_step_time %= SYSTEM_CLOCK_MAX;
-    m_steps_since_command++;
+    ++m_steps_since_command;
 
     if ( m_steps_since_command > MAX_STEPS_BETWEEN_COMMANDS )
     { 
