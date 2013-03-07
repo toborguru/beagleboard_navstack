@@ -279,6 +279,7 @@ void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings 
 
   // Reset averaging state
   _average_index = 0;
+  _average_index_mask = _average_num_readings - 1;
   _num_readings_read = 0;
   _linear_average_total = 0.0;
   _stasis_average_total = 0.0;
@@ -509,11 +510,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
     movement_status.stasis_velocity_average = stasis_average;
 
     ++_average_index;
-
-    if ( _average_index >= _average_num_readings )
-    {
-      _average_index = 0;
-    }
+    _average_index &= _average_index_mask;
 
     if ( _p_base_model->GetStasisValid() == false )
     {

@@ -77,10 +77,11 @@ class OdometryIntegrator : public IEncoderCountsListener
     float _stasis_percentage;
     float _velocity_lower_limit;
   
-    unsigned int  _average_index;
-    unsigned int  _num_readings_read;
-    unsigned int  _average_2n_readings;
-    unsigned int  _average_num_readings;
+    uint_fast16_t _average_index;
+    uint_fast16_t _num_readings_read;
+    uint_fast16_t _average_2n_readings;
+    uint_fast16_t _average_num_readings;
+    uint_fast16_t _average_index_mask;
 
     float   _linear_average_total;
     float   _stasis_average_total;
