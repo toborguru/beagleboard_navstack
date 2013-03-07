@@ -509,7 +509,11 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
     movement_status.stasis_velocity_average = stasis_average;
 
     ++_average_index;
-    _average_index %= _average_num_readings;
+
+    if ( _average_index >= _average_num_readings )
+    {
+      _average_index = 0;
+    }
 
     if ( _p_base_model->GetStasisValid() == false )
     {
