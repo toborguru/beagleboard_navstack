@@ -26,7 +26,7 @@ struct TwistReceiver : public differential_drive_core::ITwistListener
 
   void OnTwistAvailableEvent(const geometry_msgs::Twist& twist)
   {
-    _count_of_twists_received++;
+    ++_count_of_twists_received;
 
     _linear = twist.linear.x;
     _angular = twist.angular.z;

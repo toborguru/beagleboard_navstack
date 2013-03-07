@@ -26,7 +26,7 @@ struct EncoderCountsReceiver : public differential_drive_core::IEncoderCountsLis
 
   void OnEncoderCountsAvailableEvent(const differential_drive::EncoderCounts& encoder_counts)
   {
-    _count_of_encoder_counts_received++;
+    ++_count_of_encoder_counts_received;
 
     _left_count = encoder_counts.left_count;
     _right_count = encoder_counts.right_count;

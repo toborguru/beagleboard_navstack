@@ -32,7 +32,7 @@ struct TickVelocityReceiver : public differential_drive_core::ITickVelocityListe
 
   void OnTickVelocityAvailableEvent(const differential_drive::TickVelocity& tick_velocity)
   {
-    _count_of_tick_velocities_received++;
+    ++_count_of_tick_velocities_received;
 
     _linear = tick_velocity.linear_ticks_sec;
     _angular = tick_velocity.angular_ticks_sec;
@@ -59,7 +59,7 @@ struct TwistGenerator : public differential_drive_core::ITwistSubscriberEndpoint
 
   void NewTwistCommand( const geometry_msgs::Twist twist )
   {
-    for (unsigned int i= 0; i < _twist_listeners.size(); i++) 
+    for (unsigned int i= 0; i < _twist_listeners.size(); ++i) 
     {
       _twist_listeners[i]->OnTwistAvailableEvent(twist);
     }

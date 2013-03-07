@@ -16,7 +16,7 @@ public:
 
   void AddTicks( const geometry_msgs::Twist twist )
   { 
-    for (unsigned int i= 0; i < _twist_listeners.size(); i++)
+    for (unsigned int i= 0; i < _twist_listeners.size(); ++i)
     { 
       _twist_listeners[i]->OnTwistAvailableEvent(twist);
     }

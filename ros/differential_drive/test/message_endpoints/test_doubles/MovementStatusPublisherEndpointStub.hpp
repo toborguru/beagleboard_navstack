@@ -38,7 +38,7 @@ public:
 
   void Publish(const differential_drive::MovementStatus& movement_status)
   {
-    _count_of_messages_published++;
+    ++_count_of_messages_published;
 
     _state = movement_status.motors_state;
     _linear = movement_status.linear_velocity;

@@ -16,7 +16,7 @@ namespace differential_drive_test_message_endpoints
 
   void IncrementCount( const differential_drive::MovementStatus::ConstPtr& msg )
   {
-    _count++;
+    ++_count;
     _movement_status.linear_velocity = msg->linear_velocity;
     _movement_status.stasis_velocity = msg->stasis_velocity;
   }

@@ -27,7 +27,7 @@ public:
 
   void Publish(const differential_drive::TickVelocity& tick_velocity) const
   {
-    _count_of_tick_velocities_published++;
+    ++_count_of_tick_velocities_published;
 
     _linear = tick_velocity.linear_ticks_sec;
     _angular = tick_velocity.angular_ticks_sec;

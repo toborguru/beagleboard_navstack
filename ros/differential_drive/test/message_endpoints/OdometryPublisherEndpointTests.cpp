@@ -16,7 +16,7 @@ namespace differential_drive_test_message_endpoints
 
   void IncrementCount( const nav_msgs::Odometry::ConstPtr& msg )
   {
-    _count++;
+    ++_count;
     _odometry.pose.pose.position.x = msg->pose.pose.position.x;
     _odometry.pose.pose.position.y = msg->pose.pose.position.y;
   }

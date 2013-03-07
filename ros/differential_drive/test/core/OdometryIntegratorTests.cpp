@@ -41,7 +41,7 @@ struct OdometryReceiver : public differential_drive_core::IOdometryListener
 
   void OnOdometryAvailableEvent(const nav_msgs::Odometry& odometry)
   {
-    _count_of_messages_received++;
+    ++_count_of_messages_received;
 
     _x = odometry.pose.pose.position.x;
     _y = odometry.pose.pose.position.y;
@@ -64,7 +64,7 @@ struct OdometryReceiver : public differential_drive_core::IOdometryListener
 
 #if 0
     std::cout << std::endl << std::endl << "Covariance:";
-    for (int i = 0; i < 36; i++)
+    for (int i = 0; i < 36; ++i)
     {
       if ( !(i % 6) )
       {
@@ -98,7 +98,7 @@ struct MovementStatusReceiver : public differential_drive_core::IMovementStatusL
 
   void OnMovementStatusAvailableEvent( const differential_drive::MovementStatus& status )
   {
-    _count_of_messages_received++;
+    ++_count_of_messages_received;
 
     _linear = status.linear_velocity;
     _linear_average = status.linear_velocity_average;
@@ -136,7 +136,7 @@ struct EncoderCountsGenerator : public differential_drive_core::IEncoderCountsSu
 
   void AddTicks( const differential_drive::EncoderCounts encoder_counts )
   {
-    for ( unsigned int i= 0; i < _encoder_counts_listeners.size(); i++ ) 
+    for ( unsigned int i= 0; i < _encoder_counts_listeners.size(); ++i ) 
     {
       _encoder_counts_listeners[i]->OnEncoderCountsAvailableEvent(encoder_counts);
     }
@@ -697,7 +697,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     expected_stasis[ velocity_index ]         = 0;
     expected_stasis_average[ velocity_index ] = 0;
 
-    velocity_index++;
+    ++velocity_index;
 
     // 2)
     new_counts.left_count = 32;
@@ -723,7 +723,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     expected_stasis[ velocity_index ]         = 32;
     expected_stasis_average[ velocity_index ] = 32;
 
-    velocity_index++;
+    ++velocity_index;
 
     // 3)
     new_counts.left_count = 0;
@@ -746,7 +746,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     expected_stasis[ velocity_index ]         = 0;
     expected_stasis_average[ velocity_index ] = 0;
 
-    velocity_index++;
+    ++velocity_index;
 
     // 4)
     new_counts.left_count = 32;
@@ -780,14 +780,14 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     expected_stasis[ velocity_index ]         = 0;
     expected_stasis_average[ velocity_index ] = 16;
 
-    velocity_index++;
+    ++velocity_index;
 
     // 5)
     // Reset the averaging 
     odometry_integrator.SetAverage2nReadings(i);
 
     // This is actually ( buffer / 2) + 1 to accommodate buffer size of 2 
-    for ( int j = 0; j <= (average_num[ size_index ] / 4); j++ )
+    for ( int j = 0; j <= (average_num[ size_index ] / 4); ++j )
     {
       new_counts.left_count = 32;
       new_counts.right_count = 32;
@@ -816,14 +816,14 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     expected_stasis[ velocity_index ]         = 16;
     expected_stasis_average[ velocity_index ] = 24;
 
-    velocity_index++;
+    ++velocity_index;
 
     // 6)
     // Reset the averaging 
     odometry_integrator.SetAverage2nReadings(i);
 
     // This should fill the buffer twice
-    for ( int j = 0; j < average_num[ size_index ]; j++ )
+    for ( int j = 0; j < average_num[ size_index ]; ++j )
     {
       new_counts.left_count = 32;
       new_counts.right_count = 32;
@@ -852,20 +852,20 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     expected_stasis[ velocity_index ]         = 16;
     expected_stasis_average[ velocity_index ] = 24;
 
-    velocity_index++;
+    ++velocity_index;
 
-    size_index++;
+    ++size_index;
   }
 
   // Assert
 
-  for ( int i = 0; i < 3; i++ )
+  for ( int i = 0; i < 3; ++i )
   {
     EXPECT_EQ( expected_average_2n[ i ], average_2n[ i ] );
     EXPECT_EQ( expected_average_num[ i ], average_num[ i ] );
   }
 
-  for ( int i = 0; i < 18; i++ )
+  for ( int i = 0; i < 18; ++i )
   {
     // Debugging statement - where are my errors
     //std::cout << "i: " << i << std::endl;

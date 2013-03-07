@@ -16,7 +16,7 @@ namespace differential_drive_test_message_endpoints
 
   void IncrementCount( const differential_drive::TickVelocity::ConstPtr& msg )
   {
-    _count++;
+    ++_count;
     _tick_velocity.linear_ticks_sec = msg->linear_ticks_sec;
     _tick_velocity.angular_ticks_sec = msg->angular_ticks_sec;
   }

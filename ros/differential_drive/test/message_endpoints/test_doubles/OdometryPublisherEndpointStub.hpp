@@ -38,7 +38,7 @@ public:
 
   void Publish(const nav_msgs::Odometry& odometry)
   {
-    _count_of_messages_published++;
+    ++_count_of_messages_published;
 
     _x = odometry.pose.pose.position.x;
     _y = odometry.pose.pose.position.y;

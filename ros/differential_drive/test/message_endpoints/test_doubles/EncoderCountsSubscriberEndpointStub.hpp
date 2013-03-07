@@ -16,7 +16,7 @@ public:
 
   void AddTicks( const differential_drive::EncoderCounts encoder_counts )
   { 
-    for (unsigned int i= 0; i < _encoder_counts_listeners.size(); i++)
+    for (unsigned int i= 0; i < _encoder_counts_listeners.size(); ++i)
     { 
       _encoder_counts_listeners[i]->OnEncoderCountsAvailableEvent(encoder_counts);
     }
