@@ -20,7 +20,4 @@
 uint8_t
 CRC8_Checksum( uint8_t *data, uint32_t num_bytes, uint8_t seed );
 
-void 
-CRC8_Update( uint8_t new_byte, uint8_t* current_crc );
-
 #endif

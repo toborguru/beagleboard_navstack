@@ -8,13 +8,13 @@
 
 typedef struct
 {
-    int16_t     angular_velocity_setpoint;  // s7.8 ticks/update
-    int16_t     angular_velocity;           // s7.8 ticks/update
-    int16_t     linear_velocity_setpoint;   // s7.8 ticks/update
-    int16_t     linear_velocity;            // s7.8 ticks/update
-    int32_t     encoder_setpoint;           // s23.8 ticks
-    int32_t     encoder;                    // s31.0 ticks
-    int16_t     power_out;                  // -pid.max_correction <= power_out <= pid.max_correction
+    volatile int16_t  angular_velocity_setpoint;  // s7.8 ticks/update
+    volatile int16_t  angular_velocity;           // s7.8 ticks/update
+    volatile int16_t  linear_velocity_setpoint;   // s7.8 ticks/update
+    volatile int16_t  linear_velocity;            // s7.8 ticks/update
+    volatile int32_t  encoder_setpoint;           // s23.8 ticks
+    volatile int32_t  encoder;                    // s31.0 ticks
+    volatile int16_t  power_out;                  // -pid.max_correction <= power_out <= pid.max_correction
     Pid_State_t pid;
 } Motion_State_t;
 

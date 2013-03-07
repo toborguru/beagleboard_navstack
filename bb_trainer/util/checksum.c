@@ -14,6 +14,9 @@
 // Value needed for x8+x2+x+1
 #define POLYVAL 0x8C
 
+static void
+CRC8_Update( uint8_t new_byte, uint8_t* current_crc );
+
 /** Calculates the CRC 8 checksum over a range of data.
  *  
  *  @param  *data       Pointer to the data buffer to be read.
@@ -35,7 +38,7 @@ CRC8_Checksum( uint8_t *data, uint32_t num_bytes, uint8_t seed )
     return crc;
 }
 
-void 
+static void 
 CRC8_Update( uint8_t new_byte, uint8_t * const current_crc )
 {
    uint8_t new_crc;
