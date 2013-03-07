@@ -153,7 +153,7 @@ void CheckVoltage()
 
     if ( (gp_telemetry_write->voltage > 0) && (gp_telemetry_write->voltage < VOLTAGE_KILL_LIMIT) )
     { 
-      limit_reached++;
+      ++limit_reached;
     }
     else
     {
@@ -354,7 +354,7 @@ static void prvIncrementResetCount( void )
   unsigned char ucCount;
 
   eeprom_read_block( &ucCount, mainRESET_COUNT_ADDRESS, sizeof( ucCount ) );
-  ucCount++;
+  ++ucCount;
   eeprom_write_byte( mainRESET_COUNT_ADDRESS, ucCount );
 }
 #endif

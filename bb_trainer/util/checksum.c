@@ -27,7 +27,7 @@ CRC8_Checksum( uint8_t *data, uint32_t num_bytes, uint8_t seed )
 {
     uint8_t crc = seed;
 
-    for (int i = 0; i < num_bytes; i++)
+    for (int i = 0; i < num_bytes; ++i)
     {
         CRC8_Update(data[i], &crc); 
     }
@@ -42,7 +42,7 @@ CRC8_Update( uint8_t new_byte, uint8_t * const current_crc )
 
    new_crc = *current_crc;
 
-   for (uint8_t i = 0; i < 8; i++) 
+   for (uint8_t i = 0; i < 8; ++i) 
    {
       if ((new_crc ^ new_byte) & 1) 
       {

@@ -54,7 +54,7 @@ Bin_to_AsciiHex ( char ascii_out[], int data_length, uint8_t byte_buf[], char fo
             format = (char*) &default_format;
         }
 
-        for (int i = 0; i < data_length; i++)
+        for (int i = 0; i < data_length; ++i)
         {
             num_bytes += sprintf(&ascii_out[num_bytes], format, (unsigned char)byte_buf[i]);
         }
