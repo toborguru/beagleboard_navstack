@@ -38,14 +38,14 @@ void PowerStateProcessor::AddNewData( uint16_t current,  uint16_t voltage, uint1
     total_voltage += _voltages[ i ];
   }
   
-  _avg_index += 1;
-  _avg_index %= AVERAGE_NUM_READINGS;
+  ++_avg_index;
+  _avg_index &= AVERAGE_READINGS_MASK;
 
   avg_current = total_current >> AVERAGE_2N_READINGS;
   avg_voltage = total_voltage >> AVERAGE_2N_READINGS;
 
   _power_state.current_draw = ( CURRENT_M * (float) avg_current ) + CURRENT_B;
-  _power_state.battery_voltage = (VOLTAGE_M * (float) avg_voltage ) + VOLTAGE_B;
+  _power_state.battery_voltage = ( VOLTAGE_M * (float) avg_voltage ) + VOLTAGE_B;
   _power_state.power_draw = _power_state.current_draw * _power_state.battery_voltage;
 }
 

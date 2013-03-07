@@ -8,6 +8,7 @@
 #define AVERAGE_2N_READINGS   4
 
 #define AVERAGE_NUM_READINGS  (1<<AVERAGE_2N_READINGS)
+#define AVERAGE_READINGS_MASK (AVERAGE_NUM_READINGS - 1)
 
 namespace data_robot_core
 { 
