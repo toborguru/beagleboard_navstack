@@ -88,10 +88,6 @@
 #define MOTORS_L_POWER  MOTORS_B_POWER
 #define MOTORS_R_POWER  MOTORS_A_POWER
 
-/*-----------------------------------------------------------
- * ISR Timer 1 Overflow
- *-----------------------------------------------------------*/
-
 void Motors_Init( void )
 {
     OUTPUT_PIN(MOTORS_STANDBY_PORT, MOTORS_STANDBY_PIN);

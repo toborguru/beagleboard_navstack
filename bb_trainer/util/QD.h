@@ -37,10 +37,12 @@
 *   Note that the type of the _Count variable can be set by setting the
 *   CFG_QD_COUNTER_TYPE to be the desired type.
 *
-*   #define CFG_QD_COUNTER_TYPE     uint16_t
+*   #define CFG_QD_COUNTER_TYPE     int16_t
 *
 *   NOTE: If you plan on calling QD_Update from within an ISR, then the
 *         _Count variable should be declared volatile.
+*
+*   #define CFG_QD_COUNTER_TYPE     volatile int16_t 
 *
 *****************************************************************************/
 
@@ -52,11 +54,11 @@
 
 /* ---- Constants and Types ----------------------------------------------- */
 
-typedef uint8_t     QD_State_t;
+typedef uint_fast8_t     QD_State_t;
 
 typedef struct
 {
-    int8_t  increment[ 4 ];
+    int_fast8_t  increment[ 4 ];
 
 } QD_Increment_t;
 
@@ -68,14 +70,19 @@ typedef CFG_QD_COUNTER_TYPE QD_Counter_t;
 
 #else
 
-typedef uint16_t    QD_Counter_t;
+typedef int_fast16_t    QD_Counter_t;
 
 #endif
 
 
 /* ---- Variable Externs -------------------------------------------------- */
 
+/* This can be used without the macro below like:
+ * count += QD_gIncrement[ prev_state ].increment[ state ];
+ * prev_state = state;
+ */
 extern QD_Increment_t   QD_gIncrement[ 4 ];
+
 
 /* ---- Function Prototypes ----------------------------------------------- */
 

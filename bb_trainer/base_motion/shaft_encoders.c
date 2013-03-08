@@ -46,9 +46,6 @@
 #define ENCODERS_STASIS_PCICR_MASK  BIT( PCIE2 )
 #endif
 
-#define ENCODERS_RISING_EDGE    0
-#define ENCODERS_FALLING_EDGE   1
-
 /* Global variable definitions */
 volatile int16_t g_shaft_encoders_left_count = 0;
 volatile int16_t g_shaft_encoders_right_count = 0;
@@ -124,8 +121,8 @@ ISR( ENCODERS_RIGHT_INT_VECT )
 #if ENCODERS_STASIS_WHEEL_ENABLE
 ISR( ENCODERS_STASIS_INT_VECT )
 {
-  static uint8_t prev_state = 0;
-  uint8_t state;
+  static uint_fast8_t prev_state = 0;
+  uint_fast8_t state;
 
   state = READ_PIN( ENCODERS_STASIS_A_PORT, ENCODERS_STASIS_A_PIN ) << 1 
           | READ_PIN( ENCODERS_STASIS_B_PORT, ENCODERS_STASIS_B_PIN );
