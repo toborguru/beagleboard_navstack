@@ -7,7 +7,7 @@ include_directories(
 # rosbuild_add_gtest will automatically run tests but may segfault with threads.
 # Seems to be working fine for me...
 rosbuild_add_gtest(
-  test/differential_drive_tests
+  differential_drive_tests
   TestRunner.cpp
   ./core/BaseModelTests.cpp
   ./core/OdometryIntegratorTests.cpp
@@ -21,7 +21,7 @@ rosbuild_add_gtest(
 
 # Link the libraries
 target_link_libraries(
-  test/differential_drive_tests
+  differential_drive_tests
   differential_drive_application_services
   differential_drive_message_endpoints
   # Important that core comes after application_services due to direction of dependencies
@@ -30,7 +30,7 @@ target_link_libraries(
 
 # Using rostest to launch a ROS environment
 rosbuild_add_executable(
-  test/differential_drive_ros_tests
+  differential_drive_ros_tests
   TestRunner.cpp
   ./message_endpoints/EncoderCountsSubscriberEndpointTests.cpp
   ./message_endpoints/OdometryPublisherEndpointTests.cpp
@@ -39,13 +39,13 @@ rosbuild_add_executable(
   ./message_endpoints/TwistSubscriberEndpointTests.cpp
   ./data_repositories/BaseModelRepositoryTests.cpp
 )
-rosbuild_add_gtest_build_flags(test/differential_drive_ros_tests)
+rosbuild_add_gtest_build_flags(differential_drive_ros_tests)
 # Make sure rostest launches test/mynode.test during "make test"
 rosbuild_add_rostest(${PROJECT_SOURCE_DIR}/test/ros_message_endpoints.test)
 
 # Link the libraries
 target_link_libraries(
-  test/differential_drive_ros_tests
+  differential_drive_ros_tests
   differential_drive_application_services
   differential_drive_message_endpoints
   differential_drive_data_repositories
