@@ -15,6 +15,8 @@ namespace data_robot_test_message_endpoints
 {
   TEST(I2CBusRequestProcessorEndpointTests, canOpenCloseAndReadI2CBus) 
   {
+    uint_fast8_t sleep_count = 30U;
+
     // Establish Context
     ros::Time::init();
 
@@ -29,32 +31,42 @@ namespace data_robot_test_message_endpoints
 
     i2c_bus_endpoint.ProcessRequest( &read_telemetry_request );
 
-    while ( !read_telemetry_request.GetRequestComplete() )
+    while ( !read_telemetry_request.GetRequestComplete() && sleep_count )
     {   
-      printf( "Sleeping!\n" );
+      printf( "Sleeping! Left: %u\n", sleep_count );
+      --sleep_count;
       sleep(1);
     } 
 
-    printf( "Encoder Counts: " );
-    for ( unsigned int i = 0; i < read_telemetry_request.GetDataBufferSize(); i++ )
+    if ( 0 != sleep_count )
     {
-      printf( "0x%02X ", read_telemetry_request.GetDataBuffer()[i] );
-    }
-    printf( "\n" );
+      printf( "Encoder Counts: " );
+      for ( unsigned int i = 0; i < read_telemetry_request.GetDataBufferSize(); i++ )
+      {
+        printf( "0x%02X ", read_telemetry_request.GetDataBuffer()[i] );
+      }
+      printf( "\n" );
 
-    motor_velocity_request.SetVelocity( 128, -8 );
+      motor_velocity_request.SetVelocity( 128, -8 );
 
-    printf( "Motor Velocities Address: " );
-    for ( unsigned int i = 0; i < motor_velocity_request.GetAddressBufferSize(); i++ )
-    {
-      printf( "0x%02X ", motor_velocity_request.GetAddressBuffer()[i] );
+      printf( "Motor Velocities Address: " );
+      for ( unsigned int i = 0; i < motor_velocity_request.GetAddressBufferSize(); i++ )
+      {
+        printf( "0x%02X ", motor_velocity_request.GetAddressBuffer()[i] );
+      }
+      printf( "\nMotor Velocities: " );
+      for ( unsigned int i = 0; i < motor_velocity_request.GetDataBufferSize(); i++ )
+      {
+        printf( "0x%02X ", motor_velocity_request.GetDataBuffer()[i] );
+      }
+      printf( "\n" );
     }
-    printf( "\nMotor Velocities: " );
-    for ( unsigned int i = 0; i < motor_velocity_request.GetDataBufferSize(); i++ )
+    else
     {
-      printf( "0x%02X ", motor_velocity_request.GetDataBuffer()[i] );
+      printf("\nNo response received!\n\n");
     }
-    printf( "\n" );
+
+    EXPECT_NE( 0, sleep_count );
 
     i2c_bus_endpoint.Close();
   }

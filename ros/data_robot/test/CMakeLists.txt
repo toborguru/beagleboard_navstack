@@ -2,9 +2,10 @@ include_directories(
   "message_endpoints/test_doubles"
 )
 
+#rosbuild_add_executable(
 # rosbuild_add_gtest will automatically run tests but may segfault with threads.
-#rosbuild_add_gtest(
-rosbuild_add_executable(
+# Seems to be working for me
+rosbuild_add_gtest(
   data_robot_tests
   TestRunner.cpp
   ./core/BaseTelemetryReaderTests.cpp
@@ -12,8 +13,8 @@ rosbuild_add_executable(
   ./core/BumpersProcessorTests.cpp
   ./application_services/TickVelocityCommandServiceTests.cpp
 )
-
-rosbuild_add_gtest_build_flags(data_robot_tests)
+# If using rosbuild_add_executable uncomment this line
+#rosbuild_add_gtest_build_flags(data_robot_tests)
 
 # I am specifically causing a variety of overflow conditions in the RollOverHelpers test.
 rosbuild_add_compile_flags(data_robot_tests "-Wno-overflow")
@@ -28,18 +29,17 @@ target_link_libraries(
   data_robot_core
 )
 
-
-#rosbuild_add_executable(
 # rosbuild_add_gtest will automatically run tests but may segfault with threads.
-#rosbuild_add_gtest(
+# This ^ only seems to apply for ROS executables, like this one
 rosbuild_add_executable(
   data_robot_ros_tests
   TestRunner.cpp
   ./message_endpoints/TickVelocitySubscriberEndpointTests.cpp
   ./message_endpoints/EncoderCountsPublisherEndpointTests.cpp
 )
-
+# If using rosbuild_add_executable uncomment this line
 rosbuild_add_gtest_build_flags(data_robot_ros_tests)
+rosbuild_add_rostest(${PROJECT_SOURCE_DIR}/test/ros_message_endpoints.test)
 
 # Link the libraries
 target_link_libraries(
@@ -51,16 +51,12 @@ target_link_libraries(
   data_robot_core
 )
 
-
-#rosbuild_add_executable(
-# rosbuild_add_gtest will automatically run tests but may segfault with threads.
-#rosbuild_add_gtest(
+# We only want to run this test on the actual robot.
 rosbuild_add_executable(
   data_robot_bb_tests
   TestRunner.cpp
   ./message_endpoints/I2CBusRequestProcessorEndpointTests.cpp
 )
-
 rosbuild_add_gtest_build_flags(data_robot_bb_tests)
 
 # Link the libraries
