@@ -2,7 +2,7 @@
 
 #include "OdometryReportingService.hpp"
 #include "TwistCommandService.hpp"
-#include "BaseModelSetupService.hpp"
+#include "ParameterSetupService.hpp"
 
 #include "OdometryPublisherEndpoint.hpp"
 #include "MovementStatusPublisherEndpoint.hpp"
