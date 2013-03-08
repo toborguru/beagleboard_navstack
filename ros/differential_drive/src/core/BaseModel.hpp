@@ -3,6 +3,8 @@
 #ifndef GUARD_BaseModel
 #define GUARD_BaseModel
 
+#include <pthread.h>
+
 #include "differential_drive/EncoderCounts.h"
 #include "differential_drive/TickVelocity.h"
 

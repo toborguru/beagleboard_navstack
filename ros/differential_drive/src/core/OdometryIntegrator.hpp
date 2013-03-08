@@ -5,6 +5,8 @@
  
 #include <vector>
 #include <queue>
+#include <pthread.h>
+#include <semaphore.h>
 
 #include "nav_msgs/Odometry.h"
 #include "differential_drive/EncoderCounts.h"
@@ -100,9 +102,8 @@ class OdometryIntegrator : public IEncoderCountsListener
     volatile bool _is_running;
     pthread_t _thread;
 
-    pthread_mutex_t  *_p_processing_mutex;
-    pthread_mutex_t  *_p_message_mutex;
-    pthread_cond_t   *_p_message_cond;
+    pthread_mutex_t *_p_data_mutex;
+    sem_t *_p_message_sem;            
 
     static void * ProcessOdometryFunction(void * This) {
       ( (OdometryIntegrator*)This )->ProcessOdometry();

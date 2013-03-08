@@ -64,15 +64,12 @@ OdometryIntegrator::OdometryIntegrator()
 
   _current_position.pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
 
-  _p_processing_mutex = new pthread_mutex_t;
-  pthread_mutex_init( _p_processing_mutex, NULL );
+  _p_data_mutex = new pthread_mutex_t;
+  pthread_mutex_init( _p_data_mutex, NULL );
 
-  _p_message_mutex = new pthread_mutex_t;
-  pthread_mutex_init( _p_message_mutex, NULL );
-
-  _p_message_cond = new pthread_cond_t;
-  pthread_cond_init( _p_message_cond, NULL );  
-
+  _p_message_sem = new sem_t;
+  sem_init( _p_message_sem, 0, 0 );
+  
   SetAverage2nReadings( _average_2n_readings );
 }
 
@@ -92,11 +89,11 @@ OdometryIntegrator::~OdometryIntegrator()
     delete [] _p_stasis_velocities;
   }
 
-  pthread_mutex_destroy( _p_processing_mutex );
-  delete _p_processing_mutex;
+  pthread_mutex_destroy( _p_data_mutex );
+  delete _p_data_mutex;
 
-  pthread_cond_destroy( _p_message_cond );
-  delete _p_message_cond;
+  sem_destroy( _p_message_sem );
+  delete _p_message_sem;
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
@@ -104,9 +101,9 @@ OdometryIntegrator::~OdometryIntegrator()
  */
 void OdometryIntegrator::Attach(IOdometryListener& odometry_listener) 
 {
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
   _odometry_listeners.push_back(&odometry_listener);
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 
   StartProcessingOdometry();
 }
@@ -116,13 +113,13 @@ void OdometryIntegrator::Attach(IOdometryListener& odometry_listener)
  */
 void OdometryIntegrator::Detach( IOdometryListener& odometry_listener )
 {
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
 
   // Using the remove-erase idiom
   std::vector<IOdometryListener*>& vec = _odometry_listeners; // use shorter name
   vec.erase( std::remove(vec.begin(), vec.end(), &odometry_listener), vec.end() );
   
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 
   if ( (_odometry_listeners.size() == 0) && (_movement_status_listeners.size() == 0) )
   {
@@ -135,9 +132,9 @@ void OdometryIntegrator::Detach( IOdometryListener& odometry_listener )
  */
 void OdometryIntegrator::Attach(IMovementStatusListener& movement_status_listener) 
 {
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
   _movement_status_listeners.push_back(&movement_status_listener);
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 
   StartProcessingOdometry();
 }
@@ -147,13 +144,13 @@ void OdometryIntegrator::Attach(IMovementStatusListener& movement_status_listene
  */
 void OdometryIntegrator::Detach( IMovementStatusListener& movement_status_listener )
 {
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
 
   // Using the remove-erase idiom
   std::vector<IMovementStatusListener*>& vec = _movement_status_listeners; // use shorter name
   vec.erase( std::remove(vec.begin(), vec.end(), &movement_status_listener), vec.end() );
 
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 
   if ( (_odometry_listeners.size() == 0) && (_movement_status_listeners.size() == 0) )
   {
@@ -165,9 +162,9 @@ void OdometryIntegrator::Detach( IMovementStatusListener& movement_status_listen
  */
 void OdometryIntegrator::SetBaseModel( const BaseModel& base_model )
 {
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
   _p_base_model = &base_model;
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 }
 
 /** Callback for IEncoderCountsListener
@@ -184,15 +181,11 @@ void OdometryIntegrator::OnEncoderCountsAvailableEvent( const differential_drive
             << std::endl;
 #endif
 
-  pthread_mutex_lock( _p_message_mutex );
-  
   // Add our local copy of the message
   _encoder_counts_messages.push( p_new_message );
 
   // Send signal
-  pthread_cond_signal( _p_message_cond );
-
-  pthread_mutex_unlock( _p_message_mutex );
+  sem_post( _p_message_sem );
 }
 
 /** Returns actual number of velocity readings that will be averaged prior to
@@ -242,7 +235,7 @@ void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings 
 {
   unsigned int new_num_readings;
 
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
 
   // 64K readings buffer...
   if ( average_2n_readings > MAX_2N_AVERAGES )
@@ -284,7 +277,7 @@ void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings 
   _linear_average_total = 0.0;
   _stasis_average_total = 0.0;
 
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 }
 
 /** Access function.
@@ -310,9 +303,9 @@ void OdometryIntegrator::SetStasisPercentage( float percentage )
     percentage = 1.0 / percentage;
   }
 
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
   _stasis_percentage = percentage;
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 }
 
 /** Access function.
@@ -332,9 +325,9 @@ void OdometryIntegrator::SetVelocityLowerLimit( float velocity_limit )
     velocity_limit *= -1.0;
   }
 
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
   _velocity_lower_limit = velocity_limit;
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 }
 
 /** This function is used to perform all updates when new counts are ready.
@@ -342,7 +335,7 @@ void OdometryIntegrator::SetVelocityLowerLimit( float velocity_limit )
  */
 void OdometryIntegrator::AddNewCounts( const differential_drive::EncoderCounts& counts )
 {
-  pthread_mutex_lock( _p_processing_mutex );
+  pthread_mutex_lock( _p_data_mutex );
 
   _current_position = CalculatePosition( &_velocities, counts, _current_position ); 
 
@@ -354,7 +347,7 @@ void OdometryIntegrator::AddNewCounts( const differential_drive::EncoderCounts& 
   NotifyOdometryListeners( _current_position );
   NotifyMovementStatusListeners( _movement_status );
 
-  pthread_mutex_unlock( _p_processing_mutex );
+  pthread_mutex_unlock( _p_data_mutex );
 }
 
 /** This function uses the BaseModel class to translate encoder counts into SI
@@ -603,25 +596,18 @@ void OdometryIntegrator::ProcessOdometry()
   
   while ( ! _stop_requested )
   {
-    pthread_mutex_lock( _p_message_mutex );
-    
     while ( ! _encoder_counts_messages.empty() )
     {
       p_message = _encoder_counts_messages.front();
       _encoder_counts_messages.pop();
-      pthread_mutex_unlock( _p_message_mutex );
 
       AddNewCounts( *p_message ); 
 
       delete p_message;
-
-      pthread_mutex_lock( _p_message_mutex );
     }
 
     // Wait for message signal
-    pthread_cond_wait( _p_message_cond, _p_message_mutex );
-
-    pthread_mutex_unlock( _p_message_mutex );
+    sem_wait( _p_message_sem );
   }
 }
 
@@ -649,9 +635,7 @@ void OdometryIntegrator::StopProcessingOdometry()
     _stop_requested = true;
 
     // Wake thread up
-    pthread_mutex_lock( _p_message_mutex );
-    pthread_cond_signal( _p_message_cond );
-    pthread_mutex_unlock( _p_message_mutex );
+    sem_post( _p_message_sem );
 
     // Wait to return until _thread has completed
     pthread_join(_thread, 0);
