@@ -4,7 +4,6 @@
 #define GUARD_TwistSubscriberEndpoint
  
 #include <ros/ros.h>
-#include <pthread.h>
 #include <vector>
 
 #include "ITwistSubscriberEndpoint.hpp"
