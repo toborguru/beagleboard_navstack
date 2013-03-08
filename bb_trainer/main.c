@@ -143,7 +143,7 @@ int main( void )
 
 void CheckVoltage()
 {
-  static limit_reached = 0;
+  static uint_fast8_t limit_reached = 0;
   static SYSTEM_CLOCK_T step_time = 0;
 
   // Perform Motion Step
@@ -202,7 +202,7 @@ void BaseMotion()
     Switch_Telemetry_Buffers();
 
     motion_step_time += MOTION_STEP_DELAY;
-    motion_step_time %= SYSTEM_CLOCK_MAX;
+    motion_step_time &= SYSTEM_CLOCK_MASK;
     ++m_steps_since_command;
 
     if ( m_steps_since_command > MAX_STEPS_BETWEEN_COMMANDS )
@@ -245,7 +245,7 @@ void ProcessIncomingCommands()
         BIT_CLEAR(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
 
         reset_step_time = g_system_clock + SHELL_RESET_STEPS;
-        reset_step_time %= SYSTEM_CLOCK_MAX;
+        reset_step_time &= SYSTEM_CLOCK_MASK;
         in_reset = true;
       }
 
@@ -287,7 +287,7 @@ void MotorPattern()
     motors_state = !motors_state;
 
     motion_test_time += MOTION_TEST_DELAY;
-    motion_test_time %= SYSTEM_CLOCK_MAX;
+    motion_test_time &= SYSTEM_CLOCK_MASK;
   }
 }
 
