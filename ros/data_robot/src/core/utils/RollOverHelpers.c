@@ -11,15 +11,15 @@ int8_t DifferentiateInt8RollOver( int8_t  old_value,  int8_t new_value )
 
   difference = (int16_t)new_value - (int16_t)old_value;
 
-  // Roll over from negative velocity
-  if ( difference > SCHAR_MAX )
+  // Roll over from negative over flow
+  if ( difference > INT8_MAX )
   {
-    difference = ( (new_value - SCHAR_MAX) + (SCHAR_MIN - old_value) - 1 );
+    difference = ( (new_value - INT8_MAX) + (INT8_MIN - old_value) - 1 );
   }
-  // Roll over from positive velocity
-  else if ( difference < SCHAR_MIN )
+  // Roll over from positive over flow
+  else if ( difference < INT8_MIN )
   {
-    difference = ( (SCHAR_MAX - old_value) + (new_value - SCHAR_MIN) + 1 );
+    difference = ( (INT8_MAX - old_value) + (new_value - INT8_MIN) + 1 );
   }
 
   return (int8_t)difference;
@@ -34,15 +34,15 @@ int16_t DifferentiateInt16RollOver( int16_t  old_value,  int16_t new_value )
 
   difference = (int32_t)new_value - (int32_t)old_value;
 
-  // Roll over from negative velocity
-  if ( difference > SHRT_MAX )
+  // Roll over from negative over flow
+  if ( difference > INT16_MAX )
   {
-    difference = ( (new_value - SHRT_MAX) + (SHRT_MIN - old_value) - 1 );
+    difference = ( (new_value - INT16_MAX) + (INT16_MIN - old_value) - 1 );
   }
-  // Roll over from positive velocity
-  else if ( difference < SHRT_MIN )
+  // Roll over from positive over flow
+  else if ( difference < INT16_MIN )
   {
-    difference = ( (SHRT_MAX - old_value) + (new_value - SHRT_MIN) + 1 );
+    difference = ( (INT16_MAX - old_value) + (new_value - INT16_MIN) + 1 );
   }
 
   return (int16_t)difference;
@@ -57,15 +57,15 @@ int32_t DifferentiateInt32RollOver( int32_t  old_value,  int32_t new_value )
 
   difference = (long)new_value - (long)old_value;
 
-  // Roll over from negative velocity
-  if ( difference > INT_MAX )
+  // Roll over from negative over flow
+  if ( difference > INT32_MAX )
   {
-    difference = ( (new_value - INT_MAX) + (INT_MIN - old_value) - 1 );
+    difference = ( (new_value - INT32_MAX) + (INT32_MIN - old_value) - 1 );
   }
-  // Roll over from positive velocity
-  else if ( difference < INT_MIN )
+  // Roll over from positive over flow
+  else if ( difference < INT32_MIN )
   {
-    difference = ( (INT_MAX - old_value) + (new_value - INT_MIN) + 1 );
+    difference = ( (INT32_MAX - old_value) + (new_value - INT32_MIN) + 1 );
   }
 
   return (int32_t)difference;
