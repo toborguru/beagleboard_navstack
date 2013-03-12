@@ -181,8 +181,12 @@ void OdometryIntegrator::OnEncoderCountsAvailableEvent( const differential_drive
             << std::endl;
 #endif
 
+  pthread_mutex_lock( _p_data_mutex );
+
   // Add our local copy of the message
   _encoder_counts_messages.push( p_new_message );
+
+  pthread_mutex_unlock( _p_data_mutex );
 
   // Send signal
   sem_post( _p_message_sem );
@@ -598,8 +602,12 @@ void OdometryIntegrator::ProcessOdometry()
   {
     while ( ! _encoder_counts_messages.empty() )
     {
+      pthread_mutex_lock( _p_data_mutex );
+        
       p_message = _encoder_counts_messages.front();
       _encoder_counts_messages.pop();
+
+      pthread_mutex_unlock( _p_data_mutex );
 
       AddNewCounts( *p_message ); 
 
