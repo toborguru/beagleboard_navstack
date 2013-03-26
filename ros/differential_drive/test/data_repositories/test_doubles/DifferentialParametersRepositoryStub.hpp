@@ -23,10 +23,12 @@ public:
 
   void QueryBaseParameters() 
   {
+    _p_base_model->SetBaseGeometry( _db_base_model.GetBaseGeometry() );
   }
 
   void PersistBaseParameters()
   {
+    _db_base_model.SetBaseGeometry( _p_base_model->GetBaseGeometry() );
   }
 
   void SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_odometry_integrator ) 
@@ -36,14 +38,23 @@ public:
 
   void QueryOdometryParameters() 
   {
+    _p_odometry_integrator->SetAverage2nReadings( _db_odometry_integrator.GetAverage2nReadings() );
+    _p_odometry_integrator->SetVelocityMatchPercentage( _db_odometry_integrator.GetVelocityMatchPercentage() );
+    _p_odometry_integrator->SetVelocityLowerLimit( _db_odometry_integrator.GetVelocityLowerLimit() );
   }
 
   void PersistOdometryParameters()
   {
+    _db_odometry_integrator.SetAverage2nReadings( _p_odometry_integrator->GetAverage2nReadings() );
+    _db_odometry_integrator.SetVelocityMatchPercentage( _p_odometry_integrator->GetVelocityMatchPercentage() );
+    _db_odometry_integrator.SetVelocityLowerLimit( _p_odometry_integrator->GetVelocityLowerLimit() );
   }
 
   differential_drive_core::BaseModel* _p_base_model;
+  differential_drive_core::BaseModel _db_base_model;
+
   differential_drive_core::OdometryIntegrator* _p_odometry_integrator;
+  differential_drive_core::OdometryIntegrator _db_odometry_integrator;
 };
 }
 

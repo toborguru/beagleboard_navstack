@@ -55,7 +55,7 @@ TEST(ParametersSetupServiceTests, canSetupAndUpdateBaseModel)
   // Act
   wheel_ticks1 = base_model->GetWheelTicks();
 
-  parameters_repository_stub->base_geometry.wheel_ticks = 200;
+  parameters_repository_stub->_db_base_model.SetWheelTicks(200);
   wheel_ticks2 = base_model->GetWheelTicks();
   
   //base_model_service.Update();

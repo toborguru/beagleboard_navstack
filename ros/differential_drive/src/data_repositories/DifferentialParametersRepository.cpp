@@ -1,19 +1,21 @@
 #include <ros/ros.h>
 
 #include "DifferentialParametersRepository.hpp"
- 
+
+using namespace differential_drive_core;
+
 namespace differential_drive_data_repositories
 {
 DifferentialParametersRepository::DifferentialParametersRepository()
                     : _p_base_model(NULL),
                       _p_odometry_integrator(NULL),
-                      _p_geometry_reconfigure_server(NULL)
+                      _p_dynamic_reconfigure_server(NULL)
 {
 }
 
-DifferentialParametersRepository::DifferentialParametersRepository( differential_drive_core::BaseModel* p_new_model,
-                                                                    differential_drive_core::OdometryIntegrator* p_new_integrator )
-                    : _p_geometry_reconfigure_server(NULL)
+DifferentialParametersRepository::DifferentialParametersRepository( BaseModel* p_new_model,
+                                                                    OdometryIntegrator* p_new_integrator )
+                    : _p_dynamic_reconfigure_server(NULL)
 {
   SetBaseModel( p_new_model );
   SetOdometryIntegrator( p_new_integrator);
@@ -24,7 +26,69 @@ DifferentialParametersRepository::~DifferentialParametersRepository()
   StopListeningForUpdates();
 }
 
-void DifferentialParametersRepository::SetBaseModel( differential_drive_core::BaseModel* p_new_model )
+void DifferentialParametersRepository::StartListeningForUpdates()
+{
+  if ( _p_dynamic_reconfigure_server == NULL )
+  {
+    _p_dynamic_reconfigure_server = new dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>;
+    dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>::CallbackType call_back_type;
+
+    call_back_type = boost::bind( &DifferentialParametersRepository::UpdateParametersCallBack, this, _1, _2 );
+
+    _p_dynamic_reconfigure_server->setCallback( call_back_type );
+  }
+}
+
+void DifferentialParametersRepository::StopListeningForUpdates()
+{
+  if ( _p_dynamic_reconfigure_server != NULL )
+  {
+    delete _p_dynamic_reconfigure_server;
+    _p_dynamic_reconfigure_server = NULL;
+  }
+}
+
+void DifferentialParametersRepository::UpdateParametersCallBack( differential_drive::DifferentialParametersConfig &config, uint32_t level)
+{
+  /* Let's try this another way
+  BaseGeometry_T base_geometry;
+  int_fast8_t average_2n_readings;
+  double velocity_percentage;
+  double velocity_limit;
+
+  base_geometry.wheel_radius  = config.drive_wheel_diameter / 2.0;
+  base_geometry.wheel_base    = config.drive_wheel_base;
+  base_geometry.wheel_ratio   = config.drive_wheel_ratio;
+  base_geometry.wheel_ticks   = config.drive_wheel_encoder_ticks;
+
+  base_geometry.stasis_radius = config.stasis_wheel_diameter / 2.0;
+  base_geometry.stasis_ticks  = config.stasis_wheel_encoder_ticks;
+
+  average_2n_readings = config.average_2n_readings;  
+  velocity_percentage = config.velocity_difference_percentage;
+  velocity_limit      = config.velocity_lower_limit;
+
+  if ( _p_base_model != NULL )
+  {  
+    _p_base_model->SetBaseGeometry( base_geometry );
+  }
+
+  if ( _p_odometry_integrator != NULL )
+  {
+    _p_odometry_integrator->SetAverage2nReadings( average_2n_readings );
+    _p_odometry_integrator->SetVelocityMatchPercentage( velocity_percentage );
+    _p_odometry_integrator->SetVelocityLowerLimit( velocity_limit );
+  }
+  */
+
+  QueryBaseParameters();
+  QueryOdometryParameters();
+
+  PersistBaseParameters();
+  PersistOdometryParameters();
+}
+
+void DifferentialParametersRepository::SetBaseModel( BaseModel* p_new_model )
 {
   _p_base_model = p_new_model;
 }
@@ -45,49 +109,7 @@ void DifferentialParametersRepository::PersistBaseParameters()
   }
 }
 
-void DifferentialParametersRepository::StartListeningForUpdates()
-{
-  if ( _p_geometry_reconfigure_server == NULL )
-  {
-    _p_geometry_reconfigure_server = new dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>;
-    dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>::CallbackType call_back_type;
-
-    call_back_type = boost::bind( &DifferentialParametersRepository::UpdateParametersCallBack, this, _1, _2 );
-
-    _p_geometry_reconfigure_server->setCallback( call_back_type );
-  }
-}
-
-void DifferentialParametersRepository::StopListeningForUpdates()
-{
-  if ( _p_geometry_reconfigure_server != NULL )
-  {
-    delete _p_geometry_reconfigure_server;
-    _p_geometry_reconfigure_server = NULL;
-  }
-}
-
-void DifferentialParametersRepository::UpdateParametersCallBack( differential_drive::DifferentialParametersConfig &config, uint32_t level)
-{
-  differential_drive_core::BaseGeometry_T base_geometry;
-
-  base_geometry.wheel_radius  = config.drive_wheel_diameter / 2.0;
-  base_geometry.wheel_base    = config.drive_wheel_base;
-  base_geometry.wheel_ratio   = config.drive_wheel_ratio;
-  base_geometry.wheel_ticks   = config.drive_wheel_encoder_ticks;
-
-  base_geometry.stasis_radius = config.stasis_wheel_diameter / 2.0;
-  base_geometry.stasis_ticks =  config.stasis_wheel_encoder_ticks;
-
-  if ( _p_base_model != NULL )
-  {  
-    _p_base_model->SetBaseGeometry( base_geometry );
-  }
-
-  PersistBaseParameters();
-}
-
-void DifferentialParametersRepository::SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_new_integrator )
+void DifferentialParametersRepository::SetOdometryIntegrator( OdometryIntegrator* p_new_integrator )
 {
   _p_odometry_integrator = p_new_integrator;
 }
@@ -96,6 +118,7 @@ void DifferentialParametersRepository::QueryOdometryParameters()
 {
   if ( _p_odometry_integrator != NULL )
   {
+    RosQueryOdometryParameters( _p_odometry_integrator );
   }
 }
 
@@ -103,14 +126,15 @@ void DifferentialParametersRepository::PersistOdometryParameters()
 {
   if ( _p_odometry_integrator != NULL )
   {
+    RosPersistOdometryParameters( _p_odometry_integrator );
   }
 }
 
 /** Returns a @c BaseGeometry_T from ROS parameters or assigns defaults.
  */
-differential_drive_core::BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
+BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
 {
-  differential_drive_core::BaseGeometry_T base_geometry;
+  BaseGeometry_T base_geometry;
 
   double wheel_diameter;
   double wheel_base;
@@ -196,7 +220,7 @@ differential_drive_core::BaseGeometry_T DifferentialParametersRepository::RosQue
   return base_geometry;
 }
 
-void DifferentialParametersRepository::RosPersistBaseParameters( differential_drive_core::BaseGeometry_T geometry ) const
+void DifferentialParametersRepository::RosPersistBaseParameters( BaseGeometry_T geometry ) const
 {
   double wheel_diameter;
   double stasis_diameter;
@@ -224,5 +248,28 @@ void DifferentialParametersRepository::RosPersistBaseParameters( differential_dr
   {
     ros::param::set( "~stasis_wheel_enabled", false );
   }
+}
+
+void DifferentialParametersRepository::RosQueryOdometryParameters( OdometryIntegrator* p_odometry_integrator )
+{
+  int average_2n_readings;
+  double velocity_percentage;
+  double velocity_limit;
+
+  ros::param::param<int>( "~average_2n_readings", average_2n_readings, 3 );
+  ros::param::param<double>( "~velocity_difference_percentage", velocity_percentage, 10.0 );
+  ros::param::param<double>( "~velocity_lower_limit", velocity_limit, 0.10 );
+
+  p_odometry_integrator->SetAverage2nReadings( average_2n_readings );
+  p_odometry_integrator->SetVelocityMatchPercentage( velocity_percentage );
+  p_odometry_integrator->SetVelocityLowerLimit( velocity_limit );
+}
+
+void DifferentialParametersRepository::RosPersistOdometryParameters( const OdometryIntegrator* p_odometry_integrator ) const
+{
+  ros::param::set( "~average_2n_readings", (int)p_odometry_integrator->GetAverage2nReadings() );
+  ros::param::set( "~average_number_of_readings", (int)p_odometry_integrator->GetAverageNumReadings() );
+  ros::param::set( "~velocity_difference_percentage", p_odometry_integrator->GetVelocityMatchPercentage() );
+  ros::param::set( "~velocity_lower_limit", p_odometry_integrator->GetVelocityLowerLimit() );
 }
 }

@@ -36,10 +36,13 @@ private:
   differential_drive_core::BaseGeometry_T RosQueryBaseParameters() const;
   void RosPersistBaseParameters( const differential_drive_core::BaseGeometry_T geometry ) const;
 
+  void RosQueryOdometryParameters( differential_drive_core::OdometryIntegrator* p_odometry_integrator );
+  void RosPersistOdometryParameters( const differential_drive_core::OdometryIntegrator* p_odometry_integrator ) const;
+
   differential_drive_core::BaseModel* _p_base_model;
   differential_drive_core::OdometryIntegrator* _p_odometry_integrator;
 
-  dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>* _p_geometry_reconfigure_server;
+  dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>* _p_dynamic_reconfigure_server;
 };
 }
  
