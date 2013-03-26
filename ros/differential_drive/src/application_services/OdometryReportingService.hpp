@@ -33,14 +33,7 @@ public:
   void StartReportingMovementStatus();
   void StopReportingMovementStatus();
 
-  unsigned int GetAverage2nReadings() const;
-  void SetAverage2nReadings( unsigned int average_num_readings );
-
-  float GetVelocityMatchPercentage() const;
-  void SetVelocityMatchPercentage( float percentage );
-
-  float GetVelocityLowerLimit() const;
-  void SetVelocityLowerLimit( float velocity_limit );
+  differential_drive_core::OdometryIntegrator* GetOdometryIntegrator();
 
 private:
 

@@ -20,6 +20,7 @@ ParametersSetupService::ParametersSetupService( boost::shared_ptr<IDifferentialP
     _p_odometry_service( p_odometry_service )
 { 
   _p_parameters_repository->SetBaseModel( _p_base_model.get() );
+  _p_parameters_repository->SetOdometryIntegrator( _p_odometry_service->GetOdometryIntegrator() );
 }
 
 /** Registers with ROS dynamic reconfigure for base parameter updates.
