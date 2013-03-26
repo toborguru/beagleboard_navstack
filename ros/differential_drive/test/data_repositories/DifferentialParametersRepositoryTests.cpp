@@ -1,17 +1,17 @@
-// BaseModelRepositoryTests.cpp
+// DifferentialParametersRepositoryTests.cpp
  
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
 
-#include "BaseModelRepository.hpp"
+#include "DifferentialParametersRepository.hpp"
  
 using namespace differential_drive_data_repositories;
 //using namespace nav_msgs_application_services;
  
 namespace differential_drive_test_data_repositories
 {
-TEST(BaseModelRepositoryTests, canReadROSBaseModelParameters) 
+TEST(DifferentialParametersRepositoryTests, canReadROSDifferentialParameters) 
 {
   // Establish Context
   std::string name( "base_model_repository_tester" );
@@ -21,7 +21,7 @@ TEST(BaseModelRepositoryTests, canReadROSBaseModelParameters)
   differential_drive_core::BaseGeometry_T base_geometry;
   differential_drive_core::BaseModel base_model;
 
-  BaseModelRepository base_model_repository;
+  DifferentialParametersRepository base_model_repository;
   base_model_repository.SetBaseModel( &base_model );
 
   double radius1;

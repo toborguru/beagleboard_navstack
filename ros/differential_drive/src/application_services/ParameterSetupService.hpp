@@ -1,18 +1,19 @@
-// BaseModelSetupService.hpp
+// ParameterSetupService.hpp
  
-#ifndef GUARD_BaseModelSetupService
-#define GUARD_BaseModelSetupService
+#ifndef GUARD_ParameterSetupService
+#define GUARD_ParameterSetupService
  
 #include <boost/shared_ptr.hpp>
-#include "IBaseModelRepository.hpp"
+#include "IDifferentialParametersRepository.hpp"
  
 namespace differential_drive_application_services
 {
-class BaseModelSetupService
+class ParameterSetupService
 {
 public:
-  explicit BaseModelSetupService( boost::shared_ptr<differential_drive_core::IBaseModelRepository> base_model_repository,
-                                  boost::shared_ptr<differential_drive_core::BaseModel> base_model );
+  explicit ParameterSetupService(  boost::shared_ptr<differential_drive_core::IDifferentialParametersRepository> base_model_repository,
+                                                boost::shared_ptr<differential_drive_core::BaseModel> base_model );
+                                                
 
   void StartUpdating();
   void StopUpdating();
@@ -20,8 +21,9 @@ public:
   void Update();
 
 private:
-  boost::shared_ptr<differential_drive_core::IBaseModelRepository> _p_base_model_repository;
+  boost::shared_ptr<differential_drive_core::IDifferentialParametersRepository> _p_base_model_repository;
+  boost::shared_ptr<differential_drive_core::BaseModel> _p_base_model;
 };
 }
  
-#endif /* GUARD_BaseModelSetupService */
+#endif /* GUARD_ParameterSetupService */

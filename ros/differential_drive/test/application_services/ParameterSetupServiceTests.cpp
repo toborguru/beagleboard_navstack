@@ -3,8 +3,8 @@
 #include <gtest/gtest.h>
 
 #include "BaseModel.hpp"
-#include "BaseModelSetupService.hpp"
-#include "BaseModelRepositoryStub.hpp"
+#include "ParameterSetupService.hpp"
+#include "DifferentialParametersRepositoryStub.hpp"
  
 using namespace differential_drive_application_services;
 using namespace differential_drive_test_data_repositories_test_doubles;
@@ -12,21 +12,22 @@ using namespace differential_drive_test_data_repositories_test_doubles;
 namespace differential_drive_test_application_services
 {
 // Define the unit test to verify ability to update the data using the data repository stub
-TEST(BaseModelSetupServiceTests, canSetupAndUpdateBaseModel)
+TEST(ParameterSetupServiceTests, canSetupAndUpdateBaseModel)
 {
   int wheel_ticks1;
   int wheel_ticks2;
   int wheel_ticks3;
 
   // Establish Context
-  boost::shared_ptr<BaseModelRepositoryStub> base_model_repository_stub =
-          boost::shared_ptr<BaseModelRepositoryStub>( new BaseModelRepositoryStub() );
+  boost::shared_ptr<DifferentialParametersRepositoryStub> base_model_repository_stub =
+          boost::shared_ptr<DifferentialParametersRepositoryStub>( new DifferentialParametersRepositoryStub() );
 
-  BaseModelSetupService base_model_service( base_model_repository_stub );
+  boost::shared_ptr<differential_drive_core::BaseModel> p_base_model = 
+          boost::shared_ptr<differential_drive_core::BaseModel>( new differential_drive_core::BaseModel() );
 
-  boost::shared_ptr<differential_drive_core::BaseModel> p_base_model;
+  ParameterSetupService base_model_service( base_model_repository_stub, p_base_model );
 
-  p_base_model = base_model_service.GetBaseModel();
+  //p_base_model = base_model_service.GetBaseModel();
 
   // Act
   wheel_ticks1 = p_base_model->GetWheelTicks();
@@ -34,7 +35,7 @@ TEST(BaseModelSetupServiceTests, canSetupAndUpdateBaseModel)
   base_model_repository_stub->base_geometry.wheel_ticks = 200;
   wheel_ticks2 = p_base_model->GetWheelTicks();
   
-  base_model_service.Update();
+  //base_model_service.Update();
   wheel_ticks3 = p_base_model->GetWheelTicks();
 
   // Assert

@@ -12,7 +12,7 @@ rosbuild_add_gtest(
   ./core/BaseModelTests.cpp
   ./core/OdometryIntegratorTests.cpp
   ./core/TwistConverterTests.cpp
-#  ./application_services/BaseModelSetupServiceTests.cpp
+  ./application_services/ParameterSetupServiceTests.cpp
   ./application_services/OdometryReportingServiceTests.cpp
   ./application_services/TwistCommandServiceTests.cpp
 )
@@ -37,7 +37,7 @@ rosbuild_add_executable(
   ./message_endpoints/MovementStatusPublisherEndpointTests.cpp
   ./message_endpoints/TickVelocityPublisherEndpointTests.cpp
   ./message_endpoints/TwistSubscriberEndpointTests.cpp
-  ./data_repositories/BaseModelRepositoryTests.cpp
+  ./data_repositories/DifferentialParametersRepositoryTests.cpp
 )
 rosbuild_add_gtest_build_flags(differential_drive_ros_tests)
 # Make sure rostest launches test/mynode.test during "make test"

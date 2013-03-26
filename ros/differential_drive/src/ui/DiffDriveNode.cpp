@@ -10,7 +10,7 @@
 #include "TwistSubscriberEndpoint.hpp"
 #include "EncoderCountsSubscriberEndpoint.hpp"
 
-#include "BaseModelRepository.hpp"
+#include "DifferentialParametersRepository.hpp"
 
 using namespace differential_drive_application_services;
 using namespace differential_drive_core;
@@ -59,11 +59,12 @@ int main(int argc, char **argv)
 
 
     // Base Model Setup Service
-    boost::shared_ptr<BaseModelRepository> base_model_repository =
-        boost::shared_ptr<BaseModelRepository>( new BaseModelRepository() );
+    boost::shared_ptr<DifferentialParametersRepository> base_model_repository =
+        boost::shared_ptr<DifferentialParametersRepository>( new DifferentialParametersRepository() );
 
-    BaseModelSetupService base_model_setup_service( base_model_repository,
-                                                    base_model );
+    ParameterSetupService base_model_setup_service(  base_model_repository,
+                                                                  base_model );
+                                                                  
   
 
     // 3) Start the services

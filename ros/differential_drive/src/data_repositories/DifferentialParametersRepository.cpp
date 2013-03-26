@@ -1,50 +1,59 @@
 #include <ros/ros.h>
 
-#include "BaseModelRepository.hpp"
+#include "DifferentialParametersRepository.hpp"
  
 namespace differential_drive_data_repositories
 {
-BaseModelRepository::BaseModelRepository()
+DifferentialParametersRepository::DifferentialParametersRepository()
                     : _p_base_model(NULL),
+                      _p_odometry_integrator(NULL),
                       _p_geometry_reconfigure_server(NULL)
 {
 }
 
-BaseModelRepository::BaseModelRepository( differential_drive_core::BaseModel* p_new_model )
+DifferentialParametersRepository::DifferentialParametersRepository( differential_drive_core::BaseModel* p_new_model,
+                                                                    differential_drive_core::OdometryIntegrator* p_new_integrator )
                     : _p_geometry_reconfigure_server(NULL)
 {
   SetBaseModel( p_new_model );
+  SetOdometryIntegrator( p_new_integrator);
 }
 
-BaseModelRepository::~BaseModelRepository()
+DifferentialParametersRepository::~DifferentialParametersRepository()
 {
   StopListeningForUpdates();
 }
 
-void BaseModelRepository::QueryBaseGeometry()
+void DifferentialParametersRepository::QueryBaseGeometry()
 {
-  _p_base_model->SetBaseGeometry( RosQueryBaseGeometry() );
+  if ( _p_base_model != NULL )
+  {
+    _p_base_model->SetBaseGeometry( RosQueryBaseGeometry() );
+  }
 }
 
-void BaseModelRepository::PersistBaseGeometry()
+void DifferentialParametersRepository::PersistBaseGeometry()
 {
-  RosPersistBaseGeometry( _p_base_model->GetBaseGeometry() );
+  if ( _p_base_model != NULL )
+  {
+    RosPersistBaseGeometry( _p_base_model->GetBaseGeometry() );
+  }
 }
 
-void BaseModelRepository::StartListeningForUpdates()
+void DifferentialParametersRepository::StartListeningForUpdates()
 {
   if ( _p_geometry_reconfigure_server == NULL )
   {
-    _p_geometry_reconfigure_server = new dynamic_reconfigure::Server<differential_drive::BaseGeometryConfig>;
-    dynamic_reconfigure::Server<differential_drive::BaseGeometryConfig>::CallbackType call_back_type;
+    _p_geometry_reconfigure_server = new dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>;
+    dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>::CallbackType call_back_type;
 
-    call_back_type = boost::bind( &BaseModelRepository::UpdateBaseGeometryCallBack, this, _1, _2 );
+    call_back_type = boost::bind( &DifferentialParametersRepository::UpdateParametersCallBack, this, _1, _2 );
 
     _p_geometry_reconfigure_server->setCallback( call_back_type );
   }
 }
 
-void BaseModelRepository::StopListeningForUpdates()
+void DifferentialParametersRepository::StopListeningForUpdates()
 {
   if ( _p_geometry_reconfigure_server != NULL )
   {
@@ -53,7 +62,7 @@ void BaseModelRepository::StopListeningForUpdates()
   }
 }
 
-void BaseModelRepository::UpdateBaseGeometryCallBack( differential_drive::BaseGeometryConfig &config, uint32_t level)
+void DifferentialParametersRepository::UpdateParametersCallBack( differential_drive::DifferentialParametersConfig &config, uint32_t level)
 {
   differential_drive_core::BaseGeometry_T base_geometry;
 
@@ -65,18 +74,27 @@ void BaseModelRepository::UpdateBaseGeometryCallBack( differential_drive::BaseGe
   base_geometry.stasis_radius = config.stasis_wheel_diameter / 2.0;
   base_geometry.stasis_ticks =  config.stasis_wheel_encoder_ticks;
 
-  _p_base_model->SetBaseGeometry( base_geometry );
+  if ( _p_base_model != NULL )
+  {  
+    _p_base_model->SetBaseGeometry( base_geometry );
+  }
+
   PersistBaseGeometry();
 }
 
-void BaseModelRepository::SetBaseModel( differential_drive_core::BaseModel* p_new_model )
+void DifferentialParametersRepository::SetBaseModel( differential_drive_core::BaseModel* p_new_model )
 {
   _p_base_model = p_new_model;
 }
 
+void DifferentialParametersRepository::SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_new_integrator )
+{
+  _p_odometry_integrator = p_new_integrator;
+}
+
 /** Returns a @c BaseGeometry_T from ROS parameters or assigns defaults.
  */
-differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometry() const
+differential_drive_core::BaseGeometry_T DifferentialParametersRepository::RosQueryBaseGeometry() const
 {
   differential_drive_core::BaseGeometry_T base_geometry;
 
@@ -95,7 +113,7 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometr
 
   if ( wheel_diameter <= 0.0 )
   {
-    ROS_ERROR_NAMED(  "BaseModelRepository", "drive_wheel_diameter <= 0! : %f changed to %f.",
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_diameter <= 0! : %f changed to %f.",
                       wheel_diameter, wheel_diameter * -1.0 );
 
     wheel_diameter *= -1.0;
@@ -103,21 +121,21 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometr
 
   if ( wheel_base <= 0.0 )
   {
-    ROS_ERROR_NAMED(  "BaseModelRepository", "drive_wheel_base <= 0! : %f changed to %f.",
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_base <= 0! : %f changed to %f.",
                       wheel_base, wheel_base * -1.0 );
     wheel_base *= -1.0;
   }
 
   if ( wheel_ratio <= 0.0 )
   {
-    ROS_ERROR_NAMED(  "BaseModelRepository", "drive_wheel_ratio <= 0! : %f changed to %f.",
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_ratio <= 0! : %f changed to %f.",
                       wheel_ratio, wheel_ratio * -1.0 );
     wheel_ratio *= -1.0;
   }
 
   if ( wheel_ticks <= 0 )
   {
-    ROS_ERROR_NAMED(  "BaseModelRepository", "drive_wheel_encoder_ticks <= 0! : %d changed to %d.",
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_encoder_ticks <= 0! : %d changed to %d.",
                       wheel_ticks, wheel_ticks * -1 );
     wheel_ticks *= -1;
   }
@@ -130,7 +148,7 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometr
 
       if ( stasis_ticks <= 0.0 )
       {
-        ROS_ERROR_NAMED(  "BaseModelRepository", "stasis_wheel_encoder_ticks <= 0! Disabling stasis wheel." );
+        ROS_ERROR_NAMED(  "DifferentialParametersRepository", "stasis_wheel_encoder_ticks <= 0! Disabling stasis wheel." );
         
         ros::param::set("~stasis_wheel_enabled", false );
         stasis_diameter = 2.0;
@@ -139,7 +157,7 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometr
     }
     else
     {
-      ROS_ERROR_NAMED(  "BaseModelRepository", "stasis_wheel_diameter <= 0! Disabling stasis wheel." );
+      ROS_ERROR_NAMED(  "DifferentialParametersRepository", "stasis_wheel_diameter <= 0! Disabling stasis wheel." );
 
       ros::param::set("~stasis_wheel_enabled", false );
       stasis_diameter = 2.0;
@@ -164,7 +182,7 @@ differential_drive_core::BaseGeometry_T BaseModelRepository::RosQueryBaseGeometr
   return base_geometry;
 }
 
-void BaseModelRepository::RosPersistBaseGeometry( differential_drive_core::BaseGeometry_T geometry ) const
+void DifferentialParametersRepository::RosPersistBaseGeometry( differential_drive_core::BaseGeometry_T geometry ) const
 {
   double wheel_diameter;
   double stasis_diameter;
