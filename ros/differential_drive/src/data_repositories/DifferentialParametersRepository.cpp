@@ -24,19 +24,24 @@ DifferentialParametersRepository::~DifferentialParametersRepository()
   StopListeningForUpdates();
 }
 
-void DifferentialParametersRepository::QueryBaseGeometry()
+void DifferentialParametersRepository::SetBaseModel( differential_drive_core::BaseModel* p_new_model )
+{
+  _p_base_model = p_new_model;
+}
+
+void DifferentialParametersRepository::QueryBaseParameters()
 {
   if ( _p_base_model != NULL )
   {
-    _p_base_model->SetBaseGeometry( RosQueryBaseGeometry() );
+    _p_base_model->SetBaseGeometry( RosQueryBaseParameters() );
   }
 }
 
-void DifferentialParametersRepository::PersistBaseGeometry()
+void DifferentialParametersRepository::PersistBaseParameters()
 {
   if ( _p_base_model != NULL )
   {
-    RosPersistBaseGeometry( _p_base_model->GetBaseGeometry() );
+    RosPersistBaseParameters( _p_base_model->GetBaseGeometry() );
   }
 }
 
@@ -79,12 +84,7 @@ void DifferentialParametersRepository::UpdateParametersCallBack( differential_dr
     _p_base_model->SetBaseGeometry( base_geometry );
   }
 
-  PersistBaseGeometry();
-}
-
-void DifferentialParametersRepository::SetBaseModel( differential_drive_core::BaseModel* p_new_model )
-{
-  _p_base_model = p_new_model;
+  PersistBaseParameters();
 }
 
 void DifferentialParametersRepository::SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_new_integrator )
@@ -92,9 +92,23 @@ void DifferentialParametersRepository::SetOdometryIntegrator( differential_drive
   _p_odometry_integrator = p_new_integrator;
 }
 
+void DifferentialParametersRepository::QueryOdometryParameters()
+{
+  if ( _p_odometry_integrator != NULL )
+  {
+  }
+}
+
+void DifferentialParametersRepository::PersistOdometryParameters()
+{
+  if ( _p_odometry_integrator != NULL )
+  {
+  }
+}
+
 /** Returns a @c BaseGeometry_T from ROS parameters or assigns defaults.
  */
-differential_drive_core::BaseGeometry_T DifferentialParametersRepository::RosQueryBaseGeometry() const
+differential_drive_core::BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
 {
   differential_drive_core::BaseGeometry_T base_geometry;
 
@@ -182,7 +196,7 @@ differential_drive_core::BaseGeometry_T DifferentialParametersRepository::RosQue
   return base_geometry;
 }
 
-void DifferentialParametersRepository::RosPersistBaseGeometry( differential_drive_core::BaseGeometry_T geometry ) const
+void DifferentialParametersRepository::RosPersistBaseParameters( differential_drive_core::BaseGeometry_T geometry ) const
 {
   double wheel_diameter;
   double stasis_diameter;

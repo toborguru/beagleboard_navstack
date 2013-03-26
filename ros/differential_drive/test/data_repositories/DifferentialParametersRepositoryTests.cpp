@@ -51,7 +51,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSDifferentialParameters)
   ros::param::set( "~stasis_wheel_diameter", 0.0 );
   ros::param::set( "~stasis_wheel_encoder_ticks", 100 );
 
-  base_model_repository.QueryBaseGeometry();
+  base_model_repository.QueryBaseParameters();
   base_geometry = base_model.GetBaseGeometry();
 
   radius1 = base_geometry.wheel_radius;
@@ -63,7 +63,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSDifferentialParameters)
   ros::param::set( "~drive_wheel_base", 1.5 );
   ros::param::set( "~stasis_wheel_diameter", 0.5 );
 
-  base_model_repository.QueryBaseGeometry();
+  base_model_repository.QueryBaseParameters();
   base_geometry = base_model.GetBaseGeometry();
 
   radius2 = base_geometry.wheel_radius;
@@ -75,7 +75,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSDifferentialParameters)
   ros::param::set( "~drive_wheel_base", -1.0 );
   ros::param::set( "~stasis_wheel_diameter", -0.5 );
 
-  base_model_repository.QueryBaseGeometry();
+  base_model_repository.QueryBaseParameters();
   base_geometry = base_model.GetBaseGeometry();
 
   radius3 = base_geometry.wheel_radius;
@@ -88,7 +88,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSDifferentialParameters)
   ros::param::set( "~stasis_wheel_diameter", 1.5 );
   ros::param::set( "~stasis_wheel_encoder_ticks", 150 );
 
-  base_model_repository.QueryBaseGeometry();
+  base_model_repository.QueryBaseParameters();
   base_geometry = base_model.GetBaseGeometry();
 
   radius4 = base_geometry.wheel_radius;

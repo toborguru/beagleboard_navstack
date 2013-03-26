@@ -13,26 +13,37 @@ public:
   DifferentialParametersRepositoryStub()
   { }
 
-  //differential_drive_core::BaseGeometry_T QueryBaseGeometry() const
-  void QueryBaseGeometry() 
-  {
-    //return base_geometry;
-  }
-
-  //void PersistBaseGeometry( differential_drive_core::BaseGeometry_T new_geometry )
-  void PersistBaseGeometry()
-  {
-    //base_geometry = new_geometry;
-    //
-  }
-
   void StartListeningForUpdates() {}
   void StopListeningForUpdates() {}  
 
-  void SetBaseModel( differential_drive_core::BaseModel *p_new_model ) {}
-  void SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* odometry_integrator ) {}
+  void SetBaseModel( differential_drive_core::BaseModel *p_new_model ) 
+  {
+    _p_base_model = p_new_model;
+  }
 
-  differential_drive_core::BaseGeometry_T base_geometry;
+  void QueryBaseParameters() 
+  {
+  }
+
+  void PersistBaseParameters()
+  {
+  }
+
+  void SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_odometry_integrator ) 
+  {
+    _p_odometry_integrator = p_odometry_integrator;
+  }
+
+  void QueryOdometryParameters() 
+  {
+  }
+
+  void PersistOdometryParameters()
+  {
+  }
+
+  differential_drive_core::BaseModel* _p_base_model;
+  differential_drive_core::OdometryIntegrator* _p_odometry_integrator;
 };
 }
 

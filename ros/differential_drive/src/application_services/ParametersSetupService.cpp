@@ -41,6 +41,6 @@ void ParametersSetupService::StopUpdating()
  */
 void ParametersSetupService::Update()
 {
-  _p_parameters_repository->QueryBaseGeometry();
+  _p_parameters_repository->QueryBaseParameters();
 }
 }
