@@ -49,7 +49,7 @@ static const double OdometryCovarianceLow[36] =
 /** Default constructor.
  */
 OdometryIntegrator::OdometryIntegrator()
-                   : _stasis_percentage(0.10),
+                   : _velocity_allowance(0.10),
                      _velocity_lower_limit(0.05),
                      _average_2n_readings(3),
                      _average_num_readings(0),
@@ -286,30 +286,30 @@ void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings 
 
 /** Access function.
  */
-float OdometryIntegrator::GetStasisPercentage() const
+float OdometryIntegrator::GetVelocityMatchPercentage() const
 {
-  return _stasis_percentage;
+  return ( _velocity_allowance * 100.0 );
 }
 
 /** Access function.
  *  Negative numbers will be multiplied by -1. Numbers greater than 1 will
  *  be inverted. 
  */
-void OdometryIntegrator::SetStasisPercentage( float percentage )
+void OdometryIntegrator::SetVelocityMatchPercentage( float percentage )
 {
   if ( percentage < 0.0 )
   {
     percentage *= -1.0;
   }
 
-  if ( percentage > 1.0 )
+  if ( (percentage > 0.0) && (percentage <= 100.0) )
   {
-    percentage = 1.0 / percentage;
-  }
+    percentage = percentage / 100.0;
 
-  pthread_mutex_lock( _p_data_mutex );
-  _stasis_percentage = percentage;
-  pthread_mutex_unlock( _p_data_mutex );
+    pthread_mutex_lock( _p_data_mutex );
+    _velocity_allowance = percentage;
+    pthread_mutex_unlock( _p_data_mutex );
+  }
 }
 
 /** Access function.
@@ -498,8 +498,8 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
     abs_linear = fabs( linear_average );
     abs_stasis = fabs( stasis_average );
 
-    float lower_limit = abs_linear * ( 1.0 - _stasis_percentage );
-    float upper_limit = abs_linear * ( 1.0 + _stasis_percentage );
+    float lower_limit = abs_linear * ( 1.0 - _velocity_allowance );
+    float upper_limit = abs_linear * ( 1.0 + _velocity_allowance );
 
     movement_status.linear_velocity = velocities.linear;
     movement_status.linear_velocity_average = linear_average;

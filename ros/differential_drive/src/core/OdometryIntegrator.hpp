@@ -44,8 +44,8 @@ public:
   unsigned int GetAverageNumReadings() const;
   void SetAverageNumReadings( unsigned int average_num_readings );
 
-  float GetStasisPercentage() const;
-  void SetStasisPercentage( float percentage );
+  float GetVelocityMatchPercentage() const;
+  void SetVelocityMatchPercentage( float percentage );
 
   float GetVelocityLowerLimit() const;
   void SetVelocityLowerLimit( float velocity_limit );
@@ -76,7 +76,7 @@ private:
 
   BaseVelocities_T  _velocities;
 
-  float _stasis_percentage;
+  float _velocity_allowance;
   float _velocity_lower_limit;
 
   uint_fast16_t _average_index;

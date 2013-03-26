@@ -44,18 +44,18 @@ TEST(ParametersSetupServiceTests, canSetupAndUpdateBaseModel)
                                                                                   base_model ) );
   // Setup the data repo
 
-  boost::shared_ptr<DifferentialParametersRepositoryStub> base_model_repository_stub =
+  boost::shared_ptr<DifferentialParametersRepositoryStub> parameters_repository_stub =
           boost::shared_ptr<DifferentialParametersRepositoryStub>( new DifferentialParametersRepositoryStub() );
 
   // Setup the Parameter Service
-  ParametersSetupService base_model_service( base_model_repository_stub, base_model, odometry_reporting_service );
+  ParametersSetupService base_model_service( parameters_repository_stub, base_model, odometry_reporting_service );
 
   //base_model = base_model_service.GetBaseModel();
 
   // Act
   wheel_ticks1 = base_model->GetWheelTicks();
 
-  base_model_repository_stub->base_geometry.wheel_ticks = 200;
+  parameters_repository_stub->base_geometry.wheel_ticks = 200;
   wheel_ticks2 = base_model->GetWheelTicks();
   
   //base_model_service.Update();
