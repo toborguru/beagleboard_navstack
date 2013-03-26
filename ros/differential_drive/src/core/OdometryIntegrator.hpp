@@ -24,91 +24,91 @@ namespace differential_drive_core
 
 class OdometryIntegrator : public IEncoderCountsListener
 {
-  public:
-    OdometryIntegrator();
-    ~OdometryIntegrator();
+public:
+  OdometryIntegrator();
+  ~OdometryIntegrator();
 
-    void Attach( IOdometryListener& odometry_listener );
-    void Detach( IOdometryListener& odometry_listener );
+  void Attach( IOdometryListener& odometry_listener );
+  void Detach( IOdometryListener& odometry_listener );
 
-    void Attach( IMovementStatusListener& movement_status_listener );
-    void Detach( IMovementStatusListener& movement_status_listener );
+  void Attach( IMovementStatusListener& movement_status_listener );
+  void Detach( IMovementStatusListener& movement_status_listener );
 
-    void SetBaseModel( const BaseModel& base_model );
+  void SetBaseModel( const BaseModel& base_model );
 
-    void OnEncoderCountsAvailableEvent( const differential_drive::EncoderCounts& encoder_counts );
+  void OnEncoderCountsAvailableEvent( const differential_drive::EncoderCounts& encoder_counts );
 
-    unsigned int GetAverage2nReadings() const;
-    void SetAverage2nReadings( unsigned int average_2n_readings );
+  unsigned int GetAverage2nReadings() const;
+  void SetAverage2nReadings( unsigned int average_2n_readings );
 
-    unsigned int GetAverageNumReadings() const;
-    void SetAverageNumReadings( unsigned int average_num_readings );
+  unsigned int GetAverageNumReadings() const;
+  void SetAverageNumReadings( unsigned int average_num_readings );
 
-    float GetStasisPercentage() const;
-    void SetStasisPercentage( float percentage );
+  float GetStasisPercentage() const;
+  void SetStasisPercentage( float percentage );
 
-    float GetVelocityLowerLimit() const;
-    void SetVelocityLowerLimit( float velocity_limit );
+  float GetVelocityLowerLimit() const;
+  void SetVelocityLowerLimit( float velocity_limit );
 
-  private:
-    void AddNewCounts( const differential_drive::EncoderCounts& encoder_counts );
+private:
+  void AddNewCounts( const differential_drive::EncoderCounts& encoder_counts );
 
-    nav_msgs::Odometry CalculatePosition( BaseVelocities_T*  p_velocities, 
-                                            const differential_drive::EncoderCounts counts,
-                                            const nav_msgs::Odometry last_position );
+  nav_msgs::Odometry CalculatePosition( BaseVelocities_T*  p_velocities, 
+                                          const differential_drive::EncoderCounts counts,
+                                          const nav_msgs::Odometry last_position );
 
-    void CalculateCovariance( nav_msgs::Odometry *p_current_position,
-                                const differential_drive::MovementStatus movement_status );
+  void CalculateCovariance( nav_msgs::Odometry *p_current_position,
+                              const differential_drive::MovementStatus movement_status );
 
-    differential_drive::MovementStatus CalculateMovementStatus( const BaseVelocities_T  velocities );
+  differential_drive::MovementStatus CalculateMovementStatus( const BaseVelocities_T  velocities );
 
-    void NotifyOdometryListeners(const nav_msgs::Odometry& odometry);
-    std::vector<IOdometryListener*> _odometry_listeners;
+  void NotifyOdometryListeners(const nav_msgs::Odometry& odometry);
+  std::vector<IOdometryListener*> _odometry_listeners;
 
-    void NotifyMovementStatusListeners(const differential_drive::MovementStatus& movement_status);
-    std::vector<IMovementStatusListener*> _movement_status_listeners;
+  void NotifyMovementStatusListeners(const differential_drive::MovementStatus& movement_status);
+  std::vector<IMovementStatusListener*> _movement_status_listeners;
 
-    std::queue<const differential_drive::EncoderCounts*> _encoder_counts_messages;
+  std::queue<const differential_drive::EncoderCounts*> _encoder_counts_messages;
 
-    nav_msgs::Odometry _current_position;
+  nav_msgs::Odometry _current_position;
 
-    differential_drive::MovementStatus _movement_status;
+  differential_drive::MovementStatus _movement_status;
 
-    BaseVelocities_T  _velocities;
-  
-    float _stasis_percentage;
-    float _velocity_lower_limit;
-  
-    uint_fast16_t _average_index;
-    uint_fast16_t _num_readings_read;
-    uint_fast16_t _average_2n_readings;
-    uint_fast16_t _average_num_readings;
-    uint_fast16_t _average_index_mask;
+  BaseVelocities_T  _velocities;
 
-    float   _linear_average_total;
-    float   _stasis_average_total;
-    float  *_p_linear_velocities; 
-    float  *_p_stasis_velocities; 
+  float _stasis_percentage;
+  float _velocity_lower_limit;
 
-    const BaseModel* _p_base_model;
+  uint_fast16_t _average_index;
+  uint_fast16_t _num_readings_read;
+  uint_fast16_t _average_2n_readings;
+  uint_fast16_t _average_num_readings;
+  uint_fast16_t _average_index_mask;
 
-    // Basic threading support as suggested by Jeremy Friesner at
-    // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
-    void ProcessOdometry();
-    void StartProcessingOdometry();
-    void StopProcessingOdometry();
+  float   _linear_average_total;
+  float   _stasis_average_total;
+  float  *_p_linear_velocities; 
+  float  *_p_stasis_velocities; 
 
-    volatile bool _stop_requested;
-    volatile bool _is_running;
-    pthread_t _thread;
+  const BaseModel* _p_base_model;
 
-    pthread_mutex_t *_p_data_mutex;
-    sem_t *_p_message_sem;            
+  // Basic threading support as suggested by Jeremy Friesner at
+  // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
+  void ProcessOdometry();
+  void StartProcessingOdometry();
+  void StopProcessingOdometry();
 
-    static void * ProcessOdometryFunction(void * This) {
-      ( (OdometryIntegrator*)This )->ProcessOdometry();
-      return 0;
-    }
+  volatile bool _stop_requested;
+  volatile bool _is_running;
+  pthread_t _thread;
+
+  pthread_mutex_t *_p_data_mutex;
+  sem_t *_p_message_sem;            
+
+  static void * ProcessOdometryFunction(void * This) {
+    ( (OdometryIntegrator*)This )->ProcessOdometry();
+    return 0;
+  }
 };
 }
 

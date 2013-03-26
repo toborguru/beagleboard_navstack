@@ -12,32 +12,34 @@ namespace differential_drive_application_services
  *  of objects. The object pointed to will be destroyed when all pointers to the object have been
  *  destroyed.
  */
-ParametersSetupService::ParametersSetupService( boost::shared_ptr<IDifferentialParametersRepository> base_model_repository,
-                                                                        boost::shared_ptr<differential_drive_core::BaseModel> base_model )
-  : _p_base_model_repository( base_model_repository ),
-    _p_base_model( base_model )
+ParametersSetupService::ParametersSetupService( boost::shared_ptr<IDifferentialParametersRepository> p_parameters_repository,
+                                                boost::shared_ptr<differential_drive_core::BaseModel> p_base_model,
+                                                boost::shared_ptr<OdometryReportingService> p_odometry_service )
+  : _p_parameters_repository( p_parameters_repository ),
+    _p_base_model( p_base_model ),
+    _p_odometry_service( p_odometry_service )
 { 
-  _p_base_model_repository->SetBaseModel( _p_base_model.get() );
+  _p_parameters_repository->SetBaseModel( _p_base_model.get() );
 }
 
 /** Registers with ROS dynamic reconfigure for base parameter updates.
  */
 void ParametersSetupService::StartUpdating()
 {
-  _p_base_model_repository->StartListeningForUpdates();
+  _p_parameters_repository->StartListeningForUpdates();
 }
 
 /** Registers with ROS dynamic reconfigure for base parameter updates.
  */
 void ParametersSetupService::StopUpdating()
 {
-  _p_base_model_repository->StopListeningForUpdates();
+  _p_parameters_repository->StopListeningForUpdates();
 }
 
 /** Request updated parameters for the internal BaseModel from the data repository.
  */
 void ParametersSetupService::Update()
 {
-  _p_base_model_repository->QueryBaseGeometry();
+  _p_parameters_repository->QueryBaseGeometry();
 }
 }

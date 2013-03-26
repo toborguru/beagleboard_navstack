@@ -40,10 +40,11 @@ int main(int argc, char **argv)
     boost::shared_ptr<EncoderCountsSubscriberEndpoint> encoder_counts_endpoint =
         boost::shared_ptr<EncoderCountsSubscriberEndpoint>( new EncoderCountsSubscriberEndpoint() );
 
-    OdometryReportingService odometry_reporting_service(  odometry_endpoint, 
-                                                          movement_status_endpoint, 
-                                                          encoder_counts_endpoint,
-                                                          base_model );
+    boost::shared_ptr<OdometryReportingService> odometry_reporting_service = 
+        boost::shared_ptr<OdometryReportingService>( new OdometryReportingService(  odometry_endpoint, 
+                                                                                    movement_status_endpoint, 
+                                                                                    encoder_counts_endpoint,
+                                                                                    base_model ) );
 
     
     // Twist Command Service
@@ -53,30 +54,32 @@ int main(int argc, char **argv)
     boost::shared_ptr<TwistSubscriberEndpoint> twist_endpoint =
         boost::shared_ptr<TwistSubscriberEndpoint>( new TwistSubscriberEndpoint() );
 
-    TwistCommandService twist_command_service(  tick_velocity_endpoint, 
-                                                twist_endpoint,
-                                                base_model );
+    boost::shared_ptr<TwistCommandService> twist_command_service =
+        boost::shared_ptr<TwistCommandService>( new TwistCommandService(  tick_velocity_endpoint, 
+                                                                          twist_endpoint,
+                                                                          base_model ) );
 
 
-    // Base Model Setup Service
+    // Differential Drive Parameters Setup Service
     boost::shared_ptr<DifferentialParametersRepository> base_model_repository =
         boost::shared_ptr<DifferentialParametersRepository>( new DifferentialParametersRepository() );
 
-    ParametersSetupService base_model_setup_service(  base_model_repository,
-                                                                  base_model );
-                                                                  
+    boost::shared_ptr<ParametersSetupService> base_model_setup_service =
+      boost::shared_ptr<ParametersSetupService>( new ParametersSetupService(  base_model_repository,
+                                                                              base_model,
+                                                                              odometry_reporting_service ) );
   
 
     // 3) Start the services
     ROS_INFO( "Starting the Base Model Setup Service..." );
-    base_model_setup_service.Update();
-    base_model_setup_service.StartUpdating();
+    base_model_setup_service->Update();
+    base_model_setup_service->StartUpdating();
 
     ROS_INFO( "Starting Odometry Reporting Service..." );
-    odometry_reporting_service.StartReporting();
+    odometry_reporting_service->StartReporting();
 
     ROS_INFO( "Starting Twist Command Service..." );
-    twist_command_service.StartAcceptingCommands();
+    twist_command_service->StartAcceptingCommands();
 
     ros::spin();
 

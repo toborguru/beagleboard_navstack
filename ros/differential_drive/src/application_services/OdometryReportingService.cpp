@@ -106,4 +106,50 @@ void OdometryReportingService::StopReportingMovementStatus()
   _odometry_integrator.Detach( *_p_movement_status_endpoint );
   _is_reporting_movement_status = false;
 }
+
+/** Returns the number of velocity readings that are being averaged before 
+ *  comparing the drive and status speeds.
+ */
+unsigned int OdometryReportingService::GetAverageNumReadings() const
+{
+  return _odometry_integrator.GetAverageNumReadings();
+}
+
+/** Set the number of velocity readings to average before comparing the drive 
+ *  and status speeds.
+ */
+void OdometryReportingService::SetAverageNumReadings( unsigned int average_num_readings )
+{
+  _odometry_integrator.SetAverageNumReadings( average_num_readings );
+}
+
+/** Returns the percentage of difference in drive and status speeds before a 
+ *  mismatch will be flagged.
+ */
+float OdometryReportingService::GetStasisPercentage() const
+{
+  return _odometry_integrator.GetStasisPercentage();
+}
+
+/** Sets the percentage of difference in drive and status speeds before a 
+ *  mismatch will be flagged.
+ */
+void OdometryReportingService::SetStasisPercentage( float percentage )
+{
+  _odometry_integrator.SetStasisPercentage( percentage );
+}
+
+/** Returns the velocity (m/s) below which speed mismatches will be ignored.
+ */
+float OdometryReportingService::GetVelocityLowerLimit() const
+{
+  return _odometry_integrator.GetStasisPercentage();
+}
+
+/** Sets the velocity (m/s) below which speed mismatches will be ignored.
+ */
+void OdometryReportingService::SetVelocityLowerLimit( float velocity_limit )
+{
+  _odometry_integrator.SetVelocityLowerLimit( velocity_limit );
+}
 }
