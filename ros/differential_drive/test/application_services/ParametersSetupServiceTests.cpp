@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "BaseModel.hpp"
-#include "ParameterSetupService.hpp"
+#include "ParametersSetupService.hpp"
 #include "DifferentialParametersRepositoryStub.hpp"
  
 using namespace differential_drive_application_services;
@@ -12,7 +12,7 @@ using namespace differential_drive_test_data_repositories_test_doubles;
 namespace differential_drive_test_application_services
 {
 // Define the unit test to verify ability to update the data using the data repository stub
-TEST(ParameterSetupServiceTests, canSetupAndUpdateBaseModel)
+TEST(ParametersSetupServiceTests, canSetupAndUpdateBaseModel)
 {
   int wheel_ticks1;
   int wheel_ticks2;
@@ -25,7 +25,7 @@ TEST(ParameterSetupServiceTests, canSetupAndUpdateBaseModel)
   boost::shared_ptr<differential_drive_core::BaseModel> p_base_model = 
           boost::shared_ptr<differential_drive_core::BaseModel>( new differential_drive_core::BaseModel() );
 
-  ParameterSetupService base_model_service( base_model_repository_stub, p_base_model );
+  ParametersSetupService base_model_service( base_model_repository_stub, p_base_model );
 
   //p_base_model = base_model_service.GetBaseModel();
 

@@ -2,7 +2,7 @@
 
 #include "OdometryReportingService.hpp"
 #include "TwistCommandService.hpp"
-#include "ParameterSetupService.hpp"
+#include "ParametersSetupService.hpp"
 
 #include "OdometryPublisherEndpoint.hpp"
 #include "MovementStatusPublisherEndpoint.hpp"
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     boost::shared_ptr<DifferentialParametersRepository> base_model_repository =
         boost::shared_ptr<DifferentialParametersRepository>( new DifferentialParametersRepository() );
 
-    ParameterSetupService base_model_setup_service(  base_model_repository,
+    ParametersSetupService base_model_setup_service(  base_model_repository,
                                                                   base_model );
                                                                   
   
