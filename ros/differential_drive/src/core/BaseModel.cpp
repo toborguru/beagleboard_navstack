@@ -72,53 +72,31 @@ void BaseModel::ConvertCounts(  BaseDistance_T* p_delta_position,
 {
   double seconds;
 
+  pthread_mutex_lock( _p_lock_mutex );
+
   // convert milliseconds to seconds
   seconds = new_counts.dt_ms / 1000.0;
 
-  pthread_mutex_lock( _p_lock_mutex );
-
   *p_delta_position = CountsToDistance( new_counts, _base_geometry, &_tick_rates );
 
-  pthread_mutex_unlock( _p_lock_mutex );
-
   *p_velocity = DistanceToVelocity( *p_delta_position, seconds );
+
+  pthread_mutex_unlock( _p_lock_mutex );
 }
 
 /** Accepts an desired linear and angular velocity and returns the velocities
  *  in ticks/sec. This function does not alter the current model state.
  */
-differential_drive::TickVelocity BaseModel::VelocityToTicks( const double linear_vel, const double angular_vel ) const
+differential_drive::TickVelocity BaseModel::ConvertVelocity(  const double linear_vel, 
+                                                              const double angular_vel ) const
 {
   differential_drive::TickVelocity new_velocity;
-  double linear_ticks;
-  double angular_ticks;
-  double left_corrected;
-  double right_corrected;
 
   pthread_mutex_lock( _p_lock_mutex );
 
-  linear_ticks = linear_vel * _tick_rates.ticks_per_meter;
-  angular_ticks = angular_vel * _tick_rates.ticks_per_radian;
-                                            
-
-  left_corrected = ( linear_ticks - (angular_ticks / 2.0) )
-                    * RightInLeftOutCorrection( _base_geometry.wheel_ratio );
-
-  right_corrected = ( linear_ticks + ( angular_ticks / 2.0) )
-                    * LeftInRightOutCorrection( _base_geometry.wheel_ratio );
+  new_velocity = VelocityToTicks( linear_vel, angular_vel, base_geometry, tick_rates );
 
   pthread_mutex_unlock( _p_lock_mutex );
-                     
-  new_velocity.linear_ticks_sec = RoundInt( (right_corrected + left_corrected) / 2.0 );
-  new_velocity.angular_ticks_sec = RoundInt( right_corrected - left_corrected );
-
-#if 0
-  std::cout << "Left Cor: " << left_corrected 
-            << " Right Cor: " << right_corrected 
-            << " Lin Ticks: " << new_velocity.linear_ticks_sec
-            << " Ang Ticks: " << new_velocity.angular_ticks_sec
-            << std::endl;
-#endif
 
   return new_velocity;
 }
@@ -335,6 +313,43 @@ double BaseModel::GetTicksPerRadian() const
 double BaseModel::GetStasisTicksPerMeter() const
 {
   return _tick_rates.stasis_ticks_per_meter;
+}
+
+/** Accepts an desired linear and angular velocity and returns the velocities
+ *  in ticks/sec. 
+ */
+differential_drive::TickVelocity BaseModel::VelocityToTicks(  const double linear_vel, 
+                                                              const double angular_vel,
+                                                              BaseGeometry_T base_geometry,
+                                                              TickRates_T tick_rates ) const
+{
+  differential_drive::TickVelocity new_velocity;
+  double linear_ticks;
+  double angular_ticks;
+  double left_corrected;
+  double right_corrected;
+
+  linear_ticks = linear_vel * tick_rates.ticks_per_meter;
+  angular_ticks = angular_vel * tick_rates.ticks_per_radian;
+                                            
+  left_corrected = ( linear_ticks - (angular_ticks / 2.0) )
+                    * RightInLeftOutCorrection( base_geometry.wheel_ratio );
+
+  right_corrected = ( linear_ticks + ( angular_ticks / 2.0) )
+                    * LeftInRightOutCorrection( base_geometry.wheel_ratio );
+
+  new_velocity.linear_ticks_sec = RoundInt( (right_corrected + left_corrected) / 2.0 );
+  new_velocity.angular_ticks_sec = RoundInt( right_corrected - left_corrected );
+
+#if 0
+  std::cout << "Left Cor: " << left_corrected 
+            << " Right Cor: " << right_corrected 
+            << " Lin Ticks: " << new_velocity.linear_ticks_sec
+            << " Ang Ticks: " << new_velocity.angular_ticks_sec
+            << std::endl;
+#endif
+
+  return new_velocity;
 }
 
 /** Converts encoder counts to the changes in X, Y and theta.

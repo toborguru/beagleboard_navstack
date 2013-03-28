@@ -193,14 +193,14 @@ TEST( BaseModelTests, canCalculateTickVelocities )
   differential_drive::TickVelocity ticks; 
 
   // Act
-  ticks = base_model.VelocityToTicks( 1.0, 0.0 );
+  ticks = base_model.ConvertVelocity( 1.0, 0.0 );
 
   // Assert
   ASSERT_EQ( 100, ticks.linear_ticks_sec );
   ASSERT_EQ( 0.0, ticks.angular_ticks_sec );
 
   // Act
-  ticks = base_model.VelocityToTicks( 0.0, 1.0 );
+  ticks = base_model.ConvertVelocity( 0.0, 1.0 );
 
   // Assert
   ASSERT_EQ( 0, ticks.linear_ticks_sec );
@@ -215,14 +215,14 @@ TEST( BaseModelTests, canCalculateTickVelocitiesCalibrated )
   differential_drive::TickVelocity ticks; 
 
   // Act
-  ticks = base_model.VelocityToTicks( 1.0, 0.0 );
+  ticks = base_model.ConvertVelocity( 1.0, 0.0 );
 
   // Assert
   ASSERT_EQ( 100, ticks.linear_ticks_sec );
   ASSERT_EQ( -5.0, ticks.angular_ticks_sec );
 
   // Act
-  ticks = base_model.VelocityToTicks( 0.0, 8.0 );
+  ticks = base_model.ConvertVelocity( 0.0, 8.0 );
 
   // Assert
   ASSERT_EQ( -5, ticks.linear_ticks_sec );

@@ -47,7 +47,7 @@ public:
 
   BaseModel(  double    wheel_radius  = 0.0, 
               uint16_t  wheel_ticks   = 0,
-              double    wheel_base    = 0,
+              double    wheel_base    = 0.0,
               double    wheel_ratio   = 1.0,
               double    stasis_radius = 0.0,
               int16_t   stasis_ticks  = -1 );
@@ -58,11 +58,14 @@ public:
                             BaseVelocities_T* p_velocity,
                             differential_drive::EncoderCounts new_counts ) const; 
 
-  differential_drive::TickVelocity VelocityToTicks( double linear_vel, double angular_vel ) const;
+  differential_drive::TickVelocity ConvertVelocity( double linear_vel, double angular_vel ) const;
 
   // Base Geometry Functions
   BaseGeometry_T  GetBaseGeometry() const;
   void            SetBaseGeometry( BaseGeometry_T geometry );
+
+  bool      CheckGeometryValid( BaseGeometry_T geometry );
+  bool      CheckGeometryStasisValid( BaseGeometry_T geometry );
 
   bool      GetSetupValid() const;
   bool      GetStasisValid() const;
@@ -90,6 +93,11 @@ public:
   double    GetStasisTicksPerMeter() const;
 
 private:
+  differential_drive::TickVelocity VelocityToTicks( double linear_vel, 
+                                                    double angular_vel,
+                                                    BaseGeometry_T  base_geometry,
+                                                    TickRates_T tick_rates ) const;
+
   BaseDistance_T  CountsToDistance( differential_drive::EncoderCounts counts, 
                                     BaseGeometry_T geometry, 
                                     const TickRates_T* p_rates = NULL ) const;
