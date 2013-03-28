@@ -323,7 +323,7 @@ double BaseModel::GetStasisRadius() const
 /** Sets the radius of the stasis wheel if one is used in meters.
  *
  *  @returns  true if @stasis_radius is positive and the internal data member was updated.
- *            Otherwise a value of -1.0 is stored and the stasis wheel is "disabled".
+ *            Otherwise a value of 0.0 is stored and the stasis wheel is "disabled".
  */
 bool BaseModel::SetStasisRadius(const double stasis_radius)
 {
@@ -343,7 +343,7 @@ bool BaseModel::SetStasisRadius(const double stasis_radius)
   {
     pthread_mutex_lock( _p_lock_mutex );
 
-    _base_geometry.stasis_radius = -1.0;
+    _base_geometry.stasis_radius = 0.0;
 
     _tick_rates = CalculateTickRates( _base_geometry );
 
@@ -517,6 +517,7 @@ TickRates_T BaseModel::CalculateTickRates( BaseGeometry_T geometry ) const
 
   rates.ticks_per_meter = CalculateTicksPerMeter( geometry.wheel_radius, 
                                                   geometry.wheel_ticks );
+
   rates.ticks_per_radian = CalculateTicksPerRadian( geometry.wheel_base, 
                                                     rates.ticks_per_meter );
 

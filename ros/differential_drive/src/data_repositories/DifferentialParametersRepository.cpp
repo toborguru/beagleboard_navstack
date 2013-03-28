@@ -182,7 +182,7 @@ BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
   {
     if ( stasis_diameter > 0.0 )
     {
-      ros::param::param<int>( "~stasis_wheel_encoder_ticks", stasis_ticks, 100 );
+      ros::param::param<int>( "~stasis_wheel_encoder_ticks", stasis_ticks, -1 );
 
       if ( stasis_ticks <= 0.0 )
       {
