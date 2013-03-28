@@ -77,7 +77,7 @@ void BaseModel::ConvertCounts(  BaseDistance_T* p_delta_position,
   // convert milliseconds to seconds
   seconds = new_counts.dt_ms / 1000.0;
 
-  *p_delta_position = CountsToDistance( new_counts, _base_geometry, &_tick_rates );
+  *p_delta_position = CountsToDistance( new_counts, _base_geometry, _tick_rates );
 
   *p_velocity = DistanceToVelocity( *p_delta_position, seconds );
 
@@ -94,7 +94,7 @@ differential_drive::TickVelocity BaseModel::ConvertVelocity(  const double linea
 
   pthread_mutex_lock( _p_lock_mutex );
 
-  new_velocity = VelocityToTicks( linear_vel, angular_vel, base_geometry, tick_rates );
+  new_velocity = VelocityToTicks( linear_vel, angular_vel, _base_geometry, _tick_rates );
 
   pthread_mutex_unlock( _p_lock_mutex );
 
@@ -106,57 +106,89 @@ BaseGeometry_T BaseModel::GetBaseGeometry() const
   return _base_geometry;
 }
 
-void BaseModel::SetBaseGeometry( BaseGeometry_T geometry )
+/** @returns true if the geometry is valid and the internal data member has been 
+ *  updated.
+ */
+bool BaseModel::SetBaseGeometry( BaseGeometry_T geometry )
 {
-  pthread_mutex_lock( _p_lock_mutex );
+  if ( CheckGeometryValid(geometry) )
+  {
+    pthread_mutex_lock( _p_lock_mutex );
 
-  _base_geometry = geometry;
+    _base_geometry = geometry;
 
-  pthread_mutex_unlock( _p_lock_mutex );
+    pthread_mutex_unlock( _p_lock_mutex );
+
+    return true;
+  }
+
+  return false;
 }
 
-bool BaseModel::GetSetupValid() const
+bool BaseModel::CheckGeometryValid( BaseGeometry_T geometry ) const
 {
   bool valid = true;
 
+  if ( geometry.wheel_radius <= 0.0 )
+  {
+    valid = false;
+  }
+  else if ( geometry.wheel_ticks <= 0 )
+  {
+    valid = false;
+  }
+  else if ( geometry.wheel_base <= 0.0 )
+  {
+    valid = false;
+  }
+  else if ( geometry.wheel_ratio <= 0.0 )
+  {
+    valid = false;
+  }
+
+  return valid;
+}
+
+bool BaseModel::CheckGeometryStasisValid( BaseGeometry_T geometry ) const 
+{
+  bool valid = true;
+
+  if ( geometry.stasis_radius <= 0.0 )
+  {
+    valid = false;
+  }
+  else if ( geometry.stasis_ticks <= 0 )
+  {
+    valid = false;
+  }
+
+  return valid;
+}
+
+/** Returns true if the internal geometry defines a valid configuration.
+ */
+bool BaseModel::GetSetupValid() const
+{
+  bool valid;
+
   pthread_mutex_lock( _p_lock_mutex );
 
-  if ( GetWheelRadius() <= 0.0 )
-  {
-    valid = false;
-  }
-  else if ( GetWheelTicks() <= 0 )
-  {
-    valid = false;
-  }
-  else if ( GetWheelBase() <= 0.0 )
-  {
-    valid = false;
-  }
-  else if ( GetWheelRatio() <= 0.0 )
-  {
-    valid = false;
-  }
+  valid = CheckGeometryValid( _base_geometry );
 
   pthread_mutex_unlock( _p_lock_mutex );
 
   return valid;
 }
 
+/** Returns true if the stasis wheel parameters define a valid configuration.
+ */
 bool BaseModel::GetStasisValid() const
 {
-  bool valid = true;
+  bool valid;
 
   pthread_mutex_lock( _p_lock_mutex );
 
-  if ( GetStasisRadius() <= 0.0 )
-  {
-    valid = false;
-  }
-  else if ( GetStasisTicks() <= 0 )
-  {
-    valid = false;
-  }
+  valid = CheckGeometryStasisValid( _base_geometry );
 
   pthread_mutex_unlock( _p_lock_mutex );
 
@@ -171,16 +203,24 @@ double BaseModel::GetWheelRadius() const
 }
 
 /** Sets the drive wheel radius in meters.
+ *  @returns true if @wheel_radius is positive and the internal data member was updated.
  */
-void BaseModel::SetWheelRadius(const double wheel_radius)
+bool BaseModel::SetWheelRadius(const double wheel_radius)
 {
-  pthread_mutex_lock( _p_lock_mutex );
+  if ( wheel_radius > 0.0 )
+  {
+    pthread_mutex_lock( _p_lock_mutex );
 
-  _base_geometry.wheel_radius = wheel_radius;
+    _base_geometry.wheel_radius = wheel_radius;
 
-  _tick_rates = CalculateTickRates( _base_geometry );
+    _tick_rates = CalculateTickRates( _base_geometry );
 
-  pthread_mutex_unlock( _p_lock_mutex );
+    pthread_mutex_unlock( _p_lock_mutex );
+
+    return true;
+  }
+
+  return false;
 }
 
 /** Returns the drive wheel separation in meters.
@@ -191,16 +231,24 @@ double BaseModel::GetWheelBase() const
 }
 
 /** Sets the drive wheel separation in meters.
+ *  @returns true if @wheel_base is positive and the internal data member was updated.
  */
-void BaseModel::SetWheelBase(const double wheel_base)
+bool BaseModel::SetWheelBase(const double wheel_base)
 {
-  pthread_mutex_lock( _p_lock_mutex );
+  if ( wheel_base > 0.0 )
+  {
+    pthread_mutex_lock( _p_lock_mutex );
 
-  _base_geometry.wheel_base = wheel_base;
+    _base_geometry.wheel_base = wheel_base;
 
-  _tick_rates = CalculateTickRates( _base_geometry );
+    _tick_rates = CalculateTickRates( _base_geometry );
 
-  pthread_mutex_unlock( _p_lock_mutex );
+    pthread_mutex_unlock( _p_lock_mutex );
+
+    return true;
+  }
+
+  return false;
 }
 
 /** Returns the drive wheel radius ratio (ie. left radius/ right radius).
@@ -215,16 +263,25 @@ double BaseModel::GetWheelRatio() const
 /** Sets the drive wheel radius ratio (ie. left radius/ right radius).
  *  
  *  Ideally this value should be 1.0 but it rarely is.
+ *
+ *  @returns true if @wheel_ratio is positive and the internal data member was updated.
  */
-void BaseModel::SetWheelRatio(const double wheel_ratio)
+bool BaseModel::SetWheelRatio(const double wheel_ratio)
 {
-  pthread_mutex_lock( _p_lock_mutex );
+  if ( wheel_ratio > 0.0 )
+  {
+    pthread_mutex_lock( _p_lock_mutex );
 
-  _base_geometry.wheel_ratio = wheel_ratio;
+    _base_geometry.wheel_ratio = wheel_ratio;
 
-  _tick_rates = CalculateTickRates( _base_geometry );
+    _tick_rates = CalculateTickRates( _base_geometry );
 
-  pthread_mutex_unlock( _p_lock_mutex );
+    pthread_mutex_unlock( _p_lock_mutex );
+
+    return true;
+  }
+
+  return false;
 }
 
 /** Return the number of encoder ticks in one full rotation of the drive wheels.
@@ -235,16 +292,25 @@ uint16_t BaseModel::GetWheelTicks() const
 }
 
 /** Sets the number of encoder ticks in one full rotation of the drive wheels.
+ *
+ *  @returns true if @wheel_ticks is positive and the internal data member was updated.
  */
-void BaseModel::SetWheelTicks(const uint16_t wheel_ticks)
+bool BaseModel::SetWheelTicks(const uint16_t wheel_ticks)
 {
-  pthread_mutex_lock( _p_lock_mutex );
+  if ( wheel_ticks > 0 )
+  {
+    pthread_mutex_lock( _p_lock_mutex );
 
-  _base_geometry.wheel_ticks = wheel_ticks;
+    _base_geometry.wheel_ticks = wheel_ticks;
 
-  _tick_rates = CalculateTickRates( _base_geometry );
+    _tick_rates = CalculateTickRates( _base_geometry );
 
-  pthread_mutex_unlock( _p_lock_mutex );
+    pthread_mutex_unlock( _p_lock_mutex );
+
+    return true;
+  }
+
+  return false;
 }
 
 /** Returns the radius of the stasis wheel if one is used in meters.
@@ -255,16 +321,36 @@ double BaseModel::GetStasisRadius() const
 }
 
 /** Sets the radius of the stasis wheel if one is used in meters.
+ *
+ *  @returns  true if @stasis_radius is positive and the internal data member was updated.
+ *            Otherwise a value of -1.0 is stored and the stasis wheel is "disabled".
  */
-void BaseModel::SetStasisRadius(const double stasis_radius)
+bool BaseModel::SetStasisRadius(const double stasis_radius)
 {
-  pthread_mutex_lock( _p_lock_mutex );
+  if ( stasis_radius > 0.0 )
+  {
+    pthread_mutex_lock( _p_lock_mutex );
 
-  _base_geometry.stasis_radius = stasis_radius;
+    _base_geometry.stasis_radius = stasis_radius;
 
-  _tick_rates = CalculateTickRates( _base_geometry );
+    _tick_rates = CalculateTickRates( _base_geometry );
 
-  pthread_mutex_unlock( _p_lock_mutex );
+    pthread_mutex_unlock( _p_lock_mutex );
+
+    return true;
+  }
+  else
+  {
+    pthread_mutex_lock( _p_lock_mutex );
+
+    _base_geometry.stasis_radius = -1.0;
+
+    _tick_rates = CalculateTickRates( _base_geometry );
+
+    pthread_mutex_unlock( _p_lock_mutex );
+  }
+
+  return false;
 }
 
 /** Returns the number of encoder ticks in one full revolution of the stasis
@@ -281,16 +367,36 @@ int16_t BaseModel::GetStasisTicks() const
  *  wheel. 
  *
  *  If negative stasis wheel calculations are disabled.
+ *
+ *  @returns  true if @stasis_radius is positive and the internal data member was updated.
+ *            Otherwise a value of -1 is stored and the stasis wheel is "disabled".
  */
-void BaseModel::SetStasisTicks(const int16_t stasis_ticks)
+bool BaseModel::SetStasisTicks(const int16_t stasis_ticks)
 {
-  pthread_mutex_lock( _p_lock_mutex );
+  if ( stasis_ticks > 0 )
+  {
+    pthread_mutex_lock( _p_lock_mutex );
 
-  _base_geometry.stasis_ticks = stasis_ticks;
+    _base_geometry.stasis_ticks = stasis_ticks;
 
-  _tick_rates = CalculateTickRates( _base_geometry );
+    _tick_rates = CalculateTickRates( _base_geometry );
 
-  pthread_mutex_unlock( _p_lock_mutex );
+    pthread_mutex_unlock( _p_lock_mutex );
+
+    return true;
+  }
+  else
+  {
+    pthread_mutex_lock( _p_lock_mutex );
+
+    _base_geometry.stasis_ticks = -1;
+
+    _tick_rates = CalculateTickRates( _base_geometry );
+
+    pthread_mutex_unlock( _p_lock_mutex );
+  }
+
+  return false;
 }
 
 /** Returns the calculated encoder ticks per meter for the drive wheels.
@@ -356,31 +462,24 @@ differential_drive::TickVelocity BaseModel::VelocityToTicks(  const double linea
  */
 BaseDistance_T  BaseModel::CountsToDistance(  differential_drive::EncoderCounts counts, 
                                               BaseGeometry_T geometry, 
-                                              const TickRates_T* p_rates ) const
+                                              TickRates_T rates ) const
 {
   BaseDistance_T  delta_position;
-  TickRates_T rates;
 
   double left_distance;
   double right_distance;
   double stasis_distance;
   double average_distance;
 
-  if ( p_rates == NULL )
-  {
-    rates = CalculateTickRates( geometry );
-    p_rates = &rates;
-  }
-
-  left_distance = CalculateDistance(  counts.left_count, p_rates->ticks_per_meter, 
+  left_distance = CalculateDistance(  counts.left_count, rates.ticks_per_meter, 
                                       LeftInRightOutCorrection( geometry.wheel_ratio ) );
 
-  right_distance = CalculateDistance( counts.right_count, p_rates->ticks_per_meter, 
+  right_distance = CalculateDistance( counts.right_count, rates.ticks_per_meter, 
                                       RightInLeftOutCorrection( geometry.wheel_ratio ) );
 
   if ( geometry.stasis_ticks > 0 )
   {
-    stasis_distance = CalculateDistance( counts.stasis_count, p_rates->stasis_ticks_per_meter );
+    stasis_distance = CalculateDistance( counts.stasis_count, rates.stasis_ticks_per_meter );
   }
   else
   {
@@ -421,10 +520,10 @@ TickRates_T BaseModel::CalculateTickRates( BaseGeometry_T geometry ) const
   rates.ticks_per_radian = CalculateTicksPerRadian( geometry.wheel_base, 
                                                     rates.ticks_per_meter );
 
-  if ( geometry.stasis_ticks > 0)
+  if ( (geometry.stasis_ticks > 0) && (geometry.stasis_radius > 0.0) )
   {
     rates.stasis_ticks_per_meter = CalculateTicksPerMeter( geometry.stasis_radius, 
-                                                              geometry.stasis_ticks );
+                                                           geometry.stasis_ticks );
   }
   else
   {

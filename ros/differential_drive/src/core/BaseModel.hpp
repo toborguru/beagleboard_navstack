@@ -62,31 +62,31 @@ public:
 
   // Base Geometry Functions
   BaseGeometry_T  GetBaseGeometry() const;
-  void            SetBaseGeometry( BaseGeometry_T geometry );
+  bool            SetBaseGeometry( BaseGeometry_T geometry );
 
-  bool      CheckGeometryValid( BaseGeometry_T geometry );
-  bool      CheckGeometryStasisValid( BaseGeometry_T geometry );
+  bool      CheckGeometryValid( BaseGeometry_T geometry ) const;
+  bool      CheckGeometryStasisValid( BaseGeometry_T geometry ) const;
 
   bool      GetSetupValid() const;
   bool      GetStasisValid() const;
 
   double    GetWheelRadius() const;
-  void      SetWheelRadius(double wheel_radius);
+  bool      SetWheelRadius(double wheel_radius);
 
   double    GetWheelBase() const;
-  void      SetWheelBase(double wheel_base);
+  bool      SetWheelBase(double wheel_base);
 
   double    GetWheelRatio() const;
-  void      SetWheelRatio(double wheel_ratio);
+  bool      SetWheelRatio(double wheel_ratio);
 
   uint16_t  GetWheelTicks() const;
-  void      SetWheelTicks(uint16_t wheel_ticks);
+  bool      SetWheelTicks(uint16_t wheel_ticks);
 
   double    GetStasisRadius() const;
-  void      SetStasisRadius(double stasis_radius);
+  bool      SetStasisRadius(double stasis_radius);
 
   int16_t   GetStasisTicks() const;
-  void      SetStasisTicks(int16_t stasis_ticks);
+  bool      SetStasisTicks(int16_t stasis_ticks);
 
   double    GetTicksPerMeter() const;
   double    GetTicksPerRadian() const;
@@ -100,7 +100,7 @@ private:
 
   BaseDistance_T  CountsToDistance( differential_drive::EncoderCounts counts, 
                                     BaseGeometry_T geometry, 
-                                    const TickRates_T* p_rates = NULL ) const;
+                                    TickRates_T rates ) const;
 
   BaseVelocities_T  DistanceToVelocity( BaseDistance_T distance, double seconds ) const;
 

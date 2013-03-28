@@ -65,7 +65,7 @@ differential_drive::TickVelocity TwistConverter::ConvertTwist( const geometry_ms
 
   if ( _p_base_model != NULL )
   {
-    ticks = _p_base_model->VelocityToTicks( twist.linear.x, twist.angular.z );
+    ticks = _p_base_model->ConvertVelocity( twist.linear.x, twist.angular.z );
   }
   else
   {
