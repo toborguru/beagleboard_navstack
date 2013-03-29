@@ -35,7 +35,7 @@ TEST(ParametersSetupServiceTests, canSetupAndUpdateBaseModel)
       boost::shared_ptr<EncoderCountsSubscriberEndpointStub>( new EncoderCountsSubscriberEndpointStub() );
 
   boost::shared_ptr<differential_drive_core::BaseModel> base_model =
-      boost::shared_ptr<differential_drive_core::BaseModel>( new differential_drive_core::BaseModel() );
+      boost::shared_ptr<differential_drive_core::BaseModel>( new differential_drive_core::BaseModel( 1.0, 1, 1.0, 1.0 ) );
 
   boost::shared_ptr<OdometryReportingService> odometry_reporting_service =
       boost::shared_ptr<OdometryReportingService>( new OdometryReportingService(  odometry_endpoint_stub,
@@ -43,14 +43,16 @@ TEST(ParametersSetupServiceTests, canSetupAndUpdateBaseModel)
                                                                                   encoder_counts_endpoint_stub,
                                                                                   base_model ) );
   // Setup the data repo
-
   boost::shared_ptr<DifferentialParametersRepositoryStub> parameters_repository_stub =
           boost::shared_ptr<DifferentialParametersRepositoryStub>( new DifferentialParametersRepositoryStub() );
 
   // Setup the Parameter Service
-  ParametersSetupService base_model_service( parameters_repository_stub, base_model, odometry_reporting_service );
+  ParametersSetupService parameters_setup_service( parameters_repository_stub, base_model, odometry_reporting_service );
 
-  //base_model = base_model_service.GetBaseModel();
+  parameters_repository_stub->_db_base_model.SetWheelRadius(10);
+  parameters_repository_stub->_db_base_model.SetWheelTicks(10);
+  parameters_repository_stub->_db_base_model.SetWheelBase(10);
+  parameters_repository_stub->_db_base_model.SetWheelRatio(10);
 
   // Act
   wheel_ticks1 = base_model->GetWheelTicks();
@@ -58,12 +60,12 @@ TEST(ParametersSetupServiceTests, canSetupAndUpdateBaseModel)
   parameters_repository_stub->_db_base_model.SetWheelTicks(200);
   wheel_ticks2 = base_model->GetWheelTicks();
   
-  //base_model_service.Update();
+  parameters_setup_service.Update();
   wheel_ticks3 = base_model->GetWheelTicks();
 
   // Assert
-  EXPECT_EQ( 0, wheel_ticks1);
-  EXPECT_EQ( 0, wheel_ticks2);
+  EXPECT_EQ( 1, wheel_ticks1);
+  EXPECT_EQ( 1, wheel_ticks2);
   EXPECT_EQ( 200, wheel_ticks3);
 }
 }
