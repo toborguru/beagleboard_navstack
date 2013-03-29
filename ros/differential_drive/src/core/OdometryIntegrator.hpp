@@ -55,12 +55,14 @@ private:
 
   nav_msgs::Odometry CalculatePosition( BaseVelocities_T*  p_velocities, 
                                           const differential_drive::EncoderCounts counts,
-                                          const nav_msgs::Odometry last_position );
+                                          const nav_msgs::Odometry last_position,
+                                          const BaseModel* p_base_model ) const;
 
   void CalculateCovariance( nav_msgs::Odometry *p_current_position,
-                              const differential_drive::MovementStatus movement_status );
+                            const differential_drive::MovementStatus movement_status );
 
-  differential_drive::MovementStatus CalculateMovementStatus( const BaseVelocities_T  velocities );
+  differential_drive::MovementStatus CalculateMovementStatus( const BaseVelocities_T  velocities,
+                                                              const BaseModel* p_base_model );
 
   void NotifyOdometryListeners(const nav_msgs::Odometry& odometry);
   std::vector<IOdometryListener*> _odometry_listeners;

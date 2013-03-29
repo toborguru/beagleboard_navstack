@@ -363,19 +363,29 @@ bool OdometryIntegrator::SetVelocityLowerLimit( float velocity_limit )
  */
 void OdometryIntegrator::AddNewCounts( const differential_drive::EncoderCounts& counts )
 {
+  BaseVelocities_T  velocities;
+  nav_msgs::Odometry old_position;
+  nav_msgs::Odometry new_position;
+  differential_drive::MovementStatus new_movement_status;
+
   pthread_mutex_lock( _p_data_mutex );
+  old_position = _current_position;
+  velocities = _velocities;
+  pthread_mutex_unlock( _p_data_mutex );
 
-  _current_position = CalculatePosition( &_velocities, counts, _current_position ); 
-
-  _movement_status = CalculateMovementStatus( _velocities );
+  new_position = CalculatePosition( &velocities, counts, old_position, _p_base_model ); 
+  new_movement_status = CalculateMovementStatus( velocities, _p_base_model );
 
   // Set the covariance data
-  CalculateCovariance( &_current_position, _movement_status );
+  CalculateCovariance( &new_position, new_movement_status );
   
-  NotifyOdometryListeners( _current_position );
-  NotifyMovementStatusListeners( _movement_status );
-
+  pthread_mutex_lock( _p_data_mutex );
+  _current_position = new_position;
+  _velocities = velocities;
   pthread_mutex_unlock( _p_data_mutex );
+
+  NotifyOdometryListeners( new_position );
+  NotifyMovementStatusListeners( new_movement_status );
 }
 
 /** This function uses the BaseModel class to translate encoder counts into SI
@@ -384,7 +394,8 @@ void OdometryIntegrator::AddNewCounts( const differential_drive::EncoderCounts& 
  */
 nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T *p_velocities,
                                                             const differential_drive::EncoderCounts counts, 
-                                                            const nav_msgs::Odometry last_position ) 
+                                                            const nav_msgs::Odometry last_position,
+                                                            const BaseModel* p_base_model ) const
 {
   nav_msgs::Odometry new_position;
 
@@ -399,11 +410,11 @@ nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T *p_
   double angular;
 
   // Run base model here
-  if (  (_p_base_model != NULL) && 
-        (_p_base_model->GetSetupValid() == true) && 
+  if (  (p_base_model != NULL) && 
+        (p_base_model->GetSetupValid() == true) && 
         (counts.dt_ms > 0) )
   {
-    _p_base_model->ConvertCounts( &delta_position, p_velocities, counts );
+    p_base_model->ConvertCounts( &delta_position, p_velocities, counts );
 
     old_theta = tf::getYaw(last_position.pose.pose.orientation);
 
@@ -463,7 +474,8 @@ nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T *p_
  *  of our movement attempts ie. moving, stalled, or unconfigured.
  *
  */
-differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const BaseVelocities_T  velocities )
+differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( const BaseVelocities_T  velocities,
+                                                                                const BaseModel* p_base_model )
 {
   float linear_average;
   float stasis_average;
@@ -472,7 +484,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
 
   differential_drive::MovementStatus movement_status;
 
-  if (_p_base_model == NULL) // No base model
+  if ( p_base_model == NULL ) // No base model
   {
     movement_status.motors_state = differential_drive::MovementStatus::SETUP_ERROR;
     movement_status.stasis_wheel_enabled = false;
@@ -481,7 +493,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
     movement_status.stasis_velocity = 0.0;
     movement_status.stasis_velocity_average = 0.0;
   }
-  else if ( _p_base_model->GetSetupValid() == false )
+  else if ( p_base_model->GetSetupValid() == false )
   {
     movement_status.motors_state = differential_drive::MovementStatus::SETUP_ERROR;
     movement_status.stasis_wheel_enabled = false;
@@ -492,6 +504,8 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
   }
   else
   {
+    pthread_mutex_lock( _p_data_mutex );
+
     // Compute averages and compare
     _linear_average_total -= _p_linear_velocities[ _average_index ];
     _p_linear_velocities[ _average_index ] = velocities.linear;
@@ -500,7 +514,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
     _stasis_average_total -= _p_stasis_velocities[ _average_index ];
     _p_stasis_velocities[ _average_index ] = velocities.stasis;
     _stasis_average_total += _p_stasis_velocities[ _average_index ]; 
-
+    
     // Correctly compute the average velocity
     if ( _num_readings_read < _average_num_readings )
     {
@@ -533,7 +547,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
     ++_average_index;
     _average_index &= _average_index_mask;
 
-    if ( _p_base_model->GetStasisValid() == false )
+    if ( p_base_model->GetStasisValid() == false )
     {
       movement_status.motors_state = differential_drive::MovementStatus::CORRECT;
       movement_status.stasis_wheel_enabled = false;
@@ -563,6 +577,8 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
         movement_status.motors_state = differential_drive::MovementStatus::CORRECT;
       }
     }
+
+    pthread_mutex_unlock( _p_data_mutex );
   }
 
   return movement_status;
@@ -575,7 +591,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
  *
  */
 void OdometryIntegrator::CalculateCovariance( nav_msgs::Odometry *p_position,
-                                                const differential_drive::MovementStatus movement_status )
+                                              const differential_drive::MovementStatus movement_status )
 {
   const double *p_covariance;
 
@@ -600,20 +616,28 @@ void OdometryIntegrator::CalculateCovariance( nav_msgs::Odometry *p_position,
  */  
 void OdometryIntegrator::NotifyOdometryListeners(const nav_msgs::Odometry& odometry)
 {
+  pthread_mutex_lock( _p_data_mutex );
+
   for (unsigned int i= 0; i < _odometry_listeners.size(); ++i) 
   {
-      _odometry_listeners[i]->OnOdometryAvailableEvent(odometry);
+    _odometry_listeners[i]->OnOdometryAvailableEvent(odometry);
   }
+
+  pthread_mutex_unlock( _p_data_mutex );
 }
 
 /** Calls the callback function for all registered movement status listeners.
  */  
 void OdometryIntegrator::NotifyMovementStatusListeners(const differential_drive::MovementStatus& movement_status)
 {
+  pthread_mutex_lock( _p_data_mutex );
+
   for (unsigned int i= 0; i < _movement_status_listeners.size(); ++i) 
   {
-      _movement_status_listeners[i]->OnMovementStatusAvailableEvent(movement_status);
+    _movement_status_listeners[i]->OnMovementStatusAvailableEvent(movement_status);
   }
+
+  pthread_mutex_unlock( _p_data_mutex );
 }
 
 /** Worker thread
@@ -647,30 +671,46 @@ void OdometryIntegrator::ProcessOdometry()
  */
 void OdometryIntegrator::StartProcessingOdometry()
 {
+  pthread_mutex_lock( _p_data_mutex );
+
   if ( ! _is_running ) 
   {
     _is_running = true;
     _stop_requested = false;
 
+    pthread_mutex_unlock( _p_data_mutex );
+
     // Spawn async thread 
     pthread_create(&_thread, 0, ProcessOdometryFunction, this);
+
+    pthread_mutex_lock( _p_data_mutex );
   }
+
+  pthread_mutex_unlock( _p_data_mutex );
 }
 
 /** Stops worker thread.
  */
 void OdometryIntegrator::StopProcessingOdometry()
 {
+  pthread_mutex_lock( _p_data_mutex );
+
   if ( _is_running ) 
   {
     _is_running = false;
     _stop_requested = true;
+
+    pthread_mutex_unlock( _p_data_mutex );
 
     // Wake thread up
     sem_post( _p_message_sem );
 
     // Wait to return until _thread has completed
     pthread_join(_thread, 0);
+
+    pthread_mutex_lock( _p_data_mutex );
   }
+
+  pthread_mutex_unlock( _p_data_mutex );
 }
 }
