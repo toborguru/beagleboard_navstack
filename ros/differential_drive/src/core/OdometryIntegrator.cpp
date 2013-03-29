@@ -203,26 +203,33 @@ unsigned int OdometryIntegrator::GetAverageNumReadings() const
 /** Sets the size of the buffers used to averages the velocity readings.
  *  Because the buffers need to be 2^n in size, this function will choose 
  *  the largest 2^n number that will fit inside. Ex: 10=>8, 100=>64.
+ *
+ *  @returns true if @c average_num_readings is between 0 and MAX, and the internal data member is updated.
  */
-void OdometryIntegrator::SetAverageNumReadings( unsigned int average_num_readings )
+bool OdometryIntegrator::SetAverageNumReadings( int average_num_readings )
 {
+  bool valid;
   unsigned int average_2n = MAX_2N_AVERAGES;
 
   if ( average_num_readings <= 0 )
   {
-    average_num_readings = 1;
+    valid = false;
   }
-
-  for ( unsigned int i = 0; i < MAX_2N_AVERAGES; ++i )
+  else
   {
-    if ( average_num_readings < ldexp(1.0, i) )
+    for ( unsigned int i = 0; i <= MAX_2N_AVERAGES; ++i )
     {
-      average_2n = i - 1;
-      break; 
+      if ( average_num_readings < ldexp(1.0, i) )
+      {
+        average_2n = i - 1;
+        break; 
+      }
     }
+
+    valid = SetAverage2nReadings( average_2n );
   }
 
-  SetAverage2nReadings( average_2n );
+  return valid;
 }
 
 /** Returns average_2n_readings in the eq: 2^average_2n_readings velocity 
@@ -234,54 +241,70 @@ unsigned int OdometryIntegrator::GetAverage2nReadings() const
 }
 
 /** 2^average_2n_readings velocity readings will be averaged before comparison.
+ *
+ *  @returns true if @c average_2n_readings is between 0 and MAX_2N_AVERAGES, and the internal data member is updated.
  */
-void OdometryIntegrator::SetAverage2nReadings( unsigned int average_2n_readings )
+bool OdometryIntegrator::SetAverage2nReadings( int average_2n_readings )
 {
+  bool valid;
+
   unsigned int new_num_readings;
 
-  pthread_mutex_lock( _p_data_mutex );
-
-  // 64K readings buffer...
-  if ( average_2n_readings > MAX_2N_AVERAGES )
+  if ( average_2n_readings < 0 )
   {
-    average_2n_readings = MAX_2N_AVERAGES;
+    valid = false;
   }
-
-  _average_2n_readings = average_2n_readings;
-  new_num_readings = ldexp( 1.0, _average_2n_readings );
-
-  if ( new_num_readings != _average_num_readings )
+  else
   {
-    if ( _p_linear_velocities != NULL )
-    { 
-      delete [] _p_linear_velocities;
+    // Max 64K readings buffer...
+    if ( average_2n_readings > MAX_2N_AVERAGES )
+    {
+      valid = false;
     }
+    else
+    {
+      valid = true;
 
-    if ( _p_stasis_velocities != NULL )
-    { 
-      delete [] _p_stasis_velocities;
+      pthread_mutex_lock( _p_data_mutex );
+      _average_2n_readings = average_2n_readings;
+      new_num_readings = ldexp( 1.0, _average_2n_readings );
+
+      if ( new_num_readings != _average_num_readings )
+      {
+        if ( _p_linear_velocities != NULL )
+        { 
+          delete [] _p_linear_velocities;
+        }
+
+        if ( _p_stasis_velocities != NULL )
+        { 
+          delete [] _p_stasis_velocities;
+        }
+
+        _p_linear_velocities = new float [ new_num_readings ];
+        _p_stasis_velocities = new float [ new_num_readings ];
+        _average_num_readings = new_num_readings;
+      }
+
+      // Clear averaging arrays
+      for ( unsigned int i = 0; i < _average_num_readings; ++i )
+      {
+        _p_linear_velocities[ i ] = 0.0;
+        _p_stasis_velocities[ i ] = 0.0;
+      }
+
+      // Reset averaging state
+      _average_index = 0;
+      _average_index_mask = _average_num_readings - 1;
+      _num_readings_read = 0;
+      _linear_average_total = 0.0;
+      _stasis_average_total = 0.0;
+
+      pthread_mutex_unlock( _p_data_mutex );
     }
-
-    _p_linear_velocities = new float [ new_num_readings ];
-    _p_stasis_velocities = new float [ new_num_readings ];
-    _average_num_readings = new_num_readings;
   }
 
-  // Clear averaging arrays
-  for ( unsigned int i = 0; i < _average_num_readings; ++i )
-  {
-    _p_linear_velocities[ i ] = 0.0;
-    _p_stasis_velocities[ i ] = 0.0;
-  }
-
-  // Reset averaging state
-  _average_index = 0;
-  _average_index_mask = _average_num_readings - 1;
-  _num_readings_read = 0;
-  _linear_average_total = 0.0;
-  _stasis_average_total = 0.0;
-
-  pthread_mutex_unlock( _p_data_mutex );
+  return valid;
 }
 
 /** Access function.
@@ -292,16 +315,10 @@ float OdometryIntegrator::GetVelocityMatchPercentage() const
 }
 
 /** Access function.
- *  Negative numbers will be multiplied by -1. Numbers greater than 1 will
- *  be inverted. 
+ *  @returns true if @cpercentage is between 0 and 100 and the internal data member is updated. 
  */
-void OdometryIntegrator::SetVelocityMatchPercentage( float percentage )
+bool OdometryIntegrator::SetVelocityMatchPercentage( float percentage )
 {
-  if ( percentage < 0.0 )
-  {
-    percentage *= -1.0;
-  }
-
   if ( (percentage > 0.0) && (percentage <= 100.0) )
   {
     percentage = percentage / 100.0;
@@ -309,7 +326,11 @@ void OdometryIntegrator::SetVelocityMatchPercentage( float percentage )
     pthread_mutex_lock( _p_data_mutex );
     _velocity_allowance = percentage;
     pthread_mutex_unlock( _p_data_mutex );
+
+    return true;
   }
+
+  return false;
 }
 
 /** Access function.
@@ -320,18 +341,21 @@ float OdometryIntegrator::GetVelocityLowerLimit() const
 }
 
 /** Access function.
- *  Negative numbers will be multiplied by -1.
+ *  
+ *  @returns true if @c velocity_limit is no negative, and the internal data memeber is updated.
  */
-void OdometryIntegrator::SetVelocityLowerLimit( float velocity_limit )
+bool OdometryIntegrator::SetVelocityLowerLimit( float velocity_limit )
 {
-  if ( velocity_limit < 0.0 )
+  if ( velocity_limit >= 0.0 )
   {
-    velocity_limit *= -1.0;
+    pthread_mutex_lock( _p_data_mutex );
+    _velocity_lower_limit = velocity_limit;
+    pthread_mutex_unlock( _p_data_mutex );
+
+    return true;
   }
 
-  pthread_mutex_lock( _p_data_mutex );
-  _velocity_lower_limit = velocity_limit;
-  pthread_mutex_unlock( _p_data_mutex );
+  return false;
 }
 
 /** This function is used to perform all updates when new counts are ready.

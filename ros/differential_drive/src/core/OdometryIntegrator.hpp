@@ -39,16 +39,16 @@ public:
   void OnEncoderCountsAvailableEvent( const differential_drive::EncoderCounts& encoder_counts );
 
   unsigned int GetAverage2nReadings() const;
-  void SetAverage2nReadings( unsigned int average_2n_readings );
+  bool SetAverage2nReadings( int average_2n_readings );
 
   unsigned int GetAverageNumReadings() const;
-  void SetAverageNumReadings( unsigned int average_num_readings );
+  bool SetAverageNumReadings( int average_num_readings );
 
   float GetVelocityMatchPercentage() const;
-  void SetVelocityMatchPercentage( float percentage );
+  bool SetVelocityMatchPercentage( float percentage );
 
   float GetVelocityLowerLimit() const;
-  void SetVelocityLowerLimit( float velocity_limit );
+  bool SetVelocityLowerLimit( float velocity_limit );
 
 private:
   void AddNewCounts( const differential_drive::EncoderCounts& encoder_counts );

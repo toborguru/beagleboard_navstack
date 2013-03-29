@@ -95,9 +95,16 @@ void DifferentialParametersRepository::SetBaseModel( BaseModel* p_new_model )
 
 void DifferentialParametersRepository::QueryBaseParameters()
 {
+  BaseGeometry_T base_geometry;
+
   if ( _p_base_model != NULL )
   {
-    _p_base_model->SetBaseGeometry( RosQueryBaseParameters() );
+    base_geometry = RosQueryBaseParameters();
+
+    if ( _p_base_model->CheckGeometryValid(base_geometry) )
+    {
+      _p_base_model->SetBaseGeometry( base_geometry );
+    }
   }
 }
 
@@ -151,31 +158,26 @@ BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
 
   if ( wheel_diameter <= 0.0 )
   {
-    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_diameter <= 0! : %f changed to %f.",
-                      wheel_diameter, wheel_diameter * -1.0 );
-
-    wheel_diameter *= -1.0;
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_diameter <= 0! : %f",
+                      wheel_diameter );
   }
 
   if ( wheel_base <= 0.0 )
   {
-    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_base <= 0! : %f changed to %f.",
-                      wheel_base, wheel_base * -1.0 );
-    wheel_base *= -1.0;
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_base <= 0! : %f",
+                      wheel_base );
   }
 
   if ( wheel_ratio <= 0.0 )
   {
-    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_ratio <= 0! : %f changed to %f.",
-                      wheel_ratio, wheel_ratio * -1.0 );
-    wheel_ratio *= -1.0;
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_ratio <= 0! : %f",
+                      wheel_ratio );
   }
 
   if ( wheel_ticks <= 0 )
   {
-    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_encoder_ticks <= 0! : %d changed to %d.",
-                      wheel_ticks, wheel_ticks * -1 );
-    wheel_ticks *= -1;
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "drive_wheel_encoder_ticks <= 0! : %d",
+                      wheel_ticks );
   }
 
   if ( ros::param::get( "~stasis_wheel_diameter", stasis_diameter) ) 
@@ -184,12 +186,12 @@ BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
     {
       ros::param::param<int>( "~stasis_wheel_encoder_ticks", stasis_ticks, -1 );
 
-      if ( stasis_ticks <= 0.0 )
+      if ( stasis_ticks <= 0 )
       {
         ROS_ERROR_NAMED(  "DifferentialParametersRepository", "stasis_wheel_encoder_ticks <= 0! Disabling stasis wheel." );
         
         ros::param::set("~stasis_wheel_enabled", false );
-        stasis_diameter = 2.0;
+        stasis_diameter = 1.0;
         stasis_ticks = -1;
       }
     }
@@ -198,14 +200,14 @@ BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
       ROS_ERROR_NAMED(  "DifferentialParametersRepository", "stasis_wheel_diameter <= 0! Disabling stasis wheel." );
 
       ros::param::set("~stasis_wheel_enabled", false );
-      stasis_diameter = 2.0;
+      stasis_diameter = 1.0;
       stasis_ticks = -1;
     }
   }
   else
   {
     ros::param::set("~stasis_wheel_enabled", false );
-    stasis_diameter = 2.0;
+    stasis_diameter = 1.0;
     stasis_ticks = -1;
   }
 
@@ -260,15 +262,26 @@ void DifferentialParametersRepository::RosQueryOdometryParameters( OdometryInteg
   ros::param::param<double>( "~velocity_difference_percentage", velocity_percentage, 10.0 );
   ros::param::param<double>( "~velocity_lower_limit", velocity_limit, 0.10 );
 
-  p_odometry_integrator->SetAverage2nReadings( average_2n_readings );
-  p_odometry_integrator->SetVelocityMatchPercentage( velocity_percentage );
-  p_odometry_integrator->SetVelocityLowerLimit( velocity_limit );
+  if ( !p_odometry_integrator->SetAverage2nReadings(average_2n_readings) )
+  {
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "Error setting ~average_2n_readings, value out of range." );
+  }
+
+  if ( !p_odometry_integrator->SetVelocityMatchPercentage(velocity_percentage) )
+  {
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "Error setting ~velocity_difference_percentage, value out of range." );
+  }
+
+  if ( !p_odometry_integrator->SetVelocityLowerLimit(velocity_limit) )
+  {
+    ROS_ERROR_NAMED(  "DifferentialParametersRepository", "Error setting ~velocity_lower_limit, value out of range." );
+  }
 }
 
 void DifferentialParametersRepository::RosPersistOdometryParameters( const OdometryIntegrator* p_odometry_integrator ) const
 {
   ros::param::set( "~average_2n_readings", (int)p_odometry_integrator->GetAverage2nReadings() );
-  ros::param::set( "~average_number_of_readings", (int)p_odometry_integrator->GetAverageNumReadings() );
+  ros::param::set( "~average_num_readings", (int)p_odometry_integrator->GetAverageNumReadings() );
   ros::param::set( "~velocity_difference_percentage", p_odometry_integrator->GetVelocityMatchPercentage() );
   ros::param::set( "~velocity_lower_limit", p_odometry_integrator->GetVelocityLowerLimit() );
 }

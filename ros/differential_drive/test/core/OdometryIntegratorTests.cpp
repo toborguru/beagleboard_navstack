@@ -567,7 +567,7 @@ TEST( OdometryIntegratorTests, canChangeAndReadAverageBufferSizes )
   average_2n_5 = odometry_integrator.GetAverage2nReadings();
   average_num_5 = odometry_integrator.GetAverageNumReadings();
   
-  odometry_integrator.SetAverage2nReadings( 32 );
+  odometry_integrator.SetAverage2nReadings( 16 );
   average_2n_6 = odometry_integrator.GetAverage2nReadings();
   average_num_6 = odometry_integrator.GetAverageNumReadings();
   
@@ -597,8 +597,9 @@ TEST( OdometryIntegratorTests, canChangeAndReadAverageBufferSizes )
   EXPECT_EQ( 2, average_2n_4 );
   EXPECT_EQ( 4, average_num_4 );
 
-  EXPECT_EQ( 0, average_2n_5 );
-  EXPECT_EQ( 1, average_num_5 );
+  // Still last values
+  EXPECT_EQ( 2, average_2n_5 );
+  EXPECT_EQ( 4, average_num_5 );
 
   EXPECT_EQ( 16, average_2n_6 );
   EXPECT_EQ( 65536, average_num_6 );
