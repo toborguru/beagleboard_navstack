@@ -3,7 +3,6 @@
 #ifndef GUARD_IOdometryListener
 #define GUARD_IOdometryListener
  
-//#include "sensor_msgs/Odometry.h"
 #include <nav_msgs/Odometry.h>
  
 namespace differential_drive_core
