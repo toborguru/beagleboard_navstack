@@ -26,6 +26,12 @@ typedef struct
 
 typedef struct
 {
+  double left_in_right_out;  // multiplier ratio
+  double right_in_left_out;  // multiplier ratio
+} BaseCorrections_T;
+
+typedef struct
+{
   double    wheel_radius;   // meters                                           
   uint16_t  wheel_ticks;    // wheel separation - meters                        
   double    wheel_base;     // Ratio of wheel diameter differences              
@@ -37,8 +43,11 @@ typedef struct
 typedef struct
 {
   double ticks_per_meter; 
-  double ticks_per_radian; 
+  double meters_per_tick;
+  double ticks_per_radian;
+  double radians_per_tick;
   double stasis_ticks_per_meter;
+  double meters_per_stasis_tick;
 } TickRates_T;
 
 class BaseModel
@@ -89,18 +98,25 @@ public:
   bool      SetStasisTicks(int16_t stasis_ticks);
 
   double    GetTicksPerMeter() const;
+  double    GetMetersPerTick() const;
+
   double    GetTicksPerRadian() const;
+  double    GetRadiansPerTick() const;
+  
   double    GetStasisTicksPerMeter() const;
+  double    GetMetersPerStasisTick() const;
 
 private:
   differential_drive::TickVelocity VelocityToTicks( double linear_vel, 
                                                     double angular_vel,
                                                     BaseGeometry_T  base_geometry,
-                                                    TickRates_T tick_rates ) const;
+                                                    TickRates_T tick_rates,
+                                                    BaseCorrections_T corrections ) const;
 
   BaseDistance_T  CountsToDistance( differential_drive::EncoderCounts counts, 
                                     BaseGeometry_T geometry, 
-                                    TickRates_T rates ) const;
+                                    TickRates_T rates,
+                                    BaseCorrections_T corrections ) const;
 
   BaseVelocities_T  DistanceToVelocity( BaseDistance_T distance, double seconds ) const;
 
@@ -110,8 +126,16 @@ private:
   double      CalculateTicksPerMeter( double wheel_radius, 
                                       uint16_t wheel_ticks ) const;
   
+  double      CalculateMetersPerTick( double wheel_radius, 
+                                      uint16_t wheel_ticks ) const;
+  
   double      CalculateTicksPerRadian(  double wheel_base, 
                                         double ticks_per_meter ) const;
+
+  double      CalculateRadiansPerTick(  double wheel_base, 
+                                        double ticks_per_meter ) const;
+
+  BaseCorrections_T CalculateCorrections( double wheel_ratio ) const; 
 
   // State Functions 
   double      CalculateDeltaTheta(  double left_distance, 
@@ -131,15 +155,14 @@ private:
   double      CalculateVelocity(  double distance,
                                   double seconds ) const;
 
-  double      LeftInRightOutCorrection( double wheel_ratio ) const; 
-  double      RightInLeftOutCorrection( double wheel_ratio ) const; 
-
   // Base Geometry Property Variables
-  BaseGeometry_T  _base_geometry;                                  
+  BaseGeometry_T    _base_geometry;                                  
 
-  TickRates_T     _tick_rates; 
+  TickRates_T       _tick_rates; 
 
-  pthread_mutex_t  *_p_lock_mutex;
+  BaseCorrections_T _corrections;
+
+  pthread_mutex_t*  _p_lock_mutex;
 };
 }
 
