@@ -70,7 +70,7 @@ BaseModel::BaseModel( BaseGeometry_T new_geometry )
  */
 void BaseModel::ConvertCounts(  BaseDistance_T* p_delta_position,
                                 BaseVelocities_T* p_velocity,
-                                differential_drive::EncoderCounts new_counts ) const
+                                differential_drive::EncoderCounts const & new_counts ) const
 {
   double seconds;
 
@@ -89,8 +89,8 @@ void BaseModel::ConvertCounts(  BaseDistance_T* p_delta_position,
 /** Accepts an desired linear and angular velocity and returns the velocities
  *  in ticks/sec. This function does not alter the current model state.
  */
-differential_drive::TickVelocity BaseModel::ConvertVelocity(  const double linear_vel, 
-                                                              const double angular_vel ) const
+differential_drive::TickVelocity BaseModel::ConvertVelocity(  double linear_vel, 
+                                                              double angular_vel ) const
 {
   differential_drive::TickVelocity new_velocity;
 
@@ -111,7 +111,7 @@ BaseGeometry_T BaseModel::GetBaseGeometry() const
 /** @returns true if the geometry is valid and the internal data member has been 
  *  updated.
  */
-bool BaseModel::SetBaseGeometry( BaseGeometry_T geometry )
+bool BaseModel::SetBaseGeometry( BaseGeometry_T const & geometry )
 {
   if ( CheckGeometryValid(geometry) )
   {
@@ -129,7 +129,7 @@ bool BaseModel::SetBaseGeometry( BaseGeometry_T geometry )
   return false;
 }
 
-bool BaseModel::CheckGeometryValid( BaseGeometry_T geometry ) const
+bool BaseModel::CheckGeometryValid( BaseGeometry_T const & geometry ) const
 {
   bool valid = true;
 
@@ -153,7 +153,7 @@ bool BaseModel::CheckGeometryValid( BaseGeometry_T geometry ) const
   return valid;
 }
 
-bool BaseModel::CheckGeometryStasisValid( BaseGeometry_T geometry ) const 
+bool BaseModel::CheckGeometryStasisValid( BaseGeometry_T const & geometry ) const 
 {
   bool valid = true;
 
@@ -209,7 +209,7 @@ double BaseModel::GetWheelRadius() const
 /** Sets the drive wheel radius in meters.
  *  @returns true if @wheel_radius is positive and the internal data member was updated.
  */
-bool BaseModel::SetWheelRadius(const double wheel_radius)
+bool BaseModel::SetWheelRadius( double wheel_radius)
 {
   if ( wheel_radius > 0.0 )
   {
@@ -237,7 +237,7 @@ double BaseModel::GetWheelBase() const
 /** Sets the drive wheel separation in meters.
  *  @returns true if @wheel_base is positive and the internal data member was updated.
  */
-bool BaseModel::SetWheelBase(const double wheel_base)
+bool BaseModel::SetWheelBase( double wheel_base)
 {
   if ( wheel_base > 0.0 )
   {
@@ -270,7 +270,7 @@ double BaseModel::GetWheelRatio() const
  *
  *  @returns true if @wheel_ratio is positive and the internal data member was updated.
  */
-bool BaseModel::SetWheelRatio(const double wheel_ratio)
+bool BaseModel::SetWheelRatio( double wheel_ratio)
 {
   if ( wheel_ratio > 0.0 )
   {
@@ -300,7 +300,7 @@ uint32_t BaseModel::GetWheelTicks() const
  *
  *  @returns true if @wheel_ticks is positive and the internal data member was updated.
  */
-bool BaseModel::SetWheelTicks(const uint32_t wheel_ticks)
+bool BaseModel::SetWheelTicks( uint32_t wheel_ticks)
 {
   if ( wheel_ticks > 0 )
   {
@@ -330,7 +330,7 @@ double BaseModel::GetStasisRadius() const
  *  @returns  true if @stasis_radius is positive and the internal data member was updated.
  *            Otherwise a value of 0.0 is stored and the stasis wheel is "disabled".
  */
-bool BaseModel::SetStasisRadius(const double stasis_radius)
+bool BaseModel::SetStasisRadius( double stasis_radius)
 {
   if ( stasis_radius > 0.0 )
   {
@@ -376,7 +376,7 @@ int32_t BaseModel::GetStasisTicks() const
  *  @returns  true if @stasis_radius is positive and the internal data member was updated.
  *            Otherwise a value of -1 is stored and the stasis wheel is "disabled".
  */
-bool BaseModel::SetStasisTicks(const int32_t stasis_ticks)
+bool BaseModel::SetStasisTicks( int32_t stasis_ticks)
 {
   if ( stasis_ticks > 0 )
   {
@@ -453,9 +453,9 @@ double BaseModel::GetMetersPerStasisTick() const
  */
 differential_drive::TickVelocity BaseModel::VelocityToTicks(  const double linear_vel, 
                                                               const double angular_vel,
-                                                              BaseGeometry_T base_geometry,
-                                                              TickRates_T tick_rates,
-                                                              BaseCorrections_T corrections ) const
+                                                              BaseGeometry_T const & base_geometry,
+                                                              TickRates_T const & tick_rates,
+                                                              BaseCorrections_T const & corrections ) const
 {
   differential_drive::TickVelocity new_velocity;
   double linear_ticks;
@@ -488,10 +488,10 @@ differential_drive::TickVelocity BaseModel::VelocityToTicks(  const double linea
 
 /** Converts encoder counts to the changes in X, Y and theta.
  */
-BaseDistance_T  BaseModel::CountsToDistance(  differential_drive::EncoderCounts counts, 
-                                              BaseGeometry_T geometry, 
-                                              TickRates_T rates,
-                                              BaseCorrections_T corrections ) const
+BaseDistance_T  BaseModel::CountsToDistance(  differential_drive::EncoderCounts const & counts, 
+                                              BaseGeometry_T const & geometry, 
+                                              TickRates_T const & rates,
+                                              BaseCorrections_T const & corrections ) const
 {
   BaseDistance_T  delta_position;
 
@@ -526,7 +526,7 @@ BaseDistance_T  BaseModel::CountsToDistance(  differential_drive::EncoderCounts 
 
 /** Converts base distances into velocities given the elapsed time.
  */
-BaseVelocities_T  BaseModel::DistanceToVelocity( BaseDistance_T distance, double seconds ) const
+BaseVelocities_T  BaseModel::DistanceToVelocity( BaseDistance_T const & distance, double seconds ) const
 {
   BaseVelocities_T velocities;
 
@@ -540,7 +540,7 @@ BaseVelocities_T  BaseModel::DistanceToVelocity( BaseDistance_T distance, double
 /** Calculates drive wheel ticks/meter, ticks/radian, and stasis wheel 
  *  ticks/meter.
  */
-TickRates_T BaseModel::CalculateTickRates( BaseGeometry_T geometry ) const
+TickRates_T BaseModel::CalculateTickRates( BaseGeometry_T const & geometry ) const
 {
   TickRates_T rates;
 
@@ -647,7 +647,7 @@ double BaseModel::CalculateDistance(  int32_t ticks,
  *  Robot Using UMBMark" at: http://www.dprg.org/articles/2009-02a/
  *  where wheel_ratio = Ed
  */
-BaseCorrections_T BaseModel::CalculateCorrections( const double wheel_ratio ) const
+BaseCorrections_T BaseModel::CalculateCorrections( double wheel_ratio ) const
 {
   BaseCorrections_T corrections;
 
@@ -659,8 +659,7 @@ BaseCorrections_T BaseModel::CalculateCorrections( const double wheel_ratio ) co
 
 /** Returns the linear velocity in meters/sec for a given distance and time.
  */
-double BaseModel::CalculateVelocity(  double distance,
-                                      double seconds ) const
+double BaseModel::CalculateVelocity(  double distance, double seconds ) const
 {
   return distance / seconds;
 }

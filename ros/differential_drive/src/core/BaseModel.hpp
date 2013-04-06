@@ -65,16 +65,16 @@ public:
 
   void      ConvertCounts(  BaseDistance_T* p_delta_position, 
                             BaseVelocities_T* p_velocity,
-                            differential_drive::EncoderCounts new_counts ) const; 
+                            differential_drive::EncoderCounts const & new_counts ) const; 
 
   differential_drive::TickVelocity ConvertVelocity( double linear_vel, double angular_vel ) const;
 
   // Base Geometry Functions
   BaseGeometry_T  GetBaseGeometry() const;
-  bool            SetBaseGeometry( BaseGeometry_T geometry );
+  bool            SetBaseGeometry( BaseGeometry_T const & geometry );
 
-  bool      CheckGeometryValid( BaseGeometry_T geometry ) const;
-  bool      CheckGeometryStasisValid( BaseGeometry_T geometry ) const;
+  bool      CheckGeometryValid( BaseGeometry_T const & geometry ) const;
+  bool      CheckGeometryStasisValid( BaseGeometry_T const & geometry ) const;
 
   bool      GetSetupValid() const;
   bool      GetStasisValid() const;
@@ -109,19 +109,19 @@ public:
 private:
   differential_drive::TickVelocity VelocityToTicks( double linear_vel, 
                                                     double angular_vel,
-                                                    BaseGeometry_T  base_geometry,
-                                                    TickRates_T tick_rates,
-                                                    BaseCorrections_T corrections ) const;
+                                                    BaseGeometry_T const &  base_geometry,
+                                                    TickRates_T const & tick_rates,
+                                                    BaseCorrections_T const & corrections ) const;
 
-  BaseDistance_T  CountsToDistance( differential_drive::EncoderCounts counts, 
-                                    BaseGeometry_T geometry, 
-                                    TickRates_T rates,
-                                    BaseCorrections_T corrections ) const;
+  BaseDistance_T  CountsToDistance( differential_drive::EncoderCounts const & counts, 
+                                    BaseGeometry_T const & geometry, 
+                                    TickRates_T const & rates,
+                                    BaseCorrections_T const & corrections ) const;
 
-  BaseVelocities_T  DistanceToVelocity( BaseDistance_T distance, double seconds ) const;
+  BaseVelocities_T  DistanceToVelocity( BaseDistance_T const & distance, double seconds ) const;
 
   // Base Geometry Property  Functions
-  TickRates_T CalculateTickRates( BaseGeometry_T geometry ) const;
+  TickRates_T CalculateTickRates( BaseGeometry_T const & geometry ) const;
 
   double      CalculateTicksPerMeter( double wheel_radius, 
                                       uint32_t wheel_ticks ) const;
