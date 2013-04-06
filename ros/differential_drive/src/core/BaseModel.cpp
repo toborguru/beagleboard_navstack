@@ -72,16 +72,11 @@ void BaseModel::ConvertCounts(  BaseDistance_T* p_delta_position,
                                 BaseVelocities_T* p_velocity,
                                 differential_drive::EncoderCounts const & new_counts ) const
 {
-  double seconds;
-
   pthread_mutex_lock( _p_lock_mutex );
-
-  // convert milliseconds to seconds
-  seconds = new_counts.dt_ms / 1000.0;
 
   *p_delta_position = CountsToDistance( new_counts, _base_geometry, _tick_rates, _corrections );
 
-  *p_velocity = DistanceToVelocity( *p_delta_position, seconds );
+  *p_velocity = DistanceToVelocity( *p_delta_position, new_counts.dt_ms );
 
   pthread_mutex_unlock( _p_lock_mutex );
 }
@@ -526,13 +521,22 @@ BaseDistance_T  BaseModel::CountsToDistance(  differential_drive::EncoderCounts 
 
 /** Converts base distances into velocities given the elapsed time.
  */
-BaseVelocities_T  BaseModel::DistanceToVelocity( BaseDistance_T const & distance, double seconds ) const
+BaseVelocities_T  BaseModel::DistanceToVelocity( BaseDistance_T const & distance, double milli_seconds ) const
 {
   BaseVelocities_T velocities;
 
-  velocities.linear = CalculateVelocity( distance.linear, seconds );
-  velocities.angular = CalculateVelocity( distance.theta, seconds );
-  velocities.stasis = CalculateVelocity( distance.stasis, seconds );
+  if ( milli_seconds != 0.0 )
+  {
+  velocities.linear = CalculateVelocity( distance.linear, milli_seconds );
+  velocities.angular = CalculateVelocity( distance.theta, milli_seconds );
+  velocities.stasis = CalculateVelocity( distance.stasis, milli_seconds );
+  }
+  else
+  {
+  velocities.linear = 0.0;
+  velocities.angular = 0.0;
+  velocities.stasis = 0.0;
+  }
 
   return velocities;
 }
@@ -659,8 +663,9 @@ BaseCorrections_T BaseModel::CalculateCorrections( double wheel_ratio ) const
 
 /** Returns the linear velocity in meters/sec for a given distance and time.
  */
-double BaseModel::CalculateVelocity(  double distance, double seconds ) const
+double BaseModel::CalculateVelocity(  double distance, double milli_seconds ) const
 {
-  return distance / seconds;
+  // distance / (millis / 1000) => (distance * 1000) / millis
+  return ( distance * 1000.0 ) / milli_seconds;
 }
 }

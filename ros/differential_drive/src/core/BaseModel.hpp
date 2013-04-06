@@ -118,7 +118,7 @@ private:
                                     TickRates_T const & rates,
                                     BaseCorrections_T const & corrections ) const;
 
-  BaseVelocities_T  DistanceToVelocity( BaseDistance_T const & distance, double seconds ) const;
+  BaseVelocities_T  DistanceToVelocity( BaseDistance_T const & distance, double milli_seconds ) const;
 
   // Base Geometry Property  Functions
   TickRates_T CalculateTickRates( BaseGeometry_T const & geometry ) const;
@@ -153,7 +153,7 @@ private:
                                   double correction_factor = 1.0 ) const;
 
   double      CalculateVelocity(  double distance,
-                                  double seconds ) const;
+                                  double milli_seconds ) const;
 
   // Base Geometry Property Variables
   BaseGeometry_T    _base_geometry;                                  
