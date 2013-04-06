@@ -182,12 +182,14 @@ struct EncoderCountsGenerator : public differential_drive_core::IEncoderCountsSu
 TEST( OdometryIntegratorTests, canSendCountsAndReceiveOdometry ) 
 {
   // Establish Context
+  BaseModel base_model;
   OdometryIntegrator odometry_integrator;
   EncoderCountsGenerator count_generator;
   OdometryReceiver odometry_receiver;
   differential_drive::EncoderCounts new_counts;
 
   odometry_integrator.Attach(odometry_receiver);
+  odometry_integrator.SetBaseModel( base_model );
   count_generator.Attach(odometry_integrator);
 
   // Act
@@ -278,7 +280,6 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
   // Establish Context
   double cov1;
   double cov2;
-  double cov3;
 
   OdometryIntegrator odometry_integrator;
   EncoderCountsGenerator count_generator;
@@ -287,6 +288,8 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
 
   odometry_integrator.Attach(odometry_receiver);
+
+  odometry_integrator.SetBaseModel( base_model );
 
   count_generator.Attach(odometry_integrator);
 
@@ -301,13 +304,9 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
 
   cov1 = odometry_receiver._covariance;
 
-  odometry_integrator.SetBaseModel(base_model);
-
   count_generator.AddTicks(new_counts);
 
   usleep(2500);
-
-  cov2 = odometry_receiver._covariance;
 
   base_model.SetStasisRadius( 0.5 / M_PI );
   base_model.SetStasisTicks( 100 );
@@ -316,13 +315,12 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
 
   usleep(2500);
 
-  cov3 = odometry_receiver._covariance;
+  cov2 = odometry_receiver._covariance;
 
   // Assert
 
-  EXPECT_FLOAT_EQ( 1e-1, cov1 );
-  EXPECT_FLOAT_EQ( 1e-9, cov2 );
-  EXPECT_FLOAT_EQ( 1e-1, cov3 );
+  EXPECT_FLOAT_EQ( 1e-9, cov1 );
+  EXPECT_FLOAT_EQ( 1e-1, cov2 );
 }
 
 // Define the unit test to verify ability to receive MovementStatus messages when counts are added
@@ -333,6 +331,10 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveMovementStatus )
   EncoderCountsGenerator count_generator;
   MovementStatusReceiver movement_status_receiver;
   differential_drive::EncoderCounts new_counts;
+
+  BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
+
+  odometry_integrator.SetBaseModel(base_model);
 
   odometry_integrator.Attach(movement_status_receiver);
   count_generator.Attach(odometry_integrator);
@@ -372,6 +374,8 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   differential_drive::EncoderCounts new_counts;
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
 
+  odometry_integrator.SetBaseModel(base_model);
+
   odometry_integrator.Attach(movement_status_receiver);
   odometry_integrator.SetAverage2nReadings(0); // Only average 1 reading
 
@@ -379,7 +383,6 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
 
   new_counts.left_count = 50;
   new_counts.right_count = 50;
-  new_counts.stasis_count = 50;
   new_counts.dt_ms = 100;
 
   // Act
@@ -391,7 +394,8 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   state_1 = movement_status_receiver._state;  
   stasis_enabled_1 = movement_status_receiver._stasis_enabled;  
 
-  odometry_integrator.SetBaseModel(base_model);
+  base_model.SetStasisRadius( 1.0 / M_PI );
+  base_model.SetStasisTicks( 100 );
   count_generator.AddTicks(new_counts);
 
   usleep(2500);
@@ -399,8 +403,8 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   state_2 = movement_status_receiver._state;  
   stasis_enabled_2 = movement_status_receiver._stasis_enabled;  
 
-  base_model.SetStasisRadius( 0.5 / M_PI );
-  base_model.SetStasisTicks( 100 );
+  new_counts.stasis_count = 25;
+  
   count_generator.AddTicks(new_counts);
 
   usleep(2500);
@@ -410,12 +414,12 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
 
   // Assert
 
-  EXPECT_EQ( differential_drive::MovementStatus::SETUP_ERROR, state_1  );
-  EXPECT_EQ( differential_drive::MovementStatus::CORRECT, state_2 );
+  EXPECT_EQ( differential_drive::MovementStatus::CORRECT, state_1  );
+  EXPECT_EQ( differential_drive::MovementStatus::STASIS, state_2 );
   EXPECT_EQ( differential_drive::MovementStatus::CORRECT, state_3 );
 
   EXPECT_FALSE( stasis_enabled_1 );
-  EXPECT_FALSE( stasis_enabled_2 );
+  EXPECT_TRUE( stasis_enabled_2 );
   EXPECT_TRUE( stasis_enabled_3 );
 }
 

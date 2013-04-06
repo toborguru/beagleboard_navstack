@@ -34,9 +34,9 @@ public:
   void Attach( IMovementStatusListener& movement_status_listener );
   void Detach( IMovementStatusListener& movement_status_listener );
 
-  void SetBaseModel( const BaseModel& base_model );
+  void SetBaseModel( BaseModel const & base_model );
 
-  void OnEncoderCountsAvailableEvent( const differential_drive::EncoderCounts& encoder_counts );
+  void OnEncoderCountsAvailableEvent( differential_drive::EncoderCounts const & encoder_counts );
 
   unsigned int GetAverage2nReadings() const;
   bool SetAverage2nReadings( int average_2n_readings );
@@ -44,30 +44,30 @@ public:
   unsigned int GetAverageNumReadings() const;
   bool SetAverageNumReadings( int average_num_readings );
 
-  float GetVelocityMatchPercentage() const;
-  bool SetVelocityMatchPercentage( float percentage );
+  double GetVelocityMatchPercentage() const;
+  bool SetVelocityMatchPercentage( double percentage );
 
-  float GetVelocityLowerLimit() const;
-  bool SetVelocityLowerLimit( float velocity_limit );
+  double GetVelocityLowerLimit() const;
+  bool SetVelocityLowerLimit( double velocity_limit );
 
 private:
   void AddNewCounts( const differential_drive::EncoderCounts& encoder_counts );
 
   nav_msgs::Odometry CalculatePosition( BaseVelocities_T*  p_velocities, 
-                                          const differential_drive::EncoderCounts counts,
-                                          const nav_msgs::Odometry last_position,
-                                          const BaseModel* p_base_model ) const;
+                                        differential_drive::EncoderCounts const & counts,
+                                        nav_msgs::Odometry const & last_position,
+                                        BaseModel const & base_model ) const;
 
   void CalculateCovariance( nav_msgs::Odometry *p_current_position,
-                            const differential_drive::MovementStatus movement_status );
+                            differential_drive::MovementStatus const & movement_status ) const;
 
-  differential_drive::MovementStatus CalculateMovementStatus( const BaseVelocities_T  velocities,
-                                                              const BaseModel* p_base_model );
+  differential_drive::MovementStatus CalculateMovementStatus( BaseVelocities_T const & velocities,
+                                                              BaseModel const & base_model );
 
-  void NotifyOdometryListeners(const nav_msgs::Odometry& odometry);
+  void NotifyOdometryListeners( nav_msgs::Odometry const & odometry) const;
   std::vector<IOdometryListener*> _odometry_listeners;
 
-  void NotifyMovementStatusListeners(const differential_drive::MovementStatus& movement_status);
+  void NotifyMovementStatusListeners( differential_drive::MovementStatus const & movement_status) const;
   std::vector<IMovementStatusListener*> _movement_status_listeners;
 
   std::queue<const differential_drive::EncoderCounts*> _encoder_counts_messages;
@@ -78,8 +78,8 @@ private:
 
   BaseVelocities_T  _velocities;
 
-  float _velocity_allowance;
-  float _velocity_lower_limit;
+  double  _velocity_allowance;
+  double  _velocity_lower_limit;
 
   uint_fast16_t _average_index;
   uint_fast16_t _num_readings_read;
@@ -87,10 +87,10 @@ private:
   uint_fast16_t _average_num_readings;
   uint_fast16_t _average_index_mask;
 
-  float   _linear_average_total;
-  float   _stasis_average_total;
-  float  *_p_linear_velocities; 
-  float  *_p_stasis_velocities; 
+  double  _linear_average_total;
+  double  _stasis_average_total;
+  double* _p_linear_velocities; 
+  double* _p_stasis_velocities; 
 
   const BaseModel* _p_base_model;
 
@@ -102,10 +102,10 @@ private:
 
   volatile bool _stop_requested;
   volatile bool _is_running;
-  pthread_t _thread;
+  pthread_t     _thread;
 
-  pthread_mutex_t *_p_data_mutex;
-  sem_t *_p_message_sem;            
+  pthread_mutex_t*  _p_data_mutex;
+  sem_t*            _p_message_sem;            
 
   static void * ProcessOdometryFunction(void * This) {
     ( (OdometryIntegrator*)This )->ProcessOdometry();
