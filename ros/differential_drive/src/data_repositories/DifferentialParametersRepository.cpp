@@ -232,7 +232,7 @@ void DifferentialParametersRepository::RosPersistBaseParameters( BaseGeometry_T 
 
   ros::param::set( "~drive_wheel_diameter", wheel_diameter );
   ros::param::set( "~drive_wheel_base", geometry.wheel_base );
-  ros::param::set( "~drive_wheel_encoder_ticks", geometry.wheel_ticks);
+  ros::param::set( "~drive_wheel_encoder_ticks", (int32_t)geometry.wheel_ticks);
 
   if ( (geometry.wheel_ratio != 1.0) || (ros::param::has( "~drive_wheel_ratio" )) )
   {

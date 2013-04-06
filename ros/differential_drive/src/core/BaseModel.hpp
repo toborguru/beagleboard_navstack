@@ -33,11 +33,11 @@ typedef struct
 typedef struct
 {
   double    wheel_radius;   // meters                                           
-  uint16_t  wheel_ticks;    // wheel separation - meters                        
+  uint32_t  wheel_ticks;    // wheel separation - meters                        
   double    wheel_base;     // Ratio of wheel diameter differences              
   double    wheel_ratio;    // Number of ticks in one complete wheel rotation   
   double    stasis_radius;  // Radius of the stasis wheel, if enabled.          
-  int16_t   stasis_ticks;   // Number of ticks in one complete wheel rotation,  
+  int32_t   stasis_ticks;   // Number of ticks in one complete wheel rotation,  
 } BaseGeometry_T;         // negative numbers disables stasis wheel support.
 
 typedef struct
@@ -55,11 +55,11 @@ class BaseModel
 public:
 
   BaseModel(  double    wheel_radius  = 0.0, 
-              uint16_t  wheel_ticks   = 0,
+              uint32_t  wheel_ticks   = 0,
               double    wheel_base    = 0.0,
               double    wheel_ratio   = 1.0,
               double    stasis_radius = 0.0,
-              int16_t   stasis_ticks  = -1 );
+              int32_t   stasis_ticks  = -1 );
 
   BaseModel(  BaseGeometry_T  base_geometry );
 
@@ -88,14 +88,14 @@ public:
   double    GetWheelRatio() const;
   bool      SetWheelRatio(double wheel_ratio);
 
-  uint16_t  GetWheelTicks() const;
-  bool      SetWheelTicks(uint16_t wheel_ticks);
+  uint32_t  GetWheelTicks() const;
+  bool      SetWheelTicks(uint32_t wheel_ticks);
 
   double    GetStasisRadius() const;
   bool      SetStasisRadius(double stasis_radius);
 
-  int16_t   GetStasisTicks() const;
-  bool      SetStasisTicks(int16_t stasis_ticks);
+  int32_t   GetStasisTicks() const;
+  bool      SetStasisTicks(int32_t stasis_ticks);
 
   double    GetTicksPerMeter() const;
   double    GetMetersPerTick() const;
@@ -124,10 +124,10 @@ private:
   TickRates_T CalculateTickRates( BaseGeometry_T geometry ) const;
 
   double      CalculateTicksPerMeter( double wheel_radius, 
-                                      uint16_t wheel_ticks ) const;
+                                      uint32_t wheel_ticks ) const;
   
   double      CalculateMetersPerTick( double wheel_radius, 
-                                      uint16_t wheel_ticks ) const;
+                                      uint32_t wheel_ticks ) const;
   
   double      CalculateTicksPerRadian(  double wheel_base, 
                                         double ticks_per_meter ) const;
@@ -148,8 +148,8 @@ private:
   double      CalculateDeltaY(  double average_distance, 
                                 double delta_theta ) const;
 
-  double      CalculateDistance(  int16_t ticks,
-                                  double ticks_per_meter,
+  double      CalculateDistance(  int32_t ticks,
+                                  double meters_per_tick,
                                   double correction_factor = 1.0 ) const;
 
   double      CalculateVelocity(  double distance,

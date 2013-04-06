@@ -4,7 +4,7 @@
 
 namespace differential_drive_core
 {
-static int RoundInt( double r ) 
+static int RoundToInt( double r ) 
 {
   return (r > 0.0) ? (r + 0.5) : (r - 0.5); 
 }
@@ -25,11 +25,11 @@ static int RoundInt( double r )
  *                        calculations are disabled.
  */
 BaseModel::BaseModel( double    wheel_radius,
-                      uint16_t  wheel_ticks,
+                      uint32_t  wheel_ticks,
                       double    wheel_base,
                       double    wheel_ratio,
                       double    stasis_radius,
-                      int16_t   stasis_ticks)
+                      int32_t   stasis_ticks)
 {
   _base_geometry.wheel_radius = wheel_radius;
   _base_geometry.wheel_ticks = wheel_ticks;
@@ -218,7 +218,6 @@ bool BaseModel::SetWheelRadius(const double wheel_radius)
     _base_geometry.wheel_radius = wheel_radius;
 
     _tick_rates = CalculateTickRates( _base_geometry );
-    _corrections = CalculateCorrections( _base_geometry.wheel_ratio );
 
     pthread_mutex_unlock( _p_lock_mutex );
 
@@ -280,6 +279,7 @@ bool BaseModel::SetWheelRatio(const double wheel_ratio)
     _base_geometry.wheel_ratio = wheel_ratio;
 
     _tick_rates = CalculateTickRates( _base_geometry );
+    _corrections = CalculateCorrections( _base_geometry.wheel_ratio );
 
     pthread_mutex_unlock( _p_lock_mutex );
 
@@ -291,7 +291,7 @@ bool BaseModel::SetWheelRatio(const double wheel_ratio)
 
 /** Return the number of encoder ticks in one full rotation of the drive wheels.
  */
-uint16_t BaseModel::GetWheelTicks() const
+uint32_t BaseModel::GetWheelTicks() const
 {
   return _base_geometry.wheel_ticks;
 }
@@ -300,7 +300,7 @@ uint16_t BaseModel::GetWheelTicks() const
  *
  *  @returns true if @wheel_ticks is positive and the internal data member was updated.
  */
-bool BaseModel::SetWheelTicks(const uint16_t wheel_ticks)
+bool BaseModel::SetWheelTicks(const uint32_t wheel_ticks)
 {
   if ( wheel_ticks > 0 )
   {
@@ -363,7 +363,7 @@ bool BaseModel::SetStasisRadius(const double stasis_radius)
  *
  *  If negative stasis wheel calculations are disabled.
  */
-int16_t BaseModel::GetStasisTicks() const
+int32_t BaseModel::GetStasisTicks() const
 {
   return _base_geometry.stasis_ticks;
 }
@@ -376,7 +376,7 @@ int16_t BaseModel::GetStasisTicks() const
  *  @returns  true if @stasis_radius is positive and the internal data member was updated.
  *            Otherwise a value of -1 is stored and the stasis wheel is "disabled".
  */
-bool BaseModel::SetStasisTicks(const int16_t stasis_ticks)
+bool BaseModel::SetStasisTicks(const int32_t stasis_ticks)
 {
   if ( stasis_ticks > 0 )
   {
@@ -466,14 +466,14 @@ differential_drive::TickVelocity BaseModel::VelocityToTicks(  const double linea
   linear_ticks = linear_vel * tick_rates.ticks_per_meter;
   angular_ticks = angular_vel * tick_rates.ticks_per_radian;
                                             
-  left_corrected = ( linear_ticks - (angular_ticks / 2.0) )
+  left_corrected = ( linear_ticks - (angular_ticks * 0.5) )
                     * corrections.right_in_left_out;
 
-  right_corrected = ( linear_ticks + ( angular_ticks / 2.0) )
+  right_corrected = ( linear_ticks + ( angular_ticks * 0.5) )
                     * corrections.left_in_right_out;
 
-  new_velocity.linear_ticks_sec = RoundInt( (right_corrected + left_corrected) / 2.0 );
-  new_velocity.angular_ticks_sec = RoundInt( right_corrected - left_corrected );
+  new_velocity.linear_ticks_sec = RoundToInt( (right_corrected + left_corrected) * 0.5 );
+  new_velocity.angular_ticks_sec = RoundToInt( right_corrected - left_corrected );
 
 #if 0
   std::cout << "Left Cor: " << left_corrected 
@@ -500,22 +500,22 @@ BaseDistance_T  BaseModel::CountsToDistance(  differential_drive::EncoderCounts 
   double stasis_distance;
   double average_distance;
 
-  left_distance = CalculateDistance(  counts.left_count, rates.ticks_per_meter, 
+  left_distance = CalculateDistance(  counts.left_count, rates.meters_per_tick, 
                                       corrections.left_in_right_out );
 
-  right_distance = CalculateDistance( counts.right_count, rates.ticks_per_meter, 
+  right_distance = CalculateDistance( counts.right_count, rates.meters_per_tick, 
                                       corrections.right_in_left_out );
 
   if ( geometry.stasis_ticks > 0 )
   {
-    stasis_distance = CalculateDistance( counts.stasis_count, rates.stasis_ticks_per_meter );
+    stasis_distance = CalculateDistance( counts.stasis_count, rates.meters_per_stasis_tick );
   }
   else
   {
     stasis_distance = 0.0;
   }
 
-  average_distance = ( left_distance + right_distance ) / 2.0;
+  average_distance = ( left_distance + right_distance ) * 0.5;
 
   delta_position.theta = CalculateDeltaTheta( left_distance, right_distance, geometry.wheel_base );
   delta_position.linear = average_distance;
@@ -547,17 +547,27 @@ TickRates_T BaseModel::CalculateTickRates( BaseGeometry_T geometry ) const
   rates.ticks_per_meter = CalculateTicksPerMeter( geometry.wheel_radius, 
                                                   geometry.wheel_ticks );
 
+  rates.meters_per_tick = CalculateMetersPerTick( geometry.wheel_radius, 
+                                                  geometry.wheel_ticks );
+
   rates.ticks_per_radian = CalculateTicksPerRadian( geometry.wheel_base, 
                                                     rates.ticks_per_meter );
+
+  rates.radians_per_tick = CalculateRadiansPerTick( geometry.wheel_base, 
+                                                    rates.meters_per_tick );
 
   if ( (geometry.stasis_ticks > 0) && (geometry.stasis_radius > 0.0) )
   {
     rates.stasis_ticks_per_meter = CalculateTicksPerMeter( geometry.stasis_radius, 
                                                            geometry.stasis_ticks );
+
+    rates.meters_per_stasis_tick = CalculateMetersPerTick( geometry.stasis_radius, 
+                                                           geometry.stasis_ticks );
   }
   else
   {
     rates.stasis_ticks_per_meter = 0.0;
+    rates.meters_per_stasis_tick = 0.0;
   }
 
   return rates;
@@ -568,7 +578,7 @@ TickRates_T BaseModel::CalculateTickRates( BaseGeometry_T geometry ) const
  *  @param wheel_ticks  The number of encoder ticks in one full revolution.
  *  @returns The numbers of encoder ticks required to travel 1 meter.
  */
-double BaseModel::CalculateTicksPerMeter(const double wheel_radius, const uint16_t wheel_ticks) const
+double BaseModel::CalculateTicksPerMeter( double wheel_radius, uint32_t wheel_ticks) const
 {
   double wheel_circumference;
 
@@ -582,7 +592,7 @@ double BaseModel::CalculateTicksPerMeter(const double wheel_radius, const uint16
  *  @param wheel_ticks  The number of encoder ticks in one full revolution.
  *  @returns The distance traveled in 1 tick. 
  */
-double BaseModel::CalculateMetersPerTick(const double wheel_radius, const uint16_t wheel_ticks) const
+double BaseModel::CalculateMetersPerTick( double wheel_radius, uint32_t wheel_ticks) const
 {
   double wheel_circumference;
 
@@ -597,7 +607,7 @@ double BaseModel::CalculateMetersPerTick(const double wheel_radius, const uint16
  *                          travel 1 meter.
  *  @returns The difference of encoder ticks needed to turn one radian.
  */
-double BaseModel::CalculateTicksPerRadian(const double wheel_base, const double ticks_per_meter) const
+double BaseModel::CalculateTicksPerRadian(  double wheel_base, double ticks_per_meter ) const
 {
   return ticks_per_meter * wheel_base;
 }
@@ -608,27 +618,27 @@ double BaseModel::CalculateTicksPerRadian(const double wheel_base, const double 
  *                          travel 1 meter.
  *  @returns The amount turned for a difference of 1 tick between the two wheels.
  */
-double BaseModel::CalculateRadiansPerTick(const double wheel_base, const double ticks_per_meter) const
+double BaseModel::CalculateRadiansPerTick(  double wheel_base, double meters_per_tick ) const
 {
-  return ticks_per_meter / wheel_base;
+  return meters_per_tick / wheel_base;
 }
 
 /** Returns the change in angle based on difference in distance traveled by each wheel.
  */
-double BaseModel::CalculateDeltaTheta(  const double left_distance,
-                                        const double right_distance,
-                                        const double wheel_base ) const
+double BaseModel::CalculateDeltaTheta(  double left_distance,
+                                        double right_distance,
+                                        double wheel_base ) const
 {
   return ( right_distance - left_distance ) / wheel_base;
 }
 
 /** Returns the linear distance in meters for a given number of encoder ticks.
  */
-double BaseModel::CalculateDistance(  const int16_t ticks, 
-                                      const double ticks_per_meter,
-                                      const double correction_factor ) const
+double BaseModel::CalculateDistance(  int32_t ticks, 
+                                      double meters_per_tick,
+                                      double correction_factor ) const
 {
-  return ((double)ticks / ticks_per_meter) * correction_factor;
+  return (double)ticks * meters_per_tick * correction_factor;
 }
 
 /** Distance correction factor for the given wheel ratio.
@@ -649,8 +659,8 @@ BaseCorrections_T BaseModel::CalculateCorrections( const double wheel_ratio ) co
 
 /** Returns the linear velocity in meters/sec for a given distance and time.
  */
-double BaseModel::CalculateVelocity(  const double distance,
-                                      const double seconds ) const
+double BaseModel::CalculateVelocity(  double distance,
+                                      double seconds ) const
 {
   return distance / seconds;
 }
