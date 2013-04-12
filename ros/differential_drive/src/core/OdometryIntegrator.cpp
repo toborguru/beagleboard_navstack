@@ -364,14 +364,13 @@ bool OdometryIntegrator::SetVelocityLowerLimit( double velocity_limit )
 void OdometryIntegrator::AddNewCounts( differential_drive::EncoderCounts const & counts )
 {
   BaseVelocities_T  velocities;
-  nav_msgs::Odometry old_position;
   nav_msgs::Odometry new_position;
+  nav_msgs::Odometry old_position;
   differential_drive::MovementStatus new_movement_status;
 
   assert ( _p_base_model != NULL );
 
   pthread_mutex_lock( _p_data_mutex );
-
   old_position = _current_position;
   velocities = _velocities;
   pthread_mutex_unlock( _p_data_mutex );
