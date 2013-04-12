@@ -106,6 +106,9 @@ public:
   double    GetStasisTicksPerMeter() const;
   double    GetMetersPerStasisTick() const;
 
+  double    GetLeftInRightOutCorrection() const;
+  double    GetRightInLeftOutCorrection() const;
+
 private:
   differential_drive::TickVelocity VelocityToTicks( double linear_vel, 
                                                     double angular_vel,

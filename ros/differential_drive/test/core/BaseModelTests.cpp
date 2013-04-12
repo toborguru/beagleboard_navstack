@@ -25,16 +25,26 @@ TEST( BaseModelTests, canCalculateTickRates )
   base_model.SetWheelBase( 0.5 );
 
   // Assert
-  ASSERT_FLOAT_EQ( 100.0, base_model.GetTicksPerMeter() );
-  ASSERT_FLOAT_EQ( 50.0, base_model.GetTicksPerRadian() );
-  ASSERT_FLOAT_EQ( 0.0, base_model.GetStasisTicksPerMeter() );
+  EXPECT_FLOAT_EQ( 100.0, base_model.GetTicksPerMeter() );
+  EXPECT_FLOAT_EQ( 0.01, base_model.GetMetersPerTick() );
+  EXPECT_FLOAT_EQ( 50.0, base_model.GetTicksPerRadian() );
+  EXPECT_FLOAT_EQ( 0.02, base_model.GetRadiansPerTick() );
+  EXPECT_FLOAT_EQ( 0.0, base_model.GetStasisTicksPerMeter() );
+
+  EXPECT_FLOAT_EQ( 1.0, base_model.GetLeftInRightOutCorrection() );
+  EXPECT_FLOAT_EQ( 1.0, base_model.GetRightInLeftOutCorrection() );
 
   // Act
   base_model.SetStasisTicks( 10 );
-  base_model.SetStasisRadius( 0.5 / M_PI );
+  base_model.SetStasisRadius( 1.0 / M_PI );
+  base_model.SetWheelRatio( 0.95 );
 
   // Assert
-  ASSERT_FLOAT_EQ( 10.0, base_model.GetStasisTicksPerMeter() );
+  EXPECT_FLOAT_EQ( 5.0, base_model.GetStasisTicksPerMeter() );
+  EXPECT_FLOAT_EQ( 0.2, base_model.GetMetersPerStasisTick() );
+
+  EXPECT_FLOAT_EQ( 0.97435898, base_model.GetLeftInRightOutCorrection() );
+  EXPECT_FLOAT_EQ( 1.0256411, base_model.GetRightInLeftOutCorrection() );
 }
 
 // Define the unit test to verify Base Model calculated dead reckoning
@@ -56,10 +66,10 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 1.0, distance.linear );
-  ASSERT_FLOAT_EQ( 0.0, distance.theta );
-  ASSERT_FLOAT_EQ( 10.0, velocity.linear );
-  ASSERT_FLOAT_EQ( 0.0, velocity.angular );
+  EXPECT_FLOAT_EQ( 1.0, distance.linear );
+  EXPECT_FLOAT_EQ( 0.0, distance.theta );
+  EXPECT_FLOAT_EQ( 10.0, velocity.linear );
+  EXPECT_FLOAT_EQ( 0.0, velocity.angular );
 
   // Act: 1m straight, slow
   counts.left_count = 100;
@@ -69,10 +79,10 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 1.0, distance.linear );
-  ASSERT_FLOAT_EQ( 0.0, distance.theta );
-  ASSERT_FLOAT_EQ( 2.0, velocity.linear );
-  ASSERT_FLOAT_EQ( 0.0, velocity.angular );
+  EXPECT_FLOAT_EQ( 1.0, distance.linear );
+  EXPECT_FLOAT_EQ( 0.0, distance.theta );
+  EXPECT_FLOAT_EQ( 2.0, velocity.linear );
+  EXPECT_FLOAT_EQ( 0.0, velocity.angular );
 
   // Act: 1rad
   counts.left_count = -25;
@@ -82,10 +92,10 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 0.0, distance.linear );
-  ASSERT_FLOAT_EQ( 1.0, distance.theta );
-  ASSERT_FLOAT_EQ( 0.0, velocity.linear );
-  ASSERT_FLOAT_EQ( 10.0, velocity.angular );
+  EXPECT_FLOAT_EQ( 0.0, distance.linear );
+  EXPECT_FLOAT_EQ( 1.0, distance.theta );
+  EXPECT_FLOAT_EQ( 0.0, velocity.linear );
+  EXPECT_FLOAT_EQ( 10.0, velocity.angular );
 
   // Act
   counts.left_count = 75;
@@ -95,9 +105,9 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 1.0, distance.theta );
-  ASSERT_FLOAT_EQ( 10.0, velocity.linear );
-  ASSERT_FLOAT_EQ( 10.0, velocity.angular );
+  EXPECT_FLOAT_EQ( 1.0, distance.theta );
+  EXPECT_FLOAT_EQ( 10.0, velocity.linear );
+  EXPECT_FLOAT_EQ( 10.0, velocity.angular );
 
   // Act: fast
   counts.left_count = 75;
@@ -107,9 +117,9 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 1.0, distance.theta );
-  ASSERT_FLOAT_EQ( 50.0, velocity.linear );
-  ASSERT_FLOAT_EQ( 50.0, velocity.angular );
+  EXPECT_FLOAT_EQ( 1.0, distance.theta );
+  EXPECT_FLOAT_EQ( 50.0, velocity.linear );
+  EXPECT_FLOAT_EQ( 50.0, velocity.angular );
 
   // Act
   counts.left_count = 25;
@@ -119,10 +129,10 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( 0.0, distance.linear );
-  ASSERT_FLOAT_EQ( -1.0, distance.theta );
-  ASSERT_FLOAT_EQ( 0.0, velocity.linear );
-  ASSERT_FLOAT_EQ( -10.0, velocity.angular );
+  EXPECT_FLOAT_EQ( 0.0, distance.linear );
+  EXPECT_FLOAT_EQ( -1.0, distance.theta );
+  EXPECT_FLOAT_EQ( 0.0, velocity.linear );
+  EXPECT_FLOAT_EQ( -10.0, velocity.angular );
 
   // Act
   counts.left_count = -75;
@@ -132,9 +142,9 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   base_model.ConvertCounts( &distance, &velocity, counts );
 
   // Assert
-  ASSERT_FLOAT_EQ( -1.0, distance.theta );
-  ASSERT_FLOAT_EQ( -10.0, velocity.linear );
-  ASSERT_FLOAT_EQ( -10.0, velocity.angular );
+  EXPECT_FLOAT_EQ( -1.0, distance.theta );
+  EXPECT_FLOAT_EQ( -10.0, velocity.linear );
+  EXPECT_FLOAT_EQ( -10.0, velocity.angular );
 }
 
 // Define the unit test to verify Base Model calibrated dead reckoning
@@ -178,11 +188,11 @@ TEST( BaseModelTests, canCalculateDeadReckoningCalibrated )
 #endif
 
   // Assert
-  ASSERT_NEAR( 2.0, x1, 0.01 );
-  ASSERT_NEAR( 0.0, theta1, 0.01 );
+  EXPECT_NEAR( 2.0, x1, 0.01 );
+  EXPECT_NEAR( 0.0, theta1, 0.01 );
 
-  ASSERT_NEAR( 0.0, x2, 0.01 );
-  ASSERT_NEAR( 8.0, theta2, 0.01 );
+  EXPECT_NEAR( 0.0, x2, 0.01 );
+  EXPECT_NEAR( 8.0, theta2, 0.01 );
 }
 
 // Define the unit test to verify Base Model tick velocities
@@ -196,15 +206,15 @@ TEST( BaseModelTests, canCalculateTickVelocities )
   ticks = base_model.ConvertVelocity( 1.0, 0.0 );
 
   // Assert
-  ASSERT_EQ( 100, ticks.linear_ticks_sec );
-  ASSERT_EQ( 0.0, ticks.angular_ticks_sec );
+  EXPECT_EQ( 100, ticks.linear_ticks_sec );
+  EXPECT_EQ( 0.0, ticks.angular_ticks_sec );
 
   // Act
   ticks = base_model.ConvertVelocity( 0.0, 1.0 );
 
   // Assert
-  ASSERT_EQ( 0, ticks.linear_ticks_sec );
-  ASSERT_EQ( 50, ticks.angular_ticks_sec );
+  EXPECT_EQ( 0, ticks.linear_ticks_sec );
+  EXPECT_EQ( 50, ticks.angular_ticks_sec );
 }
 
 // Define the unit test to verify Base Model tick velocities
@@ -218,14 +228,14 @@ TEST( BaseModelTests, canCalculateTickVelocitiesCalibrated )
   ticks = base_model.ConvertVelocity( 1.0, 0.0 );
 
   // Assert
-  ASSERT_EQ( 100, ticks.linear_ticks_sec );
-  ASSERT_EQ( -5.0, ticks.angular_ticks_sec );
+  EXPECT_EQ( 100, ticks.linear_ticks_sec );
+  EXPECT_EQ( -5.0, ticks.angular_ticks_sec );
 
   // Act
   ticks = base_model.ConvertVelocity( 0.0, 8.0 );
 
   // Assert
-  ASSERT_EQ( -5, ticks.linear_ticks_sec );
-  ASSERT_EQ( 400, ticks.angular_ticks_sec );
+  EXPECT_EQ( -5, ticks.linear_ticks_sec );
+  EXPECT_EQ( 400, ticks.angular_ticks_sec );
 }
 }

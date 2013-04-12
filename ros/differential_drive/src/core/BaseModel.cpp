@@ -443,6 +443,24 @@ double BaseModel::GetMetersPerStasisTick() const
   return _tick_rates.meters_per_stasis_tick;
 }
 
+/** Returns the calculated calculated correction factor for the distance
+ *  traveled by the left wheel and the distance required by the right wheel
+ *  based on the wheel ratio.
+ */
+double BaseModel::GetLeftInRightOutCorrection() const
+{
+  return _corrections.left_in_right_out;
+}
+
+/** Returns the calculated calculated correction factor for the distance
+ *  traveled by the right wheel and the distance required by the left wheel
+ *  based on the wheel ratio.
+ */
+double BaseModel::GetRightInLeftOutCorrection() const
+{
+  return _corrections.right_in_left_out;
+}
+
 /** Accepts an desired linear and angular velocity and returns the velocities
  *  in ticks/sec. 
  */
