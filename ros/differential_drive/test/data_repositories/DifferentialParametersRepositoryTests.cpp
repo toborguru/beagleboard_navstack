@@ -18,13 +18,10 @@ TEST(DifferentialParametersRepositoryTests, canReadROSBaseParameters)
   ros::init( argc, (char**)NULL, name );
 
   BaseGeometry_T base_geometry;
-  BaseModel base_model;
+  BaseModel base_model(12.98);
 
   DifferentialParametersRepository parameters_repository;
   parameters_repository.SetBaseModel( &base_model );
-
-  //OdometryIntegrator odometry_integrator;
-  //parameters_repository.SetOdometryIntegrator( &odometry_integrator );
 
   double radius1;
   double base1;
@@ -101,8 +98,8 @@ TEST(DifferentialParametersRepositoryTests, canReadROSBaseParameters)
   // Assert
   EXPECT_FLOAT_EQ( 0.25, radius1 );
   EXPECT_FLOAT_EQ( 1.0, base1 );
-  EXPECT_FLOAT_EQ( 0.5, stasis_radius1 );
-  EXPECT_EQ( -1, stasis_ticks1 );
+  EXPECT_FLOAT_EQ( 0.0, stasis_radius1 );
+  EXPECT_EQ( 100, stasis_ticks1 );
 
   EXPECT_FLOAT_EQ( 0.75, radius2 );
   EXPECT_FLOAT_EQ( 1.5, base2 );
@@ -111,8 +108,8 @@ TEST(DifferentialParametersRepositoryTests, canReadROSBaseParameters)
 
   EXPECT_FLOAT_EQ( 0.5, radius3 );
   EXPECT_FLOAT_EQ( 1.0, base3 );
-  EXPECT_FLOAT_EQ( 0.5, stasis_radius3 );
-  EXPECT_EQ( -1, stasis_ticks3 );
+  EXPECT_FLOAT_EQ( 0.0, stasis_radius3 );
+  EXPECT_EQ( 100, stasis_ticks3 );
 
   EXPECT_FLOAT_EQ( 1.25, radius4 );
   EXPECT_FLOAT_EQ( 2.5, base4 );
@@ -351,12 +348,12 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSOdometryParameters)
   int argc = 0;
   ros::init( argc, (char**)NULL, name );
 
-  BaseModel limit_model;
+  BaseModel base_model;
 
   DifferentialParametersRepository parameters_repository;
 
   OdometryIntegrator odometry_integrator;
-  odometry_integrator.SetBaseModel( limit_model );
+  odometry_integrator.SetBaseModel( base_model );
 
   parameters_repository.SetOdometryIntegrator( &odometry_integrator );
 
@@ -389,7 +386,7 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSOdometryParameters)
   ros::param::param<int>( "~average_num_readings", readings3, -10.0 );
 
   // Change the local copy
-  //limit_model.SetStasisRadius( -4.0 );
+  odometry_integrator.SetVelocityLowerLimit( 25.0 );
 
   parameters_repository.PersistOdometryParameters();
 
@@ -416,11 +413,172 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSOdometryParameters)
   EXPECT_EQ( 256, readings3 );
 
   EXPECT_FLOAT_EQ( 15.0, percentage4 );
-  EXPECT_FLOAT_EQ( 12.0, limit4 );
+  EXPECT_FLOAT_EQ( 25.0, limit4 );
   EXPECT_FLOAT_EQ( 8, pow2_readings4 );
   EXPECT_EQ( 256, readings4 );
+}
 
-  // Assert
-  //EXPECT_FLOAT_EQ( 0.25, radius1 );
+TEST(DifferentialParametersRepositoryTests, canUseCallbackFunction) 
+{
+  int pow2_readings1;
+  int readings1;
+  double percentage1;
+  double limit1;
+  
+  int pow2_readings2;
+  int readings2;
+  double percentage2;
+  double limit2;
+  
+  int ros_pow2_readings1;
+  int ros_readings1;
+  double ros_percentage1;
+  double ros_limit1;
+  
+  int ros_pow2_readings2;
+  int ros_readings2;
+  double ros_percentage2;
+  double ros_limit2;
+  
+  double radius1;
+  double base1;
+  double stasis_ticks1;
+  double stasis_radius1;
+
+  double radius2;
+  double base2;
+  double stasis_ticks2;
+  double stasis_radius2;
+
+  double ros_wheel_diameter1;
+  double ros_base1;
+  int ros_stasis_ticks1;
+  double ros_stasis_diameter1;
+
+  double ros_wheel_diameter2;
+  double ros_base2;
+  int ros_stasis_ticks2;
+  double ros_stasis_diameter2;
+
+  // Establish Context
+  std::string name( "parameters_repository_tester" );
+  int argc = 0;
+  ros::init( argc, (char**)NULL, name );
+
+  BaseGeometry_T base_geometry;
+  BaseModel base_model;
+
+  DifferentialParametersRepository parameters_repository;
+  parameters_repository.SetBaseModel( &base_model );
+
+  OdometryIntegrator odometry_integrator;
+  parameters_repository.SetOdometryIntegrator( &odometry_integrator );
+
+  differential_drive::DifferentialParametersConfig new_config;
+
+  // Clean-up ROS parameter server
+  parameters_repository.PersistOdometryParameters();
+  parameters_repository.PersistBaseParameters();
+
+  // Record default values
+  pow2_readings1 = odometry_integrator.GetAverage2nReadings();
+  readings1 = odometry_integrator.GetAverageNumReadings();
+  limit1 = odometry_integrator.GetVelocityLowerLimit();
+  percentage1 = odometry_integrator.GetVelocityMatchPercentage();
+
+  ros::param::param<double>( "~velocity_difference_percentage", ros_percentage1, -10.0 );
+  ros::param::param<double>( "~velocity_lower_limit", ros_limit1, -10.0 );
+  ros::param::param<int>( "~average_2n_readings", ros_pow2_readings1, -10 );
+  ros::param::param<int>( "~average_num_readings", ros_readings1, -10 );
+
+  base_geometry = base_model.GetBaseGeometry();
+
+  radius1 = base_geometry.wheel_radius;
+  base1 = base_geometry.wheel_base;
+  stasis_ticks1 = base_geometry.stasis_ticks;
+  stasis_radius1 = base_geometry.stasis_radius;
+
+  ros::param::param<double>( "~drive_wheel_diameter", ros_wheel_diameter1, -10.0 );
+  ros::param::param<double>( "~drive_wheel_base", ros_base1, -10.0 );
+  ros::param::param<double>( "~stasis_wheel_diameter", ros_stasis_diameter1, -10.0 );
+  ros::param::param<int>( "~stasis_wheel_encoder_ticks", ros_stasis_ticks1, -10 );
+
+  // ACT
+  new_config.drive_wheel_diameter           = 12.34;
+  new_config.drive_wheel_base               = 5.67;
+  new_config.drive_wheel_ratio              = 0.89;
+  new_config.drive_wheel_encoder_ticks      = 10;
+  
+  new_config.stasis_wheel_diameter          = 1.112;
+  new_config.stasis_wheel_encoder_ticks     = 0;
+
+  new_config.average_2n_readings            = 13;
+  new_config.velocity_difference_percentage = 14;
+  new_config.velocity_lower_limit           = 15;
+
+  parameters_repository.UpdateParametersCallBack(new_config, 0);
+
+  // Verify changes
+  pow2_readings2 = odometry_integrator.GetAverage2nReadings();
+  readings2 = odometry_integrator.GetAverageNumReadings();
+  limit2 = odometry_integrator.GetVelocityLowerLimit();
+  percentage2 = odometry_integrator.GetVelocityMatchPercentage();
+
+  ros::param::param<double>( "~velocity_difference_percentage", ros_percentage2, -10.0 );
+  ros::param::param<double>( "~velocity_lower_limit", ros_limit2, -10.0 );
+  ros::param::param<int>( "~average_2n_readings", ros_pow2_readings2, -10 );
+  ros::param::param<int>( "~average_num_readings", ros_readings2, -10 );
+
+  base_geometry = base_model.GetBaseGeometry();
+
+  radius2 = base_geometry.wheel_radius;
+  base2 = base_geometry.wheel_base;
+  stasis_ticks2 = base_geometry.stasis_ticks;
+  stasis_radius2 = base_geometry.stasis_radius;
+
+  ros::param::param<double>( "~drive_wheel_diameter", ros_wheel_diameter2, -10.0 );
+  ros::param::param<double>( "~drive_wheel_base", ros_base2, -10.0 );
+  ros::param::param<double>( "~stasis_wheel_diameter", ros_stasis_diameter2, -10.0 );
+  ros::param::param<int>( "~stasis_wheel_encoder_ticks", ros_stasis_ticks2, -10 );
+
+  EXPECT_EQ( 3, pow2_readings1 );
+  EXPECT_EQ( 8, readings1 );
+  EXPECT_FLOAT_EQ( 10.0, percentage1 );
+  EXPECT_FLOAT_EQ( 0.05, limit1 );
+
+  EXPECT_EQ( 3, ros_pow2_readings1 );
+  EXPECT_EQ( 8, ros_readings1 );
+  EXPECT_FLOAT_EQ( 10.0, ros_percentage1 );
+  EXPECT_FLOAT_EQ( 0.05, ros_limit1 );
+
+  EXPECT_FLOAT_EQ( 0.0, radius1 );
+  EXPECT_FLOAT_EQ( 0.0, base1 );
+  EXPECT_FLOAT_EQ( 0.0, stasis_radius1 );
+  EXPECT_EQ( -1, stasis_ticks1 );
+
+  EXPECT_FLOAT_EQ( 0.0, ros_wheel_diameter1 );
+  EXPECT_FLOAT_EQ( 0.0, ros_base1 );
+  EXPECT_FLOAT_EQ( 0.0, ros_stasis_diameter1 );
+  EXPECT_EQ( -1, ros_stasis_ticks1 );
+
+  EXPECT_EQ( 13, pow2_readings2 );
+  EXPECT_EQ( 8192, readings2 );
+  EXPECT_FLOAT_EQ( 14, percentage2 );
+  EXPECT_FLOAT_EQ( 15, limit2 );
+
+  EXPECT_EQ( 13, ros_pow2_readings2 );
+  EXPECT_EQ( 8192, ros_readings2 );
+  EXPECT_FLOAT_EQ( 14, ros_percentage2 );
+  EXPECT_FLOAT_EQ( 15, ros_limit2 );
+
+  EXPECT_FLOAT_EQ( 12.34 / 2, radius2 );
+  EXPECT_FLOAT_EQ( 5.67, base2 );
+  EXPECT_FLOAT_EQ( 1.112 / 2, stasis_radius2 );
+  EXPECT_EQ( -1, stasis_ticks2 );
+
+  EXPECT_FLOAT_EQ( 12.34 , ros_wheel_diameter2 );
+  EXPECT_FLOAT_EQ( 5.67, ros_base2 );
+  EXPECT_FLOAT_EQ( 1.112, ros_stasis_diameter2 );
+  EXPECT_EQ( -1, ros_stasis_ticks2 );
 }
 }

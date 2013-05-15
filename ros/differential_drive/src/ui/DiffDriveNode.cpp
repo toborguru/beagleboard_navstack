@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     boost::shared_ptr<DifferentialParametersRepository> base_model_repository =
         boost::shared_ptr<DifferentialParametersRepository>( new DifferentialParametersRepository() );
 
-    boost::shared_ptr<ParametersSetupService> base_model_setup_service =
+    boost::shared_ptr<ParametersSetupService> parameter_setup_service =
       boost::shared_ptr<ParametersSetupService>( new ParametersSetupService(  base_model_repository,
                                                                               base_model,
                                                                               odometry_reporting_service ) );
@@ -72,8 +72,8 @@ int main(int argc, char **argv)
 
     // 3) Start the services
     ROS_INFO( "Starting the Base Model Setup Service..." );
-    base_model_setup_service->Update();
-    base_model_setup_service->StartUpdating();
+    parameter_setup_service->Update();
+    parameter_setup_service->StartUpdating();
 
     ROS_INFO( "Starting Odometry Reporting Service..." );
     odometry_reporting_service->StartReporting();

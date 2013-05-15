@@ -19,25 +19,34 @@ public:
                                     differential_drive_core::OdometryIntegrator* p_new_integrator );
   ~DifferentialParametersRepository();
 
-  virtual void StartListeningForUpdates();
-  virtual void StopListeningForUpdates();
+  void StartListeningForUpdates();
+  void StopListeningForUpdates();
 
-  virtual void SetBaseModel( differential_drive_core::BaseModel* p_new_model );
-  virtual void QueryBaseParameters();
-  virtual void PersistBaseParameters();
+  void SetBaseModel( differential_drive_core::BaseModel* p_new_model );
+  void QueryBaseParameters();
+  void PersistBaseParameters();
 
-  virtual void SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_new_integrator );
-  virtual void QueryOdometryParameters();
-  virtual void PersistOdometryParameters();
+  void SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_new_integrator );
+  void QueryOdometryParameters();
+  void PersistOdometryParameters();
 
-  void UpdateParametersCallBack( differential_drive::DifferentialParametersConfig &config, uint32_t level);
+  void UpdateParametersCallBack( const differential_drive::DifferentialParametersConfig &config, uint32_t level);
 
 private:
-  differential_drive_core::BaseGeometry_T RosQueryBaseParameters() const;
-  void RosPersistBaseParameters( const differential_drive_core::BaseGeometry_T geometry ) const;
+  struct OdometryParameters_T
+  {
+    int     average_2n_readings;
+    double  velocity_percentage;
+    double  velocity_limit;
+  };
 
-  void RosQueryOdometryParameters( differential_drive_core::OdometryIntegrator* p_odometry_integrator );
-  void RosPersistOdometryParameters( const differential_drive_core::OdometryIntegrator* p_odometry_integrator ) const;
+  differential_drive_core::BaseGeometry_T RosQueryBaseParameters() const;
+  void RosAssignBaseParameters( differential_drive_core::BaseModel* base_model, differential_drive_core::BaseGeometry_T geometry );
+  void RosPersistBaseParameters( const differential_drive_core::BaseModel& base_model ) const;
+
+  OdometryParameters_T RosQueryOdometryParameters() const;
+  void RosAssignOdometryParameters( differential_drive_core::OdometryIntegrator* odometry_integrator, const OdometryParameters_T& parameters );
+  void RosPersistOdometryParameters( const differential_drive_core::OdometryIntegrator& odometry_integrator ) const;
 
   differential_drive_core::BaseModel* _p_base_model;
   differential_drive_core::OdometryIntegrator* _p_odometry_integrator;
