@@ -142,17 +142,17 @@ struct EncoderCountsGenerator : public differential_drive_core::IEncoderCountsSu
     }
   }
 
-  void Subscribe()
+  void subscribe()
   {
     _subscribed = true;
   }
   
-  void Unsubscribe()
+  void unsubscribe()
   {
     _subscribed = false;
   }
 
-  bool IsSubscribed()
+  bool isSubscribed()
   {
     return _subscribed;
   }
@@ -170,7 +170,7 @@ struct EncoderCountsGenerator : public differential_drive_core::IEncoderCountsSu
 
     if ( _encoder_counts_listeners.size() == 0 )
     { 
-      Unsubscribe();
+      unsubscribe();
     }
   }
 

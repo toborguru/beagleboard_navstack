@@ -97,7 +97,7 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
   left_count1 = encoder_counts_receiver._left_count; 
   right_count1 = encoder_counts_receiver._right_count; 
 
-  encoder_counts_endpoint.Unsubscribe();
+  encoder_counts_endpoint.unsubscribe();
 
   encoder_counts.left_count = 20;
   encoder_counts.right_count = -35;
@@ -119,7 +119,7 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
   left_count2 = encoder_counts_receiver._left_count; 
   right_count2 = encoder_counts_receiver._right_count; 
 
-  encoder_counts_endpoint.Subscribe();
+  encoder_counts_endpoint.subscribe();
 
   usleep( 25000 );
 
@@ -230,7 +230,7 @@ TEST(EncoderCountsSubscriberEndpointTests, canattachAnddetachMultipleEncoderCoun
   left_count1 = encoder_counts_receiver._left_count; 
   right_count1 = encoder_counts_receiver._right_count; 
 
-  encoder_counts_endpoint.Subscribe();
+  encoder_counts_endpoint.subscribe();
 
   ros::spinOnce();
 
@@ -251,7 +251,7 @@ TEST(EncoderCountsSubscriberEndpointTests, canattachAnddetachMultipleEncoderCoun
   left_count2 = encoder_counts_receiver._left_count; 
   right_count2 = encoder_counts_receiver._right_count; 
 
-  encoder_counts_endpoint.Unsubscribe();
+  encoder_counts_endpoint.unsubscribe();
 
   usleep( 25000 );
 

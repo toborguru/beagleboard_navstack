@@ -97,7 +97,7 @@ TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint
   linear1 = twist_receiver._linear; 
   angular1 = twist_receiver._angular; 
 
-  twist_endpoint.Unsubscribe();
+  twist_endpoint.unsubscribe();
 
   twist.linear.x = 3.5;
   twist.angular.z = -5.5;
@@ -117,7 +117,7 @@ TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint
   linear2 = twist_receiver._linear; 
   angular2 = twist_receiver._angular; 
 
-  twist_endpoint.Subscribe();
+  twist_endpoint.subscribe();
 
   pub.publish( twist );
   usleep( 25000 );

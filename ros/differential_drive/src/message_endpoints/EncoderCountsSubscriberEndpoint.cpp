@@ -25,21 +25,21 @@ EncoderCountsSubscriberEndpoint::~EncoderCountsSubscriberEndpoint()
 
 /** Connect and subscribe to ROS topic. 
  */
-void EncoderCountsSubscriberEndpoint::Subscribe()
+void EncoderCountsSubscriberEndpoint::subscribe()
 { 
   if ( !_is_subscribed )
   {
     _is_subscribed = true;
     _encoder_counts_subscriber = _encoder_counts_node.subscribe( "encoder_counts",
                                                                  10,
-                                                                 &EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived,
+                                                                 &EncoderCountsSubscriberEndpoint::newEncoderCountsReceived,
                                                                  this );  
   }
 }
 
 /** Stop processing incoming messages.
  */
-void EncoderCountsSubscriberEndpoint::Unsubscribe()
+void EncoderCountsSubscriberEndpoint::unsubscribe()
 {
   if ( _is_subscribed )
   {
@@ -50,7 +50,7 @@ void EncoderCountsSubscriberEndpoint::Unsubscribe()
 
 /** Access function.
  */
-bool EncoderCountsSubscriberEndpoint::IsSubscribed()
+bool EncoderCountsSubscriberEndpoint::isSubscribed()
 {
   return _is_subscribed;
 }
@@ -65,12 +65,12 @@ void EncoderCountsSubscriberEndpoint::attach( IEncoderCountsListener& encoder_co
   // If this is the first one to attach, automatically subscribe.
   if ( !_is_subscribed && (_encoder_counts_listeners.size() == 1) )
   {
-    Subscribe();
+    subscribe();
   }
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener
- *  the class will automatically call Unsubscribe.
+ *  the class will automatically call unsubscribe.
  */
 void EncoderCountsSubscriberEndpoint::detach( IEncoderCountsListener& encoder_counts_listener )
 {
@@ -80,13 +80,13 @@ void EncoderCountsSubscriberEndpoint::detach( IEncoderCountsListener& encoder_co
 
   if ( _encoder_counts_listeners.size() == 0 )
   {
-    Unsubscribe();
+    unsubscribe();
   }
 }
 
 /** Notifies the endpoint that there there is a new message.
  */
-void EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived( const differential_drive::EncoderCounts& encoder_counts )
+void EncoderCountsSubscriberEndpoint::newEncoderCountsReceived( const differential_drive::EncoderCounts& encoder_counts )
 {
   notifyEncoderCountsListeners( encoder_counts );
 

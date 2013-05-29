@@ -109,7 +109,7 @@ void OdometryIntegrator::attach( IOdometryListener& odometry_listener)
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener
- *  the class will automatically call Unsubscribe.
+ *  the class will automatically call unsubscribe.
  */
 void OdometryIntegrator::detach( IOdometryListener& odometry_listener )
 {
@@ -140,7 +140,7 @@ void OdometryIntegrator::attach(IMovementStatusListener& movement_status_listene
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener
- *  the class will automatically call Unsubscribe.
+ *  the class will automatically call unsubscribe.
  */
 void OdometryIntegrator::detach( IMovementStatusListener& movement_status_listener )
 {

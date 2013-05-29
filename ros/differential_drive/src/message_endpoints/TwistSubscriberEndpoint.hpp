@@ -16,9 +16,9 @@ public:
   TwistSubscriberEndpoint();
   ~TwistSubscriberEndpoint();
 
-  void Subscribe();
-  void Unsubscribe();
-  bool IsSubscribed();
+  void subscribe();
+  void unsubscribe();
+  bool isSubscribed();
   void attach( differential_drive_core::ITwistListener& twist_listener );
   void detach( differential_drive_core::ITwistListener& twist_listener );
 

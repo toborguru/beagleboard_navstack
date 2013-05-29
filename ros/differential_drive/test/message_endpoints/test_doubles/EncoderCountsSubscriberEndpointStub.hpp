@@ -22,17 +22,17 @@ public:
     }
   }
 
-  void Subscribe()
+  void subscribe()
   { 
     _subscribed = true;
   }
 
-  void Unsubscribe()
+  void unsubscribe()
   { 
     _subscribed = false;
   }
 
-  bool IsSubscribed()
+  bool isSubscribed()
   { 
   return _subscribed;
   }
@@ -50,7 +50,7 @@ public:
 
     if ( _encoder_counts_listeners.size() == 0 )
     { 
-      Unsubscribe();
+      unsubscribe();
     }
   }
 

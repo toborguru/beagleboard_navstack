@@ -30,7 +30,7 @@ void TwistConverter::attach( ITickVelocityListener& tick_velocity_listener )
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener
- *  the class will automatically call Unsubscribe.
+ *  the class will automatically call unsubscribe.
  */
 void TwistConverter::detach( ITickVelocityListener& tick_velocity_listener ) 
 { 

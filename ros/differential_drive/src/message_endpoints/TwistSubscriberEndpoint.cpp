@@ -24,12 +24,12 @@ TwistSubscriberEndpoint::TwistSubscriberEndpoint()
  */
 TwistSubscriberEndpoint::~TwistSubscriberEndpoint()
 {
-  Unsubscribe();
+  unsubscribe();
 }
 
 /** Connect and subscribe to ROS topic. 
  */
-void TwistSubscriberEndpoint::Subscribe()
+void TwistSubscriberEndpoint::subscribe()
 {
   if (! _is_subscribed) 
   {
@@ -43,7 +43,7 @@ void TwistSubscriberEndpoint::Subscribe()
 
 /** Stop processing incoming messages.
  */
-void TwistSubscriberEndpoint::Unsubscribe()
+void TwistSubscriberEndpoint::unsubscribe()
 {
   if (_is_subscribed) 
   {
@@ -54,7 +54,7 @@ void TwistSubscriberEndpoint::Unsubscribe()
 
 /** Access Function.
  */
-bool TwistSubscriberEndpoint::IsSubscribed()
+bool TwistSubscriberEndpoint::isSubscribed()
 {
   return _is_subscribed;
 }
@@ -69,12 +69,12 @@ void TwistSubscriberEndpoint::attach( ITwistListener& twist_listener )
   // If this is the first one to attach, automatically subscribe.
   if ( !_is_subscribed && (_twist_listeners.size() == 1) )
   {
-    Subscribe();
+    subscribe();
   }
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener
- *  the class will automatically call Unsubscribe.
+ *  the class will automatically call unsubscribe.
  */
 void TwistSubscriberEndpoint::detach( ITwistListener& twist_listener )
 {
@@ -84,7 +84,7 @@ void TwistSubscriberEndpoint::detach( ITwistListener& twist_listener )
 
   if ( _twist_listeners.size() == 0 )
   {
-    Unsubscribe();
+    unsubscribe();
   }
 }
 

@@ -16,13 +16,13 @@ public:
   EncoderCountsSubscriberEndpoint();
   ~EncoderCountsSubscriberEndpoint();
 
-  void Subscribe();
-  void Unsubscribe();
-  bool IsSubscribed();
+  void subscribe();
+  void unsubscribe();
+  bool isSubscribed();
   void attach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener );
   void detach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener );
 
-  void NewEncoderCountsReceived( const differential_drive::EncoderCounts& encoder_counts );
+  void newEncoderCountsReceived( const differential_drive::EncoderCounts& encoder_counts );
 
 private:
   void notifyEncoderCountsListeners( const differential_drive::EncoderCounts& encoder_counts );
