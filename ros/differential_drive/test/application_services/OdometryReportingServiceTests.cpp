@@ -14,7 +14,7 @@ using namespace differential_drive_test_message_endpoints_test_doubles;
 namespace differential_drive_test_application_services
 {
 // Define the unit test to verify ability to leverage the reporting service using the message endpoint stub
-TEST(OdometryReportingServiceTests, canCanStartAndStopReports) 
+TEST(OdometryReportingServiceTests, canCanStartAndstopReports) 
 {
   differential_drive::EncoderCounts encoder_counts;
 
@@ -67,10 +67,10 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   received_movement_status_1 = movement_status_endpoint_stub->_count_of_messages_published;
 
   // Verify we don't re-subscribe
-  odometry_reporting_service.StartReporting();
-  odometry_reporting_service.StartReporting();
-  odometry_reporting_service.StartReporting();
-  odometry_reporting_service.StartReporting();
+  odometry_reporting_service.startReporting();
+  odometry_reporting_service.startReporting();
+  odometry_reporting_service.startReporting();
+  odometry_reporting_service.startReporting();
 
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
@@ -82,7 +82,7 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   received_odometry_2 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_2 = movement_status_endpoint_stub->_count_of_messages_published;
   
-  odometry_reporting_service.StopReportingOdometry();
+  odometry_reporting_service.stopReportingOdometry();
 
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
@@ -94,8 +94,8 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   received_odometry_3 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_3 = movement_status_endpoint_stub->_count_of_messages_published;
   
-  odometry_reporting_service.StartReportingOdometry();
-  odometry_reporting_service.StopReportingMovementStatus();
+  odometry_reporting_service.startReportingOdometry();
+  odometry_reporting_service.stopReportingMovementStatus();
 
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
@@ -107,7 +107,7 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   received_odometry_4 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_4 = movement_status_endpoint_stub->_count_of_messages_published;
   
-  odometry_reporting_service.StopReportingOdometry();
+  odometry_reporting_service.stopReportingOdometry();
 
   // These will be stored in the queue, and processed when processing starts again
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
@@ -120,10 +120,10 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   received_odometry_5 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_5 = movement_status_endpoint_stub->_count_of_messages_published;
   
-  odometry_reporting_service.StartReporting();
+  odometry_reporting_service.startReporting();
 
   // This will cause us to unsubscribe from the encoder endpoint 
-  odometry_reporting_service.StopProcessingEncoderCounts();
+  odometry_reporting_service.stopProcessingEncoderCounts();
 
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
@@ -135,7 +135,7 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   received_odometry_6 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_6 = movement_status_endpoint_stub->_count_of_messages_published;
   
-  odometry_reporting_service.StartProcessingEncoderCounts();
+  odometry_reporting_service.startProcessingEncoderCounts();
 
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
@@ -147,8 +147,8 @@ TEST(OdometryReportingServiceTests, canCanStartAndStopReports)
   received_odometry_7 = odometry_endpoint_stub->_count_of_messages_published;
   received_movement_status_7 = movement_status_endpoint_stub->_count_of_messages_published;
   
-  odometry_reporting_service.StartReporting();
-  odometry_reporting_service.StopProcessingEncoderCounts();
+  odometry_reporting_service.startReporting();
+  odometry_reporting_service.stopProcessingEncoderCounts();
   // Assert
 
   // Arguably, this test is a bit light but makes sure odometry msgs are being pushed 
@@ -198,7 +198,7 @@ TEST(OdometryReportingServiceTests, canCanSendCountsToOdometryReportingService)
   encoder_counts.right_count = 100;
   encoder_counts.dt_ms = 10;
 
-  odometry_reporting_service.StartReporting();
+  odometry_reporting_service.startReporting();
 
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );
   encoder_counts_endpoint_stub->AddTicks( encoder_counts );

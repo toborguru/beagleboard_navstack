@@ -60,7 +60,7 @@ TEST(ParametersSetupServiceTests, canSetupAndUpdateBaseModel)
   parameters_repository_stub->_db_base_model.setWheelTicks(200);
   wheel_ticks2 = base_model->getWheelTicks();
   
-  parameters_setup_service.Update();
+  parameters_setup_service.update();
   wheel_ticks3 = base_model->getWheelTicks();
 
   // Assert

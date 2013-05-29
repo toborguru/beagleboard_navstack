@@ -22,8 +22,8 @@ public:
                                 boost::shared_ptr<differential_drive_core::ITwistSubscriberEndpoint>        twist_endpoint,
                                 boost::shared_ptr<const differential_drive_core::BaseModel>       base_model );
 
-  void StartAcceptingCommands();
-  void StopAcceptingCommands();
+  void startAcceptingCommands();
+  void stopAcceptingCommands();
 
 private:
   differential_drive_core::TwistConverter _twist_converter;

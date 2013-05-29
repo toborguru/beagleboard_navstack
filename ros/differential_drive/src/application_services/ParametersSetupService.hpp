@@ -16,10 +16,10 @@ public:
                                     boost::shared_ptr<differential_drive_core::BaseModel> p_base_model,
                                     boost::shared_ptr<OdometryReportingService> p_odometry_service );
 
-  void StartUpdating();
-  void StopUpdating();
+  void startUpdating();
+  void stopUpdating();
 
-  void Update();
+  void update();
 
 private:
   boost::shared_ptr<differential_drive_core::IDifferentialParametersRepository> _p_parameters_repository;

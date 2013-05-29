@@ -72,14 +72,14 @@ int main(int argc, char **argv)
 
     // 3) Start the services
     ROS_INFO( "Starting the Differential Drive Parameters Setup Service..." );
-    parameter_setup_service->Update();
-    parameter_setup_service->StartUpdating();
+    parameter_setup_service->update();
+    parameter_setup_service->startUpdating();
 
     ROS_INFO( "Starting Odometry Reporting Service..." );
-    odometry_reporting_service->StartReporting();
+    odometry_reporting_service->startReporting();
 
     ROS_INFO( "Starting Twist Command Service..." );
-    twist_command_service->StartAcceptingCommands();
+    twist_command_service->startAcceptingCommands();
 
     ros::spin();
 

@@ -13,7 +13,7 @@ using namespace differential_drive_test_message_endpoints_test_doubles;
 namespace differential_drive_test_application_services
 {
   // Define the unit test to verify ability to leverage the reporting service using the message endpoint stub
-  TEST(TwistCommandServiceTests, canCanStartAndStopAcceptingCommands)
+  TEST(TwistCommandServiceTests, canCanStartAndstopAcceptingCommands)
   {
     geometry_msgs::Twist twist;
 
@@ -46,7 +46,7 @@ namespace differential_drive_test_application_services
  
     received1 = tick_velocity_endpoint_stub->_count_of_tick_velocities_published;
    
-    twist_command_service.StartAcceptingCommands();
+    twist_command_service.startAcceptingCommands();
 
     twist_endpoint_stub->AddTicks( twist );
     twist_endpoint_stub->AddTicks( twist );
@@ -55,7 +55,7 @@ namespace differential_drive_test_application_services
  
     received2 = tick_velocity_endpoint_stub->_count_of_tick_velocities_published;
     
-    twist_command_service.StopAcceptingCommands();
+    twist_command_service.stopAcceptingCommands();
 
     twist_endpoint_stub->AddTicks( twist );
     twist_endpoint_stub->AddTicks( twist );
@@ -100,7 +100,7 @@ namespace differential_drive_test_application_services
     twist.linear.x = 1.0;
     twist.angular.z = 0.0;
 
-    twist_command_service.StartAcceptingCommands();
+    twist_command_service.startAcceptingCommands();
 
     twist_endpoint_stub->AddTicks( twist );
 

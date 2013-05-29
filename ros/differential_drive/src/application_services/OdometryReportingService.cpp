@@ -31,25 +31,25 @@ OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryP
 
 /** Do everything required to start all listening and reporting.
  */
-void OdometryReportingService::StartReporting() 
+void OdometryReportingService::startReporting() 
 {
-  StartReportingOdometry();
-  StartReportingMovementStatus();
-  StartProcessingEncoderCounts();
+  startReportingOdometry();
+  startReportingMovementStatus();
+  startProcessingEncoderCounts();
 }
 
 /** Do everything required to stop all listening and reporting.
  */
-void OdometryReportingService::StopReporting()
+void OdometryReportingService::stopReporting()
 {
-  StopProcessingEncoderCounts(); 
-  StopReportingOdometry();
-  StopReportingMovementStatus();
+  stopProcessingEncoderCounts(); 
+  stopReportingOdometry();
+  stopReportingMovementStatus();
 }
 
 /** Start reading and processing incoming encoder counts.
  */
-void OdometryReportingService::StartProcessingEncoderCounts()
+void OdometryReportingService::startProcessingEncoderCounts()
 {
   if ( !_is_processing_encoder_counts )
   {
@@ -61,7 +61,7 @@ void OdometryReportingService::StartProcessingEncoderCounts()
 
 /** Stop reading and processing incoming encoder counts.
  */
-void OdometryReportingService::StopProcessingEncoderCounts()
+void OdometryReportingService::stopProcessingEncoderCounts()
 {
   _p_encoder_counts_endpoint->detach( _odometry_integrator );
   _is_processing_encoder_counts = false;
@@ -69,7 +69,7 @@ void OdometryReportingService::StopProcessingEncoderCounts()
 
 /** Do everything required to start odometry reporting.
  */
-void OdometryReportingService::StartReportingOdometry() 
+void OdometryReportingService::startReportingOdometry() 
 {
   if ( !_is_reporting_odometry )
   {
@@ -81,7 +81,7 @@ void OdometryReportingService::StartReportingOdometry()
 
 /** Do everything required to stop odometry reporting.
  */
-void OdometryReportingService::StopReportingOdometry()
+void OdometryReportingService::stopReportingOdometry()
 {
   _odometry_integrator.detach( *_p_odometry_endpoint );
   _is_reporting_odometry = false;
@@ -89,7 +89,7 @@ void OdometryReportingService::StopReportingOdometry()
 
 /** Do everything required to start movement status reporting.
  */
-void OdometryReportingService::StartReportingMovementStatus() 
+void OdometryReportingService::startReportingMovementStatus() 
 {
   if ( !_is_reporting_movement_status )
   {
@@ -101,7 +101,7 @@ void OdometryReportingService::StartReportingMovementStatus()
 
 /** Do everything required to stop movement status reporting.
  */
-void OdometryReportingService::StopReportingMovementStatus()
+void OdometryReportingService::stopReportingMovementStatus()
 {
   _odometry_integrator.detach( *_p_movement_status_endpoint );
   _is_reporting_movement_status = false;

@@ -21,17 +21,17 @@ public:
                                       boost::shared_ptr<differential_drive_core::IEncoderCountsSubscriberEndpoint> encoder_count_endpoint,
                                       boost::shared_ptr<const differential_drive_core::BaseModel> base_model );
 
-  void StartProcessingEncoderCounts();
-  void StopProcessingEncoderCounts();
+  void startProcessingEncoderCounts();
+  void stopProcessingEncoderCounts();
 
-  void StartReporting();
-  void StopReporting();
+  void startReporting();
+  void stopReporting();
 
-  void StartReportingOdometry();
-  void StopReportingOdometry();
+  void startReportingOdometry();
+  void stopReportingOdometry();
 
-  void StartReportingMovementStatus();
-  void StopReportingMovementStatus();
+  void startReportingMovementStatus();
+  void stopReportingMovementStatus();
 
   differential_drive_core::OdometryIntegrator* getOdometryIntegrator();
 
