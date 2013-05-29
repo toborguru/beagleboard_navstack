@@ -18,9 +18,9 @@ public:
 
   ~TickVelocityPublisherEndpoint();
 
-  void OnTickVelocityAvailableEvent(const differential_drive::TickVelocity& tick_velocity);  
+  void onTickVelocityAvailableEvent(const differential_drive::TickVelocity& tick_velocity);  
 
-  void Publish( const differential_drive::TickVelocity& tick_velocity ) const;
+  void publish( const differential_drive::TickVelocity& tick_velocity ) const;
 
 private:
   // Create handle to node

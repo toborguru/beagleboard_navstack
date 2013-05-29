@@ -20,12 +20,12 @@ public:
   mutable int _linear;
   mutable int _angular;
 
-  void OnTickVelocityAvailableEvent( const differential_drive::TickVelocity& tick_velocity )
+  void onTickVelocityAvailableEvent( const differential_drive::TickVelocity& tick_velocity )
   {
-    Publish( tick_velocity );
+    publish( tick_velocity );
   }
 
-  void Publish(const differential_drive::TickVelocity& tick_velocity) const
+  void publish(const differential_drive::TickVelocity& tick_velocity) const
   {
     ++_count_of_tick_velocities_published;
 

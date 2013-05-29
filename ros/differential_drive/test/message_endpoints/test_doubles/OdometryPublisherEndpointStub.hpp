@@ -31,12 +31,12 @@ public:
   mutable double _angular;
   mutable double _covariance;
 
-  void OnOdometryAvailableEvent( const nav_msgs::Odometry& odometry )
+  void onOdometryAvailableEvent( const nav_msgs::Odometry& odometry )
   {
-    Publish( odometry );
+    publish( odometry );
   }
 
-  void Publish(const nav_msgs::Odometry& odometry)
+  void publish(const nav_msgs::Odometry& odometry)
   {
     ++_count_of_messages_published;
 

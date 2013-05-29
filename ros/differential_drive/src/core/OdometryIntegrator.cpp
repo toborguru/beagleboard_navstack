@@ -613,7 +613,7 @@ void OdometryIntegrator::notifyOdometryListeners( nav_msgs::Odometry const & odo
 
   for (unsigned int i= 0; i < _odometry_listeners.size(); ++i) 
   {
-    _odometry_listeners[i]->OnOdometryAvailableEvent(odometry);
+    _odometry_listeners[i]->onOdometryAvailableEvent(odometry);
   }
 
   pthread_mutex_unlock( _p_data_mutex );
@@ -627,7 +627,7 @@ void OdometryIntegrator::notifyMovementStatusListeners( differential_drive::Move
 
   for (unsigned int i= 0; i < _movement_status_listeners.size(); ++i) 
   {
-    _movement_status_listeners[i]->OnMovementStatusAvailableEvent(movement_status);
+    _movement_status_listeners[i]->onMovementStatusAvailableEvent(movement_status);
   }
 
   pthread_mutex_unlock( _p_data_mutex );

@@ -12,7 +12,7 @@ namespace differential_drive_core
     public:
       // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
       virtual ~IOdometryListener() {}
-      virtual void OnOdometryAvailableEvent( const nav_msgs::Odometry& odometry ) = 0;
+      virtual void onOdometryAvailableEvent( const nav_msgs::Odometry& odometry ) = 0;
   };
 }
  

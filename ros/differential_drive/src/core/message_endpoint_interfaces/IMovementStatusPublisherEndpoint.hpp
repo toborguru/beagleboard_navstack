@@ -14,7 +14,7 @@ class IMovementStatusPublisherEndpoint : public IMovementStatusListener
 public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
   virtual ~IMovementStatusPublisherEndpoint() {}
-  virtual void Publish(const differential_drive::MovementStatus& status) = 0;
+  virtual void publish(const differential_drive::MovementStatus& status) = 0;
 };
 }
  

@@ -12,7 +12,7 @@ namespace differential_drive_core
     public:
       // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
       virtual ~ITickVelocityListener() {}
-      virtual void OnTickVelocityAvailableEvent( const differential_drive::TickVelocity& tick_velocity ) = 0;
+      virtual void onTickVelocityAvailableEvent( const differential_drive::TickVelocity& tick_velocity ) = 0;
   };
 }
  

@@ -14,7 +14,7 @@ class ITickVelocityPublisherEndpoint : public ITickVelocityListener
 public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
   virtual ~ITickVelocityPublisherEndpoint() {}
-  virtual void Publish(const differential_drive::TickVelocity& tick_velocity) const = 0;
+  virtual void publish(const differential_drive::TickVelocity& tick_velocity) const = 0;
 };
 }
  

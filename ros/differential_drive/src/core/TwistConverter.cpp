@@ -82,7 +82,7 @@ void TwistConverter::notifyTickVelocityListeners(const differential_drive::TickV
 {
   for (unsigned int i= 0; i < _tick_velocity_listeners.size(); ++i) 
   {
-      _tick_velocity_listeners[i]->OnTickVelocityAvailableEvent(tick_velocity);
+      _tick_velocity_listeners[i]->onTickVelocityAvailableEvent(tick_velocity);
   }
 }
 }

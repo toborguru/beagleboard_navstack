@@ -52,10 +52,10 @@ namespace differential_drive_test_message_endpoints
     // Act
     movement_status.linear_velocity = 10;
     movement_status.stasis_velocity = 5;
-    movement_status_endpoint.Publish(movement_status);
-    movement_status_endpoint.Publish(movement_status);
-    movement_status_endpoint.Publish(movement_status);
-    movement_status_endpoint.Publish(movement_status);
+    movement_status_endpoint.publish(movement_status);
+    movement_status_endpoint.publish(movement_status);
+    movement_status_endpoint.publish(movement_status);
+    movement_status_endpoint.publish(movement_status);
     usleep( 25000 );
     ros::spinOnce();
 
@@ -65,8 +65,8 @@ namespace differential_drive_test_message_endpoints
 
     movement_status.linear_velocity = 15;
     movement_status.stasis_velocity = 25;
-    movement_status_endpoint.Publish(movement_status);
-    movement_status_endpoint.Publish(movement_status);
+    movement_status_endpoint.publish(movement_status);
+    movement_status_endpoint.publish(movement_status);
     usleep( 25000 );
     ros::spinOnce();
  

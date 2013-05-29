@@ -31,12 +31,12 @@ public:
   mutable int _state;
   mutable bool _stasis_enabled;
 
-  void OnMovementStatusAvailableEvent( const differential_drive::MovementStatus& status )
+  void onMovementStatusAvailableEvent( const differential_drive::MovementStatus& status )
   {
-    Publish( status );
+    publish( status );
   }
 
-  void Publish(const differential_drive::MovementStatus& movement_status)
+  void publish(const differential_drive::MovementStatus& movement_status)
   {
     ++_count_of_messages_published;
 

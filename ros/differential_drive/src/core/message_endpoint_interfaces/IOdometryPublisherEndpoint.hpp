@@ -14,7 +14,7 @@ class IOdometryPublisherEndpoint : public IOdometryListener
 public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
   virtual ~IOdometryPublisherEndpoint() {}
-  virtual void Publish(const nav_msgs::Odometry& odometry) = 0;
+  virtual void publish(const nav_msgs::Odometry& odometry) = 0;
 };
 }
  

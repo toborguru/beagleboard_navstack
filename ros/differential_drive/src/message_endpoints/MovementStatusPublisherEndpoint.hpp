@@ -18,9 +18,9 @@ public:
 
   ~MovementStatusPublisherEndpoint();
 
-  void OnMovementStatusAvailableEvent(  const differential_drive::MovementStatus& movement_status );
+  void onMovementStatusAvailableEvent(  const differential_drive::MovementStatus& movement_status );
 
-  void Publish( const differential_drive::MovementStatus& status );
+  void publish( const differential_drive::MovementStatus& status );
 
 private:
   // Create handle to node

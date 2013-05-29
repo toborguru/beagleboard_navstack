@@ -19,9 +19,9 @@ public:
 
   ~OdometryPublisherEndpoint() {};
 
-  void Publish(const nav_msgs::Odometry& odometry_scan);
+  void publish(const nav_msgs::Odometry& odometry_scan);
 
-  void OnOdometryAvailableEvent(const nav_msgs::Odometry& odometry);
+  void onOdometryAvailableEvent(const nav_msgs::Odometry& odometry);
 
 private:
   // Create handle to node

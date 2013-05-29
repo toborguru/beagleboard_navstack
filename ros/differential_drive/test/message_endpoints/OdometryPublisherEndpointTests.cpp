@@ -52,10 +52,10 @@ namespace differential_drive_test_message_endpoints
     // Act
     odometry.pose.pose.position.x = 10;
     odometry.pose.pose.position.y = 5;
-    odometry_endpoint.Publish(odometry);
-    odometry_endpoint.Publish(odometry);
-    odometry_endpoint.Publish(odometry);
-    odometry_endpoint.Publish(odometry);
+    odometry_endpoint.publish(odometry);
+    odometry_endpoint.publish(odometry);
+    odometry_endpoint.publish(odometry);
+    odometry_endpoint.publish(odometry);
     usleep( 25000 );
     ros::spinOnce();
 
@@ -65,8 +65,8 @@ namespace differential_drive_test_message_endpoints
 
     odometry.pose.pose.position.x = 15;
     odometry.pose.pose.position.y = 25;
-    odometry_endpoint.Publish(odometry);
-    odometry_endpoint.Publish(odometry);
+    odometry_endpoint.publish(odometry);
+    odometry_endpoint.publish(odometry);
     usleep( 25000 );
     ros::spinOnce();
  

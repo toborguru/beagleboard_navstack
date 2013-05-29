@@ -36,7 +36,7 @@ void TwistSubscriberEndpoint::subscribe()
     _is_subscribed = true;
     _twist_subscriber = _twist_node.subscribe( "cmd_vel", 
                                                1, 
-                                               &TwistSubscriberEndpoint::NewTwistReceived,
+                                               &TwistSubscriberEndpoint::newTwistReceived,
                                                this );
   }
 }
@@ -90,7 +90,7 @@ void TwistSubscriberEndpoint::detach( ITwistListener& twist_listener )
 
 /** Notifies the endpoint that there there is a new message @p twist.
  */
-void TwistSubscriberEndpoint::NewTwistReceived( const geometry_msgs::Twist& twist )
+void TwistSubscriberEndpoint::newTwistReceived( const geometry_msgs::Twist& twist )
 {
   notifyTwistListeners( twist );
 

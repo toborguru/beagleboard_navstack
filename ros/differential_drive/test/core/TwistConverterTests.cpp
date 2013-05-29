@@ -30,7 +30,7 @@ struct TickVelocityReceiver : public differential_drive_core::ITickVelocityListe
   int _linear;
   int _angular;
 
-  void OnTickVelocityAvailableEvent(const differential_drive::TickVelocity& tick_velocity)
+  void onTickVelocityAvailableEvent(const differential_drive::TickVelocity& tick_velocity)
   {
     ++_count_of_tick_velocities_received;
 

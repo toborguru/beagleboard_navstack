@@ -39,7 +39,7 @@ struct OdometryReceiver : public differential_drive_core::IOdometryListener
   double _angular;
   double _covariance;
 
-  void OnOdometryAvailableEvent(const nav_msgs::Odometry& odometry)
+  void onOdometryAvailableEvent(const nav_msgs::Odometry& odometry)
   {
     ++_count_of_messages_received;
 
@@ -96,7 +96,7 @@ struct MovementStatusReceiver : public differential_drive_core::IMovementStatusL
   int _state;
   bool _stasis_enabled;
 
-  void OnMovementStatusAvailableEvent( const differential_drive::MovementStatus& status )
+  void onMovementStatusAvailableEvent( const differential_drive::MovementStatus& status )
   {
     ++_count_of_messages_received;
 

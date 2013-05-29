@@ -22,10 +22,10 @@ public:
   void attach( differential_drive_core::ITwistListener& twist_listener );
   void detach( differential_drive_core::ITwistListener& twist_listener );
 
-  void NewTwistReceived( const geometry_msgs::Twist& twist );
+  void newTwistReceived( const geometry_msgs::Twist& twist );
 
 private:
-  void ReceiveTwistMessages();
+//  void receiveTwistMessages();
 
   void notifyTwistListeners( const geometry_msgs::Twist& twist );
 

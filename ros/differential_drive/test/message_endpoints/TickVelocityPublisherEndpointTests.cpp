@@ -52,10 +52,10 @@ namespace differential_drive_test_message_endpoints
     // Act
     tick_velocity.linear_ticks_sec = 10;
     tick_velocity.angular_ticks_sec = 5;
-    tick_velocity_endpoint.Publish(tick_velocity);
-    tick_velocity_endpoint.Publish(tick_velocity);
-    tick_velocity_endpoint.Publish(tick_velocity);
-    tick_velocity_endpoint.Publish(tick_velocity);
+    tick_velocity_endpoint.publish(tick_velocity);
+    tick_velocity_endpoint.publish(tick_velocity);
+    tick_velocity_endpoint.publish(tick_velocity);
+    tick_velocity_endpoint.publish(tick_velocity);
     usleep( 25000 );
     ros::spinOnce();
 
@@ -65,8 +65,8 @@ namespace differential_drive_test_message_endpoints
 
     tick_velocity.linear_ticks_sec = 15;
     tick_velocity.angular_ticks_sec = 25;
-    tick_velocity_endpoint.Publish(tick_velocity);
-    tick_velocity_endpoint.Publish(tick_velocity);
+    tick_velocity_endpoint.publish(tick_velocity);
+    tick_velocity_endpoint.publish(tick_velocity);
     usleep( 25000 );
     ros::spinOnce();
  
