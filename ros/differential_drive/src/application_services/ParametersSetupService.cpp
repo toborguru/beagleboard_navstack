@@ -27,20 +27,20 @@ ParametersSetupService::ParametersSetupService( boost::shared_ptr<IDifferentialP
  */
 void ParametersSetupService::StartUpdating()
 {
-  _p_parameters_repository->StartListeningForUpdates();
+  _p_parameters_repository->startListeningForUpdates();
 }
 
 /** Registers with ROS dynamic reconfigure for base parameter updates.
  */
 void ParametersSetupService::StopUpdating()
 {
-  _p_parameters_repository->StopListeningForUpdates();
+  _p_parameters_repository->stopListeningForUpdates();
 }
 
 /** Request updated parameters for the internal BaseModel from the data repository.
  */
 void ParametersSetupService::Update()
 {
-  _p_parameters_repository->QueryBaseParameters();
+  _p_parameters_repository->queryBaseParameters();
 }
 }

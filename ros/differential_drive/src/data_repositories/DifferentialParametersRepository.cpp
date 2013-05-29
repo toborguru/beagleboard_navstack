@@ -23,23 +23,23 @@ DifferentialParametersRepository::DifferentialParametersRepository( BaseModel* p
 
 DifferentialParametersRepository::~DifferentialParametersRepository()
 {
-  StopListeningForUpdates();
+  stopListeningForUpdates();
 }
 
-void DifferentialParametersRepository::StartListeningForUpdates()
+void DifferentialParametersRepository::startListeningForUpdates()
 {
   if ( _p_dynamic_reconfigure_server == NULL )
   {
     _p_dynamic_reconfigure_server = new dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>;
     dynamic_reconfigure::Server<differential_drive::DifferentialParametersConfig>::CallbackType call_back_type;
 
-    call_back_type = boost::bind( &DifferentialParametersRepository::UpdateParametersCallBack, this, _1, _2 );
+    call_back_type = boost::bind( &DifferentialParametersRepository::updateParametersCallBack, this, _1, _2 );
 
     _p_dynamic_reconfigure_server->setCallback( call_back_type );
   }
 }
 
-void DifferentialParametersRepository::StopListeningForUpdates()
+void DifferentialParametersRepository::stopListeningForUpdates()
 {
   if ( _p_dynamic_reconfigure_server != NULL )
   {
@@ -48,7 +48,7 @@ void DifferentialParametersRepository::StopListeningForUpdates()
   }
 }
 
-void DifferentialParametersRepository::UpdateParametersCallBack( const differential_drive::DifferentialParametersConfig &config, uint32_t level)
+void DifferentialParametersRepository::updateParametersCallBack( const differential_drive::DifferentialParametersConfig &config, uint32_t level)
 {
   BaseGeometry_T base_geometry;
   OdometryParameters_T odometry_parameters;
@@ -64,11 +64,11 @@ void DifferentialParametersRepository::UpdateParametersCallBack( const different
   odometry_parameters.velocity_percentage = config.velocity_difference_percentage;
   odometry_parameters.velocity_limit      = config.velocity_lower_limit;
 
-  RosAssignBaseParameters( _p_base_model, base_geometry );
-  RosAssignOdometryParameters( _p_odometry_integrator, odometry_parameters );
+  rosAssignBaseParameters( _p_base_model, base_geometry );
+  rosAssignOdometryParameters( _p_odometry_integrator, odometry_parameters );
 
-  PersistBaseParameters();
-  PersistOdometryParameters();
+  persistBaseParameters();
+  persistOdometryParameters();
 }
 
 void DifferentialParametersRepository::setBaseModel( BaseModel* p_new_model )
@@ -76,20 +76,20 @@ void DifferentialParametersRepository::setBaseModel( BaseModel* p_new_model )
   _p_base_model = p_new_model;
 }
 
-void DifferentialParametersRepository::QueryBaseParameters()
+void DifferentialParametersRepository::queryBaseParameters()
 {
   BaseGeometry_T base_geometry;
 
-  base_geometry = RosQueryBaseParameters();
+  base_geometry = rosQueryBaseParameters();
 
-  RosAssignBaseParameters( _p_base_model, base_geometry );
+  rosAssignBaseParameters( _p_base_model, base_geometry );
 }
 
-void DifferentialParametersRepository::PersistBaseParameters()
+void DifferentialParametersRepository::persistBaseParameters()
 {
   if ( _p_base_model != NULL )
   {
-    RosPersistBaseParameters( *_p_base_model );
+    rosPersistBaseParameters( *_p_base_model );
   }
 }
 
@@ -98,26 +98,26 @@ void DifferentialParametersRepository::setOdometryIntegrator( OdometryIntegrator
   _p_odometry_integrator = p_new_integrator;
 }
 
-void DifferentialParametersRepository::QueryOdometryParameters()
+void DifferentialParametersRepository::queryOdometryParameters()
 {
   OdometryParameters_T parameters;
 
-  parameters = RosQueryOdometryParameters();
+  parameters = rosQueryOdometryParameters();
 
-  RosAssignOdometryParameters( _p_odometry_integrator, parameters );
+  rosAssignOdometryParameters( _p_odometry_integrator, parameters );
 }
 
-void DifferentialParametersRepository::PersistOdometryParameters()
+void DifferentialParametersRepository::persistOdometryParameters()
 {
   if ( _p_odometry_integrator != NULL )
   {
-    RosPersistOdometryParameters( *_p_odometry_integrator );
+    rosPersistOdometryParameters( *_p_odometry_integrator );
   }
 }
 
 /** Returns a @c BaseGeometry_T from ROS parameters or assigns defaults.
  */
-BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
+BaseGeometry_T DifferentialParametersRepository::rosQueryBaseParameters() const
 {
   BaseGeometry_T base_geometry;
 
@@ -148,7 +148,7 @@ BaseGeometry_T DifferentialParametersRepository::RosQueryBaseParameters() const
   return base_geometry;
 }
 
-void DifferentialParametersRepository::RosAssignBaseParameters( BaseModel* p_base_model, BaseGeometry_T base_geometry )
+void DifferentialParametersRepository::rosAssignBaseParameters( BaseModel* p_base_model, BaseGeometry_T base_geometry )
 {
   double wheel_diameter = base_geometry.wheel_radius * 2.0;
   double stasis_diameter = base_geometry.stasis_radius * 2.0;
@@ -201,7 +201,7 @@ void DifferentialParametersRepository::RosAssignBaseParameters( BaseModel* p_bas
   }
 }
 
-void DifferentialParametersRepository::RosPersistBaseParameters( const BaseModel& base_model ) const
+void DifferentialParametersRepository::rosPersistBaseParameters( const BaseModel& base_model ) const
 {
   double wheel_diameter;
   double stasis_diameter;
@@ -235,7 +235,7 @@ void DifferentialParametersRepository::RosPersistBaseParameters( const BaseModel
   }
 }
 
-DifferentialParametersRepository::OdometryParameters_T DifferentialParametersRepository::RosQueryOdometryParameters() const
+DifferentialParametersRepository::OdometryParameters_T DifferentialParametersRepository::rosQueryOdometryParameters() const
 {
   OdometryParameters_T parameters;
 
@@ -246,7 +246,7 @@ DifferentialParametersRepository::OdometryParameters_T DifferentialParametersRep
   return parameters;
 }
 
-void DifferentialParametersRepository::RosAssignOdometryParameters( OdometryIntegrator* p_odometry_integrator, const OdometryParameters_T& parameters )
+void DifferentialParametersRepository::rosAssignOdometryParameters( OdometryIntegrator* p_odometry_integrator, const OdometryParameters_T& parameters )
 {
   if ( p_odometry_integrator != NULL )
   {
@@ -267,7 +267,7 @@ void DifferentialParametersRepository::RosAssignOdometryParameters( OdometryInte
   }
 }
 
-void DifferentialParametersRepository::RosPersistOdometryParameters( const OdometryIntegrator& odometry_integrator ) const
+void DifferentialParametersRepository::rosPersistOdometryParameters( const OdometryIntegrator& odometry_integrator ) const
 {
   ros::param::set( "~average_2n_readings", (int)odometry_integrator.getAverage2nReadings() );
   ros::param::set( "~average_num_readings", (int)odometry_integrator.getAverageNumReadings() );

@@ -17,16 +17,16 @@ public:
   // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
   virtual ~IDifferentialParametersRepository() {}
 
-  virtual void StartListeningForUpdates() = 0;
-  virtual void StopListeningForUpdates() = 0;
+  virtual void startListeningForUpdates() = 0;
+  virtual void stopListeningForUpdates() = 0;
 
   virtual void setBaseModel( BaseModel *p_new_model ) = 0;
-  virtual void QueryBaseParameters() = 0;
-  virtual void PersistBaseParameters() = 0;
+  virtual void queryBaseParameters() = 0;
+  virtual void persistBaseParameters() = 0;
 
   virtual void setOdometryIntegrator( OdometryIntegrator* odometry_integrator ) = 0;
-  virtual void QueryOdometryParameters() = 0;
-  virtual void PersistOdometryParameters() = 0;
+  virtual void queryOdometryParameters() = 0;
+  virtual void persistOdometryParameters() = 0;
 };
 }
  

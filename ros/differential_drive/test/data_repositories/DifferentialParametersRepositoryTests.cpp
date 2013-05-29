@@ -50,7 +50,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSBaseParameters)
   ros::param::set( "~stasis_wheel_diameter", 0.0 );
   ros::param::set( "~stasis_wheel_encoder_ticks", 100 );
 
-  parameters_repository.QueryBaseParameters();
+  parameters_repository.queryBaseParameters();
   base_geometry = base_model.getBaseGeometry();
 
   radius1 = base_geometry.wheel_radius;
@@ -62,7 +62,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSBaseParameters)
   ros::param::set( "~drive_wheel_base", 1.5 );
   ros::param::set( "~stasis_wheel_diameter", 0.5 );
 
-  parameters_repository.QueryBaseParameters();
+  parameters_repository.queryBaseParameters();
   base_geometry = base_model.getBaseGeometry();
 
   radius2 = base_geometry.wheel_radius;
@@ -74,7 +74,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSBaseParameters)
   ros::param::set( "~drive_wheel_base", 1.0 );
   ros::param::set( "~stasis_wheel_diameter", -0.5 );
 
-  parameters_repository.QueryBaseParameters();
+  parameters_repository.queryBaseParameters();
   base_geometry = base_model.getBaseGeometry();
 
   radius3 = base_geometry.wheel_radius;
@@ -87,7 +87,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSBaseParameters)
   ros::param::set( "~stasis_wheel_diameter", 1.5 );
   ros::param::set( "~stasis_wheel_encoder_ticks", 150 );
 
-  parameters_repository.QueryBaseParameters();
+  parameters_repository.queryBaseParameters();
   base_geometry = base_model.getBaseGeometry();
 
   radius4 = base_geometry.wheel_radius;
@@ -154,7 +154,7 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSBaseParameters)
 
   // Act
   // Establish parameters in case of a previous setting
-  parameters_repository.PersistBaseParameters();
+  parameters_repository.persistBaseParameters();
   
   ros::param::param<double>( "~drive_wheel_diameter", wheel_diameter1, -10.0 );
   ros::param::param<double>( "~drive_wheel_base", base1, -10.0 );
@@ -167,13 +167,13 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSBaseParameters)
   base_model.setStasisTicks( 4096 );
   base_model.setStasisRadius( 1.0 );
 
-  // Pre-Persist
+  // Pre-persist
   ros::param::param<double>( "~drive_wheel_diameter", wheel_diameter2, -10.0 );
   ros::param::param<double>( "~drive_wheel_base", base2, -10.0 );
   ros::param::param<double>( "~stasis_wheel_diameter", stasis_diameter2, -10.0 );
   ros::param::param<int>( "~stasis_wheel_encoder_ticks", stasis_ticks2, -10 );
 
-  parameters_repository.PersistBaseParameters();
+  parameters_repository.persistBaseParameters();
 
   // Post-persist
   ros::param::param<double>( "~drive_wheel_diameter", wheel_diameter3, -10.0 );
@@ -187,7 +187,7 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSBaseParameters)
   base_model.setStasisTicks( -4096 );
   base_model.setStasisRadius( -4.0 );
 
-  parameters_repository.PersistBaseParameters();
+  parameters_repository.persistBaseParameters();
 
   // Post-persist
   ros::param::param<double>( "~drive_wheel_diameter", wheel_diameter4, -10.0 );
@@ -259,7 +259,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSOdometryParameters)
   ros::param::set( "~velocity_difference_percentage", 1.0 );
   ros::param::set( "~velocity_lower_limit", 0.1 );
 
-  parameters_repository.QueryOdometryParameters();
+  parameters_repository.queryOdometryParameters();
 
   pow2_readings1 = odometry_integrator.getAverage2nReadings();
   readings1 = odometry_integrator.getAverageNumReadings();
@@ -270,7 +270,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSOdometryParameters)
   ros::param::set( "~velocity_difference_percentage", 90.0 );
   ros::param::set( "~velocity_lower_limit", 1.5 );
 
-  parameters_repository.QueryOdometryParameters();
+  parameters_repository.queryOdometryParameters();
 
   pow2_readings2 = odometry_integrator.getAverage2nReadings();
   readings2 = odometry_integrator.getAverageNumReadings();
@@ -281,7 +281,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSOdometryParameters)
   ros::param::set( "~velocity_difference_percentage", -75.0 );
   ros::param::set( "~velocity_lower_limit", -0.18 );
 
-  parameters_repository.QueryOdometryParameters();
+  parameters_repository.queryOdometryParameters();
 
   pow2_readings3 = odometry_integrator.getAverage2nReadings();
   readings3 = odometry_integrator.getAverageNumReadings();
@@ -292,7 +292,7 @@ TEST(DifferentialParametersRepositoryTests, canReadROSOdometryParameters)
   ros::param::set( "~velocity_difference_percentage", 25.0 );
   ros::param::set( "~velocity_lower_limit", 1.0 );
 
-  parameters_repository.QueryOdometryParameters();
+  parameters_repository.queryOdometryParameters();
 
   pow2_readings4 = odometry_integrator.getAverage2nReadings();
   readings4 = odometry_integrator.getAverageNumReadings();
@@ -359,7 +359,7 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSOdometryParameters)
 
   // Act
   // Defaults
-  parameters_repository.PersistOdometryParameters();
+  parameters_repository.persistOdometryParameters();
   
   ros::param::param<double>( "~velocity_difference_percentage", percentage1, -10.0 );
   ros::param::param<double>( "~velocity_lower_limit", limit1, -10.0 );
@@ -371,13 +371,13 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSOdometryParameters)
   odometry_integrator.setVelocityMatchPercentage( 15.0 );
   odometry_integrator.setVelocityLowerLimit( 12.0 );
 
-  // Pre-Persist
+  // Pre-persist
   ros::param::param<double>( "~velocity_difference_percentage", percentage2, -10.0 );
   ros::param::param<double>( "~velocity_lower_limit", limit2, -10.0 );
   ros::param::param<int>( "~average_2n_readings", pow2_readings2, -10.0 );
   ros::param::param<int>( "~average_num_readings", readings2, -10.0 );
 
-  parameters_repository.PersistOdometryParameters();
+  parameters_repository.persistOdometryParameters();
 
   // Post-persist
   ros::param::param<double>( "~velocity_difference_percentage", percentage3, -10.0 );
@@ -388,7 +388,7 @@ TEST(DifferentialParametersRepositoryTests, canWriteROSOdometryParameters)
   // Change the local copy
   odometry_integrator.setVelocityLowerLimit( 25.0 );
 
-  parameters_repository.PersistOdometryParameters();
+  parameters_repository.persistOdometryParameters();
 
   // Post-persist
   ros::param::param<double>( "~velocity_difference_percentage", percentage4, -10.0 );
@@ -477,8 +477,8 @@ TEST(DifferentialParametersRepositoryTests, canUseCallbackFunction)
   differential_drive::DifferentialParametersConfig new_config;
 
   // Clean-up ROS parameter server
-  parameters_repository.PersistOdometryParameters();
-  parameters_repository.PersistBaseParameters();
+  parameters_repository.persistOdometryParameters();
+  parameters_repository.persistBaseParameters();
 
   // Record default values
   pow2_readings1 = odometry_integrator.getAverage2nReadings();
@@ -516,7 +516,7 @@ TEST(DifferentialParametersRepositoryTests, canUseCallbackFunction)
   new_config.velocity_difference_percentage = 14;
   new_config.velocity_lower_limit           = 15;
 
-  parameters_repository.UpdateParametersCallBack(new_config, 0);
+  parameters_repository.updateParametersCallBack(new_config, 0);
 
   // Verify changes
   pow2_readings2 = odometry_integrator.getAverage2nReadings();
