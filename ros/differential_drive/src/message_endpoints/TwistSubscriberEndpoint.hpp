@@ -19,15 +19,15 @@ public:
   void Subscribe();
   void Unsubscribe();
   bool IsSubscribed();
-  void Attach( differential_drive_core::ITwistListener& twist_listener );
-  void Detach( differential_drive_core::ITwistListener& twist_listener );
+  void attach( differential_drive_core::ITwistListener& twist_listener );
+  void detach( differential_drive_core::ITwistListener& twist_listener );
 
   void NewTwistReceived( const geometry_msgs::Twist& twist );
 
 private:
   void ReceiveTwistMessages();
 
-  void NotifyTwistListeners( const geometry_msgs::Twist& twist );
+  void notifyTwistListeners( const geometry_msgs::Twist& twist );
 
   std::vector<differential_drive_core::ITwistListener*> _twist_listeners;
 

@@ -62,7 +62,7 @@ bool TwistSubscriberEndpoint::IsSubscribed()
 /** Provides a call-back mechanism for objects interested in receiving 
  *  messages when they are available.
  */
-void TwistSubscriberEndpoint::Attach( ITwistListener& twist_listener )
+void TwistSubscriberEndpoint::attach( ITwistListener& twist_listener )
 {
   _twist_listeners.push_back(&twist_listener);
 
@@ -76,7 +76,7 @@ void TwistSubscriberEndpoint::Attach( ITwistListener& twist_listener )
 /** Allows a listener to stop receiving call-backs. If this is the last listener
  *  the class will automatically call Unsubscribe.
  */
-void TwistSubscriberEndpoint::Detach( ITwistListener& twist_listener )
+void TwistSubscriberEndpoint::detach( ITwistListener& twist_listener )
 {
   // Using the remove-erase idiom
   std::vector<ITwistListener*>& vec = _twist_listeners; // use shorter name
@@ -92,7 +92,7 @@ void TwistSubscriberEndpoint::Detach( ITwistListener& twist_listener )
  */
 void TwistSubscriberEndpoint::NewTwistReceived( const geometry_msgs::Twist& twist )
 {
-  NotifyTwistListeners( twist );
+  notifyTwistListeners( twist );
 
   ROS_DEBUG(  "Twist received: linear: %f angular %f",
               twist.linear.x, twist.angular.z );
@@ -100,7 +100,7 @@ void TwistSubscriberEndpoint::NewTwistReceived( const geometry_msgs::Twist& twis
 
 /** When called all attached listeners will be notified and sent a copy of @p encoder_counts.
  */
-void TwistSubscriberEndpoint::NotifyTwistListeners( const geometry_msgs::Twist& twist )
+void TwistSubscriberEndpoint::notifyTwistListeners( const geometry_msgs::Twist& twist )
 {
   for (unsigned int i= 0; i < _twist_listeners.size(); ++i)
   {

@@ -24,7 +24,7 @@ struct EncoderCountsReceiver : public differential_drive_core::IEncoderCountsLis
   double _left_count;
   double _right_count;
 
-  void OnEncoderCountsAvailableEvent(const differential_drive::EncoderCounts& encoder_counts)
+  void onEncoderCountsAvailableEvent(const differential_drive::EncoderCounts& encoder_counts)
   {
     ++_count_of_encoder_counts_received;
 
@@ -74,7 +74,7 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
 
   differential_drive::EncoderCounts encoder_counts;
   
-  encoder_counts_endpoint.Attach( encoder_counts_receiver );
+  encoder_counts_endpoint.attach( encoder_counts_receiver );
  
   // ACT
   usleep( 25000 );
@@ -156,7 +156,7 @@ TEST(EncoderCountsSubscriberEndpointTests, canSubscribeAndUnsubscribeToEncoderCo
 #if FINISHED_CODING
 // Define unit test to verify ability to attach and detach multiple listeners to the 
 // the message endpoint.
-TEST(EncoderCountsSubscriberEndpointTests, canAttachAndDetachMultipleEncoderCountsEndpoints) 
+TEST(EncoderCountsSubscriberEndpointTests, canattachAnddetachMultipleEncoderCountsEndpoints) 
 {
   // Establish Context
   std::string name("encoder_counts_endpoint_tester");
@@ -209,7 +209,7 @@ TEST(EncoderCountsSubscriberEndpointTests, canAttachAndDetachMultipleEncoderCoun
 
   differential_drive::EncoderCounts encoder_counts;
   
-  encoder_counts_endpoint.Attach( encoder_counts_receiver );
+  encoder_counts_endpoint.attach( encoder_counts_receiver );
  
   // ACT
   usleep( 25000 );

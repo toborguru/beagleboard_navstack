@@ -58,7 +58,7 @@ bool EncoderCountsSubscriberEndpoint::IsSubscribed()
 /** Provides a call-back mechanism for objects interested in receiving 
  *  messages when they are available.
  */
-void EncoderCountsSubscriberEndpoint::Attach( IEncoderCountsListener& encoder_counts_listener )
+void EncoderCountsSubscriberEndpoint::attach( IEncoderCountsListener& encoder_counts_listener )
 {
   _encoder_counts_listeners.push_back(&encoder_counts_listener);
 
@@ -72,7 +72,7 @@ void EncoderCountsSubscriberEndpoint::Attach( IEncoderCountsListener& encoder_co
 /** Allows a listener to stop receiving call-backs. If this is the last listener
  *  the class will automatically call Unsubscribe.
  */
-void EncoderCountsSubscriberEndpoint::Detach( IEncoderCountsListener& encoder_counts_listener )
+void EncoderCountsSubscriberEndpoint::detach( IEncoderCountsListener& encoder_counts_listener )
 {
   // Using the remove-erase idiom
   std::vector<IEncoderCountsListener*>& vec = _encoder_counts_listeners; // use shorter name
@@ -88,7 +88,7 @@ void EncoderCountsSubscriberEndpoint::Detach( IEncoderCountsListener& encoder_co
  */
 void EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived( const differential_drive::EncoderCounts& encoder_counts )
 {
-  NotifyEncoderCountsListeners( encoder_counts );
+  notifyEncoderCountsListeners( encoder_counts );
 
   ROS_DEBUG_NAMED(  "EncoderCountsSubscriberEndpoint", "Counts received: left: %d right %d stasis: %d dt: %d",
               encoder_counts.left_count, encoder_counts.right_count, encoder_counts.stasis_count, 
@@ -97,11 +97,11 @@ void EncoderCountsSubscriberEndpoint::NewEncoderCountsReceived( const differenti
 
 /** When called all attached listeners will be notified and sent a copy of @a encoder_counts.
  */
-void EncoderCountsSubscriberEndpoint::NotifyEncoderCountsListeners( const differential_drive::EncoderCounts& encoder_counts )
+void EncoderCountsSubscriberEndpoint::notifyEncoderCountsListeners( const differential_drive::EncoderCounts& encoder_counts )
 {
   for (unsigned int i= 0; i < _encoder_counts_listeners.size(); ++i)
   {
-    _encoder_counts_listeners[i]->OnEncoderCountsAvailableEvent( encoder_counts );
+    _encoder_counts_listeners[i]->onEncoderCountsAvailableEvent( encoder_counts );
   }
 }
 }

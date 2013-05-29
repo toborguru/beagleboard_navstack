@@ -37,12 +37,12 @@ public:
     return _subscribed;
   }
 
-  void Attach( differential_drive_core::ITwistListener& twist_listener )
+  void attach( differential_drive_core::ITwistListener& twist_listener )
   { 
     _twist_listeners.push_back(&twist_listener);
   }
 
-  void Detach( differential_drive_core::ITwistListener& twist_listener )
+  void detach( differential_drive_core::ITwistListener& twist_listener )
   { 
     // Using the remove-erase idiom
     std::vector<differential_drive_core::ITwistListener*>& vec = _twist_listeners; // use shorter name

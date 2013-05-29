@@ -19,13 +19,13 @@ public:
   void Subscribe();
   void Unsubscribe();
   bool IsSubscribed();
-  void Attach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener );
-  void Detach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener );
+  void attach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener );
+  void detach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener );
 
   void NewEncoderCountsReceived( const differential_drive::EncoderCounts& encoder_counts );
 
 private:
-  void NotifyEncoderCountsListeners( const differential_drive::EncoderCounts& encoder_counts );
+  void notifyEncoderCountsListeners( const differential_drive::EncoderCounts& encoder_counts );
 
   bool _is_subscribed;
 

@@ -18,7 +18,7 @@ public:
   { 
     for (unsigned int i= 0; i < _encoder_counts_listeners.size(); ++i)
     { 
-      _encoder_counts_listeners[i]->OnEncoderCountsAvailableEvent(encoder_counts);
+      _encoder_counts_listeners[i]->onEncoderCountsAvailableEvent(encoder_counts);
     }
   }
 
@@ -37,12 +37,12 @@ public:
   return _subscribed;
   }
 
-  void Attach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener )
+  void attach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener )
   { 
     _encoder_counts_listeners.push_back(&encoder_counts_listener);
   }
 
-  void Detach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener )
+  void detach( differential_drive_core::IEncoderCountsListener& encoder_counts_listener )
   { 
     // Using the remove-erase idiom
     std::vector<differential_drive_core::IEncoderCountsListener*>& vec = _encoder_counts_listeners; // use shorter name

@@ -138,7 +138,7 @@ struct EncoderCountsGenerator : public differential_drive_core::IEncoderCountsSu
   {
     for ( unsigned int i= 0; i < _encoder_counts_listeners.size(); ++i ) 
     {
-      _encoder_counts_listeners[i]->OnEncoderCountsAvailableEvent(encoder_counts);
+      _encoder_counts_listeners[i]->onEncoderCountsAvailableEvent(encoder_counts);
     }
   }
 
@@ -157,12 +157,12 @@ struct EncoderCountsGenerator : public differential_drive_core::IEncoderCountsSu
     return _subscribed;
   }
     
-  void Attach( IEncoderCountsListener& encoder_counts_listener )
+  void attach( IEncoderCountsListener& encoder_counts_listener )
   {
     _encoder_counts_listeners.push_back(&encoder_counts_listener);
   }
 
-  void Detach( IEncoderCountsListener& encoder_counts_listener )
+  void detach( IEncoderCountsListener& encoder_counts_listener )
   { 
     // Using the remove-erase idiom
     std::vector<IEncoderCountsListener*>& vec = _encoder_counts_listeners; // use shorter name
@@ -188,9 +188,9 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveOdometry )
   OdometryReceiver odometry_receiver;
   differential_drive::EncoderCounts new_counts;
 
-  odometry_integrator.Attach(odometry_receiver);
+  odometry_integrator.attach(odometry_receiver);
   odometry_integrator.setBaseModel( base_model );
-  count_generator.Attach(odometry_integrator);
+  count_generator.attach(odometry_integrator);
 
   // Act
   new_counts.left_count = 100;
@@ -225,10 +225,10 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   differential_drive::EncoderCounts new_counts;
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
 
-  odometry_integrator.Attach(odometry_receiver);
+  odometry_integrator.attach(odometry_receiver);
   odometry_integrator.setBaseModel(base_model);
 
-  count_generator.Attach(odometry_integrator);
+  count_generator.attach(odometry_integrator);
 
   usleep(2500);
 
@@ -289,11 +289,11 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
   differential_drive::EncoderCounts new_counts;
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
 
-  odometry_integrator.Attach(odometry_receiver);
+  odometry_integrator.attach(odometry_receiver);
 
   odometry_integrator.setBaseModel( base_model );
 
-  count_generator.Attach(odometry_integrator);
+  count_generator.attach(odometry_integrator);
 
   // Act
   
@@ -338,8 +338,8 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveMovementStatus )
 
   odometry_integrator.setBaseModel(base_model);
 
-  odometry_integrator.Attach(movement_status_receiver);
-  count_generator.Attach(odometry_integrator);
+  odometry_integrator.attach(movement_status_receiver);
+  count_generator.attach(odometry_integrator);
 
   // Act
   new_counts.left_count = 100;
@@ -378,10 +378,10 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
 
   odometry_integrator.setBaseModel(base_model);
 
-  odometry_integrator.Attach(movement_status_receiver);
+  odometry_integrator.attach(movement_status_receiver);
   odometry_integrator.setAverage2nReadings(0); // Only average 1 reading
 
-  count_generator.Attach(odometry_integrator);
+  count_generator.attach(odometry_integrator);
 
   new_counts.left_count = 50;
   new_counts.right_count = 50;
@@ -450,10 +450,10 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   differential_drive::EncoderCounts new_counts;
   BaseModel base_model( 0.5 / M_PI, 100, 0.5, 1.0, 0.5 / M_PI, 100);
 
-  odometry_integrator.Attach(movement_status_receiver);
+  odometry_integrator.attach(movement_status_receiver);
   odometry_integrator.setAverage2nReadings(0); // Only average 1 reading
 
-  count_generator.Attach(odometry_integrator);
+  count_generator.attach(odometry_integrator);
 
   odometry_integrator.setBaseModel(base_model);
 
@@ -651,9 +651,9 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
   differential_drive::EncoderCounts new_counts;
   BaseModel base_model( 0.5 / M_PI, 1, 0.5, 1.0, 0.5 / M_PI, 1);
 
-  odometry_integrator.Attach(movement_status_receiver);
+  odometry_integrator.attach(movement_status_receiver);
 
-  count_generator.Attach(odometry_integrator);
+  count_generator.attach(odometry_integrator);
 
   odometry_integrator.setBaseModel(base_model);
 

@@ -26,15 +26,15 @@ TwistCommandService::TwistCommandService( boost::shared_ptr<ITickVelocityPublish
  */
 void TwistCommandService::StartAcceptingCommands() 
 {
-  _twist_converter.Attach( *_p_tick_velocity_endpoint );
-  _p_twist_endpoint->Attach( _twist_converter );
+  _twist_converter.attach( *_p_tick_velocity_endpoint );
+  _p_twist_endpoint->attach( _twist_converter );
 }
 
 /** Do everything required to stop listening for twist commands and passing them on as tick_velocity.
  */
 void TwistCommandService::StopAcceptingCommands()
 {
-  _twist_converter.Detach( *_p_tick_velocity_endpoint );
-  _p_twist_endpoint->Detach( _twist_converter );
+  _twist_converter.detach( *_p_tick_velocity_endpoint );
+  _p_twist_endpoint->detach( _twist_converter );
 }
 }

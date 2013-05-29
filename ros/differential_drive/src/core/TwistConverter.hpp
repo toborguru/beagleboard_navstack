@@ -19,8 +19,8 @@ namespace differential_drive_core
     public:
       TwistConverter();
 
-      void Attach( ITickVelocityListener& tick_velocity_listener );
-      void Detach( ITickVelocityListener& tick_velocity_listener );
+      void attach( ITickVelocityListener& tick_velocity_listener );
+      void detach( ITickVelocityListener& tick_velocity_listener );
 
       void setBaseModel( const BaseModel& base_model );
 
@@ -29,7 +29,7 @@ namespace differential_drive_core
     private:
       differential_drive::TickVelocity ConvertTwist( const geometry_msgs::Twist twist_cmd );
 
-      void NotifyTickVelocityListeners(const differential_drive::TickVelocity& tick_velocity);
+      void notifyTickVelocityListeners(const differential_drive::TickVelocity& tick_velocity);
  
       std::vector<ITickVelocityListener*> _tick_velocity_listeners;
 

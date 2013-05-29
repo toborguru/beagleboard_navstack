@@ -80,12 +80,12 @@ struct TwistGenerator : public differential_drive_core::ITwistSubscriberEndpoint
     return _subscribed;
   }
   
-  void Attach( ITwistListener& twist_listener )
+  void attach( ITwistListener& twist_listener )
   {
     _twist_listeners.push_back(&twist_listener);
   }
 
-  void Detach( ITwistListener& twist_listener )
+  void detach( ITwistListener& twist_listener )
   { 
     // Using the remove-erase idiom
     std::vector<ITwistListener*>& vec = _twist_listeners; // use shorter name
@@ -110,8 +110,8 @@ TEST( TwistConverterTests, canSendTwistAndReceiveTickVelocity )
   TickVelocityReceiver tick_velocity_receiver;
   geometry_msgs::Twist new_twist;
 
-  twist_conveter.Attach(tick_velocity_receiver);
-  twist_generator.Attach(twist_conveter);
+  twist_conveter.attach(tick_velocity_receiver);
+  twist_generator.attach(twist_conveter);
 
   // Act
   new_twist.linear.x = 1.0;
@@ -139,10 +139,10 @@ TEST( TwistConverterTests, canConvertTwistToTicks )
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
   geometry_msgs::Twist new_twist;
 
-  twist_conveter.Attach(tick_velocity_receiver);
+  twist_conveter.attach(tick_velocity_receiver);
   twist_conveter.setBaseModel(base_model);
 
-  twist_generator.Attach(twist_conveter);
+  twist_generator.attach(twist_conveter);
 
   // Act
   new_twist.linear.x = 1.0;
@@ -178,10 +178,10 @@ TEST( TwistConverterTests, canConvertTwistToTicksCalibrated )
   BaseModel base_model( 0.5 / M_PI, 100, 0.5, 0.95 );
   geometry_msgs::Twist new_twist;
 
-  twist_conveter.Attach(tick_velocity_receiver);
+  twist_conveter.attach(tick_velocity_receiver);
   twist_conveter.setBaseModel(base_model);
 
-  twist_generator.Attach(twist_conveter);
+  twist_generator.attach(twist_conveter);
 
   // Act
   new_twist.linear.x = 1.0;

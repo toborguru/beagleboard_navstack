@@ -28,15 +28,15 @@ public:
   OdometryIntegrator();
   ~OdometryIntegrator();
 
-  void Attach( IOdometryListener& odometry_listener );
-  void Detach( IOdometryListener& odometry_listener );
+  void attach( IOdometryListener& odometry_listener );
+  void detach( IOdometryListener& odometry_listener );
 
-  void Attach( IMovementStatusListener& movement_status_listener );
-  void Detach( IMovementStatusListener& movement_status_listener );
+  void attach( IMovementStatusListener& movement_status_listener );
+  void detach( IMovementStatusListener& movement_status_listener );
 
   void setBaseModel( BaseModel const & base_model );
 
-  void OnEncoderCountsAvailableEvent( differential_drive::EncoderCounts const & encoder_counts );
+  void onEncoderCountsAvailableEvent( differential_drive::EncoderCounts const & encoder_counts );
 
   unsigned int getAverage2nReadings() const;
   bool setAverage2nReadings( int average_2n_readings );
@@ -51,7 +51,7 @@ public:
   bool setVelocityLowerLimit( double velocity_limit );
 
 private:
-  void AddNewCounts( const differential_drive::EncoderCounts& encoder_counts );
+  void addNewCounts( const differential_drive::EncoderCounts& encoder_counts );
 
   nav_msgs::Odometry calculatePosition( BaseVelocities_T*  p_velocities, 
                                         differential_drive::EncoderCounts const & counts,
@@ -64,10 +64,10 @@ private:
   differential_drive::MovementStatus calculateMovementStatus( BaseVelocities_T const & velocities,
                                                               BaseModel const & base_model );
 
-  void NotifyOdometryListeners( nav_msgs::Odometry const & odometry) const;
+  void notifyOdometryListeners( nav_msgs::Odometry const & odometry) const;
   std::vector<IOdometryListener*> _odometry_listeners;
 
-  void NotifyMovementStatusListeners( differential_drive::MovementStatus const & movement_status) const;
+  void notifyMovementStatusListeners( differential_drive::MovementStatus const & movement_status) const;
   std::vector<IMovementStatusListener*> _movement_status_listeners;
 
   std::queue<const differential_drive::EncoderCounts*> _encoder_counts_messages;
@@ -96,9 +96,9 @@ private:
 
   // Basic threading support as suggested by Jeremy Friesner at
   // http://stackoverflow.com/questions/1151582/pthread-function-from-a-class
-  void ProcessOdometry();
-  void StartProcessingOdometry();
-  void StopProcessingOdometry();
+  void processOdometry();
+  void startProcessingOdometry();
+  void stopProcessingOdometry();
 
   volatile bool _stop_requested;
   volatile bool _is_running;
@@ -107,8 +107,8 @@ private:
   pthread_mutex_t*  _p_data_mutex;
   sem_t*            _p_message_sem;            
 
-  static void * ProcessOdometryFunction(void * This) {
-    ( (OdometryIntegrator*)This )->ProcessOdometry();
+  static void * processOdometryFunction(void * This) {
+    ( (OdometryIntegrator*)This )->processOdometry();
     return 0;
   }
 };

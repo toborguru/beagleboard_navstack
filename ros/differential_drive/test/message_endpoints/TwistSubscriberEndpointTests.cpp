@@ -74,7 +74,7 @@ TEST(TwistSubscriberEndpointTests, canSubscribeAndUnsubscribeToTwistWithEndpoint
 
   geometry_msgs::Twist twist;
 
-  twist_endpoint.Attach( twist_receiver );
+  twist_endpoint.attach( twist_receiver );
 
   // ACT
   usleep( 25000 );

@@ -53,7 +53,7 @@ void OdometryReportingService::StartProcessingEncoderCounts()
 {
   if ( !_is_processing_encoder_counts )
   {
-    _p_encoder_counts_endpoint->Attach( _odometry_integrator );
+    _p_encoder_counts_endpoint->attach( _odometry_integrator );
   }
 
   _is_processing_encoder_counts = true;
@@ -63,7 +63,7 @@ void OdometryReportingService::StartProcessingEncoderCounts()
  */
 void OdometryReportingService::StopProcessingEncoderCounts()
 {
-  _p_encoder_counts_endpoint->Detach( _odometry_integrator );
+  _p_encoder_counts_endpoint->detach( _odometry_integrator );
   _is_processing_encoder_counts = false;
 }
 
@@ -73,7 +73,7 @@ void OdometryReportingService::StartReportingOdometry()
 {
   if ( !_is_reporting_odometry )
   {
-    _odometry_integrator.Attach( *_p_odometry_endpoint );
+    _odometry_integrator.attach( *_p_odometry_endpoint );
   }
 
   _is_reporting_odometry = true;
@@ -83,7 +83,7 @@ void OdometryReportingService::StartReportingOdometry()
  */
 void OdometryReportingService::StopReportingOdometry()
 {
-  _odometry_integrator.Detach( *_p_odometry_endpoint );
+  _odometry_integrator.detach( *_p_odometry_endpoint );
   _is_reporting_odometry = false;
 }
 
@@ -93,7 +93,7 @@ void OdometryReportingService::StartReportingMovementStatus()
 {
   if ( !_is_reporting_movement_status )
   {
-    _odometry_integrator.Attach( *_p_movement_status_endpoint );
+    _odometry_integrator.attach( *_p_movement_status_endpoint );
   }
 
   _is_reporting_movement_status = true;
@@ -103,7 +103,7 @@ void OdometryReportingService::StartReportingMovementStatus()
  */
 void OdometryReportingService::StopReportingMovementStatus()
 {
-  _odometry_integrator.Detach( *_p_movement_status_endpoint );
+  _odometry_integrator.detach( *_p_movement_status_endpoint );
   _is_reporting_movement_status = false;
 }
 

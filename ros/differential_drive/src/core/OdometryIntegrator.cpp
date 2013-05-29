@@ -77,7 +77,7 @@ OdometryIntegrator::OdometryIntegrator()
  */
 OdometryIntegrator::~OdometryIntegrator()
 {
-  StopProcessingOdometry();
+  stopProcessingOdometry();
 
   if ( _p_linear_velocities != NULL )
   { 
@@ -99,19 +99,19 @@ OdometryIntegrator::~OdometryIntegrator()
 /** Provides a call-back mechanism for objects interested in receiving 
  *  odometry messages when they are available.
  */
-void OdometryIntegrator::Attach( IOdometryListener& odometry_listener) 
+void OdometryIntegrator::attach( IOdometryListener& odometry_listener) 
 {
   pthread_mutex_lock( _p_data_mutex );
   _odometry_listeners.push_back(&odometry_listener);
   pthread_mutex_unlock( _p_data_mutex );
 
-  StartProcessingOdometry();
+  startProcessingOdometry();
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener
  *  the class will automatically call Unsubscribe.
  */
-void OdometryIntegrator::Detach( IOdometryListener& odometry_listener )
+void OdometryIntegrator::detach( IOdometryListener& odometry_listener )
 {
   pthread_mutex_lock( _p_data_mutex );
 
@@ -123,26 +123,26 @@ void OdometryIntegrator::Detach( IOdometryListener& odometry_listener )
 
   if ( (_odometry_listeners.size() == 0) && (_movement_status_listeners.size() == 0) )
   {
-    StopProcessingOdometry();
+    stopProcessingOdometry();
   }
 }
 
 /** Provides a call-back mechanism for objects interested in receiving 
  *  movement status messages when they are available.
  */
-void OdometryIntegrator::Attach(IMovementStatusListener& movement_status_listener) 
+void OdometryIntegrator::attach(IMovementStatusListener& movement_status_listener) 
 {
   pthread_mutex_lock( _p_data_mutex );
   _movement_status_listeners.push_back(&movement_status_listener);
   pthread_mutex_unlock( _p_data_mutex );
 
-  StartProcessingOdometry();
+  startProcessingOdometry();
 }
 
 /** Allows a listener to stop receiving call-backs. If this is the last listener
  *  the class will automatically call Unsubscribe.
  */
-void OdometryIntegrator::Detach( IMovementStatusListener& movement_status_listener )
+void OdometryIntegrator::detach( IMovementStatusListener& movement_status_listener )
 {
   pthread_mutex_lock( _p_data_mutex );
 
@@ -154,7 +154,7 @@ void OdometryIntegrator::Detach( IMovementStatusListener& movement_status_listen
 
   if ( (_odometry_listeners.size() == 0) && (_movement_status_listeners.size() == 0) )
   {
-    StopProcessingOdometry();
+    stopProcessingOdometry();
   }
 }
 
@@ -169,7 +169,7 @@ void OdometryIntegrator::setBaseModel( BaseModel const & base_model )
 
 /** Callback for IEncoderCountsListener
  */
-void OdometryIntegrator::OnEncoderCountsAvailableEvent( differential_drive::EncoderCounts const & encoder_counts )
+void OdometryIntegrator::onEncoderCountsAvailableEvent( differential_drive::EncoderCounts const & encoder_counts )
 {
   const differential_drive::EncoderCounts* p_new_message;
 
@@ -362,7 +362,7 @@ bool OdometryIntegrator::setVelocityLowerLimit( double velocity_limit )
 /** This function is used to perform all updates when new counts are ready.
  *
  */
-void OdometryIntegrator::AddNewCounts( differential_drive::EncoderCounts const & counts )
+void OdometryIntegrator::addNewCounts( differential_drive::EncoderCounts const & counts )
 {
   BaseVelocities_T  velocities;
   nav_msgs::Odometry new_position;
@@ -387,8 +387,8 @@ void OdometryIntegrator::AddNewCounts( differential_drive::EncoderCounts const &
   _velocities = velocities;
   pthread_mutex_unlock( _p_data_mutex );
 
-  NotifyOdometryListeners( new_position );
-  NotifyMovementStatusListeners( new_movement_status );
+  notifyOdometryListeners( new_position );
+  notifyMovementStatusListeners( new_movement_status );
 }
 
 /** This function uses the BaseModel class to translate encoder counts into SI
@@ -607,7 +607,7 @@ void OdometryIntegrator::calculateCovariance( nav_msgs::Odometry *p_position,
 
 /** Calls the callback function for all registered odometry listeners.
  */  
-void OdometryIntegrator::NotifyOdometryListeners( nav_msgs::Odometry const & odometry) const
+void OdometryIntegrator::notifyOdometryListeners( nav_msgs::Odometry const & odometry) const
 {
   pthread_mutex_lock( _p_data_mutex );
 
@@ -621,7 +621,7 @@ void OdometryIntegrator::NotifyOdometryListeners( nav_msgs::Odometry const & odo
 
 /** Calls the callback function for all registered movement status listeners.
  */  
-void OdometryIntegrator::NotifyMovementStatusListeners( differential_drive::MovementStatus const & movement_status) const
+void OdometryIntegrator::notifyMovementStatusListeners( differential_drive::MovementStatus const & movement_status) const
 {
   pthread_mutex_lock( _p_data_mutex );
 
@@ -635,7 +635,7 @@ void OdometryIntegrator::NotifyMovementStatusListeners( differential_drive::Move
 
 /** Worker thread
  */
-void OdometryIntegrator::ProcessOdometry()
+void OdometryIntegrator::processOdometry()
 {
   const differential_drive::EncoderCounts* p_message;
   
@@ -650,7 +650,7 @@ void OdometryIntegrator::ProcessOdometry()
 
       pthread_mutex_unlock( _p_data_mutex );
 
-      AddNewCounts( *p_message ); 
+      addNewCounts( *p_message ); 
 
       delete p_message;
     }
@@ -662,7 +662,7 @@ void OdometryIntegrator::ProcessOdometry()
 
 /** Starts worker thread.
  */
-void OdometryIntegrator::StartProcessingOdometry()
+void OdometryIntegrator::startProcessingOdometry()
 {
   pthread_mutex_lock( _p_data_mutex );
 
@@ -674,7 +674,7 @@ void OdometryIntegrator::StartProcessingOdometry()
     pthread_mutex_unlock( _p_data_mutex );
 
     // Spawn async thread 
-    pthread_create(&_thread, 0, ProcessOdometryFunction, this);
+    pthread_create(&_thread, 0, processOdometryFunction, this);
 
     pthread_mutex_lock( _p_data_mutex );
   }
@@ -684,7 +684,7 @@ void OdometryIntegrator::StartProcessingOdometry()
 
 /** Stops worker thread.
  */
-void OdometryIntegrator::StopProcessingOdometry()
+void OdometryIntegrator::stopProcessingOdometry()
 {
   pthread_mutex_lock( _p_data_mutex );
 
