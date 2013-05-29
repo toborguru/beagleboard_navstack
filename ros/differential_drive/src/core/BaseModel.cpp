@@ -9,6 +9,11 @@ static int RoundToInt( double r )
   return (r > 0.0) ? (r + 0.5) : (r - 0.5); 
 }
 
+/** @class BaseModel BaseModel.hpp
+ *  This class holds the parameters and caclulations to converts SI units to encoder ticks.
+ *
+ *  Some Details.
+ */
 
 /** Default constructor.
  *  @param  wheel_radius  The radius of the differential drive wheels in meters.
@@ -65,8 +70,10 @@ BaseModel::BaseModel( BaseGeometry_T new_geometry )
 }
 
 /** Calculates the distance and velocities associated with @a new_counts.
- *
- *  @param  new_counts  Contains the newly received encoder counts.
+ *  
+ *  @param[out] p_delta_position  The change in position calculated from @p new_counts will be stored here.
+ *  @param[out] p_velocity        The current velocity calculated from @p new_counts will be stored here.
+ *  @param[in]  new_counts        Contains the newly received encoder counts.
  */
 void BaseModel::ConvertCounts(  BaseDistance_T* p_delta_position,
                                 BaseVelocities_T* p_velocity,
@@ -202,7 +209,7 @@ double BaseModel::GetWheelRadius() const
 }
 
 /** Sets the drive wheel radius in meters.
- *  @returns true if @wheel_radius is positive and the internal data member was updated.
+ *  @returns true if @p wheel_radius is positive and the internal data member was updated.
  */
 bool BaseModel::SetWheelRadius( double wheel_radius)
 {
@@ -230,7 +237,7 @@ double BaseModel::GetWheelBase() const
 }
 
 /** Sets the drive wheel separation in meters.
- *  @returns true if @wheel_base is positive and the internal data member was updated.
+ *  @returns true if @p wheel_base is positive and the internal data member was updated.
  */
 bool BaseModel::SetWheelBase( double wheel_base)
 {
@@ -263,7 +270,7 @@ double BaseModel::GetWheelRatio() const
  *  
  *  Ideally this value should be 1.0 but it rarely is.
  *
- *  @returns true if @wheel_ratio is positive and the internal data member was updated.
+ *  @returns true if @p wheel_ratio is positive and the internal data member was updated.
  */
 bool BaseModel::SetWheelRatio( double wheel_ratio)
 {
@@ -293,7 +300,7 @@ uint32_t BaseModel::GetWheelTicks() const
 
 /** Sets the number of encoder ticks in one full rotation of the drive wheels.
  *
- *  @returns true if @wheel_ticks is positive and the internal data member was updated.
+ *  @returns true if @p wheel_ticks is positive and the internal data member was updated.
  */
 bool BaseModel::SetWheelTicks( uint32_t wheel_ticks)
 {
@@ -322,7 +329,7 @@ double BaseModel::GetStasisRadius() const
 
 /** Sets the radius of the stasis wheel if one is used in meters.
  *
- *  @returns  true if @stasis_radius is positive and the internal data member was updated.
+ *  @returns  true if @p stasis_radius is positive and the internal data member was updated.
  *            Otherwise a value of 0.0 is stored and the stasis wheel is "disabled".
  */
 bool BaseModel::SetStasisRadius( double stasis_radius)
@@ -368,7 +375,7 @@ int32_t BaseModel::GetStasisTicks() const
  *
  *  If negative stasis wheel calculations are disabled.
  *
- *  @returns  true if @stasis_radius is positive and the internal data member was updated.
+ *  @returns  true if @p stasis_radius is positive and the internal data member was updated.
  *            Otherwise a value of -1 is stored and the stasis wheel is "disabled".
  */
 bool BaseModel::SetStasisTicks( int32_t stasis_ticks)
@@ -636,8 +643,7 @@ double BaseModel::CalculateTicksPerRadian(  double wheel_base, double ticks_per_
 
 /** Calculates the amount turned for a difference of 1 tick between the two wheels.
  *  @param wheel_base       The separation between the drive wheels in meters.
- *  @param ticks_per_meter  The number of encoder ticks for the drive wheels to 
- *                          travel 1 meter.
+ *  @param meters_per_tick  The number of meters traveled in 1 tick of the encoders.
  *  @returns The amount turned for a difference of 1 tick between the two wheels.
  */
 double BaseModel::CalculateRadiansPerTick(  double wheel_base, double meters_per_tick ) const

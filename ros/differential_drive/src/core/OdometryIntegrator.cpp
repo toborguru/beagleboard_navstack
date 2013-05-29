@@ -3,9 +3,9 @@
  *  Encoder Counts Reader Class File
  *
  *  @details
- *  This class uses @BaseModel class physical attributes to compute distances, 
+ *  This class uses BaseModel class physical attributes to compute distances, 
  *  velocities, and motion state from incoming encoder counts. This class 
- *  optionally supports a stasis wheel, if properly defined in the @BaseModel 
+ *  optionally supports a stasis wheel, if properly defined in the BaseModel 
  *  class.
  *  
  *  @author Sawyer Larkin (SJL toborguru)
@@ -315,7 +315,8 @@ double OdometryIntegrator::GetVelocityMatchPercentage() const
 }
 
 /** Access function.
- *  @returns true if @cpercentage is between 0 and 100 and the internal data member is updated. 
+ *
+ *  @returns true if @p percentage is between 0 and 100 and the internal data member is updated. 
  */
 bool OdometryIntegrator::SetVelocityMatchPercentage( double percentage )
 {
