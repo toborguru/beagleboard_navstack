@@ -48,18 +48,18 @@ void TwistConverter::setBaseModel( const BaseModel& base_model )
 
 /** Callback for ITwistListener
  */
-void TwistConverter::OnTwistAvailableEvent( const geometry_msgs::Twist& twist )
+void TwistConverter::onTwistAvailableEvent( const geometry_msgs::Twist& twist )
 {
   differential_drive::TickVelocity tick_velocity;
 
-  tick_velocity = ConvertTwist( twist ); 
+  tick_velocity = convertTwist( twist ); 
   notifyTickVelocityListeners( tick_velocity );
 }
 
 /** This function uses the BaseModel class to translate SI Units into encoder
  *  ticks.
  */
-differential_drive::TickVelocity TwistConverter::ConvertTwist( const geometry_msgs::Twist twist )
+differential_drive::TickVelocity TwistConverter::convertTwist( const geometry_msgs::Twist twist )
 {
   differential_drive::TickVelocity ticks;
 

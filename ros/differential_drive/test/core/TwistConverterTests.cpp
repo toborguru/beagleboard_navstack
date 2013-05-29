@@ -61,7 +61,7 @@ struct TwistGenerator : public differential_drive_core::ITwistSubscriberEndpoint
   {
     for (unsigned int i= 0; i < _twist_listeners.size(); ++i) 
     {
-      _twist_listeners[i]->OnTwistAvailableEvent(twist);
+      _twist_listeners[i]->onTwistAvailableEvent(twist);
     }
   }
 
@@ -128,7 +128,7 @@ TEST( TwistConverterTests, canSendTwistAndReceiveTickVelocity )
 }
 
 // Define the unit test to verify ability to convert twist messages into ticks
-TEST( TwistConverterTests, canConvertTwistToTicks )
+TEST( TwistConverterTests, canconvertTwistToTicks )
 {
   int linear1, linear2, angular1, angular2;
 
@@ -167,7 +167,7 @@ TEST( TwistConverterTests, canConvertTwistToTicks )
 }
 
 // Define the unit test to verify ability to convert twist messages into ticks
-TEST( TwistConverterTests, canConvertTwistToTicksCalibrated )
+TEST( TwistConverterTests, canconvertTwistToTicksCalibrated )
 {
   int linear1, linear2, angular1, angular2;
 

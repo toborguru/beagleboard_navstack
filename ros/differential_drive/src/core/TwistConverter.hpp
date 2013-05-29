@@ -24,10 +24,10 @@ namespace differential_drive_core
 
       void setBaseModel( const BaseModel& base_model );
 
-      void OnTwistAvailableEvent( const geometry_msgs::Twist& twist );
+      void onTwistAvailableEvent( const geometry_msgs::Twist& twist );
  
     private:
-      differential_drive::TickVelocity ConvertTwist( const geometry_msgs::Twist twist_cmd );
+      differential_drive::TickVelocity convertTwist( const geometry_msgs::Twist twist_cmd );
 
       void notifyTickVelocityListeners(const differential_drive::TickVelocity& tick_velocity);
  
