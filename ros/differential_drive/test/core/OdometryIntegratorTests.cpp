@@ -230,6 +230,8 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
 
   count_generator.Attach(odometry_integrator);
 
+  usleep(2500);
+
   // Act
   new_counts.left_count = 100;
   new_counts.right_count = 100;
