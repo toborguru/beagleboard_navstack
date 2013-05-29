@@ -63,99 +63,99 @@ public:
 
   BaseModel(  BaseGeometry_T  base_geometry );
 
-  void      ConvertCounts(  BaseDistance_T* p_delta_position, 
+  void      convertCounts(  BaseDistance_T* p_delta_position, 
                             BaseVelocities_T* p_velocity,
                             differential_drive::EncoderCounts const & new_counts ) const; 
 
-  differential_drive::TickVelocity ConvertVelocity( double linear_vel, double angular_vel ) const;
+  differential_drive::TickVelocity convertVelocity( double linear_vel, double angular_vel ) const;
 
   // Base Geometry Functions
-  BaseGeometry_T  GetBaseGeometry() const;
-  bool            SetBaseGeometry( BaseGeometry_T const & geometry );
+  BaseGeometry_T  getBaseGeometry() const;
+  bool            setBaseGeometry( BaseGeometry_T const & geometry );
 
-  bool      CheckGeometryValid( BaseGeometry_T const & geometry ) const;
-  bool      CheckGeometryStasisValid( BaseGeometry_T const & geometry ) const;
+  bool      checkGeometryValid( BaseGeometry_T const & geometry ) const;
+  bool      checkGeometryStasisValid( BaseGeometry_T const & geometry ) const;
 
-  bool      GetSetupValid() const;
-  bool      GetStasisValid() const;
+  bool      getSetupValid() const;
+  bool      getStasisValid() const;
 
-  double    GetWheelRadius() const;
-  bool      SetWheelRadius(double wheel_radius);
+  double    getWheelRadius() const;
+  bool      setWheelRadius(double wheel_radius);
 
-  double    GetWheelBase() const;
-  bool      SetWheelBase(double wheel_base);
+  double    getWheelBase() const;
+  bool      setWheelBase(double wheel_base);
 
-  double    GetWheelRatio() const;
-  bool      SetWheelRatio(double wheel_ratio);
+  double    getWheelRatio() const;
+  bool      setWheelRatio(double wheel_ratio);
 
-  uint32_t  GetWheelTicks() const;
-  bool      SetWheelTicks(uint32_t wheel_ticks);
+  uint32_t  getWheelTicks() const;
+  bool      setWheelTicks(uint32_t wheel_ticks);
 
-  double    GetStasisRadius() const;
-  bool      SetStasisRadius(double stasis_radius);
+  double    getStasisRadius() const;
+  bool      setStasisRadius(double stasis_radius);
 
-  int32_t   GetStasisTicks() const;
-  bool      SetStasisTicks(int32_t stasis_ticks);
+  int32_t   getStasisTicks() const;
+  bool      setStasisTicks(int32_t stasis_ticks);
 
-  double    GetTicksPerMeter() const;
-  double    GetMetersPerTick() const;
+  double    getTicksPerMeter() const;
+  double    getMetersPerTick() const;
 
-  double    GetTicksPerRadian() const;
-  double    GetRadiansPerTick() const;
+  double    getTicksPerRadian() const;
+  double    getRadiansPerTick() const;
   
-  double    GetStasisTicksPerMeter() const;
-  double    GetMetersPerStasisTick() const;
+  double    getStasisTicksPerMeter() const;
+  double    getMetersPerStasisTick() const;
 
-  double    GetLeftInRightOutCorrection() const;
-  double    GetRightInLeftOutCorrection() const;
+  double    getLeftInRightOutCorrection() const;
+  double    getRightInLeftOutCorrection() const;
 
 private:
-  differential_drive::TickVelocity VelocityToTicks( double linear_vel, 
+  differential_drive::TickVelocity velocityToTicks( double linear_vel, 
                                                     double angular_vel,
                                                     BaseGeometry_T const &  base_geometry,
                                                     TickRates_T const & tick_rates,
                                                     BaseCorrections_T const & corrections ) const;
 
-  BaseDistance_T  CountsToDistance( differential_drive::EncoderCounts const & counts, 
+  BaseDistance_T  countsToDistance( differential_drive::EncoderCounts const & counts, 
                                     BaseGeometry_T const & geometry, 
                                     TickRates_T const & rates,
                                     BaseCorrections_T const & corrections ) const;
 
-  BaseVelocities_T  DistanceToVelocity( BaseDistance_T const & distance, double milli_seconds ) const;
+  BaseVelocities_T  distanceToVelocity( BaseDistance_T const & distance, double milli_seconds ) const;
 
   // Base Geometry Property  Functions
-  TickRates_T CalculateTickRates( BaseGeometry_T const & geometry ) const;
+  TickRates_T calculateTickRates( BaseGeometry_T const & geometry ) const;
 
-  double      CalculateTicksPerMeter( double wheel_radius, 
+  double      calculateTicksPerMeter( double wheel_radius, 
                                       uint32_t wheel_ticks ) const;
   
-  double      CalculateMetersPerTick( double wheel_radius, 
+  double      calculateMetersPerTick( double wheel_radius, 
                                       uint32_t wheel_ticks ) const;
   
-  double      CalculateTicksPerRadian(  double wheel_base, 
+  double      calculateTicksPerRadian(  double wheel_base, 
                                         double ticks_per_meter ) const;
 
-  double      CalculateRadiansPerTick(  double wheel_base, 
+  double      calculateRadiansPerTick(  double wheel_base, 
                                         double ticks_per_meter ) const;
 
-  BaseCorrections_T CalculateCorrections( double wheel_ratio ) const; 
+  BaseCorrections_T calculateCorrections( double wheel_ratio ) const; 
 
   // State Functions 
-  double      CalculateDeltaTheta(  double left_distance, 
+  double      calculateDeltaTheta(  double left_distance, 
                                     double right_distance, 
                                     double wheel_base ) const;
   
-  double      CalculateDeltaX(  double average_distance, 
+  double      calculateDeltaX(  double average_distance, 
                                 double delta_theta ) const;
   
-  double      CalculateDeltaY(  double average_distance, 
+  double      calculateDeltaY(  double average_distance, 
                                 double delta_theta ) const;
 
-  double      CalculateDistance(  int32_t ticks,
+  double      calculateDistance(  int32_t ticks,
                                   double meters_per_tick,
                                   double correction_factor = 1.0 ) const;
 
-  double      CalculateVelocity(  double distance,
+  double      calculateVelocity(  double distance,
                                   double milli_seconds ) const;
 
   // Base Geometry Property Variables

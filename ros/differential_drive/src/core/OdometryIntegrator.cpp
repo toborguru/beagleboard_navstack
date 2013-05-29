@@ -70,7 +70,7 @@ OdometryIntegrator::OdometryIntegrator()
   _p_message_sem = new sem_t;
   sem_init( _p_message_sem, 0, 0 );
   
-  SetAverage2nReadings( _average_2n_readings );
+  setAverage2nReadings( _average_2n_readings );
 }
 
 /** Default destructor.
@@ -158,9 +158,9 @@ void OdometryIntegrator::Detach( IMovementStatusListener& movement_status_listen
   }
 }
 
-/** Sets the BaseModel object to use for ticks to SI conversion.
+/** sets the BaseModel object to use for ticks to SI conversion.
  */
-void OdometryIntegrator::SetBaseModel( BaseModel const & base_model )
+void OdometryIntegrator::setBaseModel( BaseModel const & base_model )
 {
   pthread_mutex_lock( _p_data_mutex );
   _p_base_model = &base_model;
@@ -195,18 +195,18 @@ void OdometryIntegrator::OnEncoderCountsAvailableEvent( differential_drive::Enco
 /** Returns actual number of velocity readings that will be averaged prior to
  *  comparison.
  */
-unsigned int OdometryIntegrator::GetAverageNumReadings() const
+unsigned int OdometryIntegrator::getAverageNumReadings() const
 {
   return _average_num_readings;
 }
 
-/** Sets the size of the buffers used to averages the velocity readings.
+/** sets the size of the buffers used to averages the velocity readings.
  *  Because the buffers need to be 2^n in size, this function will choose 
  *  the largest 2^n number that will fit inside. Ex: 10=>8, 100=>64.
  *
  *  @returns true if @c average_num_readings is between 0 and MAX, and the internal data member is updated.
  */
-bool OdometryIntegrator::SetAverageNumReadings( int average_num_readings )
+bool OdometryIntegrator::setAverageNumReadings( int average_num_readings )
 {
   bool valid;
   unsigned int average_2n = MAX_2N_AVERAGES;
@@ -226,7 +226,7 @@ bool OdometryIntegrator::SetAverageNumReadings( int average_num_readings )
       }
     }
 
-    valid = SetAverage2nReadings( average_2n );
+    valid = setAverage2nReadings( average_2n );
   }
 
   return valid;
@@ -235,7 +235,7 @@ bool OdometryIntegrator::SetAverageNumReadings( int average_num_readings )
 /** Returns average_2n_readings in the eq: 2^average_2n_readings velocity 
  *  readings will be averaged before comparison.
  */
-unsigned int OdometryIntegrator::GetAverage2nReadings() const
+unsigned int OdometryIntegrator::getAverage2nReadings() const
 {
   return _average_2n_readings;
 }
@@ -244,7 +244,7 @@ unsigned int OdometryIntegrator::GetAverage2nReadings() const
  *
  *  @returns true if @c average_2n_readings is between 0 and MAX_2N_AVERAGES, and the internal data member is updated.
  */
-bool OdometryIntegrator::SetAverage2nReadings( int average_2n_readings )
+bool OdometryIntegrator::setAverage2nReadings( int average_2n_readings )
 {
   bool valid;
 
@@ -309,7 +309,7 @@ bool OdometryIntegrator::SetAverage2nReadings( int average_2n_readings )
 
 /** Access function.
  */
-double OdometryIntegrator::GetVelocityMatchPercentage() const
+double OdometryIntegrator::getVelocityMatchPercentage() const
 {
   return ( _velocity_allowance * 100.0 );
 }
@@ -318,7 +318,7 @@ double OdometryIntegrator::GetVelocityMatchPercentage() const
  *
  *  @returns true if @p percentage is between 0 and 100 and the internal data member is updated. 
  */
-bool OdometryIntegrator::SetVelocityMatchPercentage( double percentage )
+bool OdometryIntegrator::setVelocityMatchPercentage( double percentage )
 {
   if ( (percentage > 0.0) && (percentage <= 100.0) )
   {
@@ -336,7 +336,7 @@ bool OdometryIntegrator::SetVelocityMatchPercentage( double percentage )
 
 /** Access function.
  */
-double OdometryIntegrator::GetVelocityLowerLimit() const
+double OdometryIntegrator::getVelocityLowerLimit() const
 {
   return _velocity_lower_limit;
 }
@@ -345,7 +345,7 @@ double OdometryIntegrator::GetVelocityLowerLimit() const
  *  
  *  @returns true if @c velocity_limit is no negative, and the internal data memeber is updated.
  */
-bool OdometryIntegrator::SetVelocityLowerLimit( double velocity_limit )
+bool OdometryIntegrator::setVelocityLowerLimit( double velocity_limit )
 {
   if ( velocity_limit >= 0.0 )
   {
@@ -376,11 +376,11 @@ void OdometryIntegrator::AddNewCounts( differential_drive::EncoderCounts const &
   velocities = _velocities;
   pthread_mutex_unlock( _p_data_mutex );
 
-  new_position = CalculatePosition( &velocities, counts, old_position, *_p_base_model ); 
-  new_movement_status = CalculateMovementStatus( velocities, *_p_base_model );
+  new_position = calculatePosition( &velocities, counts, old_position, *_p_base_model ); 
+  new_movement_status = calculateMovementStatus( velocities, *_p_base_model );
 
-  // Set the covariance data
-  CalculateCovariance( &new_position, new_movement_status );
+  // set the covariance data
+  calculateCovariance( &new_position, new_movement_status );
 
   pthread_mutex_lock( _p_data_mutex );
   _current_position = new_position;
@@ -395,7 +395,7 @@ void OdometryIntegrator::AddNewCounts( differential_drive::EncoderCounts const &
  *  Units and integrates the delta motions into an estimated speed and position.
  *
  */
-nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T* p_velocities,
+nav_msgs::Odometry OdometryIntegrator::calculatePosition(   BaseVelocities_T* p_velocities,
                                                             differential_drive::EncoderCounts const & counts, 
                                                             nav_msgs::Odometry const & last_position,
                                                             BaseModel const & base_model ) const
@@ -413,10 +413,10 @@ nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T* p_
   double angular;
 
   // Run base model here
-  if (  (base_model.GetSetupValid() == true) && 
+  if (  (base_model.getSetupValid() == true) && 
         (counts.dt_ms > 0) )
   {
-    base_model.ConvertCounts( &delta_position, p_velocities, counts );
+    base_model.convertCounts( &delta_position, p_velocities, counts );
 
     old_theta = tf::getYaw(last_position.pose.pose.orientation);
 
@@ -450,17 +450,17 @@ nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T* p_
             << std::endl;
 #endif
 
-  // Set the Header data
+  // set the Header data
   new_position.header.stamp = counts.reading_time;
 
-  // Set the Pose data
+  // set the Pose data
   new_position.pose.pose.position.x = x;
   new_position.pose.pose.position.y = y;
   new_position.pose.pose.position.z = 0.0;
 
   new_position.pose.pose.orientation = tf::createQuaternionMsgFromYaw(theta);
 
-  // Set the Twist data
+  // set the Twist data
   new_position.twist.twist.linear.x = linear;
   new_position.twist.twist.linear.y = 0.0;
   new_position.twist.twist.linear.z = 0.0;
@@ -476,7 +476,7 @@ nav_msgs::Odometry OdometryIntegrator::CalculatePosition(   BaseVelocities_T* p_
  *  of our movement attempts ie. moving, stalled, or unconfigured.
  *
  */
-differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( BaseVelocities_T const & velocities,
+differential_drive::MovementStatus OdometryIntegrator::calculateMovementStatus( BaseVelocities_T const & velocities,
                                                                                 BaseModel const & base_model )
 {
   double linear_average;
@@ -486,7 +486,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
 
   differential_drive::MovementStatus movement_status;
 
-  if ( base_model.GetSetupValid() == false )
+  if ( base_model.getSetupValid() == false )
   {
     movement_status.motors_state = differential_drive::MovementStatus::SETUP_ERROR;
     movement_status.stasis_wheel_enabled = false;
@@ -540,7 +540,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
     ++_average_index;
     _average_index &= _average_index_mask;
 
-    if ( base_model.GetStasisValid() == false )
+    if ( base_model.getStasisValid() == false )
     {
       movement_status.motors_state = differential_drive::MovementStatus::CORRECT;
       movement_status.stasis_wheel_enabled = false;
@@ -583,7 +583,7 @@ differential_drive::MovementStatus OdometryIntegrator::CalculateMovementStatus( 
  *  reduced if the Linear and Stasis velocities do not match.
  *
  */
-void OdometryIntegrator::CalculateCovariance( nav_msgs::Odometry *p_position,
+void OdometryIntegrator::calculateCovariance( nav_msgs::Odometry *p_position,
                                               differential_drive::MovementStatus const & movement_status ) const
 {
   const double *p_covariance;
@@ -597,7 +597,7 @@ void OdometryIntegrator::CalculateCovariance( nav_msgs::Odometry *p_position,
     p_covariance = OdometryCovarianceLow;
   } 
 
-  // Set the covariance data
+  // set the covariance data
   for (int i = 0; i < 36; ++i)
   {
     p_position->pose.covariance[i] = p_covariance[i];

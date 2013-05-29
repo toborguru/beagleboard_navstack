@@ -34,34 +34,34 @@ public:
   void Attach( IMovementStatusListener& movement_status_listener );
   void Detach( IMovementStatusListener& movement_status_listener );
 
-  void SetBaseModel( BaseModel const & base_model );
+  void setBaseModel( BaseModel const & base_model );
 
   void OnEncoderCountsAvailableEvent( differential_drive::EncoderCounts const & encoder_counts );
 
-  unsigned int GetAverage2nReadings() const;
-  bool SetAverage2nReadings( int average_2n_readings );
+  unsigned int getAverage2nReadings() const;
+  bool setAverage2nReadings( int average_2n_readings );
 
-  unsigned int GetAverageNumReadings() const;
-  bool SetAverageNumReadings( int average_num_readings );
+  unsigned int getAverageNumReadings() const;
+  bool setAverageNumReadings( int average_num_readings );
 
-  double GetVelocityMatchPercentage() const;
-  bool SetVelocityMatchPercentage( double percentage );
+  double getVelocityMatchPercentage() const;
+  bool setVelocityMatchPercentage( double percentage );
 
-  double GetVelocityLowerLimit() const;
-  bool SetVelocityLowerLimit( double velocity_limit );
+  double getVelocityLowerLimit() const;
+  bool setVelocityLowerLimit( double velocity_limit );
 
 private:
   void AddNewCounts( const differential_drive::EncoderCounts& encoder_counts );
 
-  nav_msgs::Odometry CalculatePosition( BaseVelocities_T*  p_velocities, 
+  nav_msgs::Odometry calculatePosition( BaseVelocities_T*  p_velocities, 
                                         differential_drive::EncoderCounts const & counts,
                                         nav_msgs::Odometry const & last_position,
                                         BaseModel const & base_model ) const;
 
-  void CalculateCovariance( nav_msgs::Odometry *p_current_position,
+  void calculateCovariance( nav_msgs::Odometry *p_current_position,
                             differential_drive::MovementStatus const & movement_status ) const;
 
-  differential_drive::MovementStatus CalculateMovementStatus( BaseVelocities_T const & velocities,
+  differential_drive::MovementStatus calculateMovementStatus( BaseVelocities_T const & velocities,
                                                               BaseModel const & base_model );
 
   void NotifyOdometryListeners( nav_msgs::Odometry const & odometry) const;

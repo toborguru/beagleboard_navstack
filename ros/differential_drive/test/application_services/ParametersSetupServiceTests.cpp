@@ -49,19 +49,19 @@ TEST(ParametersSetupServiceTests, canSetupAndUpdateBaseModel)
   // Setup the Parameter Service
   ParametersSetupService parameters_setup_service( parameters_repository_stub, base_model, odometry_reporting_service );
 
-  parameters_repository_stub->_db_base_model.SetWheelRadius(10);
-  parameters_repository_stub->_db_base_model.SetWheelTicks(10);
-  parameters_repository_stub->_db_base_model.SetWheelBase(10);
-  parameters_repository_stub->_db_base_model.SetWheelRatio(10);
+  parameters_repository_stub->_db_base_model.setWheelRadius(10);
+  parameters_repository_stub->_db_base_model.setWheelTicks(10);
+  parameters_repository_stub->_db_base_model.setWheelBase(10);
+  parameters_repository_stub->_db_base_model.setWheelRatio(10);
 
   // Act
-  wheel_ticks1 = base_model->GetWheelTicks();
+  wheel_ticks1 = base_model->getWheelTicks();
 
-  parameters_repository_stub->_db_base_model.SetWheelTicks(200);
-  wheel_ticks2 = base_model->GetWheelTicks();
+  parameters_repository_stub->_db_base_model.setWheelTicks(200);
+  wheel_ticks2 = base_model->getWheelTicks();
   
   parameters_setup_service.Update();
-  wheel_ticks3 = base_model->GetWheelTicks();
+  wheel_ticks3 = base_model->getWheelTicks();
 
   // Assert
   EXPECT_EQ( 1, wheel_ticks1);

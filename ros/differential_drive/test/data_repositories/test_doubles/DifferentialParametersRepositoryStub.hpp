@@ -16,38 +16,38 @@ public:
   void StartListeningForUpdates() {}
   void StopListeningForUpdates() {}  
 
-  void SetBaseModel( differential_drive_core::BaseModel *p_new_model ) 
+  void setBaseModel( differential_drive_core::BaseModel *p_new_model ) 
   {
     _p_base_model = p_new_model;
   }
 
   void QueryBaseParameters() 
   {
-    _p_base_model->SetBaseGeometry( _db_base_model.GetBaseGeometry() );
+    _p_base_model->setBaseGeometry( _db_base_model.getBaseGeometry() );
   }
 
   void PersistBaseParameters()
   {
-    _db_base_model.SetBaseGeometry( _p_base_model->GetBaseGeometry() );
+    _db_base_model.setBaseGeometry( _p_base_model->getBaseGeometry() );
   }
 
-  void SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_odometry_integrator ) 
+  void setOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_odometry_integrator ) 
   {
     _p_odometry_integrator = p_odometry_integrator;
   }
 
   void QueryOdometryParameters() 
   {
-    _p_odometry_integrator->SetAverage2nReadings( _db_odometry_integrator.GetAverage2nReadings() );
-    _p_odometry_integrator->SetVelocityMatchPercentage( _db_odometry_integrator.GetVelocityMatchPercentage() );
-    _p_odometry_integrator->SetVelocityLowerLimit( _db_odometry_integrator.GetVelocityLowerLimit() );
+    _p_odometry_integrator->setAverage2nReadings( _db_odometry_integrator.getAverage2nReadings() );
+    _p_odometry_integrator->setVelocityMatchPercentage( _db_odometry_integrator.getVelocityMatchPercentage() );
+    _p_odometry_integrator->setVelocityLowerLimit( _db_odometry_integrator.getVelocityLowerLimit() );
   }
 
   void PersistOdometryParameters()
   {
-    _db_odometry_integrator.SetAverage2nReadings( _p_odometry_integrator->GetAverage2nReadings() );
-    _db_odometry_integrator.SetVelocityMatchPercentage( _p_odometry_integrator->GetVelocityMatchPercentage() );
-    _db_odometry_integrator.SetVelocityLowerLimit( _p_odometry_integrator->GetVelocityLowerLimit() );
+    _db_odometry_integrator.setAverage2nReadings( _p_odometry_integrator->getAverage2nReadings() );
+    _db_odometry_integrator.setVelocityMatchPercentage( _p_odometry_integrator->getVelocityMatchPercentage() );
+    _db_odometry_integrator.setVelocityLowerLimit( _p_odometry_integrator->getVelocityLowerLimit() );
   }
 
   differential_drive_core::BaseModel* _p_base_model;

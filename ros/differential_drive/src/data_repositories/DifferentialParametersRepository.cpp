@@ -17,8 +17,8 @@ DifferentialParametersRepository::DifferentialParametersRepository( BaseModel* p
                                                                     OdometryIntegrator* p_new_integrator )
                     : _p_dynamic_reconfigure_server(NULL)
 {
-  SetBaseModel( p_new_model );
-  SetOdometryIntegrator( p_new_integrator);
+  setBaseModel( p_new_model );
+  setOdometryIntegrator( p_new_integrator);
 }
 
 DifferentialParametersRepository::~DifferentialParametersRepository()
@@ -71,7 +71,7 @@ void DifferentialParametersRepository::UpdateParametersCallBack( const different
   PersistOdometryParameters();
 }
 
-void DifferentialParametersRepository::SetBaseModel( BaseModel* p_new_model )
+void DifferentialParametersRepository::setBaseModel( BaseModel* p_new_model )
 {
   _p_base_model = p_new_model;
 }
@@ -93,7 +93,7 @@ void DifferentialParametersRepository::PersistBaseParameters()
   }
 }
 
-void DifferentialParametersRepository::SetOdometryIntegrator( OdometryIntegrator* p_new_integrator )
+void DifferentialParametersRepository::setOdometryIntegrator( OdometryIntegrator* p_new_integrator )
 {
   _p_odometry_integrator = p_new_integrator;
 }
@@ -197,7 +197,7 @@ void DifferentialParametersRepository::RosAssignBaseParameters( BaseModel* p_bas
       base_geometry.stasis_radius = 0.0;
     }
 
-    p_base_model->SetBaseGeometry( base_geometry );
+    p_base_model->setBaseGeometry( base_geometry );
   }
 }
 
@@ -208,7 +208,7 @@ void DifferentialParametersRepository::RosPersistBaseParameters( const BaseModel
 
   BaseGeometry_T base_geometry;
 
-  base_geometry = base_model.GetBaseGeometry();
+  base_geometry = base_model.getBaseGeometry();
 
   wheel_diameter = base_geometry.wheel_radius * 2.0;
   stasis_diameter = base_geometry.stasis_radius * 2.0;
@@ -250,17 +250,17 @@ void DifferentialParametersRepository::RosAssignOdometryParameters( OdometryInte
 {
   if ( p_odometry_integrator != NULL )
   {
-    if ( !p_odometry_integrator->SetAverage2nReadings(parameters.average_2n_readings) )
+    if ( !p_odometry_integrator->setAverage2nReadings(parameters.average_2n_readings) )
     {
       ROS_ERROR_NAMED(  "DifferentialParametersRepository", "Error setting ~average_2n_readings, value out of range." );
     }
 
-    if ( !p_odometry_integrator->SetVelocityMatchPercentage(parameters.velocity_percentage) )
+    if ( !p_odometry_integrator->setVelocityMatchPercentage(parameters.velocity_percentage) )
     {
       ROS_ERROR_NAMED(  "DifferentialParametersRepository", "Error setting ~velocity_difference_percentage, value out of range." );
     }
 
-    if ( !p_odometry_integrator->SetVelocityLowerLimit(parameters.velocity_limit) )
+    if ( !p_odometry_integrator->setVelocityLowerLimit(parameters.velocity_limit) )
     {
       ROS_ERROR_NAMED(  "DifferentialParametersRepository", "Error setting ~velocity_lower_limit, value out of range." );
     }
@@ -269,9 +269,9 @@ void DifferentialParametersRepository::RosAssignOdometryParameters( OdometryInte
 
 void DifferentialParametersRepository::RosPersistOdometryParameters( const OdometryIntegrator& odometry_integrator ) const
 {
-  ros::param::set( "~average_2n_readings", (int)odometry_integrator.GetAverage2nReadings() );
-  ros::param::set( "~average_num_readings", (int)odometry_integrator.GetAverageNumReadings() );
-  ros::param::set( "~velocity_difference_percentage", odometry_integrator.GetVelocityMatchPercentage() );
-  ros::param::set( "~velocity_lower_limit", odometry_integrator.GetVelocityLowerLimit() );
+  ros::param::set( "~average_2n_readings", (int)odometry_integrator.getAverage2nReadings() );
+  ros::param::set( "~average_num_readings", (int)odometry_integrator.getAverageNumReadings() );
+  ros::param::set( "~velocity_difference_percentage", odometry_integrator.getVelocityMatchPercentage() );
+  ros::param::set( "~velocity_lower_limit", odometry_integrator.getVelocityLowerLimit() );
 }
 }

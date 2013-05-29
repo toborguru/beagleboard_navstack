@@ -20,11 +20,11 @@ public:
   virtual void StartListeningForUpdates() = 0;
   virtual void StopListeningForUpdates() = 0;
 
-  virtual void SetBaseModel( BaseModel *p_new_model ) = 0;
+  virtual void setBaseModel( BaseModel *p_new_model ) = 0;
   virtual void QueryBaseParameters() = 0;
   virtual void PersistBaseParameters() = 0;
 
-  virtual void SetOdometryIntegrator( OdometryIntegrator* odometry_integrator ) = 0;
+  virtual void setOdometryIntegrator( OdometryIntegrator* odometry_integrator ) = 0;
   virtual void QueryOdometryParameters() = 0;
   virtual void PersistOdometryParameters() = 0;
 };

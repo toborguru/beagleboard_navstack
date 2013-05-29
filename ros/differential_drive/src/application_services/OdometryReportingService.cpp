@@ -26,7 +26,7 @@ OdometryReportingService::OdometryReportingService( boost::shared_ptr<IOdometryP
     _is_reporting_movement_status(false),
     _is_processing_encoder_counts(false)
 {
-  _odometry_integrator.SetBaseModel( *_p_base_model );
+  _odometry_integrator.setBaseModel( *_p_base_model );
 }
 
 /** Do everything required to start all listening and reporting.
@@ -109,7 +109,7 @@ void OdometryReportingService::StopReportingMovementStatus()
 
 /** Return a pointer to the internal OdometryIntegrator object.
  */
-OdometryIntegrator* OdometryReportingService::GetOdometryIntegrator()
+OdometryIntegrator* OdometryReportingService::getOdometryIntegrator()
 {
   return &_odometry_integrator;
 }

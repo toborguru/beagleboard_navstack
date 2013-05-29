@@ -140,7 +140,7 @@ TEST( TwistConverterTests, canConvertTwistToTicks )
   geometry_msgs::Twist new_twist;
 
   twist_conveter.Attach(tick_velocity_receiver);
-  twist_conveter.SetBaseModel(base_model);
+  twist_conveter.setBaseModel(base_model);
 
   twist_generator.Attach(twist_conveter);
 
@@ -179,7 +179,7 @@ TEST( TwistConverterTests, canConvertTwistToTicksCalibrated )
   geometry_msgs::Twist new_twist;
 
   twist_conveter.Attach(tick_velocity_receiver);
-  twist_conveter.SetBaseModel(base_model);
+  twist_conveter.setBaseModel(base_model);
 
   twist_generator.Attach(twist_conveter);
 

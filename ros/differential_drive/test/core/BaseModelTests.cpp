@@ -20,31 +20,31 @@ TEST( BaseModelTests, canCalculateTickRates )
   BaseModel base_model;
 
   // Act
-  base_model.SetWheelRadius( 0.5 / M_PI );
-  base_model.SetWheelTicks( 100 );
-  base_model.SetWheelBase( 0.5 );
+  base_model.setWheelRadius( 0.5 / M_PI );
+  base_model.setWheelTicks( 100 );
+  base_model.setWheelBase( 0.5 );
 
   // Assert
-  EXPECT_FLOAT_EQ( 100.0, base_model.GetTicksPerMeter() );
-  EXPECT_FLOAT_EQ( 0.01, base_model.GetMetersPerTick() );
-  EXPECT_FLOAT_EQ( 50.0, base_model.GetTicksPerRadian() );
-  EXPECT_FLOAT_EQ( 0.02, base_model.GetRadiansPerTick() );
-  EXPECT_FLOAT_EQ( 0.0, base_model.GetStasisTicksPerMeter() );
+  EXPECT_FLOAT_EQ( 100.0, base_model.getTicksPerMeter() );
+  EXPECT_FLOAT_EQ( 0.01, base_model.getMetersPerTick() );
+  EXPECT_FLOAT_EQ( 50.0, base_model.getTicksPerRadian() );
+  EXPECT_FLOAT_EQ( 0.02, base_model.getRadiansPerTick() );
+  EXPECT_FLOAT_EQ( 0.0, base_model.getStasisTicksPerMeter() );
 
-  EXPECT_FLOAT_EQ( 1.0, base_model.GetLeftInRightOutCorrection() );
-  EXPECT_FLOAT_EQ( 1.0, base_model.GetRightInLeftOutCorrection() );
+  EXPECT_FLOAT_EQ( 1.0, base_model.getLeftInRightOutCorrection() );
+  EXPECT_FLOAT_EQ( 1.0, base_model.getRightInLeftOutCorrection() );
 
   // Act
-  base_model.SetStasisTicks( 10 );
-  base_model.SetStasisRadius( 1.0 / M_PI );
-  base_model.SetWheelRatio( 0.95 );
+  base_model.setStasisTicks( 10 );
+  base_model.setStasisRadius( 1.0 / M_PI );
+  base_model.setWheelRatio( 0.95 );
 
   // Assert
-  EXPECT_FLOAT_EQ( 5.0, base_model.GetStasisTicksPerMeter() );
-  EXPECT_FLOAT_EQ( 0.2, base_model.GetMetersPerStasisTick() );
+  EXPECT_FLOAT_EQ( 5.0, base_model.getStasisTicksPerMeter() );
+  EXPECT_FLOAT_EQ( 0.2, base_model.getMetersPerStasisTick() );
 
-  EXPECT_FLOAT_EQ( 0.97435898, base_model.GetLeftInRightOutCorrection() );
-  EXPECT_FLOAT_EQ( 1.0256411, base_model.GetRightInLeftOutCorrection() );
+  EXPECT_FLOAT_EQ( 0.97435898, base_model.getLeftInRightOutCorrection() );
+  EXPECT_FLOAT_EQ( 1.0256411, base_model.getRightInLeftOutCorrection() );
 }
 
 // Define the unit test to verify Base Model calculated dead reckoning
@@ -63,7 +63,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = 100;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
 
   // Assert
   EXPECT_FLOAT_EQ( 1.0, distance.linear );
@@ -76,7 +76,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = 100;
   counts.dt_ms = 500;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
 
   // Assert
   EXPECT_FLOAT_EQ( 1.0, distance.linear );
@@ -89,7 +89,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = 25;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
 
   // Assert
   EXPECT_FLOAT_EQ( 0.0, distance.linear );
@@ -102,7 +102,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = 125;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
 
   // Assert
   EXPECT_FLOAT_EQ( 1.0, distance.theta );
@@ -114,7 +114,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = 125;
   counts.dt_ms = 20;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
 
   // Assert
   EXPECT_FLOAT_EQ( 1.0, distance.theta );
@@ -126,7 +126,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = -25;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
 
   // Assert
   EXPECT_FLOAT_EQ( 0.0, distance.linear );
@@ -139,7 +139,7 @@ TEST( BaseModelTests, canCalculateDeadReckoning )
   counts.right_count = -125;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
 
   // Assert
   EXPECT_FLOAT_EQ( -1.0, distance.theta );
@@ -163,7 +163,7 @@ TEST( BaseModelTests, canCalculateDeadReckoningCalibrated )
   counts.right_count = 195;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
   
   x1 = distance.linear;
   theta1 = distance.theta;
@@ -172,7 +172,7 @@ TEST( BaseModelTests, canCalculateDeadReckoningCalibrated )
   counts.right_count = 195;
   counts.dt_ms = 100;
 
-  base_model.ConvertCounts( &distance, &velocity, counts );
+  base_model.convertCounts( &distance, &velocity, counts );
   
   x2 = distance.linear;
   theta2 = distance.theta;
@@ -203,14 +203,14 @@ TEST( BaseModelTests, canCalculateTickVelocities )
   differential_drive::TickVelocity ticks; 
 
   // Act
-  ticks = base_model.ConvertVelocity( 1.0, 0.0 );
+  ticks = base_model.convertVelocity( 1.0, 0.0 );
 
   // Assert
   EXPECT_EQ( 100, ticks.linear_ticks_sec );
   EXPECT_EQ( 0.0, ticks.angular_ticks_sec );
 
   // Act
-  ticks = base_model.ConvertVelocity( 0.0, 1.0 );
+  ticks = base_model.convertVelocity( 0.0, 1.0 );
 
   // Assert
   EXPECT_EQ( 0, ticks.linear_ticks_sec );
@@ -225,14 +225,14 @@ TEST( BaseModelTests, canCalculateTickVelocitiesCalibrated )
   differential_drive::TickVelocity ticks; 
 
   // Act
-  ticks = base_model.ConvertVelocity( 1.0, 0.0 );
+  ticks = base_model.convertVelocity( 1.0, 0.0 );
 
   // Assert
   EXPECT_EQ( 100, ticks.linear_ticks_sec );
   EXPECT_EQ( -5.0, ticks.angular_ticks_sec );
 
   // Act
-  ticks = base_model.ConvertVelocity( 0.0, 8.0 );
+  ticks = base_model.convertVelocity( 0.0, 8.0 );
 
   // Assert
   EXPECT_EQ( -5, ticks.linear_ticks_sec );

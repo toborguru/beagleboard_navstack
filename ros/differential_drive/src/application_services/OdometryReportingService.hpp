@@ -33,7 +33,7 @@ public:
   void StartReportingMovementStatus();
   void StopReportingMovementStatus();
 
-  differential_drive_core::OdometryIntegrator* GetOdometryIntegrator();
+  differential_drive_core::OdometryIntegrator* getOdometryIntegrator();
 
 private:
 

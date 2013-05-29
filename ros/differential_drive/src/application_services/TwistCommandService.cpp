@@ -19,7 +19,7 @@ TwistCommandService::TwistCommandService( boost::shared_ptr<ITickVelocityPublish
   _p_twist_endpoint( twist_endpoint ),
   _p_base_model( base_model )
 {
-  _twist_converter.SetBaseModel(*_p_base_model );
+  _twist_converter.setBaseModel(*_p_base_model );
 }
 
 /** Do everything required to start listening for twist commands and passing them on as tick_velocity.

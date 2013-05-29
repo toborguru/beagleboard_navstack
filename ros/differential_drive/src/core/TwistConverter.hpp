@@ -22,7 +22,7 @@ namespace differential_drive_core
       void Attach( ITickVelocityListener& tick_velocity_listener );
       void Detach( ITickVelocityListener& tick_velocity_listener );
 
-      void SetBaseModel( const BaseModel& base_model );
+      void setBaseModel( const BaseModel& base_model );
 
       void OnTwistAvailableEvent( const geometry_msgs::Twist& twist );
  

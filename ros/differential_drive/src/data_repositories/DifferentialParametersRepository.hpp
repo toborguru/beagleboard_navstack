@@ -22,11 +22,11 @@ public:
   void StartListeningForUpdates();
   void StopListeningForUpdates();
 
-  void SetBaseModel( differential_drive_core::BaseModel* p_new_model );
+  void setBaseModel( differential_drive_core::BaseModel* p_new_model );
   void QueryBaseParameters();
   void PersistBaseParameters();
 
-  void SetOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_new_integrator );
+  void setOdometryIntegrator( differential_drive_core::OdometryIntegrator* p_new_integrator );
   void QueryOdometryParameters();
   void PersistOdometryParameters();
 

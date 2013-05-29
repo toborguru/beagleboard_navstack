@@ -189,7 +189,7 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveOdometry )
   differential_drive::EncoderCounts new_counts;
 
   odometry_integrator.Attach(odometry_receiver);
-  odometry_integrator.SetBaseModel( base_model );
+  odometry_integrator.setBaseModel( base_model );
   count_generator.Attach(odometry_integrator);
 
   // Act
@@ -226,7 +226,7 @@ TEST( OdometryIntegratorTests, canCalculateEstimatedPosition)
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
 
   odometry_integrator.Attach(odometry_receiver);
-  odometry_integrator.SetBaseModel(base_model);
+  odometry_integrator.setBaseModel(base_model);
 
   count_generator.Attach(odometry_integrator);
 
@@ -291,7 +291,7 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
 
   odometry_integrator.Attach(odometry_receiver);
 
-  odometry_integrator.SetBaseModel( base_model );
+  odometry_integrator.setBaseModel( base_model );
 
   count_generator.Attach(odometry_integrator);
 
@@ -310,8 +310,8 @@ TEST( OdometryIntegratorTests, canReadAndChangeCovariance )
 
   usleep(2500);
 
-  base_model.SetStasisRadius( 0.5 / M_PI );
-  base_model.SetStasisTicks( 100 );
+  base_model.setStasisRadius( 0.5 / M_PI );
+  base_model.setStasisTicks( 100 );
 
   count_generator.AddTicks(new_counts);
 
@@ -336,7 +336,7 @@ TEST( OdometryIntegratorTests, canSendCountsAndReceiveMovementStatus )
 
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
 
-  odometry_integrator.SetBaseModel(base_model);
+  odometry_integrator.setBaseModel(base_model);
 
   odometry_integrator.Attach(movement_status_receiver);
   count_generator.Attach(odometry_integrator);
@@ -376,10 +376,10 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   differential_drive::EncoderCounts new_counts;
   BaseModel base_model( 0.5 / M_PI, 100, 0.5 );
 
-  odometry_integrator.SetBaseModel(base_model);
+  odometry_integrator.setBaseModel(base_model);
 
   odometry_integrator.Attach(movement_status_receiver);
-  odometry_integrator.SetAverage2nReadings(0); // Only average 1 reading
+  odometry_integrator.setAverage2nReadings(0); // Only average 1 reading
 
   count_generator.Attach(odometry_integrator);
 
@@ -396,8 +396,8 @@ TEST( OdometryIntegratorTests, canConfigureStasisWheel )
   state_1 = movement_status_receiver._state;  
   stasis_enabled_1 = movement_status_receiver._stasis_enabled;  
 
-  base_model.SetStasisRadius( 1.0 / M_PI );
-  base_model.SetStasisTicks( 100 );
+  base_model.setStasisRadius( 1.0 / M_PI );
+  base_model.setStasisTicks( 100 );
   count_generator.AddTicks(new_counts);
 
   usleep(2500);
@@ -451,11 +451,11 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   BaseModel base_model( 0.5 / M_PI, 100, 0.5, 1.0, 0.5 / M_PI, 100);
 
   odometry_integrator.Attach(movement_status_receiver);
-  odometry_integrator.SetAverage2nReadings(0); // Only average 1 reading
+  odometry_integrator.setAverage2nReadings(0); // Only average 1 reading
 
   count_generator.Attach(odometry_integrator);
 
-  odometry_integrator.SetBaseModel(base_model);
+  odometry_integrator.setBaseModel(base_model);
 
   new_counts.left_count = 50;
   new_counts.right_count = 50;
@@ -476,7 +476,7 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   // No movement of the main drive wheels
   new_counts.left_count = 0;
   new_counts.right_count = 0;
-  base_model.SetStasisTicks( 50 );
+  base_model.setStasisTicks( 50 );
   count_generator.AddTicks(new_counts);
 
   usleep(2500);
@@ -488,7 +488,7 @@ TEST( OdometryIntegratorTests, canCalculateStasisVelocity )
   // Stasis wheel spinning slow
   new_counts.left_count = 50;
   new_counts.right_count = 50;
-  base_model.SetStasisTicks( 200 );
+  base_model.setStasisTicks( 200 );
   count_generator.AddTicks(new_counts);
 
   usleep(2500);
@@ -554,40 +554,40 @@ TEST( OdometryIntegratorTests, canChangeAndReadAverageBufferSizes )
   
   // Act
   // Check defaults
-  average_2n_1 = odometry_integrator.GetAverage2nReadings();
-  average_num_1 = odometry_integrator.GetAverageNumReadings();
+  average_2n_1 = odometry_integrator.getAverage2nReadings();
+  average_num_1 = odometry_integrator.getAverageNumReadings();
  
-  odometry_integrator.SetAverage2nReadings( 4 );
-  average_2n_2 = odometry_integrator.GetAverage2nReadings();
-  average_num_2 = odometry_integrator.GetAverageNumReadings();
+  odometry_integrator.setAverage2nReadings( 4 );
+  average_2n_2 = odometry_integrator.getAverage2nReadings();
+  average_num_2 = odometry_integrator.getAverageNumReadings();
   
-  odometry_integrator.SetAverage2nReadings( 0 );
-  average_2n_3 = odometry_integrator.GetAverage2nReadings();
-  average_num_3 = odometry_integrator.GetAverageNumReadings();
+  odometry_integrator.setAverage2nReadings( 0 );
+  average_2n_3 = odometry_integrator.getAverage2nReadings();
+  average_num_3 = odometry_integrator.getAverageNumReadings();
   
-  odometry_integrator.SetAverageNumReadings( 4 );
-  average_2n_4 = odometry_integrator.GetAverage2nReadings();
-  average_num_4 = odometry_integrator.GetAverageNumReadings();
+  odometry_integrator.setAverageNumReadings( 4 );
+  average_2n_4 = odometry_integrator.getAverage2nReadings();
+  average_num_4 = odometry_integrator.getAverageNumReadings();
   
-  odometry_integrator.SetAverageNumReadings( 0 );
-  average_2n_5 = odometry_integrator.GetAverage2nReadings();
-  average_num_5 = odometry_integrator.GetAverageNumReadings();
+  odometry_integrator.setAverageNumReadings( 0 );
+  average_2n_5 = odometry_integrator.getAverage2nReadings();
+  average_num_5 = odometry_integrator.getAverageNumReadings();
   
-  odometry_integrator.SetAverage2nReadings( 16 );
-  average_2n_6 = odometry_integrator.GetAverage2nReadings();
-  average_num_6 = odometry_integrator.GetAverageNumReadings();
+  odometry_integrator.setAverage2nReadings( 16 );
+  average_2n_6 = odometry_integrator.getAverage2nReadings();
+  average_num_6 = odometry_integrator.getAverageNumReadings();
   
-  odometry_integrator.SetAverageNumReadings( 1000000 );
-  average_2n_7 = odometry_integrator.GetAverage2nReadings();
-  average_num_7 = odometry_integrator.GetAverageNumReadings();
+  odometry_integrator.setAverageNumReadings( 1000000 );
+  average_2n_7 = odometry_integrator.getAverage2nReadings();
+  average_num_7 = odometry_integrator.getAverageNumReadings();
   
-  odometry_integrator.SetAverageNumReadings( 10 );
-  average_2n_8 = odometry_integrator.GetAverage2nReadings();
-  average_num_8 = odometry_integrator.GetAverageNumReadings();
+  odometry_integrator.setAverageNumReadings( 10 );
+  average_2n_8 = odometry_integrator.getAverage2nReadings();
+  average_num_8 = odometry_integrator.getAverageNumReadings();
   
-  odometry_integrator.SetAverageNumReadings( 100 );
-  average_2n_9 = odometry_integrator.GetAverage2nReadings();
-  average_num_9 = odometry_integrator.GetAverageNumReadings();
+  odometry_integrator.setAverageNumReadings( 100 );
+  average_2n_9 = odometry_integrator.getAverage2nReadings();
+  average_num_9 = odometry_integrator.getAverageNumReadings();
   
   // Assert
 
@@ -655,15 +655,15 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
 
   count_generator.Attach(odometry_integrator);
 
-  odometry_integrator.SetBaseModel(base_model);
+  odometry_integrator.setBaseModel(base_model);
 
   // Act
-  // 1) Set average size
+  // 1) set average size
   //    Send 0 counts
   //    Verify 0 readings
   // 2) Send several matching counts
   //    Verify averages and velocities match
-  // 3) Set size to the same size
+  // 3) set size to the same size
   //    Send 0 counts
   //    Verify 0 readings
   // 4) Send positive counts
@@ -683,13 +683,13 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     new_counts.stasis_count = 0;
     new_counts.dt_ms = 1000;
 
-    odometry_integrator.SetAverage2nReadings(i);
+    odometry_integrator.setAverage2nReadings(i);
     count_generator.AddTicks(new_counts);
 
     usleep(2500);
 
-    average_2n[ size_index ]                  = odometry_integrator.GetAverage2nReadings();
-    average_num[ size_index ]                 = odometry_integrator.GetAverageNumReadings();
+    average_2n[ size_index ]                  = odometry_integrator.getAverage2nReadings();
+    average_num[ size_index ]                 = odometry_integrator.getAverageNumReadings();
 
     expected_average_2n[ size_index ]         = i;
     expected_average_num[ size_index ]        = ldexp( 1.0, i );
@@ -713,7 +713,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     new_counts.dt_ms = 1000;
 
     // Reset the averaging 
-    odometry_integrator.SetAverage2nReadings(i);
+    odometry_integrator.setAverage2nReadings(i);
 
     count_generator.AddTicks(new_counts);
     count_generator.AddTicks(new_counts);
@@ -738,7 +738,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     new_counts.stasis_count = 0;
     new_counts.dt_ms = 1000;
 
-    odometry_integrator.SetAverage2nReadings(i);
+    odometry_integrator.setAverage2nReadings(i);
     count_generator.AddTicks(new_counts);
 
     usleep(2500);
@@ -762,7 +762,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
     new_counts.dt_ms = 1000;
 
     // Reset the averaging 
-    odometry_integrator.SetAverage2nReadings(i);
+    odometry_integrator.setAverage2nReadings(i);
 
     count_generator.AddTicks(new_counts);
 
@@ -791,7 +791,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
 
     // 5)
     // Reset the averaging 
-    odometry_integrator.SetAverage2nReadings(i);
+    odometry_integrator.setAverage2nReadings(i);
 
     // This is actually ( buffer / 2) + 1 to accommodate buffer size of 2 
     for ( int j = 0; j <= (average_num[ size_index ] / 4); ++j )
@@ -827,7 +827,7 @@ TEST( OdometryIntegratorTests, canCalculateAverageVelocities )
 
     // 6)
     // Reset the averaging 
-    odometry_integrator.SetAverage2nReadings(i);
+    odometry_integrator.setAverage2nReadings(i);
 
     // This should fill the buffer twice
     for ( int j = 0; j < average_num[ size_index ]; ++j )

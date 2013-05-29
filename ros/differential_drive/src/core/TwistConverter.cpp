@@ -39,9 +39,9 @@ void TwistConverter::Detach( ITickVelocityListener& tick_velocity_listener )
   vec.erase( std::remove(vec.begin(), vec.end(), &tick_velocity_listener), vec.end() );
 }
 
-/** Sets the BaseModel object to use for SI to ticks conversion.
+/** sets the BaseModel object to use for SI to ticks conversion.
  */
-void TwistConverter::SetBaseModel( const BaseModel& base_model )
+void TwistConverter::setBaseModel( const BaseModel& base_model )
 {
   _p_base_model = &base_model;
 }
@@ -65,7 +65,7 @@ differential_drive::TickVelocity TwistConverter::ConvertTwist( const geometry_ms
 
   if ( _p_base_model != NULL )
   {
-    ticks = _p_base_model->ConvertVelocity( twist.linear.x, twist.angular.z );
+    ticks = _p_base_model->convertVelocity( twist.linear.x, twist.angular.z );
   }
   else
   {

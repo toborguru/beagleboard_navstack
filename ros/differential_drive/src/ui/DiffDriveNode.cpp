@@ -71,7 +71,7 @@ int main(int argc, char **argv)
   
 
     // 3) Start the services
-    ROS_INFO( "Starting the Base Model Setup Service..." );
+    ROS_INFO( "Starting the Differential Drive Parameters Setup Service..." );
     parameter_setup_service->Update();
     parameter_setup_service->StartUpdating();
 
