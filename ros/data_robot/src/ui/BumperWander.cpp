@@ -111,7 +111,8 @@ void MovementStatusCallback( differential_drive::MovementStatus current_status )
 {
   m_stasis_direction = data_robot::Bumpers::NONE;
 
-  if ( current_status.motors_state != differential_drive::MovementStatus::CORRECT )
+  //if ( current_status.motors_state != differential_drive::MovementStatus::CORRECT )
+  if ( current_status.motors_state == differential_drive::MovementStatus::STASIS )
   {
     if ( current_status.linear_velocity_average > 0.0 )
     {

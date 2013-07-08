@@ -11,10 +11,36 @@ function ctrl_c() {
 while [ true ]
 do
    i2c -d /dev/i2c-2 0x06 wb4 2 0x60000000
-
-   sleep 2
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60000000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60000000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60000000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60000000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60000000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60000000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60000000
+   sleep 0.5
 
    i2c -d /dev/i2c-2 0x06 wb4 2 0x60004000
-
-   sleep 2
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60004000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60004000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60004000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60004000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60004000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60004000
+   sleep 0.5
+   i2c -d /dev/i2c-2 0x06 wb4 2 0x60004000
+   sleep 0.5
 done

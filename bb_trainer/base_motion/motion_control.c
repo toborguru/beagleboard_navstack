@@ -11,16 +11,14 @@
 #include "motion_control.h"
 #include "shaft_encoders.h"
 
-#define MOTION_CONTROL_KP   100
-#define MOTION_CONTROL_KD   0
-#define MOTION_CONTROL_KI   25
-#define MOTION_CONTROL_KO   5 // Output Scale: Used for fractional gains => Kp=kp/ko, Kd=kd/ko, Ki=ki/ko
+#define MOTION_CONTROL_KP   5.0
+#define MOTION_CONTROL_KD   1.0
+#define MOTION_CONTROL_KI   7.5 
 #define MOTION_CONTROL_MAX_CORRECTION   0xFF
-#define MOTION_CONTROL_MAX_I_ERROR      0x30
 
 #define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
-#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     10  // u16.0 ticks/sec (should be but isn't)
-#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    10  // u16.0 ticks/sec (should be but isn't)
+#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     10  // u16.0 ticks/sec^2
+#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    10  // u16.0 ticks/sec^3
 
 /* GLOBAL VARIABLES */
 volatile Motion_State_t g_left_wheel_motion;
@@ -239,16 +237,15 @@ static void Motion_Control_Init_State( volatile Motion_State_t *p_state )
     p_state->pid.kp = MOTION_CONTROL_KP;
     p_state->pid.kd = MOTION_CONTROL_KD;
     p_state->pid.ki = MOTION_CONTROL_KI;
-    p_state->pid.ko = MOTION_CONTROL_KO;
-    p_state->pid.max_correction = MOTION_CONTROL_MAX_CORRECTION;
-    p_state->pid.max_i_error = MOTION_CONTROL_MAX_I_ERROR;
+    p_state->pid.max_output= MOTION_CONTROL_MAX_CORRECTION;
+    p_state->pid.min_output= -1 * MOTION_CONTROL_MAX_CORRECTION;
 
     // Reset PID state
     p_state->pid.setpoint = 0;
     p_state->pid.error = 0;
     p_state->pid.d_error = 0;
-    p_state->pid.i_error = 0;
-    p_state->pid.prev_error = 0;
+    p_state->pid.i_term = 0;
+    p_state->pid.prev_input = 0;
 }
 
 /** Sets the default accelerations per #defines.
@@ -293,13 +290,14 @@ static int16_t Motion_Control_Run_PID(  int8_t new_encoder_ticks,  // s7.0 ticks
   int16_t power;
   int16_t error_squared;
 
-  power = Pid_Compute_Correction( new_encoder_ticks, &( p_state->pid ) );
+  power = Pid_Compute_Output( new_encoder_ticks, &( p_state->pid ) );
 
   if  ( ( p_state->linear_velocity == 0 ) &&
         ( p_state->angular_velocity == 0 ) &&
         (( error_squared = p_state->pid.error * p_state->pid.error ) < 5) ) // 10 should mean within 3 encoder ticks
   {
-    power = (power * error_squared) / 8;
+    //power = (power * error_squared) / 8;
+    power = 0;
   }
 
   p_state->power_out = power;

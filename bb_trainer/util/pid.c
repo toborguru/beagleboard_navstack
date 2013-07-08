@@ -11,34 +11,29 @@
 #include "pid.h"
 #include "clamp.h"
 
-/** Computes a PID based correction. 
+/** Computes a PID based output. 
  */
-int16_t Pid_Compute_Correction( int16_t current_value, Pid_State_t *_p_state )
+int16_t Pid_Compute_Output( int16_t input, Pid_State_t *_p_state )
 {
-    int16_t correction;
+    int16_t output;
 
-    _p_state->error = _p_state->setpoint - current_value;
+    _p_state->error = _p_state->setpoint - input;
 
-    // Compute the derivative error
-    _p_state->d_error = _p_state->prev_error - _p_state->error;
+    // Compute the error derivative (using "Derivative on Measurement")
+    _p_state->d_error = input - _p_state->prev_input;
+
+    // Compute error sum
+    _p_state->i_term += _p_state->ki * (float)_p_state->error;
+    if ( _p_state->i_term > _p_state->max_output) _p_state->i_term = _p_state->max_output;
+    if ( _p_state->i_term > _p_state->min_output) _p_state->i_term = _p_state->min_output;
 
     // Update the previous error
-    _p_state->prev_error = _p_state->error;
+    _p_state->prev_input = input;
 
-    correction = ( (_p_state->kp * _p_state->error) 
-                 - (_p_state->kd * _p_state->d_error) 
-                 + (_p_state->ki * _p_state->i_error) )
-                / _p_state->ko;
+    // Compute the output
+    output = (int16_t)(   (_p_state->kp * (float)_p_state->error)
+                        - (_p_state->kd * (float)_p_state->d_error)
+                        + _p_state->i_term );
 
-    Clamp_Abs_Value( &correction, _p_state->max_correction );
-    //if ( CLAMP_VALUE_NOT_CLAMPED == Clamp_Abs_Value( &correction, _p_state->max_correction ) )
-    {
-        // Compute the integral error
-        _p_state->i_error += _p_state->error;
-
-        // Constrain the integral error
-        Clamp_Abs_Value( &(_p_state->i_error), _p_state->max_i_error );
-    }
-
-    return correction;
+    return output;
 }
