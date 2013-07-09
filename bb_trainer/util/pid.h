@@ -28,6 +28,6 @@ typedef struct
     int16_t min_output;
 } Pid_State_t;
 
-int16_t Pid_Compute_Correction(int16_t current_value, Pid_State_t *_p_state);
+int16_t Pid_Compute_Output(int16_t current_value, Pid_State_t *_p_state);
 
 #endif

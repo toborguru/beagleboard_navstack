@@ -1,9 +1,18 @@
-all: checksum_test botnet_test
+all: checksum_test pid_test 
+
+test: all run_test
+
+GTEST_LIBS=-lgtest_main -lgtest -lpthread
 
 checksum_test: checksum_test.c
-	g++ -I ../include -o checksum_test checksum_test.c ../util/checksum.c
+	g++ -I ../util -o bin/checksum_test checksum_test.c ../util/checksum.c $(GTEST_LIBS) 
 
-botnet_test: botnet_test.c  
-	g++ -I ../include -o botnet_test botnet_test.c ../botnet/botnet.c ../util/checksum.c ../util/ascii_print.c
+pid_test: pid_test.c
+	g++ -I ../util -o bin/pid_test pid_test.c ../util/pid.c $(GTEST_LIBS) 
+
+run_test:
+	./bin/checksum_test
+	./bin/pid_test
+
 clean:
 	rm *.o botnet_test checksum_test

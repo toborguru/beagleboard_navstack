@@ -10,32 +10,36 @@
  */
 
 #include <cstdio>
+#include <gtest/gtest.h>
 
-#include "../include/checksum.h"
+#include "checksum.h"
 
-    int
-main ( int argc, char *argv[] )
+#define TEST_DATA_SIZE 128
+
+TEST( ChecksumTest, expectedChecksums )
 {
-    char test_data[128];
-    uint8_t checksum;
+    char test_data[TEST_DATA_SIZE];
+    uint8_t checksum1;
+    uint8_t checksum2;
+    uint8_t checksum3;
+    uint8_t checksum4;
 
     sprintf(test_data, "testing, testing, 1 2 3\n");
 
-    printf("Echo: %s", test_data);
+    // CRC 0-3 "test"
+    checksum1 = CRC8_Checksum((uint8_t*)test_data, 4, 0);
 
-    checksum = CRC8_Checksum((uint8_t*)test_data, 4, 0);
-    printf("Chk  3:0 : %02X\n", checksum);
+    // CRC 9-13 "test"
+    checksum2 = CRC8_Checksum((uint8_t*)&test_data[9], 4, 0);
 
-    checksum = CRC8_Checksum((uint8_t*)&test_data[9], 4, 0);
-    printf("Chk 13:9 : %02X\n", checksum);
+    // CRC 1-4 "esti"
+    checksum3 = CRC8_Checksum((uint8_t*)&test_data[1], 4, 0);
 
-    checksum = CRC8_Checksum((uint8_t*)&test_data[1], 4, 0);
-    printf("Chk  4:1 : %02X\n", checksum);
+    // CRC 10-14 "esti"
+    checksum4 = CRC8_Checksum((uint8_t*)&test_data[10], 4, 0);
 
-    checksum = CRC8_Checksum((uint8_t*)&test_data[10], 4, 0);
-    printf("Chk 14:10: %02X\n", checksum);
-
-    printf("Echo: %s", test_data);
-
-    return 0;
-}		/* main */
+    EXPECT_EQ( checksum1, checksum2 );
+    EXPECT_EQ( 0x4C, checksum1 );
+    EXPECT_EQ( checksum3, checksum4 );
+    EXPECT_EQ( 0x6E, checksum3 );
+}

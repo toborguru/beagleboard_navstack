@@ -24,6 +24,8 @@
 # make program = Download the hex file to the device, using avrdude.  Please
 #                customize the avrdude settings below first!
 #
+# make install = Download the hex file to the device using I2C bootloader
+#
 # make filename.s = Just compile filename.c into the assembler code only
 #
 # To rebuild project do "make clean" then "make all".

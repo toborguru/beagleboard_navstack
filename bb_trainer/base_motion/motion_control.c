@@ -12,8 +12,8 @@
 #include "shaft_encoders.h"
 
 #define MOTION_CONTROL_KP   5.0
-#define MOTION_CONTROL_KD   1.0
-#define MOTION_CONTROL_KI   7.5 
+#define MOTION_CONTROL_KD   0.0
+#define MOTION_CONTROL_KI   1.0 
 #define MOTION_CONTROL_MAX_CORRECTION   0xFF
 
 #define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
