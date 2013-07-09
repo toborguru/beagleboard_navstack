@@ -31,7 +31,7 @@
 #define I2C_ADDRESS         0x06
 
 // Voltage reading below which: kill power to the entire bot.
-#define VOLTAGE_KILL_LIMIT  300 // 300 ~= 6V
+#define VOLTAGE_KILL_LIMIT  350 // 300 ~= 6V
 
 #define SHELL_RESET_STEPS   500 // 50 Hz Steps (last I checked...)
 
@@ -51,12 +51,20 @@
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
 #define INVALID_COMMAND         0xFFFF
 
-#define MOTOR_TEST_EN 0	// If non-zero a repeating pattern will be run .
+#define MOTION_TEST_EN 1	// If non-zero a repeating pattern will be run using pid control
 #define MOTION_TEST_DELAY   1500
 #define MOTION_TEST_SPEED1  80
 #define MOTION_TEST_TURN1   0
 #define MOTION_TEST_SPEED2  80
 #define MOTION_TEST_TURN2   80
+
+#define MOTOR_TEST_EN 0 // If non-zero a repeating pattern will be run using raw motor power
+#define MOTOR_TEST_DELAY   1500
+#define MOTOR_TEST_LEFT1   200
+#define MOTOR_TEST_RIGHT1  200
+#define MOTOR_TEST_LEFT2   100
+#define MOTOR_TEST_RIGHT2  0
+
 
 volatile I2C_REGISTERS_t* gp_commands_read;
 volatile I2C_REGISTERS_t* gp_commands_write;
@@ -71,6 +79,7 @@ static uint8_t m_steps_since_command = 0;
 
 void BaseMotion( void );
 void CheckVoltage( void );
+void MotionPattern( void );
 void MotorPattern( void );
 void Ports_Zero( void );
 void ProcessIncomingCommands( void );
@@ -111,7 +120,6 @@ int main( void )
   TWI_Slave_Initialise( I2C_ADDRESS << TWI_ADR_BITS );
   TWI_Start_Transceiver();
 
-
   // Turn on the Motors
 #if MOT_CMD_ENABLED
   Motors_Enable();
@@ -123,18 +131,23 @@ int main( void )
 
   for (;;)
   {
+#if MOTOR_TEST_EN
+    MotorPattern();
+#else
     UpdateTelemetryClock();
 
     BaseMotion();
 
+# if MOTOR_TEST_EN
+    MotionPattern();
+# else
     ProcessIncomingCommands();
+# endif
 
     UpdateTelemetry();
 
     CheckVoltage();
 
-#if MOTOR_TEST_EN
-    MotorPattern();
 #endif
   }
   // Never reached.
@@ -268,7 +281,7 @@ void ProcessIncomingCommands()
   }
 }
 
-void MotorPattern()
+void MotionPattern()
 {
   static SYSTEM_CLOCK_T  motion_test_time = MOTION_TEST_DELAY;
   static uint8_t motors_state = 1;
@@ -288,6 +301,31 @@ void MotorPattern()
 
     motion_test_time += MOTION_TEST_DELAY;
     motion_test_time &= SYSTEM_CLOCK_MASK;
+  }
+}
+
+void MotorPattern()
+{
+  static SYSTEM_CLOCK_T  motor_test_time = MOTOR_TEST_DELAY;
+  static uint8_t motors_state = 1;
+
+  if ( Clock_Diff(motor_test_time, g_system_clock) <= 0 )
+  {
+    if (motors_state)
+    {
+      Motors_Set_Power( MOTORS_L_INDEX, MOTOR_TEST_LEFT1);
+      Motors_Set_Power( MOTORS_R_INDEX, MOTOR_TEST_RIGHT1);
+    }
+    else
+    {
+      Motors_Set_Power( MOTORS_L_INDEX, MOTOR_TEST_LEFT2);
+      Motors_Set_Power( MOTORS_R_INDEX, MOTOR_TEST_RIGHT2);
+    }
+
+    motors_state = !motors_state;
+
+    motor_test_time += MOTION_TEST_DELAY;
+    motor_test_time &= SYSTEM_CLOCK_MASK;
   }
 }
 

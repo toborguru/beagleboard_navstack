@@ -62,9 +62,6 @@ ISR( TIMER2_COMPA_vect )
 {
     ++g_system_clock;
 
-    if ( g_system_clock >= SYSTEM_CLOCK_MAX )
-    {
-      g_system_clock = 0;
-    }
+    g_system_clock &= SYSTEM_CLOCK_MASK;
 }
 

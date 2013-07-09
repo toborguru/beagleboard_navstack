@@ -111,9 +111,6 @@ void Motors_Init( void )
 
     BIT_CLEAR( PRR, PRTIM1 );
 
-    // TODO remove
-    MOTORS_ENABLE();
-
     Motors_Set_Direction(MOTORS_L_INDEX, MOTORS_BRAKE);
     Motors_Set_Direction(MOTORS_R_INDEX, MOTORS_BRAKE);
 
