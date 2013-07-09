@@ -10,12 +10,27 @@ static int RoundToInt( double r )
 }
 
 /** @class BaseModel BaseModel.hpp
- *  This class holds the parameters and caclulations to converts SI units to encoder ticks.
+ *  This class holds the parameters and caclulations to convert between SI units 
+ *  and encoder ticks, for a differentially driven robot with 2 drive wheel and 
+ *  an optional stasis wheel.
  *
- *  Some Details.
+ *  This class is estimating changes in position and angle based on research from 
+ *  Tom Brown of the University of Illinois at Urbana-Champaign as detailed here:
+ *  @ref //http://rossum.sourceforge.net/papers/DiffSteer/#d7
+ *
+ *  Positive numbers for drive wheel radius, wheel base, wheel ratio, and wheel 
+ *  encoder ticks indicate a valid geometry. Stasis wheel parameters can be 0 or
+ *  negative but this will disable stasis wheel processing.
+ *  
+ *  This class converts encoder readings based on the current readings only and 
+ *  does not track global coordinates or integrate readings.
+ *
  */
 
 /** Default constructor.
+ *
+ *  All arguments have defaults, most of them default to an invalid geometry.
+ *
  *  @param  wheel_radius  The radius of the differential drive wheels in meters.
  *  @param  wheel_base    The separation  of the drive wheels in meters. This 
  *                        value can be corrected using UMBMark calibration 
@@ -54,6 +69,10 @@ BaseModel::BaseModel( double    wheel_radius,
   pthread_mutex_unlock( _p_lock_mutex );
 }
 
+/** Constructor taking a BaseGeometry_T for initial object configuration.
+ *
+ *  @param  new_geometry data structure to populate internal object parameters.
+ */
 BaseModel::BaseModel( BaseGeometry_T new_geometry )
 {
   _base_geometry = new_geometry;
@@ -88,8 +107,10 @@ void BaseModel::convertCounts(  BaseDistance_T* p_delta_position,
   pthread_mutex_unlock( _p_lock_mutex );
 }
 
-/** Accepts an desired linear and angular velocity and returns the velocities
+/** Accepts linear and angular velocity n SI units and returns the velocities
  *  in ticks/sec. This function does not alter the current model state.
+ *
+ *  @returns populated TickVelocity data structure.
  */
 differential_drive::TickVelocity BaseModel::convertVelocity(  double linear_vel, 
                                                               double angular_vel ) const
@@ -105,12 +126,18 @@ differential_drive::TickVelocity BaseModel::convertVelocity(  double linear_vel,
   return new_velocity;
 }
 
+/** Access function for the internal base geometry.
+ *
+ *  @returns the current internal base geometry parameters.
+ */
 BaseGeometry_T BaseModel::getBaseGeometry() const
 {
   return _base_geometry;
 }
 
-/** @returns true if the geometry is valid and the internal data member has been 
+/** Updates the internal base geometry parameters if all parameters are valid. 
+ *
+ *  @returns true if the geometry is valid and the internal data members have been 
  *  updated.
  */
 bool BaseModel::setBaseGeometry( BaseGeometry_T const & geometry )
@@ -131,6 +158,16 @@ bool BaseModel::setBaseGeometry( BaseGeometry_T const & geometry )
   return false;
 }
 
+/** Checks @p geometry to see if all data members describe a valid base geometry.
+ *  
+ *  Positive numbers for drive wheel radius, wheel base, wheel ratio, and wheel 
+ *  encoder ticks indicate a valid geometry. Stasis wheel parameters can be 0 or
+ *  negative but this will disable stasis wheel processing.
+ *  
+ *  @param geometry Data structure to check for validity.
+ *
+ *  @returns true if a valid geometry is described.
+ */
 bool BaseModel::checkGeometryValid( BaseGeometry_T const & geometry ) const
 {
   bool valid = true;
@@ -155,6 +192,14 @@ bool BaseModel::checkGeometryValid( BaseGeometry_T const & geometry ) const
   return valid;
 }
 
+/** Checks @p geometry to see if the stasis wheel parameters describe a valid 
+ *  stasis wheel geometry.
+ *
+ *  Postive numbers for stasis wheel radius, and shaft encoder ticks indicate 
+ *  a valid stasis wheel geometry.
+ *
+ *  @returns true if a valid stasis wheel geometry is described.
+ */
 bool BaseModel::checkGeometryStasisValid( BaseGeometry_T const & geometry ) const 
 {
   bool valid = true;
@@ -171,7 +216,9 @@ bool BaseModel::checkGeometryStasisValid( BaseGeometry_T const & geometry ) cons
   return valid;
 }
 
-/** Returns true if the internal geometry defines a valid configuration.
+/** Checks the internal geometry parameters.
+ *
+ *  @returns true if the internal geometry defines a valid configuration.
  */
 bool BaseModel::getSetupValid() const
 {
@@ -186,7 +233,9 @@ bool BaseModel::getSetupValid() const
   return valid;
 }
 
-/** Returns true if the stasis wheel parameters define a valid configuration.
+/** Checks the internal configuration of the stasis wheel. 
+ *
+ *  @returns true if the stasis wheel parameters define a valid configuration.
  */
 bool BaseModel::getStasisValid() const
 {
@@ -201,14 +250,17 @@ bool BaseModel::getStasisValid() const
   return valid;
 }
 
-/** Returns the drive wheel radius in meters.
+/** Access function for the internal drive wheel radius.
+ *
+ *  @returns the drive wheel radius in meters.
  */
 double BaseModel::getWheelRadius() const
 {
   return _base_geometry.wheel_radius;
 }
 
-/** sets the drive wheel radius in meters.
+/** Sets the drive wheel radius in meters.
+ *
  *  @returns true if @p wheel_radius is positive and the internal data member was updated.
  */
 bool BaseModel::setWheelRadius( double wheel_radius)
@@ -229,14 +281,17 @@ bool BaseModel::setWheelRadius( double wheel_radius)
   return false;
 }
 
-/** Returns the drive wheel separation in meters.
+/** Access function for the internal drive wheel base.
+ *
+ *  @returns the drive wheel separation in meters.
  */
 double BaseModel::getWheelBase() const
 {
   return _base_geometry.wheel_base;
 }
 
-/** sets the drive wheel separation in meters.
+/** Sets the drive wheel separation in meters.
+ *
  *  @returns true if @p wheel_base is positive and the internal data member was updated.
  */
 bool BaseModel::setWheelBase( double wheel_base)
@@ -257,17 +312,24 @@ bool BaseModel::setWheelBase( double wheel_base)
   return false;
 }
 
-/** Returns the drive wheel radius ratio (ie. left radius/ right radius).
- *  
+/** Access function for the internal drive wheel ratio. 
+ *
+ *  The drive wheel ratio describes the difference in wheel radiuses 
+ *  (left radius/ right radius).
  *  Ideally this value should be 1.0 but it rarely is.
+ *
+ *  @returns the drive wheel radius ratio.
+ *  
  */
 double BaseModel::getWheelRatio() const
 {
   return _base_geometry.wheel_ratio;
 }
 
-/** sets the drive wheel radius ratio (ie. left radius/ right radius).
+/** Sets the drive wheel radius ratio.
  *  
+ *  The drive wheel ratio describes the difference in wheel radiuses 
+ *  (left radius/ right radius).
  *  Ideally this value should be 1.0 but it rarely is.
  *
  *  @returns true if @p wheel_ratio is positive and the internal data member was updated.
@@ -291,14 +353,16 @@ bool BaseModel::setWheelRatio( double wheel_ratio)
   return false;
 }
 
-/** Return the number of encoder ticks in one full rotation of the drive wheels.
+/** Access function for the internal drive wheel encoder count.
+ *
+ *  @returns the number of encoder ticks in one full rotation of the drive wheels.
  */
 uint32_t BaseModel::getWheelTicks() const
 {
   return _base_geometry.wheel_ticks;
 }
 
-/** sets the number of encoder ticks in one full rotation of the drive wheels.
+/** Sets the number of encoder ticks in one full rotation of the drive wheels.
  *
  *  @returns true if @p wheel_ticks is positive and the internal data member was updated.
  */
@@ -320,17 +384,23 @@ bool BaseModel::setWheelTicks( uint32_t wheel_ticks)
   return false;
 }
 
-/** Returns the radius of the stasis wheel if one is used in meters.
+/** Access function for the internal stasis wheel radius.
+ *  
+ *  If the value is <= 0 the stasis wheel is disabled.
+ *
+ *  Returns the radius of the stasis wheel in meters.
  */
 double BaseModel::getStasisRadius() const
 {
   return _base_geometry.stasis_radius;
 }
 
-/** sets the radius of the stasis wheel if one is used in meters.
+/** Sets the radius of the stasis wheel in meters.
+ *
+ *  If @p stasis_radius is <= 0 stasis wheel calculations are disabled.
  *
  *  @returns  true if @p stasis_radius is positive and the internal data member was updated.
- *            Otherwise a value of 0.0 is stored and the stasis wheel is "disabled".
+ *            Otherwise a value of 0.0 is stored and the stasis wheel is disabled.
  */
 bool BaseModel::setStasisRadius( double stasis_radius)
 {
@@ -360,23 +430,25 @@ bool BaseModel::setStasisRadius( double stasis_radius)
   return false;
 }
 
-/** Returns the number of encoder ticks in one full revolution of the stasis
- *  wheel. 
+/** Access function for the internal stasis wheel encoder counts.
  *
- *  If negative stasis wheel calculations are disabled.
+ *  If is value <= 0 stasis wheel calculations are disabled.
+ *
+ *  @returns the number of encoder ticks in one full revolution of the stasis
+ *  wheel. 
  */
 int32_t BaseModel::getStasisTicks() const
 {
   return _base_geometry.stasis_ticks;
 }
 
-/** sets the number of encoder ticks in one full revolution of the stasis
+/** Sets the number of encoder ticks in one full revolution of the stasis
  *  wheel. 
  *
- *  If negative stasis wheel calculations are disabled.
+ *  If @p stasis_ticks is <= 0 stasis wheel calculations are disabled.
  *
  *  @returns  true if @p stasis_radius is positive and the internal data member was updated.
- *            Otherwise a value of -1 is stored and the stasis wheel is "disabled".
+ *            Otherwise a value of -1 is stored and the stasis wheel is disabled.
  */
 bool BaseModel::setStasisTicks( int32_t stasis_ticks)
 {
@@ -406,21 +478,21 @@ bool BaseModel::setStasisTicks( int32_t stasis_ticks)
   return false;
 }
 
-/** Returns the calculated encoder ticks per meter for the drive wheels.
+/** @returns the calculated encoder ticks per meter for the drive wheels.
  */
 double BaseModel::getTicksPerMeter() const
 {
   return _tick_rates.ticks_per_meter;
 }
 
-/** Returns the calculated encoder ticks per meter for the drive wheels.
+/** @returns the calculated meters per encoder tick for the drive wheels.
  */
 double BaseModel::getMetersPerTick() const
 {
   return _tick_rates.meters_per_tick;
 }
 
-/** Returns the calculated difference in encoder ticks needed to turn 
+/** @returns the calculated difference in encoder ticks needed to turn 
  *  one radian.
  */
 double BaseModel::getTicksPerRadian() const
@@ -428,29 +500,28 @@ double BaseModel::getTicksPerRadian() const
   return _tick_rates.ticks_per_radian;
 }
 
-/** Returns the calculated difference in encoder ticks needed to turn 
- *  one radian.
+/** @returns the calculated radians per difference in encoder ticks.
  */
 double BaseModel::getRadiansPerTick() const
 {
   return _tick_rates.radians_per_tick;
 }
 
-/** Returns the calculated encoder ticks per meter for the stasis wheel.
+/** @returns the calculated encoder ticks per meter for the stasis wheel.
  */
 double BaseModel::getStasisTicksPerMeter() const
 {
   return _tick_rates.stasis_ticks_per_meter;
 }
 
-/** Returns the calculated encoder ticks per meter for the stasis wheel.
+/** @returns the calculated meters per encoder tick for the stasis wheel.
  */
 double BaseModel::getMetersPerStasisTick() const
 {
   return _tick_rates.meters_per_stasis_tick;
 }
 
-/** Returns the calculated calculated correction factor for the distance
+/** @returns the calculated calculated correction factor for the distance
  *  traveled by the left wheel and the distance required by the right wheel
  *  based on the wheel ratio.
  */
@@ -459,7 +530,7 @@ double BaseModel::getLeftInRightOutCorrection() const
   return _corrections.left_in_right_out;
 }
 
-/** Returns the calculated calculated correction factor for the distance
+/** @returns the calculated calculated correction factor for the distance
  *  traveled by the right wheel and the distance required by the left wheel
  *  based on the wheel ratio.
  */
@@ -468,8 +539,20 @@ double BaseModel::getRightInLeftOutCorrection() const
   return _corrections.right_in_left_out;
 }
 
-/** Accepts an desired linear and angular velocity and returns the velocities
- *  in ticks/sec. 
+/** Accepts linear and angular velocity n SI units and returns the velocities
+ *  in ticks/sec. This function does not alter the current model state.
+ *
+ *  @p base_geometry and @p tick_rates are pre-calculated for speed and should 
+ *  be calculated from the current values in @p base_geometry if the results 
+ *  are to be meaningful.
+ *
+ *  @param linear_vel Linear velocity in meters/second.
+ *  @param angular_vel Angular velocity in radians/second.
+ *  @param[in] base_geometry Base geometry used for the calculations.
+ *  @param[in] tick_rates Pre-calculated tick rates.
+ *  @param[in] corrections Pre-calculated tick corrections.
+ *
+ *  @returns populated TickVelocity data structure.
  */
 differential_drive::TickVelocity BaseModel::velocityToTicks(  const double linear_vel, 
                                                               const double angular_vel,
@@ -507,6 +590,8 @@ differential_drive::TickVelocity BaseModel::velocityToTicks(  const double linea
 }
 
 /** Converts encoder counts to the changes in X, Y and theta.
+ *
+ *  
  */
 BaseDistance_T  BaseModel::countsToDistance(  differential_drive::EncoderCounts const & counts, 
                                               BaseGeometry_T const & geometry, 
