@@ -51,12 +51,19 @@
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
 #define INVALID_COMMAND         0xFFFF
 
-#define MOTION_TEST_EN 1	// If non-zero a repeating pattern will be run using pid control
+#define MOTION_TEST_EN 0	// If non-zero a repeating pattern will be run using pid control
 #define MOTION_TEST_DELAY   1500
 #define MOTION_TEST_SPEED1  80
 #define MOTION_TEST_TURN1   0
 #define MOTION_TEST_SPEED2  80
 #define MOTION_TEST_TURN2   80
+
+#define PID_TEST_EN 1	// If non-zero a repeating pattern will be run using pid control
+#define PID_TEST_DELAY   1500
+#define PID_TEST_LEFT1   4
+#define PID_TEST_RIGHT1  4
+#define PID_TEST_LEFT2   0
+#define PID_TEST_RIGHT2  0
 
 #define MOTOR_TEST_EN 0 // If non-zero a repeating pattern will be run using raw motor power
 #define MOTOR_TEST_DELAY   1500
@@ -79,8 +86,9 @@ static uint8_t m_steps_since_command = 0;
 
 void BaseMotion( void );
 void CheckVoltage( void );
-void MotionPattern( void );
-void MotorPattern( void );
+void MotionPatternTest( void );
+void PidPatternTest( void );
+void MotorPatternTest( void );
 void Ports_Zero( void );
 void ProcessIncomingCommands( void );
 void Switch_Telemetry_Buffers( void );
@@ -132,14 +140,16 @@ int main( void )
   for (;;)
   {
 #if MOTOR_TEST_EN
-    MotorPattern();
+    MotorPatternTest();
+#elif PID_TEST_EN
+    PidPatternTest();
 #else
     UpdateTelemetryClock();
 
     BaseMotion();
 
 # if MOTOR_TEST_EN
-    MotionPattern();
+    MotionPatternTest();
 # else
     ProcessIncomingCommands();
 # endif
@@ -281,14 +291,14 @@ void ProcessIncomingCommands()
   }
 }
 
-void MotionPattern()
+void MotionPatternTest()
 {
   static SYSTEM_CLOCK_T  motion_test_time = MOTION_TEST_DELAY;
-  static uint8_t motors_state = 1;
+  static uint8_t pattern_state = 1;
 
   if ( Clock_Diff(motion_test_time, g_system_clock) <= 0 )
   {
-    if (motors_state)
+    if (pattern_state)
     {
       Motion_Control_Set_Velocity( MOTION_TEST_SPEED1, MOTION_TEST_TURN1 );
     }
@@ -297,21 +307,102 @@ void MotionPattern()
       Motion_Control_Set_Velocity( MOTION_TEST_SPEED2, MOTION_TEST_TURN2 );
     }
 
-    motors_state = !motors_state;
+    pattern_state = !pattern_state;
 
     motion_test_time += MOTION_TEST_DELAY;
     motion_test_time &= SYSTEM_CLOCK_MASK;
   }
 }
 
-void MotorPattern()
+void PidPatternTest()
+{
+  volatile Motion_State_t* p_l_wheel = &g_left_wheel_motion;
+  volatile Motion_State_t* p_r_wheel = &g_right_wheel_motion;
+
+  static int16_t stasis_total = 0;
+
+  int16_t delta_left;
+  int16_t delta_right;
+
+  int16_t left_power;
+  int16_t right_power;
+
+  uint16_t measurement_time;
+
+  static SYSTEM_CLOCK_T  motion_test_time = MOTION_TEST_DELAY;
+  static uint8_t pattern_state = 1;
+
+  if ( Clock_Diff(motion_test_time, g_system_clock) <= 0 )
+  {
+    if (pattern_state)
+    {
+      p_l_wheel->pid.setpoint = PID_TEST_LEFT1;
+      p_r_wheel->pid.setpoint = PID_TEST_RIGHT1;
+    }
+    else
+    {
+      p_l_wheel->pid.setpoint = PID_TEST_LEFT2;
+      p_r_wheel->pid.setpoint = PID_TEST_RIGHT2;
+    }
+
+    pattern_state = !pattern_state;
+
+    motion_test_time += MOTION_TEST_DELAY;
+    motion_test_time &= SYSTEM_CLOCK_MASK;
+
+    // Get new encoder counts
+    DISABLE_INTERRUPTS();
+    delta_left = g_shaft_encoders_left_count;
+    delta_right = g_shaft_encoders_right_count;
+    stasis_total += g_shaft_encoders_stasis_count;
+
+    g_shaft_encoders_left_count = 0;
+    g_shaft_encoders_right_count = 0;
+    g_shaft_encoders_stasis_count = 0;
+
+    measurement_time = (uint16_t)g_system_clock;
+    ENABLE_INTERRUPTS();
+
+    // Set motor power
+    left_power =    Pid_Compute_Output( delta_left, &( p_l_wheel->pid ) );
+    right_power =   Pid_Compute_Output( delta_right, &( p_r_wheel->pid ) );
+
+    if (!g_estop)
+    {   
+      if (left_power < 0)
+      {   
+        left_power *= -1;
+        Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_REVERSE );
+      }
+      else
+      {   
+        Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_FORWARD);
+      }
+
+      if (right_power < 0)
+      {
+        right_power *= -1;
+        Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_REVERSE);
+      }
+      else
+      {
+        Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_FORWARD);
+      }
+
+      Motors_Set_Power(   MOTORS_L_INDEX, left_power & 0xFF);
+      Motors_Set_Power(   MOTORS_R_INDEX, right_power & 0xFF);
+    }
+  }
+}
+
+void MotorPatternTest()
 {
   static SYSTEM_CLOCK_T  motor_test_time = MOTOR_TEST_DELAY;
-  static uint8_t motors_state = 1;
+  static uint8_t pattern_state = 1;
 
   if ( Clock_Diff(motor_test_time, g_system_clock) <= 0 )
   {
-    if (motors_state)
+    if (pattern_state)
     {
       Motors_Set_Power( MOTORS_L_INDEX, MOTOR_TEST_LEFT1);
       Motors_Set_Power( MOTORS_R_INDEX, MOTOR_TEST_RIGHT1);
@@ -322,7 +413,7 @@ void MotorPattern()
       Motors_Set_Power( MOTORS_R_INDEX, MOTOR_TEST_RIGHT2);
     }
 
-    motors_state = !motors_state;
+    pattern_state = !pattern_state;
 
     motor_test_time += MOTION_TEST_DELAY;
     motor_test_time &= SYSTEM_CLOCK_MASK;
