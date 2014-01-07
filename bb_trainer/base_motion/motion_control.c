@@ -129,10 +129,10 @@ void Motion_Control_Run_Step(   void )
     measurement_time = (uint16_t)g_system_clock;
     ENABLE_INTERRUPTS();
 
-    // Set motor power
     left_power =    Motion_Control_Compute_Power(   delta_left,   p_l_wheel );
     right_power =   Motion_Control_Compute_Power(   delta_right,  p_r_wheel );
 
+    // Set motor power
     if (!g_estop)
     {
         if (left_power < 0)

@@ -79,7 +79,7 @@ void Shaft_Encoders_Init( void  )
     DISABLE_PULLUP( ENCODERS_STASIS_B_PORT, ENCODERS_STASIS_B_PIN );
 #endif
 
-    // Set interupts as rising edge triggered
+    // Set interupts trigger
     EICRA |= ENCODERS_EICRA_MASK;
 
     // Enable the interupts - Interrupts should be globally disabled
