@@ -1,8 +1,8 @@
 # Motors State Enum Types
-uint8 CORRECT = 0           # Robots stasis wheel is spinning at the same speed as drive wheels
+uint8 CORRECT = 0           # Robots stasis wheel is spinning at the same speed as drive wheels or the stasis wheel is disabled
 uint8 STALLED = 1           # Robots wheels are not spinning
 uint8 STASIS  = 2           # Robots wheels are spinning and the stasis wheel is not
-uint8 FREE_WHEELING = 3     # Stasis wheel is spinning faster then robot wheels
+uint8 FREE_WHEELING = 3     # Stasis wheel is spinning faster than drive wheels
 uint8 SETUP_ERROR = 255     # Problem with node setup
 
 uint8   motors_state            # As listed above
