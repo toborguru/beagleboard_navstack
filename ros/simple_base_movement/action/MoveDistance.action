@@ -1,0 +1,13 @@
+# At the moment if both distance and angle are supplied it will first
+# travel the requested distance, stop and then turn the desired angle
+# All values are relative to the pose when the action is started
+float32 distance	# meters + = forward, - = backward
+float32 angle		# radians + = CCW, - = CW (may[not] be clipped - parameterized)
+---
+# Final resting pose
+float32 final_distance	
+float32 final_angle
+---
+# Current Progress
+float32 current_distance
+float32 current_angle

@@ -1,0 +1,14 @@
+<launch>
+    <param name="/use_sim_time" value="true"/>
+
+    <node pkg="stage_ros" type="stageros" name="stage" 
+            args="$(find simple_base_movement)/world/stage_demo.world" respawn="false"/>
+
+    <node pkg="simple_base_movement" type="distance_controller.py" 
+            name="distance_controller">
+        <param name="max_vel_x"             value="0.25"/>
+        <param name="max_rotational_vel"    value="0.7"/>
+        <param name="xy_goal_tolerance"     value="0.05"/>
+        <param name="yaw_goal_tolerance"    value="0.15"/>
+    </node>
+</launch>

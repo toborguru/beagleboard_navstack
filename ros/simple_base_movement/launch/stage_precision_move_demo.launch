@@ -1,0 +1,28 @@
+<launch>
+    <param name="/use_sim_time" value="true"/>
+    <param name="max_vel_x"             value="0.25"/>
+    <param name="max_rotational_vel"    value="0.7"/>
+
+    <node pkg="stage_ros" type="stageros" name="stage" 
+            args="$(find simple_base_movement)/world/stage_demo.world" respawn="false"/>
+
+    <node pkg="simple_base_movement" type="distance_controller.py" 
+            name="distance_controller">
+
+        <param name="min_vel_x"                     value="0.0"/>
+        <param name="acc_lim_x"                     value="0.0"/>
+        <param name="min_in_place_rotational_vel"   value="0.0"/>
+        <param name="acc_lim_th"                    value="0.0"/>
+
+        <param name="robot_base_frame"              value="base_link"/>
+        <param name="global_frame_id"               value="odom"/>
+        <param name="controller_frequency"          value="20.0"/>
+        <param name="normalize_angle"               value="true"/>
+        <param name="xy_goal_tolerance"             value="0.01"/>
+        <param name="yaw_goal_tolerance"            value="0.0044"/>
+        <param name="precision_vel_x"               value="0.05"/>
+        <param name="precision_rotational_vel"      value="0.025"/>
+        <param name="precision_distance"            value="0.1"/>
+        <param name="precision_angle"               value="0.2"/>
+    </node>
+</launch>
