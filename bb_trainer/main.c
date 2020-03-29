@@ -34,7 +34,8 @@
 // Voltage reading below which: kill power to the entire bot.
 #define VOLTAGE_KILL_LIMIT  350 // 300 ~= 6V
 
-#define SHELL_RESET_STEPS   500 // 50 Hz Steps (last I checked...)
+#define SHELL_RESET_STEPS   250 // 50 Hz Steps (last I checked...)
+#define KILL_DELAY_STEPS    500 // 50 Hz Steps (last I checked...)
 
 #define MOTION_STEP_DELAY   1000 / MOTION_CONTROL_UPDATE_RATE_HZ
 #define MAX_STEPS_BETWEEN_COMMANDS  45 // 50 Hz Steps (last I checked...)
@@ -83,10 +84,14 @@ volatile I2C_REGISTERS_t* gp_telemetry_write;
 static I2C_REGISTERS_t m_commands;
 static I2C_REGISTERS_t m_telemetry_a; 
 static I2C_REGISTERS_t m_telemetry_b; 
-static uint8_t m_steps_since_command = 0;
+static uint16_t m_steps_since_command = 0;
+
+// Non-zero values override nominal system behavior and perform basic system operation tests
+static uint16_t m_bist_running = 0; 
 
 void BaseMotion( void );
 void CheckVoltage( void );
+void RunTest( void );
 void MotionPatternTest( void );
 void PidPatternTest( void );
 void MotorPatternTest( void );
@@ -136,30 +141,34 @@ int main( void )
   Motors_Disable();
 #endif
 
+#if MOTOR_TEST_EN
+  m_bist_running = CMD_BIST_MOTOR;
+#elif PID_TEST_EN
+  m_bist_running = CMD_BIST_PID;
+#elif MOTION_TEST_EN
+  m_bist_running = CMD_BIST_MOTION;
+#endif
+
   ENABLE_INTERRUPTS();
 
   for (;;)
   {
-#if MOTOR_TEST_EN
-    MotorPatternTest();
-#elif PID_TEST_EN
-    PidPatternTest();
-#else
-    UpdateTelemetryClock();
+    if ( m_bist_running == CMD_BIST_NONE )
+    {
+      UpdateTelemetryClock();
 
-    BaseMotion();
+      BaseMotion();
 
-# if MOTION_TEST_EN
-    MotionPatternTest();
-# else
-    ProcessIncomingCommands();
-# endif
+      ProcessIncomingCommands();
 
-    UpdateTelemetry();
+      UpdateTelemetry();
 
-    CheckVoltage();
-
-#endif
+      CheckVoltage();
+    }
+    else
+    {
+      RunTest();
+    }
   }
   // Never reached.
   return(0);
@@ -240,49 +249,75 @@ void BaseMotion()
 void ProcessIncomingCommands()
 {
   static SYSTEM_CLOCK_T  reset_step_time = 0;
-  static bool in_reset = false;
+  static SYSTEM_CLOCK_T  kill_step_time = 0;
 
-  if ( in_reset )
+  // Check to see if a kill is scheduled
+  if ( kill_step_time != 0 )
   {
-    // Check to see if it's time to re-apply power
-    if ( Clock_Diff(reset_step_time, g_system_clock) <= 0 )
+    // Check to see if it's time to kill power (auto-destruct)
+    if ( Clock_Diff(kill_step_time, g_system_clock) <= 0 )
     {
-      in_reset = false;
-      // Turn power back on
-      BIT_SET(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
+      // Kill power to the entire bot
+      BIT_SET(_PORT(KILL_PORT), KILL_PIN); 
     }
   }
 
+  // Check to see if the shells are in reset
+  if ( reset_step_time != 0 )
+  {
+    // Check to see if it's time to re-apply shell power
+    if ( Clock_Diff(reset_step_time, g_system_clock) <= 0 )
+    {
+      // Turn shell power back on
+      BIT_SET(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
+
+      // Signal the shells are not in reset
+      reset_step_time = 0;
+    }
+  }
+
+  // Process incoming commands
   if ( g_TWI_writeComplete )
   {
     if ( CMD_GRP_POWER          == gp_commands_read->command_group )
     {
+      // Schedule a power down
       if ( CMD_POWER_KILL       == gp_commands_read->command )
       {
-        BIT_SET(_PORT(KILL_PORT), KILL_PIN); 
+        kill_step_time = g_system_clock + KILL_DELAY_STEPS;
+        kill_step_time &= SYSTEM_CLOCK_MASK;
       }
+      // Cancel a power down
+      else if ( CMD_POWER_CANCEL     == gp_commands_read->command )
+      {
+        kill_step_time = 0;
+      }
+      // Power cycle the shells
       else if ( CMD_POWER_SHELL == gp_commands_read->command )
       {
         BIT_CLEAR(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
 
         reset_step_time = g_system_clock + SHELL_RESET_STEPS;
         reset_step_time &= SYSTEM_CLOCK_MASK;
-        in_reset = true;
       }
     }
     else if ( CMD_GRP_BIST      == gp_commands_read->command_group )
     {
       if (  CMD_BIST_NONE       == gp_commands_read->command )
       {
-      }
+        m_bist_running = CMD_BIST_NONE;
+      } 
       else if ( CMD_BIST_MOTOR  == gp_commands_read->command )
       {
+        m_bist_running = CMD_BIST_MOTOR;
       }
       else if ( CMD_BIST_PID    == gp_commands_read->command )
       {
+        m_bist_running = CMD_BIST_PID;
       }
       else if ( CMD_BIST_MOTION == gp_commands_read->command )
       {
+        m_bist_running = CMD_BIST_MOTION;
       }
     }
 
@@ -303,6 +338,32 @@ void ProcessIncomingCommands()
 
     g_TWI_writeComplete = false;
   }
+}
+
+void RunTest()
+{
+  UpdateTelemetryClock();
+
+  ProcessIncomingCommands();
+
+  if ( m_bist_running == CMD_BIST_MOTOR )
+  {
+    MotorPatternTest();
+  }
+  else if ( m_bist_running == CMD_BIST_PID )
+  {
+    PidPatternTest();
+  }
+  else if ( m_bist_running == CMD_BIST_MOTION )
+  {
+    BaseMotion();
+
+    MotionPatternTest();
+  }
+  
+  UpdateTelemetry();
+
+  CheckVoltage();
 }
 
 void MotionPatternTest()

@@ -1,6 +1,9 @@
 *.o
 *.lst
-*.elf
-*.hex
-*.map
+DATA_bb_trainerboard.elf
+DATA_bb_trainerboard.hex
+DATA_bb_trainerboard.map
+DATA_bb_trainerboard.eep
+DATA_bb_trainerboard.lss
+DATA_bb_trainerboard.sym
 test/bin/*

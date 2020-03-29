@@ -10,6 +10,7 @@
 
 // POWER Commands
 #define CMD_POWER_SHELL   0x01
+#define CMD_POWER_CANCEL  0x1E
 #define CMD_POWER_KILL    0xDE
 
 // BIST Commands
