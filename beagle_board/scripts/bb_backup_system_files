@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cp /etc/wpa_supplicant.conf ~/beagleboard_navstack/beagle_board/system_files/etc/
+cp /etc/connman/main.conf   ~/beagleboard_navstack/beagle_board/system_files/etc/connnman/
+cp /etc/network/interfaces  ~/beagleboard_navstack/beagle_board/system_files/etc/network/
