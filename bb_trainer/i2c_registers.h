@@ -5,7 +5,8 @@
 
 typedef struct __attribute__((__packed__))
 {
-  uint16_t    command;            // W
+  uint8_t     command_group;      // W
+  uint8_t     command;            // W
   int16_t     linear_velocity;    // R/W
   int16_t     angular_velocity;   // R/W
   int16_t     left_encoder;       // R

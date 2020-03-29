@@ -1,0 +1,6 @@
+*.o
+*.lst
+*.elf
+*.hex
+*.map
+test/bin/*

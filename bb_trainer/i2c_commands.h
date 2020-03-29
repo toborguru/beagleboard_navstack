@@ -5,15 +5,15 @@
 // I2C Byte 0 - Cmd Group
 // I2C Byte 1 - Cmd Code
 
-#define CMD_GRP_POWER     0xDE // BIST start and stop commands
+#define CMD_GRP_POWER     0xAD // BIST start and stop commands
 #define CMD_GRP_BIST      0xFE // BIST start and stop commands
 
 // POWER Commands
 #define CMD_POWER_SHELL   0x01
-#define CMD_POWER_KILL    0xAD
+#define CMD_POWER_KILL    0xDE
 
 // BIST Commands
-#define CMD_BIST_STOP     0x00
+#define CMD_BIST_NONE     0x00
 #define CMD_BIST_MOTOR    0x01
 #define CMD_BIST_PID      0x02
 #define CMD_BIST_MOTION   0x03

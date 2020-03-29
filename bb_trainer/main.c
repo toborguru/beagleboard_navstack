@@ -50,7 +50,7 @@
 #define E_STOP_PIN  1
 
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
-#define INVALID_COMMAND         0xFFFF
+#define INVALID_COMMAND         0xFF
 
 #define MOTION_TEST_EN 0	// If non-zero a repeating pattern will be run using pid control
 #define MOTION_TEST_DELAY   1500
@@ -255,16 +255,13 @@ void ProcessIncomingCommands()
 
   if ( g_TWI_writeComplete )
   {
-    if ( gp_commands_read->command != INVALID_COMMAND )
+    if ( CMD_GRP_POWER          == gp_commands_read->command_group )
     {
-      // Kill power to the whole robot
-      if ( 0xDEAD == gp_commands_read->command )
+      if ( CMD_POWER_KILL       == gp_commands_read->command )
       {
         BIT_SET(_PORT(KILL_PORT), KILL_PIN); 
       }
-
-      // Power Cycle the Shells - If they are powered off we lose I2C comms...
-      if ( 0x0601 == gp_commands_read->command )
+      else if ( CMD_POWER_SHELL == gp_commands_read->command )
       {
         BIT_CLEAR(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
 
@@ -272,10 +269,26 @@ void ProcessIncomingCommands()
         reset_step_time &= SYSTEM_CLOCK_MASK;
         in_reset = true;
       }
-
-      gp_commands_read->command = INVALID_COMMAND;
     }
-    
+    else if ( CMD_GRP_BIST      == gp_commands_read->command_group )
+    {
+      if (  CMD_BIST_NONE       == gp_commands_read->command )
+      {
+      }
+      else if ( CMD_BIST_MOTOR  == gp_commands_read->command )
+      {
+      }
+      else if ( CMD_BIST_PID    == gp_commands_read->command )
+      {
+      }
+      else if ( CMD_BIST_MOTION == gp_commands_read->command )
+      {
+      }
+    }
+
+    gp_commands_read->command_group = INVALID_COMMAND;
+    gp_commands_read->command       = INVALID_COMMAND;
+ 
     if ( ( gp_commands_read->linear_velocity != I2C_INVALID_VELOCITY ) &&
         ( gp_commands_read->angular_velocity != I2C_INVALID_VELOCITY ) )
     {
