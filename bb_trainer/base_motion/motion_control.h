@@ -6,6 +6,15 @@
 
 #define MOTION_CONTROL_UPDATE_RATE_HZ   50
 
+#define MOTION_CONTROL_KP   5.0
+#define MOTION_CONTROL_KD   0.0
+#define MOTION_CONTROL_KI   1.0 
+#define MOTION_CONTROL_MAX_CORRECTION   0xFF
+
+#define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
+#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     10  // u16.0 ticks/sec^2
+#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    10  // u16.0 ticks/sec^3
+
 typedef struct
 {
     volatile int16_t  angular_velocity_setpoint;  // s7.8 ticks/update

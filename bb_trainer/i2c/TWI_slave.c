@@ -99,7 +99,7 @@ void TWI_Start_Transceiver_With_Data( unsigned char *msg, unsigned char msgSize 
   while ( TWI_Transceiver_Busy() ) {}             // Wait until TWI is ready for next transmission.
 
   TWI_msgSize = msgSize;                        // Number of data to transmit.
-  for ( temp = 0; temp < msgSize; ++temp )      // Copy data that may be transmitted if the TWI Master requests data.
+  for ( temp = 0; temp < msgSize; temp++ )      // Copy data that may be transmitted if the TWI Master requests data.
   {
     gp_TWI_transmitBuf[ temp ] = msg[ temp ];
   }
@@ -174,7 +174,7 @@ ISR( TWI_vect )
       TWI_numBytes = 0;                                 // Set buffer pointer to first data location
       g_TWI_readInProgress = TRUE;
     case TWI_STX_DATA_ACK:           // Data byte in TWDR has been transmitted; ACK has been received
-      TWDR = gp_TWI_transmitBuf[++TWI_bufPtr];
+      TWDR = gp_TWI_transmitBuf[TWI_bufPtr++];
       TWCR = (1<<TWEN)|                                 // TWI Interface enabled
              (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
              (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // 
@@ -232,7 +232,7 @@ ISR( TWI_vect )
       }
       else
       {
-        gp_TWI_receive_buf[++TWI_bufPtr]     = TWDR;
+        gp_TWI_receive_buf[TWI_bufPtr++]     = TWDR;
         TWI_multiByteWrite = TRUE;
         g_TWI_writeInProgress = TRUE;
       }

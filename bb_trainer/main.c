@@ -23,6 +23,7 @@
 #include "Avr.h"
 #include "analog_in.h"
 #include "i2c_registers.h"
+#include "i2c_commands.h"
 #include "macros.h"
 #include "system_clock.h"
 
@@ -58,7 +59,7 @@
 #define MOTION_TEST_SPEED2  80
 #define MOTION_TEST_TURN2   80
 
-#define PID_TEST_EN 1	// If non-zero a repeating pattern will be run using pid control
+#define PID_TEST_EN 0	// If non-zero a repeating pattern will be run using pid control
 #define PID_TEST_DELAY   1500
 #define PID_TEST_LEFT1   4
 #define PID_TEST_RIGHT1  4
@@ -148,7 +149,7 @@ int main( void )
 
     BaseMotion();
 
-# if MOTOR_TEST_EN
+# if MOTION_TEST_EN
     MotionPatternTest();
 # else
     ProcessIncomingCommands();

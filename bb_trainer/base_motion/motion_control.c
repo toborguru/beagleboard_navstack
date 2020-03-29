@@ -11,15 +11,6 @@
 #include "motion_control.h"
 #include "shaft_encoders.h"
 
-#define MOTION_CONTROL_KP   5.0
-#define MOTION_CONTROL_KD   0.0
-#define MOTION_CONTROL_KI   1.0 
-#define MOTION_CONTROL_MAX_CORRECTION   0xFF
-
-#define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
-#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     10  // u16.0 ticks/sec^2
-#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    10  // u16.0 ticks/sec^3
-
 /* GLOBAL VARIABLES */
 volatile Motion_State_t g_left_wheel_motion;
 volatile Motion_State_t g_right_wheel_motion;
@@ -30,9 +21,9 @@ volatile int32_t g_stasis_total = 0;
 volatile uint8_t g_estop = 0;
 
 /* MODULE VARIABLES */
-static volatile uint16_t   m_linear_acceleration;      // u8.8 ticks/update^2
-static volatile uint16_t   m_angular_acceleration;     // u8.8 ticks/update^2
-static volatile uint16_t   m_max_velocity;             // u16.0 ticks/sec
+static uint16_t   m_linear_acceleration;      // u8.8 ticks/update^2
+static uint16_t   m_angular_acceleration;     // u8.8 ticks/update^2
+static uint16_t   m_max_velocity;             // u16.0 ticks/sec
 
 /* MODULE FUNCTION PROTOTYPES */
 static void Motion_Control_Init_State(  volatile Motion_State_t *p_state );
@@ -294,9 +285,8 @@ static int16_t Motion_Control_Run_PID(  int8_t new_encoder_ticks,  // s7.0 ticks
 
   if  ( ( p_state->linear_velocity == 0 ) &&
         ( p_state->angular_velocity == 0 ) &&
-        (( error_squared = p_state->pid.error * p_state->pid.error ) < 5) ) // 10 should mean within 3 encoder ticks
+        ( ( error_squared = p_state->pid.error * p_state->pid.error ) < 5) ) // 10 should mean within 3 encoder ticks
   {
-    //power = (power * error_squared) / 8;
     power = 0;
   }
 
@@ -350,6 +340,7 @@ static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_m
     {
         p_motion->linear_velocity += m_linear_acceleration;
 
+        // We've reached our goal
         if ( p_motion->linear_velocity > p_motion->linear_velocity_setpoint )
         {
             p_motion->linear_velocity = p_motion->linear_velocity_setpoint;
@@ -359,6 +350,7 @@ static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_m
     {
         p_motion->linear_velocity -= m_linear_acceleration;
 
+        // We've reached our goal
         if ( p_motion->linear_velocity < p_motion->linear_velocity_setpoint )
         {
             p_motion->linear_velocity = p_motion->linear_velocity_setpoint;
@@ -370,6 +362,7 @@ static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_m
     {
         p_motion->angular_velocity += m_angular_acceleration; 
 
+        // We've reached our goal
         if ( p_motion->angular_velocity > p_motion->angular_velocity_setpoint )
         {
             p_motion->angular_velocity = p_motion->angular_velocity_setpoint;
@@ -379,6 +372,7 @@ static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_m
     {
         p_motion->angular_velocity -= m_angular_acceleration;
 
+        // We've reached our goal
         if ( p_motion->angular_velocity < p_motion->angular_velocity_setpoint )
         {
             p_motion->angular_velocity = p_motion->angular_velocity_setpoint;

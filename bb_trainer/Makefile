@@ -160,7 +160,7 @@ LDFLAGS += -lm
 AVRDUDE_PROGRAMMER = stk500
 
 
-AVRDUDE_PORT = com1	   # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB0	   # programmer connected to serial device
 #AVRDUDE_PORT = lpt1	# programmer connected to parallel port
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
@@ -186,13 +186,6 @@ AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
 
 
 # ---------------------------------------------------------------------------
-
-# Define directories, if needed.
-DIRAVR = c:/winavr
-DIRAVRBIN = $(DIRAVR)/bin
-DIRAVRUTILS = $(DIRAVR)/utils/bin
-DIRINC = .
-DIRLIB = $(DIRAVR)/avr/lib
 
 
 # Define programs and commands.
@@ -302,12 +295,16 @@ extcoff: $(TARGET).elf
 	@echo $(MSG_EXTENDED_COFF) $(TARGET).cof
 	$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
 
-# Program the device.  
+# Program the flash via ISP programmer
+program: $(TARGET).hex
+	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
+
+# Program the device via I2C 
 install: $(TARGET).hex
 	bb_trainer_program $(TARGET).hex
 
 # Install to Gumstix
-#install : $(TARGET).hex
+#install: $(TARGET).hex
 #	scp $(TARGET).hex root@data-blue:robostix/
 
 # Create final output files (.hex, .eep) from ELF output file.
