@@ -1,0 +1,68 @@
+Creating a Swapfile
+The following commands will create a 1 GB file, limit access only to root, format it as swap and then make it available to the OS:
+sudo mkdir -p /var/cache/swap/   
+sudo dd if=/dev/zero of=/var/cache/swap/swapfile bs=1M count=1024
+sudo chmod 0600 /var/cache/swap/swapfile 
+sudo mkswap /var/cache/swap/swapfile 
+sudo swapon /var/cache/swap/swapfile 
+
+sudo vi /etc/fstab 
+Add line:
+/var/cache/swap/swapfile  swap  swap  defaults  0  0
+
+
+USB Ethernet:
+sudo vi /etc/network/interfaces
+# The USB (RNDIS) Ethernet interface
+auto usb0
+iface usb0 inet static
+        address 192.168.7.2
+        netmask 255.255.255.0
+        gateway 192.168.7.1
+
+User:
+sudo adduser tobor
+
+Add Wireless:
+Disable connman for wlan0:
+sudo vi /etc/connman/main.conf
+NetworkInterfaceBlacklist=SoftAp0,usb0,usb1,wlan0
+
+Configure Wifi:
+sudo vi /etc/network/interfaces
+# Home Wifi
+auto wlan0
+iface wlan0 inet dhcp
+        wpa-ssid "Mysterious"
+        wpa-psk  "qwertyuiop"
+        
+WPA Supplicant:
+$ sudo vi /etc/wpa_supplicant.conf
+eapol_version=2
+ap_scan=1
+fast_reauth=1
+
+# Home
+network={
+  ssid="Mysterious"
+  scan_ssid=1
+  priority=5
+  #psk="qwertyuiop"
+  psk=0564fba0b67f93db08c218654dbca0edbb013a17c55b5bed3b1b7221ee1ceb74
+}
+
+#network={
+# ssid="cleverlike"
+#        scan_ssid=1
+#        priority=4
+# #psk="Cl3v3rUs"
+# psk=927c743fa2af773e9e11ee808c5c012210e98f10e40645e33623b58a69af060a
+#}
+
+### Associate with any open access point
+###  Scans/ESSID changes can be done with wpa_cli
+network={
+  ssid=""
+  key_mgmt=NONE
+  priority=1
+}

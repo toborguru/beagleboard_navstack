@@ -1,0 +1,22 @@
+ Serial Console
+ Ethernet- WiFi to house
+3) Bluetooth- Wireless connectivity
+
+No more need for serial
+
+4) Get BB Trainer to Power On/Off
+5) Load BB Trainer code via ISP
+6) Get I2C register interface working
+7) Get I2C bootloader installed
+8) Get I2C bootloader Host side installed
+9) Load images via I2C
+
+No more need for ISP
+
+10) Sound/ Volume
+
+11) Begin ROS journey
+or
+11) Front Panel
+or
+11) Write basic robot comm regression HW tests

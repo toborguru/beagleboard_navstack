@@ -1,0 +1,28 @@
+Download Ubuntu for Beagle board:
+Get prebuilt image:
+wget https://rcn-ee.com/rootfs/2020-03-12/elinux/ubuntu-18.04.4-console-armhf-2020-03-12.tar.xz
+
+Verify Image with:
+sha256sum ubuntu-18.04.4-console-armhf-2020-03-12.tar.xz
+abe086f9132dfe8e8b9df8d14da225e0ce89a082abc92515de8a2ac63fc54ae2  ubuntu-18.04.4-console-armhf-2020-03-12.tar.xz
+
+Decompress Image:
+tar -xvf ubuntu-18.04.4-console-armhf-2020-03-12.tar.xz
+cd ubuntu-18.04.4-console-armhf-2020-03-12
+
+Install dependencies:
+sudo apt-get install dosfstools git kpartx wget parted
+
+Flash SD Card:
+sudo ./setup_sdcard.sh --mmc /dev/sdb --dtb omap3-beagle-xm
+
+Install Support Tools:
+sudo apt install avrdude avrdude-doc avr-libc
+sudo apt install minicom
+minicom 115200 8n1 no HW flow ctrl
+
+Configure USB laptop static IP through KDE Network manager - 192.168.7.1
+
+
+
+

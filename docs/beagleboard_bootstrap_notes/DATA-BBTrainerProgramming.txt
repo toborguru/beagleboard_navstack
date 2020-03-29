@@ -1,0 +1,31 @@
+$ make
+
+$ avr-size -C DATA_bb_trainerboard.elf
+AVR Memory Usage
+----------------
+Device: Unknown
+
+Program:    7854 bytes
+(.text + .data + .bootloader)
+
+Data:        271 bytes
+(.data + .bss + .noinit)
+
+AVRDUDE_PROGRAMMER = stk500
+AVRDUDE_PORT = ttyUSB0
+AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
+
+$ avrdude -p atmega328p -c stk500 -U flash:w:DATA_bb_trainerboard.hex -P /dev/ttyUSB0
+
+# Makefile updated
+$ make
+$ make program # flashes using the ISP
+
+# Install gtest
+$ sudo apt install libgtest-dev cmake
+$ cd /usr/src/gtest
+$ sudo cmake CMakeLists.txt
+$ sudo make
+$ sudo cp *.a /usr/lib
+$ cd test 
+$ make test

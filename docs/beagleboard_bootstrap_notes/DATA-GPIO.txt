@@ -1,0 +1,28 @@
+GPIO 162 controls power to BB Trainer
+
+$ cd /sys/class/gpio/
+$ ls
+export     gpiochip128  gpiochip32   gpiochip508  gpiochip96
+gpiochip0  gpiochip160  gpiochip488  gpiochip64   unexport
+
+$ echo 162 > export
+$ ls
+export     gpiochip128  gpiochip488  gpiochip96
+gpio162    gpiochip160  gpiochip508  unexport
+gpiochip0  gpiochip32   gpiochip64
+
+$ cd gpio162
+$ ls
+active_low  direction  label  subsystem  value
+device      edge       power  uevent
+
+$ echo out > /sys/class/gpio/gpio162/direction
+
+$ echo 0 > /sys/class/gpio/gpio162/value
+$ cat /sys/kernel/debug/gpio
+
+$ echo 1 > value
+$ cat /sys/kernel/debug/gpio
+
+Need to set the output MUX correctly:
+Setup laptop cross-compiler:
