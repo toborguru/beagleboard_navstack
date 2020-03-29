@@ -1,3 +1,27 @@
 #!/bin/bash
 
-i2c -d /dev/i2c-2 0x06 rb4 18 
+# Script written to monitor and control the DATA robot by Sawyer Larkin
+
+I2C_BUS=1
+I2C_BOARD=6
+
+while [ true ]
+do
+  echo "------------------------------------------------------"
+  V_READING=`i2cget -y $I2C_BUS $I2C_BOARD 0x12 w`
+
+  V_DEC=$((16#${V_READING:2}))
+  VOLTAGE=`echo "$V_DEC * 0.02" | bc`
+  
+  echo "Reading: $V_READING Voltage: $VOLTAGE"
+
+  C_READING=`i2cget -y $I2C_BUS $I2C_BOARD 0x14 w`
+  
+  C_DEC=$((16#${C_READING:2}))
+  CURRENT=`echo "($C_DEC * 0.03759) - 3.8492" | bc`
+  
+  echo "Reading: $C_READING Current: $CURRENT"
+ 
+  echo
+  sleep 0.25
+done
