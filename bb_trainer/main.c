@@ -53,27 +53,32 @@
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
 #define INVALID_COMMAND         0xFF
 
-#define MOTION_TEST_EN 0	// If non-zero a repeating pattern will be run using pid control
-#define MOTION_TEST_DELAY   1500
+// repeating pattern will be run using pid control
+#define MOTION_TEST_DELAY   1500 // millis
 #define MOTION_TEST_SPEED1  80
 #define MOTION_TEST_TURN1   0
 #define MOTION_TEST_SPEED2  80
 #define MOTION_TEST_TURN2   80
 
-#define PID_TEST_EN 0	// If non-zero a repeating pattern will be run using pid control
-#define PID_TEST_DELAY   1500
+// repeating pattern will be run using pid control
+#define PID_TEST_DELAY   1500 // millis
 #define PID_TEST_LEFT1   4
 #define PID_TEST_RIGHT1  4
 #define PID_TEST_LEFT2   0
 #define PID_TEST_RIGHT2  0
 
-#define MOTOR_TEST_EN 0 // If non-zero a repeating pattern will be run using raw motor power
-#define MOTOR_TEST_DELAY   1500
+// repeating pattern will be run using raw motor power
+#define MOTOR_TEST_DELAY   1500 // millis
 #define MOTOR_TEST_LEFT1   200
 #define MOTOR_TEST_RIGHT1  200
 #define MOTOR_TEST_LEFT2   100
 #define MOTOR_TEST_RIGHT2  0
 
+// ramp motor power up and down
+#define RAMP_TEST_DELAY    500  // millis
+#define RAMP_TEST_INC      4
+#define RAMP_TEST_LOW      -64  // Min -255
+#define RAMP_TEST_HIGH     64   // Max 255 
 
 volatile I2C_REGISTERS_t* gp_commands_read;
 volatile I2C_REGISTERS_t* gp_commands_write;
@@ -87,7 +92,7 @@ static I2C_REGISTERS_t m_telemetry_b;
 static uint16_t m_steps_since_command = 0;
 
 // Non-zero values override nominal system behavior and perform basic system operation tests
-static uint16_t m_bist_running = 0; 
+static uint16_t m_bist_running = CMD_BIST_NONE; 
 
 void BaseMotion( void );
 void CheckVoltage( void );
@@ -139,14 +144,6 @@ int main( void )
   Motors_Enable();
 #else
   Motors_Disable();
-#endif
-
-#if MOTOR_TEST_EN
-  m_bist_running = CMD_BIST_MOTOR;
-#elif PID_TEST_EN
-  m_bist_running = CMD_BIST_PID;
-#elif MOTION_TEST_EN
-  m_bist_running = CMD_BIST_MOTION;
 #endif
 
   ENABLE_INTERRUPTS();
@@ -327,6 +324,10 @@ void ProcessIncomingCommands()
       {
         m_bist_running = CMD_BIST_MOTION;
       }
+      else if ( CMD_BIST_RAMP   == gp_commands_read->command )
+      {
+        m_bist_running = CMD_BIST_RAMP;
+      }
     }
 
     gp_commands_read->command_group = INVALID_COMMAND;
@@ -357,6 +358,10 @@ void RunTest()
   if ( m_bist_running == CMD_BIST_MOTOR )
   {
     MotorPatternTest();
+  }
+  else if ( m_bist_running == CMD_BIST_RAMP )
+  {
+    MotorRampTest();
   }
   else if ( m_bist_running == CMD_BIST_PID )
   {
@@ -506,6 +511,60 @@ void MotorPatternTest()
     }
 
     pattern_state = !pattern_state;
+  }
+}
+
+void MotorRampTest()
+{
+  static SYSTEM_CLOCK_T  run_time = 0;
+  static int16_t test_power = 0;
+  static uint8_t direction = 0;
+
+  if ( Clock_Diff(run_time, g_system_clock) <= 0 )
+  {
+		uint8_t motor_power;
+
+    while ( Clock_Diff(run_time, g_system_clock) < 0 )
+    { 
+      run_time += RAMP_TEST_DELAY;
+      run_time &= SYSTEM_CLOCK_MASK;
+    }
+    
+    if ( direction == 0 )
+    {
+      test_power += RAMP_TEST_INC;
+    }
+    else
+    {
+      test_power -= RAMP_TEST_INC;
+    }
+
+    if ( test_power >= RAMP_TEST_HIGH )
+    {
+      test_power = RAMP_TEST_HIGH;
+      direction = !direction;
+    }
+    else if ( test_power <= RAMP_TEST_LOW )
+    {
+      test_power = RAMP_TEST_LOW;
+      direction = !direction;
+    }
+
+		if (test_power < 0)
+		{   
+			motor_power = test_power * -1;
+			Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_REVERSE );
+			Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_REVERSE );
+		}
+		else
+		{   
+			motor_power = test_power;
+			Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_FORWARD);
+			Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_FORWARD);
+		}
+    
+    Motors_Set_Power( MOTORS_L_INDEX, (uint8_t)motor_power );
+    Motors_Set_Power( MOTORS_R_INDEX, (uint8_t)motor_power );
   }
 }
 
