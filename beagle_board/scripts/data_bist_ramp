@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Script written to monitor and control the DATA robot by Sawyer Larkin
+
+I2C_BUS=1
+I2C_BOARD=6
+
+i2cset -y $I2C_BUS $I2C_BOARD 0x0 0x04FE w
