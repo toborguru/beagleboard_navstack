@@ -363,6 +363,7 @@ void RunTest()
 
   ProcessIncomingCommands();
 
+  // Drive Motors
   if ( m_bist_running == CMD_BIST_MOTOR )
   {
     MotorPatternTest();

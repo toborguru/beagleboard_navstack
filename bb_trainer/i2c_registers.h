@@ -19,7 +19,6 @@ typedef struct __attribute__((__packed__))
   uint16_t    current;            // R
   uint16_t    linear_accel;       // R/W
   uint16_t    angular_accel;      // R/W
-  // PID values
 } I2C_REGISTERS_t;
 
 extern volatile I2C_REGISTERS_t* gp_commands_read;

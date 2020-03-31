@@ -6,6 +6,8 @@
 
 #define MOTION_CONTROL_UPDATE_RATE_HZ   50
 
+
+// PID Parameters
 #define MOTION_CONTROL_KP   5.0
 #define MOTION_CONTROL_KD   0.0
 #define MOTION_CONTROL_KI   1.0 
