@@ -37,7 +37,7 @@
 #define SHELL_RESET_STEPS   250 // 50 Hz Steps (last I checked...)
 #define KILL_DELAY_STEPS    500 // 50 Hz Steps (last I checked...)
 
-#define MOTION_STEP_DELAY   1000 / MOTION_CONTROL_UPDATE_RATE_HZ
+#define MOTION_STEP_DELAY   20 // millis (50Hz)
 #define MAX_STEPS_BETWEEN_COMMANDS  45 // 50 Hz Steps (last I checked...)
 #define MOT_CMD_ENABLED 1
 
