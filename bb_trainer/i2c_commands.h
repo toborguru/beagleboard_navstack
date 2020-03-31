@@ -10,6 +10,8 @@
 
 // POWER Commands
 #define CMD_POWER_SHELL     0x01 // Power cycle the aux power, shells also kills I2C to BB
+#define CMD_POWER_NO_MOTOR  0x80 // Disable motor power
+#define CMD_POWER_MOTOR     0x81 // Enable motor power
 #define CMD_POWER_CANCEL    0x1E // Enable motor power
 #define CMD_POWER_KILL      0xDE // Kill power to the robot
 

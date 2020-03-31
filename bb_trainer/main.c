@@ -284,47 +284,55 @@ void ProcessIncomingCommands()
   // Process incoming commands
   if ( g_TWI_writeComplete )
   {
-    if ( CMD_GRP_POWER          == gp_commands_read->command_group )
+    if ( CMD_GRP_POWER              == gp_commands_read->command_group )
     {
       // Schedule a power down
-      if ( CMD_POWER_KILL       == gp_commands_read->command )
+      if ( CMD_POWER_KILL           == gp_commands_read->command )
       {
         kill_time = g_system_clock + KILL_DELAY_STEPS;
         kill_time &= SYSTEM_CLOCK_MASK;
       }
       // Cancel a power down
-      else if ( CMD_POWER_CANCEL     == gp_commands_read->command )
+      else if ( CMD_POWER_CANCEL    == gp_commands_read->command )
       {
         kill_time = 0;
       }
       // Power cycle the shells
-      else if ( CMD_POWER_SHELL == gp_commands_read->command )
+      else if ( CMD_POWER_SHELL     == gp_commands_read->command )
       {
         BIT_CLEAR(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
 
         reset_time = g_system_clock + SHELL_RESET_STEPS;
         reset_time &= SYSTEM_CLOCK_MASK;
       }
+      else if ( CMD_POWER_NO_MOTOR  == gp_commands_read->command )
+      {
+        Motors_Disable();
+      }
+      else if ( CMD_POWER_MOTOR     == gp_commands_read->command )
+      {
+        Motors_Enable();
+      }
     }
-    else if ( CMD_GRP_BIST      == gp_commands_read->command_group )
+    else if ( CMD_GRP_BIST          == gp_commands_read->command_group )
     {
-      if (  CMD_BIST_NONE       == gp_commands_read->command )
+      if (  CMD_BIST_NONE           == gp_commands_read->command )
       {
         m_bist_running = CMD_BIST_NONE;
       } 
-      else if ( CMD_BIST_MOTOR  == gp_commands_read->command )
+      else if ( CMD_BIST_MOTOR      == gp_commands_read->command )
       {
         m_bist_running = CMD_BIST_MOTOR;
       }
-      else if ( CMD_BIST_PID    == gp_commands_read->command )
+      else if ( CMD_BIST_PID        == gp_commands_read->command )
       {
         m_bist_running = CMD_BIST_PID;
       }
-      else if ( CMD_BIST_MOTION == gp_commands_read->command )
+      else if ( CMD_BIST_MOTION     == gp_commands_read->command )
       {
         m_bist_running = CMD_BIST_MOTION;
       }
-      else if ( CMD_BIST_RAMP   == gp_commands_read->command )
+      else if ( CMD_BIST_RAMP       == gp_commands_read->command )
       {
         m_bist_running = CMD_BIST_RAMP;
       }
