@@ -177,12 +177,16 @@ int main( void )
 void CheckVoltage()
 {
   static uint_fast8_t limit_reached = 0;
-  static SYSTEM_CLOCK_T step_time = 0;
+  static SYSTEM_CLOCK_T run_time = 0;
 
   // Perform Motion Step
-  if ( Clock_Diff(step_time, g_system_clock) <= 0 )
+  if ( Clock_Diff(run_time, g_system_clock) <= 0 )
   {
-    step_time += 100; // Millis
+    while ( Clock_Diff(run_time, g_system_clock) <= 0 )
+    {
+      run_time += 100; // Millis
+      run_time &= SYSTEM_CLOCK_MASK;
+    }
 
     if ( (gp_telemetry_write->voltage > 0) && (gp_telemetry_write->voltage < VOLTAGE_KILL_LIMIT) )
     { 
@@ -225,17 +229,21 @@ void UpdateTelemetryClock()
 
 void BaseMotion()
 {
-  static SYSTEM_CLOCK_T  motion_step_time = 0;
+  static SYSTEM_CLOCK_T  run_time = 0;
 
   // Perform Motion Step
-  if ( Clock_Diff(motion_step_time, g_system_clock) <= 0 )
+  if ( Clock_Diff(run_time, g_system_clock) <= 0 )
   {
+    while ( Clock_Diff(run_time, g_system_clock) <= 0 )
+    {
+      run_time += MOTION_STEP_DELAY;
+      run_time &= SYSTEM_CLOCK_MASK;
+    }
+
     Motion_Control_Run_Step();
 
     Switch_Telemetry_Buffers();
 
-    motion_step_time += MOTION_STEP_DELAY;
-    motion_step_time &= SYSTEM_CLOCK_MASK;
     ++m_steps_since_command;
 
     if ( m_steps_since_command > MAX_STEPS_BETWEEN_COMMANDS )
@@ -248,14 +256,14 @@ void BaseMotion()
 
 void ProcessIncomingCommands()
 {
-  static SYSTEM_CLOCK_T  reset_step_time = 0;
-  static SYSTEM_CLOCK_T  kill_step_time = 0;
+  static SYSTEM_CLOCK_T  reset_time = 0;
+  static SYSTEM_CLOCK_T  kill_time = 0;
 
   // Check to see if a kill is scheduled
-  if ( kill_step_time != 0 )
+  if ( kill_time != 0 )
   {
     // Check to see if it's time to kill power (auto-destruct)
-    if ( Clock_Diff(kill_step_time, g_system_clock) <= 0 )
+    if ( Clock_Diff(kill_time, g_system_clock) <= 0 )
     {
       // Kill power to the entire bot
       BIT_SET(_PORT(KILL_PORT), KILL_PIN); 
@@ -263,16 +271,16 @@ void ProcessIncomingCommands()
   }
 
   // Check to see if the shells are in reset
-  if ( reset_step_time != 0 )
+  if ( reset_time != 0 )
   {
     // Check to see if it's time to re-apply shell power
-    if ( Clock_Diff(reset_step_time, g_system_clock) <= 0 )
+    if ( Clock_Diff(reset_time, g_system_clock) <= 0 )
     {
       // Turn shell power back on
       BIT_SET(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
 
       // Signal the shells are not in reset
-      reset_step_time = 0;
+      reset_time = 0;
     }
   }
 
@@ -284,21 +292,21 @@ void ProcessIncomingCommands()
       // Schedule a power down
       if ( CMD_POWER_KILL       == gp_commands_read->command )
       {
-        kill_step_time = g_system_clock + KILL_DELAY_STEPS;
-        kill_step_time &= SYSTEM_CLOCK_MASK;
+        kill_time = g_system_clock + KILL_DELAY_STEPS;
+        kill_time &= SYSTEM_CLOCK_MASK;
       }
       // Cancel a power down
       else if ( CMD_POWER_CANCEL     == gp_commands_read->command )
       {
-        kill_step_time = 0;
+        kill_time = 0;
       }
       // Power cycle the shells
       else if ( CMD_POWER_SHELL == gp_commands_read->command )
       {
         BIT_CLEAR(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
 
-        reset_step_time = g_system_clock + SHELL_RESET_STEPS;
-        reset_step_time &= SYSTEM_CLOCK_MASK;
+        reset_time = g_system_clock + SHELL_RESET_STEPS;
+        reset_time &= SYSTEM_CLOCK_MASK;
       }
     }
     else if ( CMD_GRP_BIST      == gp_commands_read->command_group )
@@ -368,11 +376,17 @@ void RunTest()
 
 void MotionPatternTest()
 {
-  static SYSTEM_CLOCK_T  motion_test_time = MOTION_TEST_DELAY;
+  static SYSTEM_CLOCK_T  run_time = MOTION_TEST_DELAY;
   static uint8_t pattern_state = 1;
 
-  if ( Clock_Diff(motion_test_time, g_system_clock) <= 0 )
+  if ( Clock_Diff(run_time, g_system_clock) <= 0 )
   {
+    while ( Clock_Diff(run_time, g_system_clock) <= 0 )
+    {
+      run_time += MOTION_TEST_DELAY;
+      run_time &= SYSTEM_CLOCK_MASK;
+    }
+
     if (pattern_state)
     {
       Motion_Control_Set_Velocity( MOTION_TEST_SPEED1, MOTION_TEST_TURN1 );
@@ -383,9 +397,6 @@ void MotionPatternTest()
     }
 
     pattern_state = !pattern_state;
-
-    motion_test_time += MOTION_TEST_DELAY;
-    motion_test_time &= SYSTEM_CLOCK_MASK;
   }
 }
 
@@ -402,13 +413,17 @@ void PidPatternTest()
   int16_t left_power;
   int16_t right_power;
 
-  uint16_t measurement_time;
-
-  static SYSTEM_CLOCK_T  motion_test_time = MOTION_TEST_DELAY;
+  static SYSTEM_CLOCK_T  run_time = MOTION_TEST_DELAY;
   static uint8_t pattern_state = 1;
 
-  if ( Clock_Diff(motion_test_time, g_system_clock) <= 0 )
+  if ( Clock_Diff(run_time, g_system_clock) <= 0 )
   {
+    while ( Clock_Diff(run_time, g_system_clock) <= 0 )
+    {
+      run_time += MOTION_TEST_DELAY;
+      run_time &= SYSTEM_CLOCK_MASK;
+    }
+
     if (pattern_state)
     {
       p_l_wheel->pid.setpoint = PID_TEST_LEFT1;
@@ -422,9 +437,6 @@ void PidPatternTest()
 
     pattern_state = !pattern_state;
 
-    motion_test_time += MOTION_TEST_DELAY;
-    motion_test_time &= SYSTEM_CLOCK_MASK;
-
     // Get new encoder counts
     DISABLE_INTERRUPTS();
     delta_left = g_shaft_encoders_left_count;
@@ -435,7 +447,6 @@ void PidPatternTest()
     g_shaft_encoders_right_count = 0;
     g_shaft_encoders_stasis_count = 0;
 
-    measurement_time = (uint16_t)g_system_clock;
     ENABLE_INTERRUPTS();
 
     // Set motor power
@@ -472,11 +483,17 @@ void PidPatternTest()
 
 void MotorPatternTest()
 {
-  static SYSTEM_CLOCK_T  motor_test_time = MOTOR_TEST_DELAY;
+  static SYSTEM_CLOCK_T  run_time = MOTOR_TEST_DELAY;
   static uint8_t pattern_state = 1;
 
-  if ( Clock_Diff(motor_test_time, g_system_clock) <= 0 )
+  if ( Clock_Diff(run_time, g_system_clock) <= 0 )
   {
+    while ( Clock_Diff(run_time, g_system_clock) <= 0 )
+    {
+      run_time += MOTION_TEST_DELAY;
+      run_time &= SYSTEM_CLOCK_MASK;
+    }
+
     if (pattern_state)
     {
       Motors_Set_Power( MOTORS_L_INDEX, MOTOR_TEST_LEFT1);
@@ -489,9 +506,6 @@ void MotorPatternTest()
     }
 
     pattern_state = !pattern_state;
-
-    motor_test_time += MOTION_TEST_DELAY;
-    motor_test_time &= SYSTEM_CLOCK_MASK;
   }
 }
 
