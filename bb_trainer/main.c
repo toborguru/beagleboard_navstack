@@ -32,7 +32,7 @@
 #define I2C_ADDRESS         0x06
 
 // Voltage reading below which: kill power to the entire bot.
-#define VOLTAGE_KILL_LIMIT  350 // 300 ~= 6V
+#define VOLTAGE_KILL_LIMIT  300 // 300 ~= 6V, 325 ~= 6.5V, 350 ~= 7V
 
 #define SHELL_RESET_STEPS   250 // 50 Hz Steps (last I checked...)
 #define KILL_DELAY_STEPS    500 // 50 Hz Steps (last I checked...)
