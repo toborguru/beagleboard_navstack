@@ -366,17 +366,22 @@ void RunTest()
   if ( m_bist_running == CMD_BIST_MOTOR )
   {
     MotorPatternTest();
+    m_steps_since_command = MAX_STEPS_BETWEEN_COMMANDS + 1;
   }
   else if ( m_bist_running == CMD_BIST_RAMP )
   {
     MotorRampTest();
+    m_steps_since_command = MAX_STEPS_BETWEEN_COMMANDS + 1;
   }
   else if ( m_bist_running == CMD_BIST_PID )
   {
     PidPatternTest();
+    m_steps_since_command = MAX_STEPS_BETWEEN_COMMANDS + 1;
   }
   else if ( m_bist_running == CMD_BIST_MOTION )
   {
+    m_steps_since_command = 0;
+
     BaseMotion();
 
     MotionPatternTest();
