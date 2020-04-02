@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#echo low > /sys/class/gpio/gpio162/direction
+
+# Chip gpio_162, linux gpio_130
+POWER_IO=130
+POWER_GPIO=gpio$POWER_IO
+
+if [[ ! -d "/sys/class/gpio/$POWER_GPIO" ]]
+then 
+  echo $POWER_IO > /sys/class/gpio/export
+  sleep 0.5
+fi
+
+if [[ ! -d "/sys/class/gpio/$POWER_GPIO" ]]
+then 
+  echo "Error opening GPIO!"
+  exit 1
+fi
+
+DIRECTION=`cat /sys/class/gpio/$POWER_GPIO/direction`
+
+if [[ $DIRECTION != "out" ]]
+then 
+  echo out > /sys/class/gpio/$POWER_GPIO/direction
+fi
+
+echo 0 > /sys/class/gpio/$POWER_GPIO/value

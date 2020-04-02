@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Chip gpio_162, linux gpio_130
+POWER_IO=130
+POWER_GPIO=gpio$POWER_IO
+
+if [[ ! -d "/sys/class/gpio/$POWER_GPIO" ]]
+then 
+  # BB Trainer should already be on
+  exit 0 
+fi
+
+DIRECTION=`cat /sys/class/gpio/$POWER_GPIO/direction`
+
+if [[ $DIRECTION != "out" ]]
+then 
+  echo out > /sys/class/gpio/$POWER_GPIO/direction
+fi
+
+echo 1 > /sys/class/gpio/$POWER_GPIO/value
