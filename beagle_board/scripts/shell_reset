@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Script written to monitor and control the DATA robot by Sawyer Larkin
+
+#i2c -d /dev/i2c-2 0x06 wb2 0 0x0106
+I2C_BUS=1
+I2C_BOARD=6 # Write to the bb_trainer to control shell power
+
+i2cset -y $I2C_BUS $I2C_BOARD 0x0 0x01AD w
+
+sleep 0.25
+
+bb_trainer_reset
+
