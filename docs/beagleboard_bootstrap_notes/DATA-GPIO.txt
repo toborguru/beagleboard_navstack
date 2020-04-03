@@ -1,11 +1,48 @@
 GPIO 162 controls power to BB Trainer
+# Read GPIO 162 MUX
+$ sudo devmem2 0x48002198
+
+# According to OMAP Docs GPIO 162 MUX -> 0x48002198 & Control -> 0x49058000
+
+$ cat /sys/kernel/debug/gpio
+gpiochip0: GPIOs 0-31, parent: platform/49050000.gpio, gpio-0-31:
+
+gpiochip1: GPIOs 32-63, parent: platform/49052000.gpio, gpio-32-63:
+
+gpiochip2: GPIOs 64-95, parent: platform/49054000.gpio, gpio-64-95:
+
+gpiochip3: GPIOs 96-127, parent: platform/49056000.gpio, gpio-96-127:
+ gpio-115 (                    |reset               ) out hi ACTIVE LOW
+ gpio-117 (                    |beagleboard::usr1   ) out lo 
+ gpio-118 (                    |beagleboard::usr0   ) out lo 
+
+gpiochip4: GPIOs 128-159, parent: platform/49058000.gpio, gpio-128-159:
+ gpio-130 (                    |sysfs               ) out lo 
+
+gpiochip7: GPIOs 160-191, parent: platform/48310000.gpio, gpio-160-191:
+ gpio-164 (                    |user                ) in  lo IRQ 
+
+gpiochip6: GPIOs 488-507, parent: platform/twl4030-gpio, twl4030, can sleep:
+ gpio-490 (                    |powerdown           ) out lo ACTIVE LOW
+ gpio-506 (                    |hsusb2_power_reg    ) out hi ACTIVE LOW
+
+gpiochip5: GPIOs 508-511, parent: platform/6e000000.gpmc, omap-gpmc:
+
+# As seen above 0x49058000 is mapped to gpiochip4: GPIOs 128-159
+$ echo 130 > /sys/class/gpio/export
+$ echo out > /sys/class/gpio/gpio130/direction
+$ echo 1 > /sys/class/gpio/gpio130/value
+$ echo 0 > /sys/class/gpio/gpio130/value
+
+##### SUCCESS ######
+# Rebuilding the kernel as described below did help Wifi
 
 $ cd /sys/class/gpio/
 $ ls
 export     gpiochip128  gpiochip32   gpiochip508  gpiochip96
 gpiochip0  gpiochip160  gpiochip488  gpiochip64   unexport
 
-$ echo 162 > export
+$ echo 162 > /sys/class/gpio/export
 $ ls
 export     gpiochip128  gpiochip488  gpiochip96
 gpio162    gpiochip160  gpiochip508  unexport
@@ -17,12 +54,151 @@ active_low  direction  label  subsystem  value
 device      edge       power  uevent
 
 $ echo out > /sys/class/gpio/gpio162/direction
+$ cat /sys/class/gpio/gpio162/value
 
 $ echo 0 > /sys/class/gpio/gpio162/value
 $ cat /sys/kernel/debug/gpio
 
-$ echo 1 > value
+$ echo 1 > /sys/class/gpio/gpio162/value
 $ cat /sys/kernel/debug/gpio
 
+$ cat /sys/kernel/debug/pinctrl/48002030.pinmux-pinctrl-single/pins
+$ cat /sys/kernel/debug/pinctrl/48002030.pinmux-pinctrl-single/pingroups
+
 Need to set the output MUX correctly:
+https://elinux.org/BeagleBoardPinMux
+
 Setup laptop cross-compiler:
+https://elinux.org/BeagleBoardUbuntu
+https://www.digikey.com/eewiki/display/linuxonarm/BeagleBoard
+
+
+Download ARM Cross compiler
+$ wget -c https://releases.linaro.org/components/toolchain/binaries/6.5-2018.12/arm-linux-gnueabihf/gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf.tar.xz
+$ tar xf gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf.tar.xz
+$ export CC=`pwd`/gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+
+Test:
+${CC}gcc --version
+
+Download U-Boot:
+Das U-Boot – the Universal Boot Loader: http://www.denx.de/wiki/U-Boot
+eewiki.net patch archive: https://github.com/eewiki/u-boot-patches
+
+$ git clone https://github.com/u-boot/u-boot
+$ cd u-boot/
+$ git checkout v2019.04 -b tmp
+
+Patches:
+$ wget -c https://github.com/eewiki/u-boot-patches/raw/master/v2019.04/0001-omap3_beagle-uEnv.txt-bootz-n-fixes.patch
+$ patch -p1 < 0001-omap3_beagle-uEnv.txt-bootz-n-fixes.patch
+
+Dependencies:
+$ sudo apt-get install bison flex
+
+Compile U-Boot:
+$ make ARCH=arm CROSS_COMPILE=${CC} distclean
+$ make ARCH=arm CROSS_COMPILE=${CC} omap3_beagle_defconfig
+$ make ARCH=arm CROSS_COMPILE=${CC}
+
+Copy u-boot.img to BOOT partition
+
+Edit beagle.h
+$ vi board/ti/beagle/beagle.h
+
+Booted with new uboot image:
+$ sudo ~/test/pinread 
+Reading offset: 0x00002198 Index: 0x00000866
+pinread[0x2198] = 0x01080004
+Pinread completed.
+
+$ cat /sys/kernel/debug/pinctrl/*/pins
+$ cat /sys/kernel/debug/pinctrl/*/pingroups
+
+$ cat /sys/kernel/debug/pinctrl/48002030.pinmux-pinctrl-single/pins
+$ cat /sys/kernel/debug/pinctrl/48002030.pinmux-pinctrl-single/pingroups
+
+# Read/write locations in memory
+$ sudo apt install devmem2
+
+# MUX register (bb_trainer power: GPIO 162)
+$ sudo devmem2 0x48002198
+/dev/mem opened.
+Memory mapped at address 0xb6f4b000.
+Value at address 0x48002198 (0xb6f4b198): 0x1080004
+
+$ sudo devmem2 0x4905803c
+/dev/mem opened.
+Memory mapped at address 0xb6f2e000.
+Bus error
+
+# At this point I have complete control of the MUX register, from UBoot, or command line or C (mmap), but I can't access R or W the GPIO Data Out register from anything
+# C - https://groups.google.com/forum/#!topic/beagleboard/MYw5OSmst_k
+
+https://elinux.org/Device_Tree_Usage
+https://elinux.org/Device_Tree_Reference
+
+http://derekmolloy.ie/gpios-on-the-beaglebone-black-using-device-tree-overlays/
+
+# Beagleboard-XM seems to have no overlay support, trying to re-compile the kernel
+
+# Dependencies:
+$ sudo apt install lzop
+$ sudo apt install lzma libmpc-dev u-boot-tools libncurses5-dev:amd64 libssl-dev:amd64
+
+$ cd ~/robots/data_bootstrap
+$ git clone https://github.com/RobertCNelson/armv7-multiplatform
+$ cd armv7-multiplatform/
+$ git branch -a
+
+$ cd ~/robots/data_bootstrap/armv7-multiplatform
+$ git checkout origin/v5.4.x -b tmp
+$ ./build_kernel.sh 
+# Downloads a different cross-compiler...
+# Still using https://www.digikey.com/eewiki/display/linuxonarm/BeagleBoard
+$ ./tools/rebuild.sh # runs config
+
+
+$ cd ~/robots/data_bootstrap/armv7-multiplatform
+$ ./tools/rebuild.sh # runs config - added -sjl to name
+$ ls deploy
+5.4.24-sjl-armv7-x20-dtbs.tar.gz  5.4.24-sjl-armv7-x20-modules.tar.gz  5.4.24-sjl-armv7-x20.zImage  config-5.4.24-sjl-armv7-x20
+
+### Test ###
+$ mkdir deploy/dtbs
+$ mkdir deploy/modules
+$ tar -xvzf 5.4.24-sjl-armv7-x20-dtbs.tar.gz -C deploy/dtbs
+$ tar -xvzf 5.4.24-sjl-armv7-x20-modules.tar.gz -C deploy/modules/
+############
+
+# Install DTBs
+$ sudo mkdir /media/tobor/rootfs/boot/dtbs/5.4.24-sjl-armv7-x20
+$ sudo tar -xvzf deploy/5.4.24-sjl-armv7-x20-dtbs.tar.gz -C /media/tobor/rootfs/boot/dtbs/5.4.24-sjl-armv7-x20
+
+# Install Modules
+$ sudo tar -xvzf deploy/5.4.24-sjl-armv7-x20-modules.tar.gz -C /media/tobor/rootfs/
+
+# Install config
+$ sudo cp deploy/config-5.4.24-sjl-armv7-x20 /media/tobor/rootfs/boot
+
+# Install Kernel
+$ sudo cp deploy/5.4.24-sjl-armv7-x20.zImage /media/tobor/rootfs/boot/vmlinuz-5.4.24-sjl-armv7-x20
+
+# Install System.map
+$ sudo cp KERNEL/System.map /media/tobor/rootfs/boot/System.map-5.4.24-sjl-armv7-x20
+
+# Update booting Kernel
+$ sudo vi /media/tobor/rootfs/boot/uEnv.txt 
+
+
+# Updating the DTB
+$ vi ./KERNEL/arch/arm/boot/dts/omap3-beagle-xm.dts
+
+
+$ ls /media/tobor/rootfs/boot/
+config-4.19.94-ti-r36    efi                        initrd.img-5.4.24-armv7-x20  System.map-5.4.24-armv7-x20  vmlinuz-4.19.94-ti-r36
+config-5.4.24-armv7-x20  grub                       SOC.sh                       uboot                        vmlinuz-5.4.24-armv7-x20
+dtbs                     initrd.img-4.19.94-ti-r36  System.map-4.19.94-ti-r36    uEnv.txt
+
+
+

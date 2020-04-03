@@ -11,3 +11,17 @@ $ i2cget -y 1 0x6 0x9 w
 
 # Fixed the I2C off by one issue - now this is the stasis count
 $ i2cget -y 1 0x6 0xA w
+
+
+# I2c Bootloader
+# Check fuses and other details
+$ avrdude -p atmega328p -P /dev/ttyUSB0 -c stk500 -v
+
+avrdude: safemode: Fuses OK (E:FC, H:D2, L:EF)
+
+https://github.com/orempel/
+
+
+$ ./twiboot -d /dev/i2c-1 -a 0x29 -p1 -w flash:DATA_bb_trainerboard.hex
+
+~/robots/i2c_bootstrap/twiboot$ make TWI_ADDRESS=0x5 install

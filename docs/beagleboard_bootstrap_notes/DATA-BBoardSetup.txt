@@ -66,3 +66,6 @@ network={
   key_mgmt=NONE
   priority=1
 }
+
+$ sudo apt-get install gcc-avr
+$ sudo apt-get install avr-libc
