@@ -33,5 +33,3 @@ install_links: $(TARGETS)
 	@mkdir -p $(TARGET_DIR)
 	rm -f $(patsubst %,$(TARGET_DIR)/%, $(TARGETS))
 	ln -s -t $(TARGET_DIR) $(patsubst %,$(PWD)/%, $(TARGETS))
-
--include $(shell find $(BUILD_DIR) -name \*.d 2> /dev/null)

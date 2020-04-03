@@ -188,7 +188,11 @@ static int twi_write_memory(struct twi_privdata *twi,
     }
 
     int result = write(twi->fd, cmd, bufsize);
+
     free(cmd);
+
+    /* wait for page write */
+    usleep(10000);
 
     return (result != bufsize);
 } /* twi_write_memory */
@@ -430,6 +434,9 @@ static int twi_verify(struct multiboot *mboot, struct databuf *dbuf, int memtype
 
     uint16_t pos = 0;
     uint8_t comp[READ_BLOCK_SIZE];
+
+    /* wait for page write */
+    usleep(1000);
 
     while (pos < dbuf->length)
     {
