@@ -21,9 +21,10 @@
 #include <avr/boot.h>
 #include <avr/pgmspace.h>
 
-#define VERSION_STRING      "TWIBOOT v3.0"
+#define VERSION_STRING      "TWIBOOT v3.1"
 #define EEPROM_SUPPORT      1
 #define LED_SUPPORT         1
+#define LED_BL_RUNNING      1
 #define USE_CLOCKSTRETCH    0
 
 #define F_CPU               8000000ULL
@@ -34,14 +35,28 @@
 #define TIMER_MSEC2TICKS(x)     ((x * F_CPU) / (TIMER_DIVISOR * 1000ULL))
 #define TIMER_MSEC2IRQCNT(x)    (x / TIMER_IRQFREQ_MS)
 
+
 #if LED_SUPPORT
-#define LED_INIT()          DDRB = ((1<<PORTB4) | (1<<PORTB5))
-#define LED_RT_ON()         PORTB |= (1<<PORTB4)
-#define LED_RT_OFF()        PORTB &= ~(1<<PORTB4)
-#define LED_GN_ON()         PORTB |= (1<<PORTB5)
-#define LED_GN_OFF()        PORTB &= ~(1<<PORTB5)
-#define LED_GN_TOGGLE()     PORTB ^= (1<<PORTB5)
-#define LED_OFF()           PORTB = 0x00
+// ORIG #define LED_INIT()          DDRB = ((1<<PORTB4) | (1<<PORTB5))
+// ORIG #define LED_RT_ON()         PORTB |= (1<<PORTB4)
+// ORIG #define LED_RT_OFF()        PORTB &= ~(1<<PORTB4)
+#if LED_BL_RUNNING
+#   define LED_INIT()          DDRB = (1<<PORTB5)
+#   define LED_RT_ON()
+#   define LED_RT_OFF()
+#   define LED_GN_ON()         PORTB |= (1<<PORTB5)
+#   define LED_GN_OFF()        PORTB &= ~(1<<PORTB5)
+#   define LED_GN_TOGGLE()     PORTB ^= (1<<PORTB5)
+#   define LED_OFF()           PORTB = 0x00
+# else
+#   define LED_INIT()          DDRB = (1<<PORTB5)
+#   define LED_RT_ON()         PORTB |= (1<<PORTB5)
+#   define LED_RT_OFF()        PORTB &= ~(1<<PORTB5)
+#   define LED_GN_ON()
+#   define LED_GN_OFF()
+#   define LED_GN_TOGGLE()     
+#   define LED_OFF()           PORTB = 0x00
+# endif
 #else
 #define LED_INIT()
 #define LED_RT_ON()
@@ -316,7 +331,7 @@ static uint8_t TWI_data_write(uint8_t bcnt, uint8_t data)
                     uint8_t pos = bcnt -4;
 
                     buf[pos] = data;
-                    if (pos >= (sizeof(buf) -2))
+                    if (pos >= (sizeof(buf) -1))
                     {
                         ack = 0x00;
                     }

@@ -8,9 +8,9 @@ TARGET = twiboot
 SOURCE = $(wildcard *.c)
 
 # select MCU
-MCU = atmega88
+MCU = atmega328p
 
-AVRDUDE_PROG := -c avr910 -b 115200 -P /dev/ttyUSB0
+AVRDUDE_PROG := -c stk500 -P /dev/ttyUSB0
 #AVRDUDE_PROG := -c dragon_isp -P usb
 
 # ---------------------------------------------------------------------------
@@ -49,11 +49,9 @@ endif
 
 ifeq ($(MCU), atmega328p)
 # atmega328p:
-# Fuse L: 0xc2 (8Mhz internal RC-Osz.)
-# Fuse H: 0xdc (512 words bootloader)
-# Fuse E: 0xfd (2.7V BOD)
+# Fuse H: 0xd4 (512 words bootloader)
 AVRDUDE_MCU=m328p -F
-AVRDUDE_FUSES=lfuse:w:0xc2:m hfuse:w:0xdc:m efuse:w:0xfd:m
+AVRDUDE_FUSES=hfuse:w:0xd4:m
 
 BOOTLOADER_START=0x7C00
 endif
@@ -64,6 +62,10 @@ CFLAGS = -pipe -g -Os -mmcu=$(MCU) -Wall -fdata-sections -ffunction-sections
 CFLAGS += -Wa,-adhlns=$(*F).lst -DBOOTLOADER_START=$(BOOTLOADER_START)
 LDFLAGS = -Wl,-Map,$(@:.elf=.map),--cref,--relax,--gc-sections,--section-start=.text=$(BOOTLOADER_START)
 LDFLAGS += -nostartfiles
+
+ifdef TWI_ADDRESS
+CFLAGS += -DTWI_ADDRESS=$(TWI_ADDRESS)
+endif
 
 # ---------------------------------------------------------------------------
 
