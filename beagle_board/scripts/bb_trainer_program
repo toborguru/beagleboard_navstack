@@ -1,0 +1,28 @@
+#!/bin/bash
+
+NAME=`basename $0`
+DEV=/dev/i2c-1
+ADDR=0x5
+
+display_usage() { 
+  echo "Usage: $NAME file"
+  echo -e "   file - name of the hex file to upload to the BeagleBoard Trainer via I2C"
+} 
+
+if [[ $# -ne 1 ]]
+then
+  echo Error: incorrect number of arguments!
+  display_usage
+  exit 1
+fi
+
+if [[ ! -f $1 ]]
+then
+  echo Error: $1 is not a file!
+  display_usage
+  exit 1
+fi
+
+bb_trainer_reset
+
+twiboot -d $DEV -a $ADDR -p1 -w flash:$1

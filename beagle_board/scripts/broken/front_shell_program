@@ -1,6 +1,0 @@
-#!/bin/bash
-
-shell_reset
-sleep 1.5
-
-i2cloader -d 2 -bi2c 0x14 -f $1 -s 0102FF -e FF -smbusdelay
