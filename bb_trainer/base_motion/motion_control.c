@@ -15,9 +15,6 @@
 volatile Motion_State_t g_left_wheel_motion;
 volatile Motion_State_t g_right_wheel_motion;
 
-volatile int32_t g_encoder_total = 0;
-volatile int32_t g_stasis_total = 0;
-
 volatile uint8_t g_estop = 0;
 
 /* MODULE VARIABLES */
@@ -26,40 +23,40 @@ static uint16_t   m_angular_acceleration;     // u8.8 ticks/update^2
 static uint16_t   m_max_velocity;             // u16.0 ticks/sec
 
 /* MODULE FUNCTION PROTOTYPES */
-static void Motion_Control_Init_State(  volatile Motion_State_t *p_state );
+static void Motion_Control_Init_State(  Motion_State_t *p_state );
 
 static void Motion_Control_Init_Acceleration( void );
 
 // Returns power_out- runs Add To Encoder, Compute Position then Run PID
 static int16_t Motion_Control_Compute_Power(  int8_t new_encoder_ticks,     // s7.0 ticks
-                                              volatile Motion_State_t *p_state );      
+                                              Motion_State_t *p_state );      
 
 // Adds new encoder counts
 static void Motion_Control_Add_To_Encoder(  int8_t new_encoder_ticks,       // s7.0 ticks 
-                                            volatile Motion_State_t *p_state );     
+                                            Motion_State_t *p_state );     
 
 // Computes the current target position
-static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_motion );
+static void Motion_Control_Compute_Target_Position( Motion_State_t *p_motion );
 
 // Returns the correction from the PID controller
 static int16_t Motion_Control_Run_PID(  int8_t new_encoder_ticks,           // s7.0 ticks
-                                        volatile Motion_State_t *p_state );
+                                        Motion_State_t *p_state );
 
 // Adds new fixed point counts to the target position
 static void Motion_Control_Add_To_Position( int16_t num_ticks,              // s7.8 ticks
-                                            volatile Motion_State_t *p_motion);
+                                            Motion_State_t *p_motion);
 
 static void Motion_Control_Set_Update_Velocity( int16_t linear_velocity,    // s7.8 ticks/update
                                                 int16_t angular_velocity,   // s7.8 ticks/update
-                                                volatile Motion_State_t *p_state );
+                                                Motion_State_t *p_state );
 
 /* FUNCTIONS */
 
 void Motion_Control_Init(   void )
 {
     Motion_Control_Init_Acceleration();
-    Motion_Control_Init_State( &g_left_wheel_motion );
-    Motion_Control_Init_State( &g_right_wheel_motion );
+    Motion_Control_Init_State( (Motion_State_t*)&g_left_wheel_motion );
+    Motion_Control_Init_State( (Motion_State_t*)&g_right_wheel_motion );
     Motion_Control_Set_Velocity( 0, 0 );
 
     m_max_velocity = MOTION_CONTROL_DEFAULT_MAX_VELOCITY;
@@ -120,8 +117,8 @@ void Motion_Control_Run_Step(   void )
     measurement_time = (uint16_t)g_system_clock;
     ENABLE_INTERRUPTS();
 
-    left_power =    Motion_Control_Compute_Power(   delta_left,   p_l_wheel );
-    right_power =   Motion_Control_Compute_Power(   delta_right,  p_r_wheel );
+    left_power =    Motion_Control_Compute_Power(   delta_left,   (Motion_State_t*) p_l_wheel );
+    right_power =   Motion_Control_Compute_Power(   delta_right,  (Motion_State_t*) p_r_wheel );
 
     // Set motor power
     if (!g_estop)
@@ -185,8 +182,12 @@ void Motion_Control_Set_Velocity(   int16_t linear_velocity, int16_t angular_vel
     }
 
     // Positive angular velocity causes the right wheel to spin faster.
-    Motion_Control_Set_Update_Velocity( (int16_t)new_linear_velocity, -1 * new_angular_velocity, &g_left_wheel_motion );
-    Motion_Control_Set_Update_Velocity( (int16_t)new_linear_velocity, new_angular_velocity, &g_right_wheel_motion );
+    Motion_Control_Set_Update_Velocity( (int16_t)new_linear_velocity, 
+                                        -1 * new_angular_velocity, 
+                                        (Motion_State_t*)&g_left_wheel_motion );
+    Motion_Control_Set_Update_Velocity( (int16_t)new_linear_velocity, 
+                                        new_angular_velocity, 
+                                        (Motion_State_t*)&g_right_wheel_motion );
 
     // Copy data to outgoing telemetry
     gp_telemetry_write->linear_velocity = linear_velocity;
@@ -212,7 +213,7 @@ void  Motion_Control_Stop( void )
 /** This function initializes a Motion_State_t structure, using #defined defaults
  *  for the PID tuning parameters.
  */
-static void Motion_Control_Init_State( volatile Motion_State_t *p_state )
+static void Motion_Control_Init_State( Motion_State_t *p_state )
 {
     // Reset motion state
     p_state->angular_velocity = 0;
@@ -249,7 +250,7 @@ static void Motion_Control_Init_Acceleration( void )
 
 static void  Motion_Control_Set_Update_Velocity( int16_t linear_velocity,    // s7.8 ticks/update
                                           int16_t angular_velocity,   // s7.8 ticks/update
-                                          volatile Motion_State_t *p_state )
+                                          Motion_State_t *p_state )
 {
     p_state->linear_velocity_setpoint = linear_velocity;
     p_state->angular_velocity_setpoint = angular_velocity;
@@ -258,7 +259,7 @@ static void  Motion_Control_Set_Update_Velocity( int16_t linear_velocity,    // 
 /** This function computes an entire update cycle.
  */
 static int16_t Motion_Control_Compute_Power(  int8_t new_encoder_ticks,     // s15.0 ticks
-                                              volatile Motion_State_t *p_state )
+                                              Motion_State_t *p_state )
 {
     Motion_Control_Add_To_Encoder( new_encoder_ticks, p_state );
 
@@ -268,7 +269,7 @@ static int16_t Motion_Control_Compute_Power(  int8_t new_encoder_ticks,     // s
 }
 
 static void Motion_Control_Add_To_Encoder(  int8_t new_encoder_ticks,  // s7.0 ticks 
-                                            volatile Motion_State_t *p_state )
+                                            Motion_State_t *p_state )
 {
     p_state->encoder += new_encoder_ticks;
 }
@@ -276,7 +277,7 @@ static void Motion_Control_Add_To_Encoder(  int8_t new_encoder_ticks,  // s7.0 t
 /** This function runs a PID correction.
  */
 static int16_t Motion_Control_Run_PID(  int8_t new_encoder_ticks,  // s7.0 ticks 
-                                        volatile Motion_State_t *p_state )
+                                        Motion_State_t *p_state )
 {
   int16_t power;
   int16_t error_squared;
@@ -301,7 +302,7 @@ static int16_t Motion_Control_Run_PID(  int8_t new_encoder_ticks,  // s7.0 ticks
  *  task might be reading the value. -where? SJL
  *
  */
-static void Motion_Control_Add_To_Position( int16_t num_ticks, volatile Motion_State_t *p_motion )
+static void Motion_Control_Add_To_Position( int16_t num_ticks, Motion_State_t *p_motion )
 {
     int16_t new_pid_setpoint;
 
@@ -331,7 +332,7 @@ static void Motion_Control_Add_To_Position( int16_t num_ticks, volatile Motion_S
     }
 }
 
-static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_motion )
+static void Motion_Control_Compute_Target_Position( Motion_State_t *p_motion )
 {
     int16_t new_velocity;
 

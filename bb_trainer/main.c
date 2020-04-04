@@ -54,12 +54,53 @@
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
 #define INVALID_COMMAND         0xFF
 
-// repeating pattern will be run using pid control
-#define MOTION_TEST_DELAY   1500 // millis
+#define MOTION_TEST_DELAY   2500 // millis
+// repeating pattern will be run using full base motion control 
 #define MOTION_TEST_SPEED1  80
 #define MOTION_TEST_TURN1   0
-#define MOTION_TEST_SPEED2  80
-#define MOTION_TEST_TURN2   80
+#define MOTION_TEST_SPEED2  -80
+#define MOTION_TEST_TURN2   0
+
+//#define MOTION_TEST_SPEED1  0
+//#define MOTION_TEST_TURN1   96
+//#define MOTION_TEST_SPEED2  0
+//#define MOTION_TEST_TURN2   0
+
+// One wheel spins
+//#define MOTION_TEST_SPEED1  96
+//#define MOTION_TEST_TURN1   0
+//#define MOTION_TEST_SPEED2  96
+//#define MOTION_TEST_TURN2   96
+
+// Works well
+//#define MOTION_TEST_SPEED1  80
+//#define MOTION_TEST_TURN1   0
+//#define MOTION_TEST_SPEED2  80
+//#define MOTION_TEST_TURN2   80
+
+// Some movement but not for long
+//#define MOTION_TEST_SPEED1  0
+//#define MOTION_TEST_TURN1   80
+//#define MOTION_TEST_SPEED2  0
+//#define MOTION_TEST_TURN2   -80
+
+// Some movement but not for long
+//#define MOTION_TEST_SPEED1  0
+//#define MOTION_TEST_TURN1   40
+//#define MOTION_TEST_SPEED2  0
+//#define MOTION_TEST_TURN2   0
+
+// Some movement but not for long
+//#define MOTION_TEST_SPEED1  0
+//#define MOTION_TEST_TURN1   96
+//#define MOTION_TEST_SPEED2  0
+//#define MOTION_TEST_TURN2   0
+
+// No Motion
+//#define MOTION_TEST_SPEED1  0
+//#define MOTION_TEST_TURN1   96
+//#define MOTION_TEST_SPEED2  0
+//#define MOTION_TEST_TURN2   -96
 
 // repeating pattern will be run using pid control
 #define PID_TEST_DELAY   1500 // millis
@@ -101,6 +142,7 @@ void RunTest( void );
 void MotionPatternTest( void );
 void PidPatternTest( void );
 void MotorPatternTest( void );
+void MotorRampTest( void );
 void Ports_Zero( void );
 void ProcessIncomingCommands( void );
 void Switch_Telemetry_Buffers( void );
@@ -470,8 +512,8 @@ void PidPatternTest()
     ENABLE_INTERRUPTS();
 
     // Set motor power
-    left_power =    Pid_Compute_Output( delta_left, &( p_l_wheel->pid ) );
-    right_power =   Pid_Compute_Output( delta_right, &( p_r_wheel->pid ) );
+    left_power =    Pid_Compute_Output( delta_left,   (Pid_State_t*)&( p_l_wheel->pid ) );
+    right_power =   Pid_Compute_Output( delta_right,  (Pid_State_t*)&( p_r_wheel->pid ) );
 
     if (!g_estop)
     {   
