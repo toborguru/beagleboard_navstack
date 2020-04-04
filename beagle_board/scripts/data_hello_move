@@ -79,14 +79,41 @@ then
 fi
 
 LIN_VEL_REG=2
-TIME_COUNT=4
+TIME_COUNT=8
+
+# Time 1
+# Works well, straight good - was center sticking
+#T1_REG_VAL="0xA0 0xFF 0x00 0x00"
+
+# Not moving at all, no vel listed in telem
+#T1_REG_VAL="0x00 0x00 0x00 0x80"
+
+# Moving.... - Some center sticking
+T1_REG_VAL="0x00 0x00 0x00 0x60"
+
+#T1_REG_VAL="0x00 0x00 0xB0 0xFF"
+
+
+
+# Time 2
+# Works well, straight good - was center sticking
+#T2_REG_VAL="0x00 0x60 0x00 0x00"
+
+# Causes stop/pause same as 00's but also smoother starts, no jerking.
+T2_REG_VAL="0x00 0x00 0xA0 0xFF"
+
+#T2_REG_VAL="0x00 0x00 0x00 0x00"
+#T2_REG_VAL="0x00 0x60 0x00 0x40"
+#T2_REG_VAL="0x00 0x00 0x00 0x80"
+
+
 
 while [ true ]
 do
   for ((i=1;i<=$TIME_COUNT;i++))
   do
     # i2cset -y BUS BOARD VEL_REG LinLow LinHigh AngLow AngHigh i
-    i2cset -y $I2C_BUS $I2C_BOARD $LIN_VEL_REG 0x00 0x60 0x00 0x00 i
+    i2cset -y $I2C_BUS $I2C_BOARD $LIN_VEL_REG $T1_REG_VAL i
     echo "------------------------------------------------------"
     echo -n "System Time:      "
     i2cget -y $I2C_BUS $I2C_BOARD 0xC w
@@ -109,7 +136,8 @@ do
   for ((i=1;i<=$TIME_COUNT;i++))
   do
     # i2cset -y BUS BOARD VEL_REG LinLow LinHigh AngLow AngHigh i
-    i2cset -y $I2C_BUS $I2C_BOARD $LIN_VEL_REG 0x00 0x60 0x00 0x40 i
+# i2cset -y $I2C_BUS $I2C_BOARD $LIN_VEL_REG 0x00 0x60 0x00 0x40 i
+    i2cset -y $I2C_BUS $I2C_BOARD $LIN_VEL_REG $T2_REG_VAL i
     echo "------------------------------------------------------"
     echo -n "System Time:      "
     i2cget -y $I2C_BUS $I2C_BOARD 0xC w

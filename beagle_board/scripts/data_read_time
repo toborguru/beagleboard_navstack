@@ -9,6 +9,7 @@ display_usage()
   echo "Usage: $NAME [options]"  1>&2
   echo "" 1>&2
   echo "Reads the current value of the system timer on the BB Trainer via I2C." 1>&2
+  echo "" 1>&2
   echo "If count or single options are not specified the timer will be continuously polled." 1>&2
   echo "If no I2C setup options are specified they will attempt to be set" 1>&2
   echo "by environment variables:" 1>&2
