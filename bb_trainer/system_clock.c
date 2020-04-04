@@ -15,8 +15,8 @@ volatile SYSTEM_CLOCK_T g_system_clock = 0;
  */
 void System_Clock_Init( void )
 {
-  uint8_t compare_match;
-  uint8_t byte;
+    uint8_t compare_match;
+    uint8_t byte;
 
 	compare_match = 124; // 1000 Hz
 
@@ -27,8 +27,8 @@ void System_Clock_Init( void )
 
 	/* Setup clock source and compare match behaviour. */
 	TCCR2A = _BV(WGM21); // CTC
-  TCCR2B = _BV(CS22);  // 64 Prescale
-  BIT_CLEAR ( PRR, PRTIM2 );
+    TCCR2B = _BV(CS22);  // 64 Prescale
+    BIT_CLEAR ( PRR, PRTIM2 );
 
 	/* Enable the interrupt - this is okay as interrupt are currently globally
 	disabled. */
@@ -42,18 +42,18 @@ void System_Clock_Init( void )
  */
 int32_t Clock_Diff(SYSTEM_CLOCK_T time1, SYSTEM_CLOCK_T time2)
 {
-  int32_t time_diff;
+    int32_t time_diff;
 
-  time_diff = (int32_t)time1 - (int32_t)time2;
+    time_diff = (int32_t)time1 - (int32_t)time2;
 
-  if ( time_diff > (int32_t)(SYSTEM_CLOCK_MAX / 2) )
-  {
-    time_diff -= SYSTEM_CLOCK_MAX;
-  }
-  else if ( time_diff < (int32_t)(-1 * SYSTEM_CLOCK_MAX / 2) )
-  {
-    time_diff += SYSTEM_CLOCK_MAX;
-  }
+    if ( time_diff > (SYSTEM_CLOCK_MAX / 2) )
+    {
+        time_diff -= SYSTEM_CLOCK_MAX;
+    }
+    else if ( time_diff < (-1 * SYSTEM_CLOCK_MAX / 2) )
+    {
+        time_diff += SYSTEM_CLOCK_MAX;
+    }
 
     return time_diff;
 }

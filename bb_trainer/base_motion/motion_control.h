@@ -6,6 +6,7 @@
 
 #define MOTION_CONTROL_UPDATE_RATE_HZ   50
 
+
 // PID Parameters
 #define MOTION_CONTROL_KP   5.0
 #define MOTION_CONTROL_KD   0.0
@@ -31,6 +32,9 @@ typedef struct
 // EXPORTED GLOBALS
 extern volatile Motion_State_t g_left_wheel_motion;
 extern volatile Motion_State_t g_right_wheel_motion;
+
+extern volatile int32_t g_encoder_total;
+extern volatile int32_t g_stasis_total;
 
 extern volatile uint8_t g_estop;
 
