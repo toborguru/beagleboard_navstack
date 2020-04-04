@@ -1,0 +1,10 @@
+#!/bin/bash
+
+export DATA_BASE_I2C_DEV=/dev/i2c-1
+export DATA_BASE_I2C_BUS=1
+
+export DATA_BB_TRAINER_I2C_ADDR=0x6
+export DATA_BB_TRAINER_I2C_BL_ADDR=0x5
+
+export DATA_FRONT_I2C_ADDR=0x16
+export DATA_FRONT_I2C_BL_ADDR=0x15

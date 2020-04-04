@@ -2,7 +2,80 @@
 
 # Script written to monitor and control the DATA robot by Sawyer Larkin
 
-I2C_BUS=1
-I2C_BOARD=6
+NAME=`basename $0`
+
+display_usage() 
+{ 
+  echo "Usage: $NAME [options]"  1>&2
+  echo "" 1>&2
+  echo "Enables the motor driver chip for the DATA robot." 1>&2
+  echo "" 1>&2
+	echo "If no I2C setup options are specified they will attempt to be set" 1>&2
+	echo "by environment variables:" 1>&2
+	echo "DATA_BASE_I2C_BUS and DATA_BB_TRAINER_I2C_ADDR" 1>&2
+  echo "" 1>&2
+  echo "  -a=ADDRESS  I2C board address to be used" 1>&2
+  echo "  -b=BUS      I2C bus number to be used" 1>&2
+  echo "  -h          Print this message" 1>&2
+  echo "  -v          Verbose, print various config parameters" 1>&2
+  exit 1
+}
+
+INVALID=INVALID
+VERBOSE=0
+
+# Assign I2C parameters from environment vars if possible
+I2C_BUS=${DATA_BASE_I2C_BUS:-$INVALID}
+I2C_BOARD=${DATA_BB_TRAINER_I2C_ADDR:-$INVALID}
+
+while getopts "a:b:hv" opt
+do
+  case ${opt} in
+    a )
+      I2C_BOARD=$OPTARG
+      ;;
+    b )
+      I2C_BUS=$OPTARG
+      ;;
+    h )
+      display_usage
+      ;;
+    v )
+      VERBOSE=1
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      display_usage
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      display_usage
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if ! [[ $I2C_BUS =~ ^[0-9xXaAbBcCdDeEfF]+$ ]]
+then
+  echo "No valid I2C bus specified!" 1>&2
+  echo "I2C Bus Number:    $I2C_BUS" 1>&2
+  echo "I2C Board Address: $I2C_BOARD" 1>&2
+	display_usage
+fi
+
+if ! [[ $I2C_BOARD =~ ^[0-9xXaAbBcCdDeEfF]+$ ]]
+then
+  echo "No valid I2C board address specified!" 1>&2
+  echo "I2C Bus Number:    $I2C_BUS" 1>&2
+  echo "I2C Board Address: $I2C_BOARD" 1>&2
+	display_usage
+fi
+
+if [[ VERBOSE -ne 0 ]]
+then
+  echo "I2C Bus Number:    $I2C_BUS"
+  echo "I2C Board Address: $I2C_BOARD"
+  echo
+fi
 
 i2cset -y $I2C_BUS $I2C_BOARD 0x0 0x81AD w

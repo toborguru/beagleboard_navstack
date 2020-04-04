@@ -1,5 +1,35 @@
 #!/bin/bash
 
+# Script written to monitor and control the DATA robot by Sawyer Larkin
+
+display_usage ()
+{
+  echo "Usage: $NAME [options]"  1>&2
+  echo "" 1>&2
+  echo "Resets the BeagleBoard Trainer Board on the DATA robot." 1>&2
+  echo "" 1>&2
+  echo "  -h Print this message" 1>&2
+  exit 1
+}
+
+while getopts "h" opt
+do
+  case ${opt} in
+    h )
+      display_usage
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      display_usage
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      display_usage
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
 bb_trainer_off
 sleep 0.05
 bb_trainer_on

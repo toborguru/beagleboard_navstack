@@ -1,6 +1,36 @@
 #!/bin/bash
 
-#echo low > /sys/class/gpio/gpio162/direction
+# Script written to monitor and control the DATA robot by Sawyer Larkin
+
+NAME=`basename $0`
+
+display_usage ()
+{
+  echo "Usage: $NAME [options]"  1>&2
+  echo "" 1>&2
+  echo "Powers off the BeagleBoard Trainer Board on the DATA robot, if it's currently powered." 1>&2
+  echo "" 1>&2
+  echo "  -h Print this message" 1>&2
+	exit 1	
+}
+
+while getopts "h" opt
+do
+  case ${opt} in
+    h )
+      display_usage
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      display_usage
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      display_usage
+      ;;
+  esac
+done
+shift $((OPTIND -1))
 
 # Chip gpio_162, linux gpio_130
 POWER_IO=130

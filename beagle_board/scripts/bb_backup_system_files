@@ -1,5 +1,37 @@
 #!/bin/bash
 
+# Script written to monitor and control the DATA robot by Sawyer Larkin
+
+NAME=`basename $0`
+
+display_usage ()
+{
+  echo "Usage: $NAME [options]"  1>&2
+  echo "" 1>&2
+  echo "Copies relevant system files that I have updated into this repository for backup." 1>&2
+  echo "" 1>&2
+  echo "  -h Print this message" 1>&2
+	exit 1	
+}
+
+while getopts "h" opt
+do
+  case ${opt} in
+    h )
+      display_usage
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      display_usage
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      display_usage
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
 cp /etc/wpa_supplicant.conf ~/beagleboard_navstack/beagle_board/system_files/etc/
 cp /etc/connman/main.conf   ~/beagleboard_navstack/beagle_board/system_files/etc/connnman/
 cp /etc/network/interfaces  ~/beagleboard_navstack/beagle_board/system_files/etc/network/
