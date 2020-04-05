@@ -69,3 +69,9 @@ network={
 
 $ sudo apt-get install gcc-avr
 $ sudo apt-get install avr-libc
+$ sudo apt-get install libgtest-dev
+$ sudo apt-get install cmake
+$ cd /usr/src/gtest
+$ sudo cmake CMakeLists.txt
+$ sudo make
+$ sudo ln -sf /usr/src/gtest/*.a /usr/lib/

@@ -3,7 +3,7 @@
 #ifndef GUARD_ITickVelocityListener
 #define GUARD_ITickVelocityListener
 
-#include "differential_drive/TickVelocity.h"
+#include "diff_drive_calibrated/TickVelocity.h"
  
 namespace data_robot_core
 {
@@ -12,7 +12,7 @@ namespace data_robot_core
     public:
       // Virtual destructor to pass pointer ownership without exposing base class [Meyers, 2005, Item 7]
       virtual ~ITickVelocityListener() {}
-      virtual void OnTickVelocityAvailableEvent( const differential_drive::TickVelocity& tick_velocity ) = 0;
+      virtual void OnTickVelocityAvailableEvent( const diff_drive_calibrated::TickVelocity& tick_velocity ) = 0;
   };
 }
  

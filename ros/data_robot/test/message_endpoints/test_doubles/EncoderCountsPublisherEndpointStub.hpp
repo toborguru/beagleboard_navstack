@@ -3,7 +3,7 @@
 #ifndef GUARD_EncoderCountsPublisherEndpointStub
 #define GUARD_EncoderCountsPublisherEndpointStub
  
-#include "differential_drive/EncoderCounts.h"
+#include "diff_drive_calibrated/EncoderCounts.h"
 #include "IEncoderCountsPublisherEndpoint.hpp"
  
 namespace data_robot_test_message_endpoints_test_doubles
@@ -21,7 +21,7 @@ public:
   int _left;
   int _right;
 
-  void Publish(const differential_drive::EncoderCounts& encoder_counts)
+  void Publish(const diff_drive_calibrated::EncoderCounts& encoder_counts)
   {
     _count_of_encoder_counts_published++;
 

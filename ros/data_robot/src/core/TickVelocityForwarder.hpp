@@ -3,7 +3,7 @@
 #ifndef GUARD_TickVelocityForwarder
 #define GUARD_TickVelocityForwarder
  
-#include "differential_drive/TickVelocity.h"
+#include "diff_drive_calibrated/TickVelocity.h"
 
 #include "ITickVelocityListener.hpp"
 #include "IBusRequestProcessorEndpoint.hpp"
@@ -18,7 +18,7 @@ public:
 
   void SetExternalBus( IBusRequestProcessorEndpoint *p_external_bus );
 
-  void OnTickVelocityAvailableEvent( const differential_drive::TickVelocity& tick_velocity );
+  void OnTickVelocityAvailableEvent( const diff_drive_calibrated::TickVelocity& tick_velocity );
 
 private:
   MotorVelocityRequest  _velocity_request;

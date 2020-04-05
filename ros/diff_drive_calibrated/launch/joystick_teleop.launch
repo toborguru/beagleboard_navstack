@@ -1,0 +1,23 @@
+<launch>
+
+  <!--- Teleop Joystick -->
+  <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="teleop_joystick">
+    <remap from="turtlebot_node/cmd_vel" to="cmd_vel"/>
+
+    <!-- Button Index -->
+    <param name="axis_deadman" value="3"/>
+
+    <!-- Top Speeds -->
+    <param name="scale_linear" value="0.2"/>
+    <param name="scale_angular" value="0.9"/>
+  </node>
+
+  <node pkg="joy" type="joy_node" name="joystick"/>
+
+  <node pkg="diff_drive" type="diff_drive_node" name="diff_drive">
+    <param name="drive_wheel_diameter"  value="0.066"/>
+    <param name="drive_wheel_base"    value="0.100"/>
+    <param name="drive_wheel_encoder_ticks" value="128"/>
+  </node>
+
+</launch>

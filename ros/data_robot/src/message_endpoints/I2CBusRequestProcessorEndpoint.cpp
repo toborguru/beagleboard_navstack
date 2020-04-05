@@ -5,10 +5,12 @@
  
 #include <fcntl.h>
 #include <ros/ros.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
 
 #include "I2CBusRequestProcessorEndpoint.hpp"
 
-#include "i2c-api.h"
+//#include "i2c-api.h"
 
 using namespace data_robot_core;
  
@@ -168,21 +170,29 @@ void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_reques
       addr = p_bus_request->GetAddressBuffer()[0];
       register_addr = p_bus_request->GetAddressBuffer()[1];
 
+      ioctl( _i2c_fd, I2C_SLAVE, register_addr );
+
       if ( REQUEST_READ == request_type )
       {
-        I2cSetSlaveAddress( _i2c_fd, addr, 0 );
+        read( _i2c_fd, p_bus_request->GetDataBuffer(), 
+              p_bus_request->GetDataBufferSize() );
 
-        I2cReadBytes( _i2c_fd, register_addr,
-                      p_bus_request->GetDataBuffer(),
-                      p_bus_request->GetDataBufferSize() );
+        //I2cSetSlaveAddress( _i2c_fd, addr, 0 );
+
+        //I2cReadBytes( _i2c_fd, register_addr,
+        //              p_bus_request->GetDataBuffer(),
+        //              p_bus_request->GetDataBufferSize() );
       }
       else if ( REQUEST_WRITE == request_type )
       {
-        I2cSetSlaveAddress( _i2c_fd, addr, 0 );
+        write( _i2c_fd, p_bus_request->GetDataBuffer(), 
+              p_bus_request->GetDataBufferSize() );
 
-        I2cWriteBytes(  _i2c_fd, register_addr,
-                        p_bus_request->GetDataBuffer(),
-                        p_bus_request->GetDataBufferSize() );
+        //I2cSetSlaveAddress( _i2c_fd, addr, 0 );
+
+        //I2cWriteBytes(  _i2c_fd, register_addr,
+        //                p_bus_request->GetDataBuffer(),
+        //                p_bus_request->GetDataBufferSize() );
       }
 
       p_bus_request->SetRequestComplete( true );

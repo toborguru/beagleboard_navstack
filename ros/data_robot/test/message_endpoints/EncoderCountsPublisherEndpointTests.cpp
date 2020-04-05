@@ -2,19 +2,19 @@
  
 #include <gtest/gtest.h>
 
-#include "differential_drive/EncoderCounts.h"
+#include "diff_drive_calibrated/EncoderCounts.h"
 
 #include "EncoderCountsPublisherEndpoint.hpp"
  
 using namespace data_robot_message_endpoints;
-//using namespace differential_drive_application_services;
+//using namespace diff_drive_calibrated_application_services;
  
 namespace data_robot_test_message_endpoints
 {
   static int _count;
-  static differential_drive::EncoderCounts _encoder_counts;
+  static diff_drive_calibrated::EncoderCounts _encoder_counts;
 
-  void IncrementCount( const differential_drive::EncoderCounts::ConstPtr& msg )
+  void IncrementCount( const diff_drive_calibrated::EncoderCounts::ConstPtr& msg )
   {
     _count++;
     _encoder_counts.left_count = msg->left_count;
@@ -39,7 +39,7 @@ namespace data_robot_test_message_endpoints
     int right2;
 
     EncoderCountsPublisherEndpoint encoder_counts_endpoint;
-    differential_drive::EncoderCounts encoder_counts;
+    diff_drive_calibrated::EncoderCounts encoder_counts;
 
     ros::NodeHandle node;
     ros::Subscriber sub = node.subscribe( "encoder_counts", 32, IncrementCount );

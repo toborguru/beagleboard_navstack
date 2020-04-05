@@ -6,8 +6,6 @@
  
 #include <ros/ros.h>
 
-#include "data_robot/Bumpers.h"
-
 #include "BumpersPublisherEndpoint.hpp"
  
 namespace data_robot_message_endpoints
