@@ -5,6 +5,8 @@
  
 #include <fcntl.h>
 #include <ros/ros.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
 
 #include "I2CBusRequestProcessorEndpoint.hpp"
 
@@ -53,8 +55,7 @@ int I2CBusRequestProcessorEndpoint::Open( const char* dev_name )
 
   _device_name = dev_name;
 
-  //_i2c_fd = open(_device_name.c_str(), O_RDWR);  
-  _i2c_fd = -1;
+  _i2c_fd = open(_device_name.c_str(), O_RDWR);  
 
   if ( _i2c_fd < 0 )
   {
@@ -84,7 +85,7 @@ void I2CBusRequestProcessorEndpoint::Close()
 
   if ( _i2c_fd >= 0 )
   {
-    // close(_i2c_fd);
+    close(_i2c_fd);
     _i2c_fd = -1;
   }
 }
@@ -169,8 +170,13 @@ void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_reques
       addr = p_bus_request->GetAddressBuffer()[0];
       register_addr = p_bus_request->GetAddressBuffer()[1];
 
+      ioctl( _i2c_fd, I2C_SLAVE, register_addr );
+
       if ( REQUEST_READ == request_type )
       {
+        read( _i2c_fd, p_bus_request->GetDataBuffer(), 
+              p_bus_request->GetDataBufferSize() );
+
         //I2cSetSlaveAddress( _i2c_fd, addr, 0 );
 
         //I2cReadBytes( _i2c_fd, register_addr,
@@ -179,6 +185,9 @@ void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_reques
       }
       else if ( REQUEST_WRITE == request_type )
       {
+        write( _i2c_fd, p_bus_request->GetDataBuffer(), 
+              p_bus_request->GetDataBufferSize() );
+
         //I2cSetSlaveAddress( _i2c_fd, addr, 0 );
 
         //I2cWriteBytes(  _i2c_fd, register_addr,
