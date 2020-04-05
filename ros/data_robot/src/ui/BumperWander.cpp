@@ -1,7 +1,7 @@
 #include "ros/ros.h"
 
 #include "data_robot/Bumpers.h"
-#include "differential_drive/MovementStatus.h"
+#include "diff_drive_calibrated/MovementStatus.h"
 #include "geometry_msgs/Twist.h"
 
 #define WANDER_SPEED  0.3 // m/s
@@ -28,7 +28,7 @@ bool m_left = false;
 double m_time_left = 0.0;
 
 void BumpersCallback( data_robot::Bumpers current_bumps );
-void MovementStatusCallback( differential_drive::MovementStatus current_status );
+void MovementStatusCallback( diff_drive_calibrated::MovementStatus current_status );
 bool EscapeCollision( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction );
 bool EscapeStasis( geometry_msgs::Twist* p_cmd_vel, uint8_t bump_direction );
 geometry_msgs::Twist Wander();
@@ -107,12 +107,12 @@ void BumpersCallback( data_robot::Bumpers current_bumps )
   }
 }
 
-void MovementStatusCallback( differential_drive::MovementStatus current_status )
+void MovementStatusCallback( diff_drive_calibrated::MovementStatus current_status )
 {
   m_stasis_direction = data_robot::Bumpers::NONE;
 
-  //if ( current_status.motors_state != differential_drive::MovementStatus::CORRECT )
-  if ( current_status.motors_state == differential_drive::MovementStatus::STASIS )
+  //if ( current_status.motors_state != diff_drive_calibrated::MovementStatus::CORRECT )
+  if ( current_status.motors_state == diff_drive_calibrated::MovementStatus::STASIS )
   {
     if ( current_status.linear_velocity_average > 0.0 )
     {

@@ -24,7 +24,7 @@ struct TickVelocityReceiver : public data_robot_core::ITickVelocityListener
   int _linear;
   int _angular;
 
-  void OnTickVelocityAvailableEvent(const differential_drive::TickVelocity& tick_velocity)
+  void OnTickVelocityAvailableEvent(const diff_drive_calibrated::TickVelocity& tick_velocity)
   {
     _count_of_tick_velocities_received++;
 
@@ -54,7 +54,7 @@ struct TickVelocityReceiver : public data_robot_core::ITickVelocityListener
     ros::init( argc, (char**)NULL, name );
 
     ros::NodeHandle node;
-    ros::Publisher pub = node.advertise<differential_drive::TickVelocity>("cmd_ticks", 12);
+    ros::Publisher pub = node.advertise<diff_drive_calibrated::TickVelocity>("cmd_ticks", 12);
     usleep( 25000 );
 
     int linear1;
@@ -72,7 +72,7 @@ struct TickVelocityReceiver : public data_robot_core::ITickVelocityListener
     TickVelocitySubscriberEndpoint tick_velocity_endpoint;
     TickVelocityReceiver tick_velocity_receiver;
 
-    differential_drive::TickVelocity tick_velocity;
+    diff_drive_calibrated::TickVelocity tick_velocity;
     
     tick_velocity_endpoint.Attach( tick_velocity_receiver );
    

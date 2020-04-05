@@ -2,7 +2,7 @@
 
 #include "ros/ros.h"
  
-#include "differential_drive/EncoderCounts.h"
+#include "diff_drive_calibrated/EncoderCounts.h"
 
 #include "Telemetry.hpp"
 #include "IBaseTelemetryListener.hpp"
@@ -54,7 +54,7 @@ void BaseTelemetryReportingService::StopReporting()
  */
 void BaseTelemetryReportingService::OnBaseTelemetryAvailableEvent(const data_robot_core::BaseTelemetry_T& telemetry)
 {
-  differential_drive::EncoderCounts encoder_counts;
+  diff_drive_calibrated::EncoderCounts encoder_counts;
   data_robot::PowerState    power_state;
 
   if ( _is_reporting )

@@ -6,7 +6,7 @@
  
 #include <ros/ros.h>
 
-#include "differential_drive/EncoderCounts.h"
+#include "diff_drive_calibrated/EncoderCounts.h"
 
 #include "EncoderCountsPublisherEndpoint.hpp"
  
@@ -17,14 +17,14 @@ namespace data_robot_message_endpoints
 EncoderCountsPublisherEndpoint::EncoderCountsPublisherEndpoint() 
   // Setup topic for publishing laser scans to
   : _encoder_counts_publisher(
-    _encoder_counts_node.advertise<differential_drive::EncoderCounts>("encoder_counts", 10)) 
+    _encoder_counts_node.advertise<diff_drive_calibrated::EncoderCounts>("encoder_counts", 10)) 
 { 
 }
 
 /** Publishes the @p encoder_counts msg and broadcasts the coordinate frame 
  *  transform.
  */
-void EncoderCountsPublisherEndpoint::Publish( const differential_drive::EncoderCounts& encoder_counts )
+void EncoderCountsPublisherEndpoint::Publish( const diff_drive_calibrated::EncoderCounts& encoder_counts )
 {
   // and publish the encoder_counts msg
   _encoder_counts_publisher.publish(encoder_counts);

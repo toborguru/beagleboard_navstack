@@ -14,7 +14,7 @@ namespace data_robot_test_application_services
   // Define the unit test to verify ability to leverage the reporting service using the message endpoint stub
   TEST(TickVelocityCommandServiceTests, canCanStartAndStopAcceptingCommands)
   {
-    differential_drive::TickVelocity tick_velocity;
+    diff_drive_calibrated::TickVelocity tick_velocity;
 
     int received1;
     int received2;
@@ -82,7 +82,7 @@ namespace data_robot_test_application_services
                                                               external_bus_endpoint_stub );
                                                       
     // Act
-    differential_drive::TickVelocity tick_velocity;
+    diff_drive_calibrated::TickVelocity tick_velocity;
 
     int linear1;
     int linear2;

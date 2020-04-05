@@ -1,5 +1,5 @@
 # Create the library
-rosbuild_add_library(
+add_library(
   data_robot_application_services
   BaseTelemetryReportingService.cpp
   BumpersProcessorSetupService.cpp
