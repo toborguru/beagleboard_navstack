@@ -1,0 +1,11 @@
+<launch>
+  <node pkg="diff_drive" type="diff_drive_node" name="diff_drive">
+    <param name="drive_wheel_diameter"        value="0.066"/>
+    <param name="drive_wheel_base"            value="0.100"/>
+    <param name="drive_wheel_ratio"           value="1.000"/>
+    <param name="drive_wheel_encoder_ticks"   value="128"/>
+    <param name="stasis_wheel_enabled"        value="true"/>
+    <param name="stasis_wheel_diameter"       value="0.066"/>
+    <param name="stasis_wheel_encoder_ticks"  value="128"/>
+  </node>
+</launch>
