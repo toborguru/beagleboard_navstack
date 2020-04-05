@@ -1,6 +1,8 @@
 #ifndef _SYSTEM_CLOCK_H_
 #define _SYSTEM_CLOCK_H_
 
+#define SYSTEM_CLOCK_RATE_HZ    1000
+
 #ifndef SYSTEM_CLOCK_MAX
   #define SYSTEM_CLOCK_MAX (65536U)
 #endif

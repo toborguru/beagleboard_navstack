@@ -6,8 +6,6 @@
 
 #include "system_clock.h"
 
-#define SYSTEM_CLOCK_RATE_HZ    1000
-
 volatile SYSTEM_CLOCK_T g_system_clock = 0;
 
 /*

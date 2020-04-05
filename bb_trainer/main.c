@@ -38,8 +38,8 @@
 #define SHELL_RESET_STEPS   250 // 50 Hz Steps (last I checked...)
 #define KILL_DELAY_STEPS    500 // 50 Hz Steps (last I checked...)
 
-#define MOTION_STEP_DELAY   20 // millis (50Hz)
-#define MAX_STEPS_BETWEEN_COMMANDS  45 // 50 Hz Steps (last I checked...)
+#define MOTION_STEP_DELAY   SYSTEM_CLOCK_RATE_HZ / MOTION_CONTROL_UPDATE_RATE_HZ 
+#define MAX_STEPS_BETWEEN_COMMANDS  MOTION_CONTROL_UPDATE_RATE_HZ // 1 second timeout
 #define MOT_CMD_ENABLED 1
 
 #define KILL_PORT C
@@ -54,12 +54,12 @@
 #define I2C_INVALID_VELOCITY    (int16_t)(-32768)
 #define INVALID_COMMAND         0xFF
 
-// repeating pattern will be run using pid control
-#define MOTION_TEST_DELAY   1500 // millis
+// repeating pattern will be run using motion control
+#define MOTION_TEST_DELAY   2500 // millis
 #define MOTION_TEST_SPEED1  80
 #define MOTION_TEST_TURN1   0
-#define MOTION_TEST_SPEED2  80
-#define MOTION_TEST_TURN2   80
+#define MOTION_TEST_SPEED2  -80
+#define MOTION_TEST_TURN2   0
 
 // repeating pattern will be run using pid control
 #define PID_TEST_DELAY   1500 // millis
