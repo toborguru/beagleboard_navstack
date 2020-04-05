@@ -1,5 +1,5 @@
 <launch>
-  <node pkg="differential_drive" type="differential_drive_node" name="differential_drive">
+  <node pkg="diff_drive_calibrated" type="node" name="diff_drive">
     <param name="drive_wheel_diameter"        value="0.060"/>
     <param name="drive_wheel_base"            value="0.180"/>
     <param name="drive_wheel_encoder_ticks"   value="128"/>
@@ -13,7 +13,7 @@
     <remap from="tick_velocity" to="cmd_ticks"/>
   </node>
 
-  <node pkg="data_robot" type="data_robot_node" name="robot">
+  <node pkg="data_robot" type="node" name="robot">
     <param name="front_bumper_index"  value="0"/>
     <param name="front_left_bumper_index"  value="2"/>
     <param name="front_right_bumper_index"  value="1"/>

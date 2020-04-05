@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 
 
     // 3) Start the services
-    i2c_bus_endpoint->Open( "/dev/i2c-2" );
+    i2c_bus_endpoint->Open( "/dev/i2c-1" );
 
     bumpers_processor_setup_service.Update();
 
