@@ -10,7 +10,7 @@
 
 #include "I2CBusRequestProcessorEndpoint.hpp"
 
-//#include "i2c-api.h"
+#include "i2c_api.h"
 
 using namespace data_robot_core;
  
@@ -153,7 +153,7 @@ void I2CBusRequestProcessorEndpoint::ProcessBusMessages()
 void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_request )
 {
   int request_type;
-  uint8_t addr;
+  uint8_t board_addr;
   uint8_t register_addr;
 
   if ( p_bus_request != NULL )
@@ -167,32 +167,20 @@ void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_reques
     if ( 2 == p_bus_request->GetAddressBufferSize() ) 
     {
       request_type = p_bus_request->GetRequestType();
-      addr = p_bus_request->GetAddressBuffer()[0];
-      register_addr = p_bus_request->GetAddressBuffer()[1];
-
-      ioctl( _i2c_fd, I2C_SLAVE, register_addr );
+      register_addr = p_bus_request->GetAddressBuffer()[0];
+      board_addr = p_bus_request->GetAddressBuffer()[1];
 
       if ( REQUEST_READ == request_type )
       {
-        read( _i2c_fd, p_bus_request->GetDataBuffer(), 
+        i2c_read_bytes( _i2c_fd, board_addr, register_addr,
+              p_bus_request->GetDataBuffer(), 
               p_bus_request->GetDataBufferSize() );
-
-        //I2cSetSlaveAddress( _i2c_fd, addr, 0 );
-
-        //I2cReadBytes( _i2c_fd, register_addr,
-        //              p_bus_request->GetDataBuffer(),
-        //              p_bus_request->GetDataBufferSize() );
       }
       else if ( REQUEST_WRITE == request_type )
       {
-        write( _i2c_fd, p_bus_request->GetDataBuffer(), 
+        i2c_write_bytes( _i2c_fd, board_addr, register_addr,
+              p_bus_request->GetDataBuffer(), 
               p_bus_request->GetDataBufferSize() );
-
-        //I2cSetSlaveAddress( _i2c_fd, addr, 0 );
-
-        //I2cWriteBytes(  _i2c_fd, register_addr,
-        //                p_bus_request->GetDataBuffer(),
-        //                p_bus_request->GetDataBufferSize() );
       }
 
       p_bus_request->SetRequestComplete( true );

@@ -6,6 +6,5 @@ add_library(
   PowerStatePublisherEndpoint.cpp
   TickVelocitySubscriberEndpoint.cpp
   I2CBusRequestProcessorEndpoint.cpp
-  Crc8.c
-#  i2c-api.c
+  i2c_api.c
 )
