@@ -13,6 +13,7 @@ namespace data_robot_message_endpoints
 {
 class I2CBusRequestProcessorEndpoint : public data_robot_core::IBusRequestProcessorEndpoint
 { 
+  const int MESSAGE_ERROR_LIMIT = 100;
 public:
   I2CBusRequestProcessorEndpoint();
   I2CBusRequestProcessorEndpoint( const char* dev_name );
@@ -33,7 +34,7 @@ public:
 private:
   void  ProcessBusMessages();
 
-  void  ExecuteBusRequest( data_robot_core::BusRequest* p_bus_request );
+  int   ExecuteBusRequest( data_robot_core::BusRequest* p_bus_request );
 
   std::queue<data_robot_core::BusRequest*> _bus_request_queue;
 

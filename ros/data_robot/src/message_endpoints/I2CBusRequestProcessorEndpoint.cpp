@@ -129,6 +129,9 @@ void I2CBusRequestProcessorEndpoint::ProcessRequest( BusRequest *p_bus_request )
  */
 void I2CBusRequestProcessorEndpoint::ProcessBusMessages()
 {
+  int error;
+  int num_consec_errors = 0;
+
   ros::Rate r(1000); // 1000 hz
 
   while ( !_stop_requested && (_i2c_fd > 0) )
@@ -136,7 +139,23 @@ void I2CBusRequestProcessorEndpoint::ProcessBusMessages()
     while ( ! _bus_request_queue.empty() )
     {
       // Complete the request
-      ExecuteBusRequest( _bus_request_queue.front() );
+      error = ExecuteBusRequest( _bus_request_queue.front() );
+
+      if ( error )
+      {
+        num_consec_errors++;
+      }
+      else
+      {
+        num_consec_errors = 0;
+      }
+
+      if ( num_consec_errors > MESSAGE_ERROR_LIMIT )
+      {
+        // Send error message
+        printf("Consecutive error limit reached. Exiting.\n");
+        exit( 1 );
+      }
       
       // Remove the completed request
       _bus_request_queue.pop();
@@ -150,11 +169,13 @@ void I2CBusRequestProcessorEndpoint::ProcessBusMessages()
 
 /** Performs the data transaction described in @a p_bus_request.
  */
-void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_request )
+int I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_request )
 {
   int request_type;
   uint8_t board_addr;
   uint8_t register_addr;
+
+  int ret_val = -1;
 
   if ( p_bus_request != NULL )
   {
@@ -172,13 +193,13 @@ void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_reques
 
       if ( REQUEST_READ == request_type )
       {
-        i2c_read_bytes( _i2c_fd, board_addr, register_addr,
+        ret_val = i2c_read_bytes( _i2c_fd, board_addr, register_addr,
               p_bus_request->GetDataBuffer(), 
               p_bus_request->GetDataBufferSize() );
       }
       else if ( REQUEST_WRITE == request_type )
       {
-        i2c_write_bytes( _i2c_fd, board_addr, register_addr,
+        ret_val = i2c_write_bytes( _i2c_fd, board_addr, register_addr,
               p_bus_request->GetDataBuffer(), 
               p_bus_request->GetDataBufferSize() );
       }
@@ -197,5 +218,7 @@ void I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_reques
       p_bus_request->Unlock();
     }
   }
+
+  return ret_val;
 }
 }

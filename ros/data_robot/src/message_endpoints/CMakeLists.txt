@@ -1,3 +1,5 @@
+add_definitions( -DLOG_MESSAGE=0 )
+
 # Create the library
 add_library(
   data_robot_message_endpoints

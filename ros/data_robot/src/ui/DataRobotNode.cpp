@@ -87,13 +87,13 @@ int main(int argc, char **argv)
                                                               i2c_bus_endpoint );
 
 
-    int retVal;
+    int error_code;
     // 3) Start the services
-    retVal = i2c_bus_endpoint->Open( "/dev/i2c-1" );
-    if ( retVal < 0 )
+    error_code = i2c_bus_endpoint->Open( "/dev/i2c-1" );
+    if ( error_code )
     {
-      printf( "Error opening the I2C bus: %d\n", retVal );
-      return 1;
+      printf( "Error opening the I2C bus: %d\n", error_code );
+      exit( 1 );
     }
 
     bumpers_processor_setup_service.Update();

@@ -10,10 +10,15 @@
 #include "i2c_api.h"
 
 #ifndef LOG_MESSAGE
-#	include <stdio.h>
-#	define LOG_MESSAGE printf
+#	  include <stdio.h>
+#	  define LOG_MESSAGE printf
+#elif LOG_MESSAGE == 0
+#   undef  LOG_MESSAGE
+#   define LOG_MESSAGE print_nothing
+    void print_nothing(char* format, ...)
+    {
+    }
 #endif
-
 
 int i2c_write_read_transfer
 (   
