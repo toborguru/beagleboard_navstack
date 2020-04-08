@@ -6,6 +6,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <linux/i2c.h>
+#include <unistd.h>
 
 #include "i2c_api.h"
 
@@ -31,6 +32,8 @@ int i2c_write_read_transfer
 )
 {
   int msg_index;
+  int read_bytes;
+  int wrote_bytes;
 
   struct  i2c_rdwr_ioctl_data rdwr;
   struct  i2c_msg             msg[ 2 ];
@@ -69,12 +72,12 @@ int i2c_write_read_transfer
     return -1;
   }
 
-// SJL  // Set I2C Board Address
-// SJL	if ( ioctl( i2c_fd, I2C_SLAVE, i2c_board ) < 0 )
-// SJL	{   
-// SJL		LOG_MESSAGE( "Error trying to set slave address to 0x%02x (%d %s)\n",
-// SJL				board_address, errno, strerror(errno) );
-// SJL	}
+  // Set I2C Slave Board Address
+	if ( ioctl( i2c_fd, I2C_SLAVE, i2c_board ) < 0 )
+	{   
+		LOG_MESSAGE( "Error trying to set slave address to 0x%02x (%d %s)\n",
+				i2c_board, errno, strerror(errno) );
+	}
 
   // Setup write section of transfer
   if ( write_len > 0 )
@@ -87,6 +90,15 @@ int i2c_write_read_transfer
     rdwr.nmsgs = 1;
 
     writing = 1;
+
+// SJL    wrote_bytes = write( i2c_fd, &write_data[ 0 ], write_len );
+// SJL
+// SJL    if ( wrote_bytes != write_len )
+// SJL    {
+// SJL      LOG_MESSAGE( "Write Failed! Wrote: %d Brd: %d W#b: %d R#b: %d - %s (%d)\n", 
+// SJL          wrote_bytes, i2c_board, write_len, read_len, strerror( errno ), errno );
+// SJL      return -1;
+// SJL    }
   }
 
 	// Setup read section of transfer
@@ -107,17 +119,26 @@ int i2c_write_read_transfer
 		msg[ msg_index ].flags = I2C_M_RD;
 		msg[ msg_index ].len   = read_len;
 		msg[ msg_index ].buf   = (char*)&read_buf[ 0 ];
+
+// SJL    read_bytes = read( i2c_fd, &read_data[ 0 ], read_len );
+// SJL
+// SJL    if ( read_bytes != read_len )
+// SJL    {
+// SJL      LOG_MESSAGE( "Read Failed! Read: %d Brd: %d W#b: %d R#b: %d - %s (%d)\n", 
+// SJL          read_bytes, i2c_board, write_len, read_len, strerror( errno ), errno );
+// SJL      return -1;
+// SJL    }
 	}
 
 	// Start a Write/Read transaction
   rdwr.msgs = msg;
 
-	if ( ioctl( i2c_fd, I2C_RDWR, &rdwr ) < 0 )
-	{
-		LOG_MESSAGE( "Transfer Failed! Brd: %d W#b: %d R#b: %d - %s (%d)\n", 
-				i2c_board, write_len, read_len, strerror( errno ), errno );
-		return -1;
-	}
+  if ( ioctl( i2c_fd, I2C_RDWR, &rdwr ) < 0 )
+  {
+    LOG_MESSAGE( "Transfer Failed! Brd: %d W#b: %d R#b: %d - %s (%d)\n", 
+        i2c_board, write_len, read_len, strerror( errno ), errno );
+    return -1;
+  }
 
 	// Copy read data
 	if ( read_len > 0 )

@@ -63,12 +63,12 @@ int I2CBusRequestProcessorEndpoint::Open( const char* dev_name )
   }
   else
   {
-    ret_val = 0;
-  }
+    if (! _running)
+    {
+      StartProcessingThread();
+    }
 
-  if (! _running)
-  {
-    StartProcessingThread();
+    ret_val = 0;
   }
 
   return ret_val;
@@ -174,6 +174,7 @@ int I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_request
   int request_type;
   uint8_t board_addr;
   uint8_t register_addr;
+  int bytes;
 
   int ret_val = -1;
 
@@ -188,20 +189,44 @@ int I2CBusRequestProcessorEndpoint::ExecuteBusRequest( BusRequest *p_bus_request
     if ( 2 == p_bus_request->GetAddressBufferSize() ) 
     {
       request_type = p_bus_request->GetRequestType();
-      register_addr = p_bus_request->GetAddressBuffer()[0];
-      board_addr = p_bus_request->GetAddressBuffer()[1];
+      board_addr = p_bus_request->GetAddressBuffer()[0];
+      register_addr = p_bus_request->GetAddressBuffer()[1];
 
       if ( REQUEST_READ == request_type )
       {
-        ret_val = i2c_read_bytes( _i2c_fd, board_addr, register_addr,
-              p_bus_request->GetDataBuffer(), 
-              p_bus_request->GetDataBufferSize() );
+        bytes = i2c_read_bytes( _i2c_fd, board_addr, register_addr,
+                    p_bus_request->GetDataBuffer(), 
+                    p_bus_request->GetDataBufferSize() );
+
+        if ( bytes != p_bus_request->GetDataBufferSize() )
+        {
+          // Transfer error
+          ret_val = -1;
+        }
+        else
+        {
+          ret_val = 0;
+        }
       }
       else if ( REQUEST_WRITE == request_type )
       {
-        ret_val = i2c_write_bytes( _i2c_fd, board_addr, register_addr,
-              p_bus_request->GetDataBuffer(), 
-              p_bus_request->GetDataBufferSize() );
+        bytes= i2c_write_bytes( _i2c_fd, board_addr, register_addr,
+                    p_bus_request->GetDataBuffer(), 
+                    p_bus_request->GetDataBufferSize() );
+
+        if ( bytes != p_bus_request->GetDataBufferSize() )
+        {
+          // Transfer error
+          ret_val = -1;
+        }
+        else
+        {
+          ret_val = 0;
+        }
+      }
+      else
+      { 
+        printf("Unrecognized request type.\n");
       }
 
       p_bus_request->SetRequestComplete( true );
