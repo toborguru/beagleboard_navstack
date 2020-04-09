@@ -1,6 +1,6 @@
 $ i2cdetect -l
 
-# USB busses 1, 2, 3 on chip turn into 0, 1, 2 in i2c-tools
+# I2C busses 1, 2, 3 on chip turn into 0, 1, 2 in i2c-tools
 
 $ i2cdetect -F 1
 
