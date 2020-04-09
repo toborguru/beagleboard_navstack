@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     new_cmd = Wander();
 
     EscapeCollision( &new_cmd, m_bump_direction );
-    EscapeStasis( &new_cmd, m_stasis_direction );
+    //EscapeStasis( &new_cmd, m_stasis_direction );
     
     //ROS_INFO( "Publishing cmd_vel: Speed: %.2f Turn: %.2f", new_cmd.linear.x, new_cmd.angular.z );
 

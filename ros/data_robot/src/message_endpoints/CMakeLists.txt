@@ -1,4 +1,4 @@
-#add_definitions( -DLOG_MESSAGE=0 )
+add_definitions( -DLOG_MESSAGE=0 )
 
 # Create the library
 add_library(
