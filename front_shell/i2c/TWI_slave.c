@@ -27,7 +27,7 @@
 #include "../macros.h"
 
 #include "TWI_slave.h"
- 
+
 volatile uint8_t* gp_TWI_transmitBuf;   // Transmit registers. Data to send to the Master.
 volatile uint8_t* gp_TWI_receive_buf;    // Receive registers. Data received from the Master.
 volatile uint8_t g_TWI_readComplete = FALSE;
@@ -63,8 +63,8 @@ void TWI_Slave_Initialise( unsigned char TWI_ownAddress )
   TWI_busy = 0;
 
   BIT_CLEAR( PRR, PRTWI );
-}    
-    
+}
+
 /****************************************************************************
 Call this function to test if the TWI_ISR is busy transmitting.
 ****************************************************************************/
@@ -145,7 +145,7 @@ unsigned char TWI_Get_Data_From_Transceiver( unsigned char *msg, unsigned char m
 
   if( TWI_statusReg.lastTransOK )               // Last transmission completed successfully.              
   {                                             
-    for ( i=0; i<msgSize; i++ )                 // Copy data from Transceiver buffer.
+    for ( i=0; i<msgSize; ++i )                 // Copy data from Transceiver buffer.
     {
       msg[ i ] = gp_TWI_receive_buf[ i ];
     }
@@ -237,7 +237,7 @@ ISR( TWI_vect )
         g_TWI_writeInProgress = TRUE;
       }
 
-      TWI_numBytes++;
+      ++TWI_numBytes;
 
       TWI_statusReg.lastTransOK = TRUE;                 // Set flag transmission successfull.       
                                                         // Reset the TWI Interupt to wait for a new event.
