@@ -11,7 +11,7 @@ namespace data_robot_core
 {
 enum RequestType_T
 {
-  REQUEST_INVALID= 0,
+  REQUEST_INVALID = 0,
   REQUEST_WRITE,
   REQUEST_READ
 };

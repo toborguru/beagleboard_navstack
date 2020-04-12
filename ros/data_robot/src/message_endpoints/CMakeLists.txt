@@ -5,6 +5,7 @@ add_library(
   data_robot_message_endpoints
   BumpersPublisherEndpoint.cpp
   EncoderCountsPublisherEndpoint.cpp
+  LogPublisherEndpoint.cpp
   PowerStatePublisherEndpoint.cpp
   TickVelocitySubscriberEndpoint.cpp
   I2CBusRequestProcessorEndpoint.cpp
