@@ -5,5 +5,7 @@
     <param name="drive_wheel_ratio"           value="1.000"/>
     <param name="drive_wheel_encoder_ticks"   value="128"/>
     <param name="stasis_wheel_enabled"        value="false"/>
+
+    <remap from="tick_velocity" to="cmd_ticks"/>
   </node>
 </launch>

@@ -17,7 +17,7 @@ namespace diff_drive_message_endpoints
 OdometryPublisherEndpoint::OdometryPublisherEndpoint() 
   // Setup topic for publishing laser scans to
   : _odometry_publisher(
-    _odometry_node.advertise<nav_msgs::Odometry>("odometry", 10)) 
+    _odometry_node.advertise<nav_msgs::Odometry>("odom", 10)) 
 { 
 }
 
@@ -39,6 +39,7 @@ void OdometryPublisherEndpoint::publish( const nav_msgs::Odometry& odometry )
   stamped_odometry = odometry;
 
   // first, we'll populate the header for the odometry msg
+  stamped_odometry.header.stamp = ros::Time::now();
   stamped_odometry.header.frame_id = "odom";
   stamped_odometry.child_frame_id = "base_link";
  
