@@ -1,5 +1,13 @@
 This I2C Bootloader and associated Linux app were originally downloaded from
 https://github.com/orempel/
 
-They are shared via the GPL2 license and are stored here in their original form for 
-posterity and reference.
+They are shared via the GPL2 license and have been updated here for successful 
+operation in my system. Thank You!
+
+# bb trainer
+make clean && make TWI_ADDRESS=0x5
+make install
+
+# front shell
+make clean && make TWI_ADDRESS=0x15
+make install

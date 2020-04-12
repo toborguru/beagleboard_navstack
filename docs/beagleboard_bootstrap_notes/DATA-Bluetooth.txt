@@ -1,0 +1,52 @@
+$ bluetoothctl
+> help
+
+https://superuser.com/questions/1029484/setting-up-a-bluetooth-pan
+
+https://www.udoo.org/docs-neo/Wireless_Communication/Bluetooth%20NAP.html
+
+sudo apt install bluez-utils: bt-network
+sudo apt install bride-utils: brctl
+sudo apt install isc-dhcp-server
+
+bluetoothctl
+> default-agent
+
+sudo brctl addbr pan0
+sudo brctl setfd pan0 0
+sudo brctl stp pan0 off
+
+sudo ifconfig pan0 inet add 192.168.101.1
+
+sudo ip link set pan0 up
+
+sudo bt-network -d -s nap pan0
+
+
+
+Laptop:
+sudo bluetoothctl # to see whats going on - and to say yes to auth IN  BOTH DIRECTIONS, limited time too
+
+
+sudo bt-network -c 00:02:72:21:40:7F nap ***
+sudo dhclient bnep0
+
+
+sudo bt-network -d -s gn br0
+sudo bt-network -c 00:02:72:21:40:7F gn
+sudo dhclient bnep0
+sudo ip route del default via 192.168.66.1
+
+netstat
+
+ ip route list
+ 
+ /etc/systemd/system/bt-network.service
+ /etc/default/isc-dhcp-server
+ sudo systemctl restart isc-dhcp-server
+ sudo vi /etc/default/isc-dhcp-server
+ 
+sudo bt-network -c 00:02:72:21:40:7F gn
+ 
+
+ 
