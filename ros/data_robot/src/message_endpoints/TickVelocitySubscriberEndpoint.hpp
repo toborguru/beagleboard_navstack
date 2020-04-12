@@ -7,6 +7,8 @@
 #include <pthread.h>
 #include <vector>
 
+#include "ILogPublisherEndpoint.hpp"
+
 #include "ITickVelocitySubscriberEndpoint.hpp"
  
 namespace data_robot_message_endpoints
@@ -15,6 +17,7 @@ class TickVelocitySubscriberEndpoint : public data_robot_core::ITickVelocitySubs
 { 
 public:
   TickVelocitySubscriberEndpoint();
+  TickVelocitySubscriberEndpoint( boost::shared_ptr<data_robot_core::ILogPublisherEndpoint> log_endpoint );
   ~TickVelocitySubscriberEndpoint();
 
   void Subscribe();
@@ -27,6 +30,10 @@ private:
   void ReceiveTickVelocityMessages();
 
   void NotifyTickVelocityListeners( const diff_drive_calibrated::TickVelocity& tick_velocity );
+
+  void Log( data_robot_core::LogLevel_T level, data_robot_core::LogFlags_T flags, const std::string& log_message );
+
+  boost::shared_ptr<data_robot_core::ILogPublisherEndpoint> _p_log_endpoint;
 
   std::vector<data_robot_core::ITickVelocityListener*> _tick_velocity_listeners;
 

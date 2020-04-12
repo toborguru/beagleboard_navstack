@@ -10,6 +10,7 @@
 #include "BumperIndexesRepository.hpp"
 
 #include "BumpersPublisherEndpoint.hpp"
+#include "LogPublisherEndpoint.hpp"
 #include "EncoderCountsPublisherEndpoint.hpp"
 #include "I2CBusRequestProcessorEndpoint.hpp"
 #include "PowerStatePublisherEndpoint.hpp"
@@ -31,15 +32,17 @@ int main(int argc, char **argv)
     // 2) Application services must be initialized before being used
 
     // SHARED OBJECTS
+    // Log Publisher
+    boost::shared_ptr<LogPublisherEndpoint> log_endpoint = 
+        boost::shared_ptr<LogPublisherEndpoint>( new LogPublisherEndpoint() );
+
     // Bumpers Processor
     boost::shared_ptr<BumpersProcessor> bumpers_processor =
         boost::shared_ptr<BumpersProcessor>( new BumpersProcessor() );
 
-
     // I2C Bus
     boost::shared_ptr<I2CBusRequestProcessorEndpoint> i2c_bus_endpoint =
         boost::shared_ptr<I2CBusRequestProcessorEndpoint>( new I2CBusRequestProcessorEndpoint() );
-
 
     // SERVICES
     // Bumpers Processor Setup Service
@@ -79,12 +82,13 @@ int main(int argc, char **argv)
                                                                       bumpers_processor );
 
     
-    // Twist Command Service
+    // Ticks Velocity Command Service
     boost::shared_ptr<TickVelocitySubscriberEndpoint> tick_velocity_endpoint =
-        boost::shared_ptr<TickVelocitySubscriberEndpoint>( new TickVelocitySubscriberEndpoint() );
+        boost::shared_ptr<TickVelocitySubscriberEndpoint>( new TickVelocitySubscriberEndpoint( log_endpoint ) );
 
     TickVelocityCommandService tick_velocity_command_service( tick_velocity_endpoint, 
-                                                              i2c_bus_endpoint );
+                                                              i2c_bus_endpoint,
+                                                              log_endpoint );
 
 
     int error_code;

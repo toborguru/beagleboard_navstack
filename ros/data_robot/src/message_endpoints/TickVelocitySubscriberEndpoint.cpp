@@ -16,7 +16,16 @@ namespace data_robot_message_endpoints
  */
 TickVelocitySubscriberEndpoint::TickVelocitySubscriberEndpoint()    
               : _stop_requested(false), 
-                _running(false) 
+                _running(false),
+                _p_log_endpoint(0)
+{
+  _tick_velocity_listeners.reserve(1);
+}
+
+TickVelocitySubscriberEndpoint::TickVelocitySubscriberEndpoint( boost::shared_ptr<ILogPublisherEndpoint> log_endpoint )
+              : _stop_requested(false), 
+                _running(false),
+                _p_log_endpoint(log_endpoint)
 {
   _tick_velocity_listeners.reserve(1);
 }
@@ -67,10 +76,13 @@ void TickVelocitySubscriberEndpoint::Attach( ITickVelocityListener& tick_velocit
  */
 void TickVelocitySubscriberEndpoint::NewTickVelocityReceived( const diff_drive_calibrated::TickVelocity& tick_velocity )
 {
+  char log_buf[256];
   NotifyTickVelocityListeners( tick_velocity );
 
-  ROS_DEBUG(  "TickVelocity received: linear: %d angular %d",
+  snprintf( log_buf, sizeof(log_buf), "TickVelocity received: linear: %d angular %d",
               tick_velocity.linear_ticks_sec, tick_velocity.angular_ticks_sec );
+
+  Log( DEBUG, NONE, log_buf );
 }
 
 /** Worker thread. Subscribes to the ROS topic and checks for ROS or class stop request.
@@ -100,6 +112,16 @@ void TickVelocitySubscriberEndpoint::NotifyTickVelocityListeners( const diff_dri
   for ( unsigned int i= 0; i < _tick_velocity_listeners.size(); i++ )
   {
     _tick_velocity_listeners[i]->OnTickVelocityAvailableEvent( tick_velocity );
+  }
+}
+
+void TickVelocitySubscriberEndpoint::Log( data_robot_core::LogLevel_T level, 
+                                          data_robot_core::LogFlags_T flags, 
+                                          const std::string& log_message )
+{
+  if ( _p_log_endpoint != NULL )
+  {
+    _p_log_endpoint->Publish( level, flags, log_message );
   }
 }
 }

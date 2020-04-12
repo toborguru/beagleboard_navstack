@@ -22,23 +22,23 @@ void LogPublisherEndpoint::Publish( data_robot_core::LogLevel_T level, data_robo
 {
   if ( level == data_robot_core::DEBUG )
   {
-    ROS_DEBUG( "%s", log_message );
+    ROS_DEBUG( "%s", log_message.c_str() );
   }
   else if ( level == data_robot_core::INFO )
   {
-    ROS_INFO( "%s", log_message );
+    ROS_INFO( "%s", log_message.c_str() );
   }
   else if ( level == data_robot_core::WARNING )
   {
-    ROS_WARN( "%s", log_message );
+    ROS_WARN( "%s", log_message.c_str() );
   }
   else if ( level == data_robot_core::ERROR )
   {
-    ROS_ERROR( "%s", log_message );
+    ROS_ERROR( "%s", log_message.c_str() );
   }
   else if ( level == data_robot_core::FATAL )
   {
-    ROS_FATAL( "%s", log_message );
+    ROS_FATAL( "%s", log_message.c_str() );
   }
 }
 }
