@@ -121,7 +121,7 @@ class VelocityProfileComputation(object):
                                                        0,
                                                        self._accel,
                                                        self.dt)
-            if (self.vel_command < self.min_vel)
+            if (self.vel_command < self.min_vel):
                 self.vel_command = self.min_vel
 
         else:
@@ -235,7 +235,7 @@ class VelocityProfileComputation(object):
                                                        self._decel_rate,
                                                        self.dt)
 
-            if (self.vel_command < self.min_vel)
+            if (self.vel_command < self.min_vel):
                 self.vel_command = self.min_vel
 
         else:
