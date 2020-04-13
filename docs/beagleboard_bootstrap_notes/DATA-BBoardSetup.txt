@@ -1,3 +1,6 @@
+cd ubuntu-18.04.4-console-armhf-2020-03-12
+sudo ./setup_sdcard.sh --mmc /dev/sdb --dtb omap3-beagle-xm
+
 Creating a Swapfile
 The following commands will create a 1 GB file, limit access only to root, format it as swap and then make it available to the OS:
 sudo mkdir -p /var/cache/swap/   

@@ -5,8 +5,8 @@ https://superuser.com/questions/1029484/setting-up-a-bluetooth-pan
 
 https://www.udoo.org/docs-neo/Wireless_Communication/Bluetooth%20NAP.html
 
-sudo apt install bluez-utils: bt-network
-sudo apt install bride-utils: brctl
+sudo apt install bluez-tools: bt-network
+sudo apt install bridge-utils: brctl
 sudo apt install isc-dhcp-server
 
 bluetoothctl

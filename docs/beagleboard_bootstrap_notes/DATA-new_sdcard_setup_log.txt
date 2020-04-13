@@ -1,0 +1,93 @@
+# Laptop
+cd ubuntu-18.04.4-console-armhf-2020-03-12
+sudo ./setup_sdcard.sh --mmc /dev/sdb --dtb omap3-beagle-xm
+
+# Boot to serial
+sudo adduser tobor
+sudo vi /etc/group # %s/ubuntu/tobor/gc
+
+# Login as tobor
+sudo vi /etc/network/interfaces # add home network, BT bridge didn't work
+sudo reboot
+
+Copied from last sdcard (Uboot for MUX, Kernel for Wifi working a little):
+rootfs/
+    boot/
+        *sjl*
+        uEnv.txt
+        dtbs/
+            *sjl*
+    lib/modules/*sjl*
+
+BOOT/
+    *
+    
+Disable connman for wlan0:
+sudo vi /etc/connman/main.conf
+NetworkInterfaceBlacklist=SoftAp0,usb0,usb1,wlan0
+
+# Online
+sudo rm /etc/resolv.conf # symlink
+sudo vi /etc/resolv.conf
+
+# SJL resolve.conf
+nameserver 8.8.4.4
+nameserver 8.8.8.8
+
+sudo apt update
+sudo apt upgrade
+sudo apt install vim screen 
+
+source /home/tobor/beagleboard_navstack/beagle_board/scripts/data_env_vars
+cd /home/tobor/beagleboard_navstack/beagle_board/scripts/
+./data_read_voltage
+
+sudo apt install bluez-tools bridge-utils isc-dhcp-server
+
+# Restore BT files: etc/bluetooth/* etc/dhcp/dhcpd.conf etc/systemd/system/bt-network.service
+sudo systemctl enable bt-network.service
+sudo systemctl status bt-network.service
+
+sudo systemctl enable isc-dhcp-server.service
+
+sudo bluetoothctl
+    default-agent
+
+# laptop 
+sudo bluetoothctl
+    default-agent
+    
+# Discover, pair, trust
+
+# Copied over current /etc/network/interfaces
+sudo reboot
+
+data_ssh_bt
+
+# ROS
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+sudo apt update
+
+sudo apt install ros-melodic-ros-base
+source ~/.bashrc
+sudo apt install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
+sudo rosdep init
+rosdep update
+mkdir -p catkin_ws/src
+cd catkin_ws/
+catkin_make
+source devel/setup.bash
+rospack find roscpp
+
+sudo apt install ros-melodic-tf
+
+ln -sf ~/beagleboard_navstack/ros/* src/
+rm src/ros.config
+
+catkin_make
+
+
+
+
+

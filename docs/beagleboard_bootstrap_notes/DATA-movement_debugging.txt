@@ -1,0 +1,3 @@
+rosrun data_robot static_command _linear:=0.0 _angular:=-1.0
+
+rviz
