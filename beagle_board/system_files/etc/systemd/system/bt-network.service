@@ -1,0 +1,10 @@
+[Unit]
+Description=bt-network Daemon - for bluetooth PAN
+Requires=bluetooth.service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/bt-network -s gn br0
+
+[Install]
+WantedBy=multi-user.target
