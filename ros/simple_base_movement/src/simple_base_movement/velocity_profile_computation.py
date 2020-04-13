@@ -49,7 +49,7 @@ using acceleration constraints.
 import math
 
 class VelocityProfileComputation(object):
-    def __init__(self, aim_short_dist, max_vel, max_accel, dt):
+    def __init__(self, aim_short_dist, max_vel, min_vel, max_accel, dt):
         """Constructor
 
         aim_short_dist
@@ -59,6 +59,7 @@ class VelocityProfileComputation(object):
         """
         self.aim_short_dist = abs(aim_short_dist)
         self.max_vel = abs(max_vel)
+        self.min_vel = abs(min_vel)
         self.max_accel = abs(max_accel)
         self.dt = abs(dt)
 
@@ -95,7 +96,7 @@ class VelocityProfileComputation(object):
 
             # first acceleration step
             # assumes we are stopped
-            self.vel_command = 0 
+            self.vel_command = self.min_vel; 
 
             '''
             print('Accel: %f Accel cnt: %g Coast Vel: %g Coast cnt: %g' %
@@ -115,11 +116,13 @@ class VelocityProfileComputation(object):
             self.vel_command = self._coast_vel
 
         elif (loop_num < (self._accel_cnt + self._coast_cnt + self._accel_cnt)):
-            # acceleration leg
+            # deceleration leg
             self.vel_command = self.apply_acceleration(self.vel_command, 
                                                        0,
                                                        self._accel,
                                                        self.dt)
+            if (self.vel_command < self.min_vel)
+                self.vel_command = self.min_vel
 
         else:
             self.vel_command = 0.0
@@ -162,7 +165,7 @@ class VelocityProfileComputation(object):
 
             # first acceleration step
             # assumes we are stopped
-            self.vel_command = 0 
+            self.vel_command = self.min_vel
 
             '''
             print('Accel: %f Accel cnt: %g Coast Vel: %g Coast cnt: %g' %
@@ -182,6 +185,7 @@ class VelocityProfileComputation(object):
             self.vel_command = self._coast_vel
 
         elif (self._decel_cnt > 0) and (self.vel_command != 0.0):
+            # deceleration leg
             decel_loop_num = int(loop_num - (self._accel_cnt + self._coast_cnt))
             decel_check_cnt = int(self._accel_cnt / 2)
             remainder = decel_loop_num % decel_check_cnt
@@ -230,6 +234,10 @@ class VelocityProfileComputation(object):
                                                        0,
                                                        self._decel_rate,
                                                        self.dt)
+
+            if (self.vel_command < self.min_vel)
+                self.vel_command = self.min_vel
+
         else:
             self.vel_command = 0.0
 

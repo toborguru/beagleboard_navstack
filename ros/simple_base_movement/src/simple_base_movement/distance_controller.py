@@ -126,8 +126,8 @@ class DistanceController(object):
         self.min_speed      = config["min_vel_x"]
         self.accel_speed    = config["acc_lim_x"]
         self.max_turn       = config["max_rotational_vel"]
-        self.min_turn       = config["min_in_place_rotational_vel"]
-        self.accel_turn     = config["acc_lim_th"]
+        self.min_turn       = config["min_rotational_vel"]
+        self.accel_turn     = config["acc_lim_rotation"]
 
         # Controller parameters
         self.base_frame     = config["robot_base_frame"]
@@ -365,6 +365,7 @@ class DistanceController(object):
         # setup the velocity controllers
         profile = VelocityProfiler(self.precision_distance, 
                                    self.max_speed, 
+                                   self.min_speed, 
                                    self.accel_speed, 
                                    period)
 
@@ -607,7 +608,7 @@ class DistanceController(object):
         period = 1.0 / self.update_rate
 
         # setup the velocity controllers
-        profile = VelocityProfiler(self.precision_angle, self.max_turn, 
+        profile = VelocityProfiler(self.precision_angle, self.max_turn, self.min_turn,
                                     self.accel_turn, period)
 
         finished = False
