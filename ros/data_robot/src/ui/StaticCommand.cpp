@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     new_cmd.linear.x = linear;
     new_cmd.angular.z = angular;
 
-    ROS_INFO( "Publishing cmd_vel: Speed: %.2f Turn: %.2f", new_cmd.linear.x, new_cmd.angular.z );
+    ROS_DEBUG( "Publishing cmd_vel: Speed: %.2f Turn: %.2f", new_cmd.linear.x, new_cmd.angular.z );
 
     cmd_vel_publisher.publish( new_cmd );
 
