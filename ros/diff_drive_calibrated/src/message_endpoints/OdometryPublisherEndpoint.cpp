@@ -40,8 +40,8 @@ void OdometryPublisherEndpoint::publish( const nav_msgs::Odometry& odometry )
 
   // first, we'll populate the header for the odometry msg
   stamped_odometry.header.stamp = ros::Time::now();
-  stamped_odometry.header.frame_id = "odom";
-  stamped_odometry.child_frame_id = "base_link";
+  stamped_odometry.header.frame_id = "base_link";
+  stamped_odometry.child_frame_id = "odom";
  
   // and publish the odometry msg
   _odometry_publisher.publish(stamped_odometry);
@@ -59,7 +59,8 @@ void OdometryPublisherEndpoint::publish( const nav_msgs::Odometry& odometry )
   // send the transform
   _transform_broadcaster.sendTransform(odometry_transform);
 
-  ROS_DEBUG(  "Published odometry with x, y of: %f, %f", 
-              odometry.pose.pose.position.x, odometry.pose.pose.position.y );
+  ROS_DEBUG(  "Published odometry with x, y, th of: %f, %f, %f", 
+              odometry.pose.pose.position.x, odometry.pose.pose.position.y, 
+	      tf::getYaw(stamped_odometry.pose.pose.orientation) );
 }
 }
