@@ -81,7 +81,7 @@ void BaseTelemetryReader::ReadBaseTelemetry()
   ReadBaseTelemetryRequest bus_request;
   BaseTelemetry_T telemetry;
 
-  ros::Rate r( 10.0 );
+  ros::Rate r( 50.0 );
 
   while ( ! _stop_requested ) 
   {

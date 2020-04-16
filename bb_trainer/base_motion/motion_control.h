@@ -14,8 +14,10 @@
 #define MOTION_CONTROL_MAX_CORRECTION   0xFF
 
 #define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
-#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     4   // u16.0 ticks/sec^2
-#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    4   // u16.0 ticks/sec^3
+#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     48  // u16.0 ticks/sec^2
+#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    48  // u16.0 ticks/sec^3
+
+#define STARTING_POWER 16
 
 typedef struct
 {

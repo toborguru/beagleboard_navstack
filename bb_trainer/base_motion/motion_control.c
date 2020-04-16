@@ -131,23 +131,31 @@ void Motion_Control_Run_Step(   void )
             left_power *= -1;
             Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_REVERSE );
         }
-        else
+        else if (left_power > 0)
         {
-            Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_FORWARD);
+            Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_FORWARD );
         }
+	else
+	{
+            Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_COAST );
+	}
      
         if (right_power < 0)
         {
             right_power *= -1;
-            Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_REVERSE);
+            Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_REVERSE );
         }
-        else
+        else if (right_power > 0)
         {
-            Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_FORWARD);
+            Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_FORWARD );
         }
+	else
+	{
+            Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_COAST );
+	}
 
-        Motors_Set_Power(   MOTORS_L_INDEX, left_power & 0xFF);
-        Motors_Set_Power(   MOTORS_R_INDEX, right_power & 0xFF);
+        Motors_Set_Power(   MOTORS_L_INDEX, left_power & 0xFF  );
+        Motors_Set_Power(   MOTORS_R_INDEX, right_power & 0xFF );
     }
 
     // Update telemetry registers
@@ -311,31 +319,21 @@ static void Motion_Control_Add_To_Position( int16_t num_ticks, volatile Motion_S
   // Prevent run-away setpoints! If there is already more positive error than the velocity
   // you are trying to achieve, lock the previous error to the commanded vel and add vel,
   // which ends up being a vel * 2 assignment
-  if (num_ticks > 0)
-  {
-    // Commanded vel is higher than existing error
-    if ( num_ticks > (existing_error * 256) )
-    { 
-      p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
-    }    
-    // Existing error is running past commanded vel- clamp to full vel error plus vel
-    else
-    { 
-      p_motion->encoder_setpoint = (p_motion->encoder * 256) + (2 * num_ticks); // Setpoint and num_ticks are sX.8 numbers
+  // Commanded vel is higher than existing error
+  if ( abs(num_ticks) > (abs(existing_error) * 256) )
+  { 
+    p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
+  }    
+  // Existing error is running past commanded vel- clamp to full vel error plus/minus vel
+  else
+  { 
+    if ( (num_ticks * existing_error) > 0 ) // Matching signs
+    {	      
+    	p_motion->encoder_setpoint = (p_motion->encoder * 256) + (2 * num_ticks); // Setpoint and num_ticks are sX.8 numbers
     }
-  }
-  // Similarly if there is already more error (going backward), than the velocity
-  // you are trying to acheive, don't add more.
-  else if (num_ticks < 0)
-  {
-    if ( num_ticks < (existing_error * 256) )
-    {
-      p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
-    }
-    // Existing error is running past commanded vel
     else
     {
-      p_motion->encoder_setpoint = (p_motion->encoder * 256) + (2 * num_ticks); // Setpoint and num_ticks are sX.8 numbers
+    	p_motion->encoder_setpoint = (p_motion->encoder * 256); // Setpoint and num_ticks are sX.8 numbers
     }
   }
 
@@ -359,7 +357,7 @@ static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_m
             p_motion->linear_velocity = p_motion->linear_velocity_setpoint;
         }
     }
-    else
+    else if ( p_motion->linear_velocity > p_motion->linear_velocity_setpoint )
     {
         p_motion->linear_velocity -= m_linear_acceleration;
 
@@ -381,7 +379,7 @@ static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_m
             p_motion->angular_velocity = p_motion->angular_velocity_setpoint;
         }
     }
-    else
+    else if ( p_motion->angular_velocity > p_motion->angular_velocity_setpoint )
     {
         p_motion->angular_velocity -= m_angular_acceleration;
 
