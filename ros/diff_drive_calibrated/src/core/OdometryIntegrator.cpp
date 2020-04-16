@@ -371,24 +371,27 @@ void OdometryIntegrator::addNewCounts( diff_drive_calibrated::EncoderCounts cons
 
   assert ( _p_base_model != NULL );
 
-  pthread_mutex_lock( _p_data_mutex );
-  old_position = _current_position;
-  velocities = _velocities;
-  pthread_mutex_unlock( _p_data_mutex );
+  if ( counts.dt_ms > 0 )
+  {
+    pthread_mutex_lock( _p_data_mutex );
+    old_position = _current_position;
+    velocities = _velocities;
+    pthread_mutex_unlock( _p_data_mutex );
 
-  new_position = calculatePosition( &velocities, counts, old_position, *_p_base_model ); 
-  new_movement_status = calculateMovementStatus( velocities, *_p_base_model );
+    new_position = calculatePosition( &velocities, counts, old_position, *_p_base_model ); 
+    new_movement_status = calculateMovementStatus( velocities, *_p_base_model );
 
-  // set the covariance data
-  calculateCovariance( &new_position, new_movement_status );
+    // set the covariance data
+    calculateCovariance( &new_position, new_movement_status );
 
-  pthread_mutex_lock( _p_data_mutex );
-  _current_position = new_position;
-  _velocities = velocities;
-  pthread_mutex_unlock( _p_data_mutex );
+    pthread_mutex_lock( _p_data_mutex );
+    _current_position = new_position;
+    _velocities = velocities;
+    pthread_mutex_unlock( _p_data_mutex );
 
-  notifyOdometryListeners( new_position );
-  notifyMovementStatusListeners( new_movement_status );
+    notifyOdometryListeners( new_position );
+    notifyMovementStatusListeners( new_movement_status );
+  }
 }
 
 /** This function uses the BaseModel class to translate encoder counts into SI
@@ -436,11 +439,11 @@ nav_msgs::Odometry OdometryIntegrator::calculatePosition(   BaseVelocities_T* p_
   }
   else
   {
-    x = 0.0;
-    y = 0.0;
-    theta = 0.0;
-    linear = 0.0;
-    angular = 0.0;
+    x = last_position.pose.pose.position.x;
+    y = last_position.pose.pose.position.y;
+    theta = tf::getYaw(last_position.pose.pose.orientation);
+    linear = last_position.twist.twist.linear.x;
+    angular = last_position.twist.twist.angular.z;
   }
 
 #if 0
