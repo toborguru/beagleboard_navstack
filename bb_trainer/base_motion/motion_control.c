@@ -316,9 +316,9 @@ static void Motion_Control_Add_To_Position( int16_t num_ticks, volatile Motion_S
 
   existing_error = ( (int16_t)(p_motion->encoder_setpoint / 256) - (int16_t)(p_motion->encoder) );
 
-  // Prevent run-away setpoints! If there is already more positive error than the velocity
-  // you are trying to achieve, lock the previous error to the commanded vel and add vel,
-  // which ends up being a vel * 2 assignment
+  // Prevent run-away setpoints! If there is already more error than the velocity
+  // you are trying to achieve, lock the previous error to the commanded vel and add/sub commanded vel,
+  // which ends up being a vel * 2 assignment or 0 respectively.
   // Commanded vel is higher than existing error
   if ( abs(num_ticks) > (abs(existing_error) * 256) )
   { 
@@ -331,7 +331,7 @@ static void Motion_Control_Add_To_Position( int16_t num_ticks, volatile Motion_S
     {	      
     	p_motion->encoder_setpoint = (p_motion->encoder * 256) + (2 * num_ticks); // Setpoint and num_ticks are sX.8 numbers
     }
-    else
+    else // Mismatched signs or num_ticks == 0
     {
     	p_motion->encoder_setpoint = (p_motion->encoder * 256); // Setpoint and num_ticks are sX.8 numbers
     }
