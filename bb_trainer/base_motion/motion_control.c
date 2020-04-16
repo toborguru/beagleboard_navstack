@@ -1,6 +1,5 @@
 #include <stdlib.h>
 
-
 #include "../util/pid.h"
 #include "../util/clamp.h"
 #include "../Avr.h"
@@ -62,7 +61,8 @@ void Motion_Control_Init(   void )
     Motion_Control_Init_State( &g_right_wheel_motion );
     Motion_Control_Set_Velocity( 0, 0 );
 
-    m_max_velocity = MOTION_CONTROL_DEFAULT_MAX_VELOCITY;
+    // s15.0 -> s7.8
+    m_max_velocity = (MOTION_CONTROL_DEFAULT_MAX_VELOCITY * 256) / MOTION_CONTROL_UPDATE_RATE_HZ;
     
     Motors_Set_Direction(MOTORS_L_INDEX, MOTORS_FORWARD);
     Motors_Set_Direction(MOTORS_R_INDEX, MOTORS_FORWARD);
@@ -303,39 +303,52 @@ static int16_t Motion_Control_Run_PID(  int8_t new_encoder_ticks,  // s7.0 ticks
  */
 static void Motion_Control_Add_To_Position( int16_t num_ticks, volatile Motion_State_t *p_motion )
 {
-    int16_t new_pid_setpoint;
+  int16_t existing_error;
+  int16_t new_pid_setpoint;
 
-    new_pid_setpoint = (int16_t)( ( p_motion->encoder_setpoint / 256) - p_motion->encoder );
+  existing_error = ( (int16_t)(p_motion->encoder_setpoint / 256) - (int16_t)(p_motion->encoder) );
 
-    // Prevent run-away setpoints! If there is already more positive error, than the velocity
-    // you are trying to acheive, don't add more.
-    if ( (num_ticks > 0) && (( num_ticks / 256 ) > new_pid_setpoint) )
+  // Prevent run-away setpoints! If there is already more positive error than the velocity
+  // you are trying to achieve, lock the previous error to the commanded vel and add vel,
+  // which ends up being a vel * 2 assignment
+  if (num_ticks > 0)
+  {
+    // Commanded vel is higher than existing error
+    if ( num_ticks > (existing_error * 256) )
     { 
-        p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
-        new_pid_setpoint = (int16_t)( ( p_motion->encoder_setpoint / 256) - p_motion->encoder );
+      p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
     }    
-    // Similarly if there is already more error (going backward), than the velocity
-    // you are trying to acheive, don't add more.
-    else if ( (num_ticks < 0) && (( num_ticks / 256 ) < new_pid_setpoint) )
+    // Existing error is running past commanded vel- clamp to full vel error plus vel
+    else
     { 
-        p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
-        new_pid_setpoint = (int16_t)( ( p_motion->encoder_setpoint / 256) - p_motion->encoder );
-    }    
-    
-    // HACK!!! new_pid_setpoint should be around 5, so 100 should be Way safe.
-    // The pid setpoint was routinely getting set to 170-220...
-    // With this change I have seen no anomalous behavior.
-    if ( CLAMP_VALUE_NOT_CLAMPED == Clamp_Abs_Value(&new_pid_setpoint, 100 ) )
-    {
-        p_motion->pid.setpoint = new_pid_setpoint;
+      p_motion->encoder_setpoint = (p_motion->encoder * 256) + (2 * num_ticks); // Setpoint and num_ticks are sX.8 numbers
     }
+  }
+  // Similarly if there is already more error (going backward), than the velocity
+  // you are trying to acheive, don't add more.
+  else if (num_ticks < 0)
+  {
+    if ( num_ticks < (existing_error * 256) )
+    {
+      p_motion->encoder_setpoint += num_ticks; // Setpoint and num_ticks are sX.8 numbers
+    }
+    // Existing error is running past commanded vel
+    else
+    {
+      p_motion->encoder_setpoint = (p_motion->encoder * 256) + (2 * num_ticks); // Setpoint and num_ticks are sX.8 numbers
+    }
+  }
+
+  new_pid_setpoint = (int16_t)( ( p_motion->encoder_setpoint / 256) - p_motion->encoder );
+
+  p_motion->pid.setpoint = new_pid_setpoint;
 }
 
 static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_motion )
 {
     int16_t new_velocity;
 
-    // Linear Velocity
+    // Apply acceleration to velocity
     if ( p_motion->linear_velocity < p_motion->linear_velocity_setpoint )
     {
         p_motion->linear_velocity += m_linear_acceleration;
@@ -357,7 +370,7 @@ static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_m
         }
     }
 
-    // Angular Velocity
+    // Apply acceleration to velocity
     if ( p_motion->angular_velocity < p_motion->angular_velocity_setpoint )
     {
         p_motion->angular_velocity += m_angular_acceleration; 

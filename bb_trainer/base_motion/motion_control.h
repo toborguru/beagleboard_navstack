@@ -7,15 +7,15 @@
 #define MOTION_CONTROL_UPDATE_RATE_HZ   20
 
 
-// PID Parameters
-#define MOTION_CONTROL_KP   8.0
-#define MOTION_CONTROL_KD   0.5
-#define MOTION_CONTROL_KI   2.0 
+// PID Parameters per second
+#define MOTION_CONTROL_KP   4.0
+#define MOTION_CONTROL_KD   0.0
+#define MOTION_CONTROL_KI   3.0 
 #define MOTION_CONTROL_MAX_CORRECTION   0xFF
 
 #define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
-#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     10  // u16.0 ticks/sec^2
-#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    10  // u16.0 ticks/sec^3
+#define MOTION_CONTROL_DEFAULT_LINEAR_ACCEL     4   // u16.0 ticks/sec^2
+#define MOTION_CONTROL_DEFAULT_ANGULAR_ACCEL    4   // u16.0 ticks/sec^3
 
 typedef struct
 {
