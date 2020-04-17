@@ -1,7 +1,7 @@
 <launch>
   <node pkg="diff_drive_calibrated" type="node" name="diff_drive">
-    <param name="drive_wheel_diameter"        value="0.060"/>
-    <param name="drive_wheel_base"            value="0.180"/>
+    <param name="drive_wheel_diameter"        value="0.0613156"/>
+    <param name="drive_wheel_base"            value="0.1745"/>
     <param name="drive_wheel_encoder_ticks"   value="128"/>
     <param name="stasis_wheel_diameter"       value="0.038"/>
     <param name="stasis_wheel_encoder_ticks"  value="16"/>
