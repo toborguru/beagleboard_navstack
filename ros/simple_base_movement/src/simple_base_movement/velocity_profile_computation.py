@@ -156,9 +156,6 @@ class VelocityProfileComputation(object):
                                                      self.max_accel,
                                                      self.dt)
 
-            if (distance_left < 0):
-                self._coast_vel = -self._coast_vel
-
             # CYA
             self._decel_rate = self._accel
             self._decel_cnt = self._accel_cnt
@@ -187,7 +184,7 @@ class VelocityProfileComputation(object):
         elif (self._decel_cnt > 0) and (self.vel_command != 0.0):
             # deceleration leg
             decel_loop_num = int(loop_num - (self._accel_cnt + self._coast_cnt))
-            decel_check_cnt = int(self._accel_cnt / 2)
+            decel_check_cnt = int((self._accel_cnt * 3) / 2)
             remainder = decel_loop_num % decel_check_cnt
 
             # If we are almost half-way through the calculated deceleration 
@@ -245,7 +242,8 @@ class VelocityProfileComputation(object):
             finished = True
 
         # assumes we are stopping
-        if (self.vel_command == 0):
+        if (distance_left <= 0.0) :
+            self.vel_command = 0.0
             goal_reached = True
 
         return (self.vel_command, finished, goal_reached)
