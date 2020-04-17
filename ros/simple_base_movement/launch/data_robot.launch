@@ -1,12 +1,12 @@
 <launch>
     <node pkg="simple_base_movement" type="distance_controller.py" 
             name="distance_controller">
-        <param name="max_vel_x"             value="0.25"/>
-        <param name="min_vel_x"             value="0.10"/>
-        <param name="acc_lim_x"             value="0.20"/>
-        <param name="max_rotational_vel"    value="1.5"/>
-        <param name="min_rotational_vel"    value="0.1"/>
-        <param name="acc_lim_rotation"      value="0.2"/>
+        <param name="max_vel_x"             value="0.2"/>
+        <param name="min_vel_x"             value="0.0"/>
+        <param name="acc_lim_x"             value="0.5"/>
+        <param name="max_rotational_vel"    value="2.5"/>
+        <param name="min_rotational_vel"    value="0.2"/>
+        <param name="acc_lim_rotation"      value="1.0"/>
         <param name="xy_goal_tolerance"     value="0.05"/>
         <param name="yaw_goal_tolerance"    value="0.15"/>
     </node>
