@@ -148,6 +148,7 @@ install(PROGRAMS
   src/simple_base_movement/distance_controller.py
   src/simple_base_movement/velocity_profile_computation.py
   src/simple_base_movement/move_base_square.py
+  src/simple_base_movement/diff_drive_calibrator.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
