@@ -399,7 +399,7 @@ class DistanceController(object):
 
             distance_left = abs(goal_distance) - abs(distance)
 
-            rospy.loginfo('%s: Distance Left: %.2f' % (self._action_name, distance_left))
+            rospy.logdebug('%s: Distance Left: %.2f' % (self._action_name, distance_left))
 
             #if (goal_distance < 0):
             #    distance_left = -distance_left
@@ -650,11 +650,8 @@ class DistanceController(object):
 
             angle_left = abs(goal_angle) - abs(turn_angle)
 
-            rospy.loginfo('%s: Angle Left: %.2f' % (self._action_name, angle_left))
+            rospy.logdebug('%s: Angle Left: %.2f' % (self._action_name, angle_left))
 
-            if (goal_angle < 0):
-                angle_left = -angle_left
-            
             # call different functions here
             if self.using_distance_feedback:
                 angle_age = rospy.Time.now() - time
@@ -671,8 +668,8 @@ class DistanceController(object):
                 (command, finished, goal_reached) = \
                         profile.next_profile_step_ballistic(angle_left, loop_num)
 
-            # rospy.loginfo('goal_angle %f, turn_angle %f, angle left %f' % 
-            #                 (goal_angle, turn_angle, angle_left))
+            if (goal_angle < 0):
+                command *= -1
 
             actual_accel = abs(command - base_command.angular.z) / period
             last_vel = self.angular_vel
@@ -727,7 +724,7 @@ class DistanceController(object):
                 self.global_frame, rospy.Time(0), rospy.Duration(1.0))
 
         except (tf.Exception, tf.ConnectivityException, tf.LookupException):
-            rospy.loginfo("Cannot find transform between frames %s, %s",
+            rospy.logerror("Cannot find transform between frames %s, %s",
                           self.global_frame, self.base_frame)
             rospy.signal_shutdown("check_for_frames: TF Exception")
             return False
@@ -751,7 +748,7 @@ class DistanceController(object):
                                                             self.base_frame)
 
         except (tf.Exception, tf.ConnectivityException, tf.LookupException):
-            rospy.loginfo("TF Exception")
+            rospy.logerror("TF Exception")
             rospy.signal_shutdown("get_frame_transform: TF Exception")
             return False, False, False
 
