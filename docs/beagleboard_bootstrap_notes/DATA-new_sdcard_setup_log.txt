@@ -6,6 +6,18 @@ sudo ./setup_sdcard.sh --mmc /dev/sdb --dtb omap3-beagle-xm
 sudo adduser tobor
 sudo vi /etc/group # %s/ubuntu/tobor/gc
 
+Creating a Swapfile
+The following commands will create a 1 GB file, limit access only to root, format it as swap and then make it available to the OS:
+sudo mkdir -p /var/cache/swap/   
+sudo dd if=/dev/zero of=/var/cache/swap/swapfile bs=1M count=1024
+sudo chmod 0600 /var/cache/swap/swapfile 
+sudo mkswap /var/cache/swap/swapfile 
+sudo swapon /var/cache/swap/swapfile 
+
+sudo vi /etc/fstab 
+Add line:
+/var/cache/swap/swapfile  swap  swap  defaults  0  0
+
 # Login as tobor
 sudo vi /etc/network/interfaces # add home network, BT bridge didn't work
 sudo reboot
@@ -86,6 +98,12 @@ ln -sf ~/beagleboard_navstack/ros/* src/
 rm src/ros.config
 
 catkin_make
+
+sudo timedatectl set-timezone America/Denver
+
+sudo apt-get install gcc-avr avr-libc
+
+
 
 
 

@@ -1,3 +1,9 @@
 rosrun data_robot static_command _linear:=0.0 _angular:=-1.0
 
 rviz
+
+
+rosrun  turtlesim turtlesim_node
+rosrun joy joy_node _autorepeat_rate:=0.1
+~/robots/joy_teleop$ rosparam load joy_params.txt
+rosrun joy_teleop joy_teleop.py /cmd_vel:=/turtle1/cmd_vel
