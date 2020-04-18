@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="data_robot" type="data_robot_node" name="robot">
+    <param name="front_bumper_index"  value="0"/>
+    <param name="front_left_bumper_index"  value="2"/>
+    <param name="front_right_bumper_index"  value="1"/>
+  </node>
+</launch>
