@@ -57,10 +57,10 @@ void DifferentialParametersRepository::updateParametersCallBack( const diff_driv
             "\tdrive_wheel_diameter:            %.3f\n"
 	          "\tdrive_wheel_base:                %.3f\n"
 	          "\tdrive_wheel_ratio:               %.3f\n"
-            "\tdrive_wheel_encoder_ticks:       %.3f\n"
+            "\tdrive_wheel_encoder_ticks:       %d\n"
             "\tstasis_wheel_diameter:           %.3f\n"
-            "\tstasis_wheel_encoder_ticks:      %.3f\n"
-            "\taverage_2n_readings:             %.3f\n"
+            "\tstasis_wheel_encoder_ticks:      %d\n"
+            "\taverage_2n_readings:             %d\n"
             "\tvelocity_difference_percentage:  %.3f\n"
             "\tvelocity_lower_limit:            %.3f\n",
 	          config.drive_wheel_diameter,
