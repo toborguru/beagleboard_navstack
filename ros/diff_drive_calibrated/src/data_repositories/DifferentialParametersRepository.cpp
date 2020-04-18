@@ -53,6 +53,26 @@ void DifferentialParametersRepository::updateParametersCallBack( const diff_driv
   BaseGeometry_T base_geometry;
   OdometryParameters_T odometry_parameters;
 
+  ROS_INFO( "diff_drive_calibrated reconfigure: \n"
+            "\tdrive_wheel_diameter:            %.3f\n"
+	          "\tdrive_wheel_base:                %.3f\n"
+	          "\tdrive_wheel_ratio:               %.3f\n"
+            "\tdrive_wheel_encoder_ticks:       %.3f\n"
+            "\tstasis_wheel_diameter:           %.3f\n"
+            "\tstasis_wheel_encoder_ticks:      %.3f\n"
+            "\taverage_2n_readings:             %.3f\n"
+            "\tvelocity_difference_percentage:  %.3f\n"
+            "\tvelocity_lower_limit:            %.3f\n",
+	          config.drive_wheel_diameter,
+            config.drive_wheel_base,
+            config.drive_wheel_ratio,
+            config.drive_wheel_encoder_ticks,
+            config.stasis_wheel_diameter,
+            config.stasis_wheel_encoder_ticks,
+            config.average_2n_readings,
+            config.velocity_difference_percentage,
+            config.velocity_lower_limit);
+
   base_geometry.wheel_radius  = config.drive_wheel_diameter * 0.5;
   base_geometry.wheel_base    = config.drive_wheel_base;
   base_geometry.wheel_ratio   = config.drive_wheel_ratio;
