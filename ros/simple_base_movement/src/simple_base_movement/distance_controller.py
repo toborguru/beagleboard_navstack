@@ -133,7 +133,7 @@ class DistanceController(object):
         self.base_frame     = config["robot_base_frame"]
         self.global_frame   = config["global_frame_id"]
         self.update_rate    = config["controller_frequency"]
-        self.truncate_angle     = config["normalize_angle"]
+        self.truncate_angle = config["normalize_angle"]
         self.move_delay     = config["post_move_delay"]
 
         # Goal tolerances
@@ -144,8 +144,8 @@ class DistanceController(object):
         # Precision endpoint parameters
         self.precision_speed    = config["precision_vel_x"]
         self.precision_turn     = config["precision_rotational_vel"] 
-        self.precision_distance     = config["precision_distance"]
-        self.precision_angle        = config["precision_angle"]
+        self.precision_distance = config["precision_distance"]
+        self.precision_angle    = config["precision_angle"]
         
         rospy.loginfo("""Reconfigure:
                        max_vel_x: %f
@@ -339,6 +339,8 @@ class DistanceController(object):
         
         """
 
+        rospy.loginfo('%s: Drive Distance: %.2f' % (self._action_name, goal_distance))
+
         goal_reached = False
 
         # make sure TF transform exists
@@ -397,9 +399,11 @@ class DistanceController(object):
 
             distance_left = abs(goal_distance) - abs(distance)
 
-            if (goal_distance < 0):
-                distance_left = -distance_left
-                distance = -distance
+            rospy.logdebug('%s: Distance Left: %.2f' % (self._action_name, distance_left))
+
+            #if (goal_distance < 0):
+            #    distance_left = -distance_left
+            #    distance = -distance
 
             # call different functions here
             if self.using_distance_feedback:
@@ -425,6 +429,9 @@ class DistanceController(object):
             # needed a fudge factor for floating point aliasing, I think 0.01% is close enough
             actual_accel = (0.9999 * abs(command - base_command.linear.x))/ period
             last_vel = self.linear_vel
+
+            if (goal_distance < 0):
+                command *= -1
 
             base_command.linear.x = command
             self.linear_vel = command
@@ -579,6 +586,8 @@ class DistanceController(object):
         
         """
 
+        rospy.loginfo('%s: Drive Angle: %.2f' % (self._action_name, goal_angle))
+
         goal_reached = False
 
         # make sure TF transform exists
@@ -641,9 +650,8 @@ class DistanceController(object):
 
             angle_left = abs(goal_angle) - abs(turn_angle)
 
-            if (goal_angle < 0):
-                angle_left = -angle_left
-            
+            rospy.logdebug('%s: Angle Left: %.2f' % (self._action_name, angle_left))
+
             # call different functions here
             if self.using_distance_feedback:
                 angle_age = rospy.Time.now() - time
@@ -660,8 +668,8 @@ class DistanceController(object):
                 (command, finished, goal_reached) = \
                         profile.next_profile_step_ballistic(angle_left, loop_num)
 
-            # rospy.loginfo('goal_angle %f, turn_angle %f, angle left %f' % 
-            #                 (goal_angle, turn_angle, angle_left))
+            if (goal_angle < 0):
+                command *= -1
 
             actual_accel = abs(command - base_command.angular.z) / period
             last_vel = self.angular_vel
@@ -716,7 +724,7 @@ class DistanceController(object):
                 self.global_frame, rospy.Time(0), rospy.Duration(1.0))
 
         except (tf.Exception, tf.ConnectivityException, tf.LookupException):
-            rospy.loginfo("Cannot find transform between frames %s, %s",
+            rospy.logerror("Cannot find transform between frames %s, %s",
                           self.global_frame, self.base_frame)
             rospy.signal_shutdown("check_for_frames: TF Exception")
             return False
@@ -740,7 +748,7 @@ class DistanceController(object):
                                                             self.base_frame)
 
         except (tf.Exception, tf.ConnectivityException, tf.LookupException):
-            rospy.loginfo("TF Exception")
+            rospy.logerror("TF Exception")
             rospy.signal_shutdown("get_frame_transform: TF Exception")
             return False, False, False
 

@@ -7,7 +7,8 @@
     <node pkg="simple_base_movement" type="distance_controller.py" 
             name="distance_controller">
         <param name="max_vel_x"             value="0.25"/>
-        <param name="max_rotational_vel"    value="0.7"/>
+        <param name="max_rotational_vel"    value="2.0"/>
+        <param name="normalize_angle"       value="false"/>
         <param name="xy_goal_tolerance"     value="0.05"/>
         <param name="yaw_goal_tolerance"    value="0.15"/>
     </node>

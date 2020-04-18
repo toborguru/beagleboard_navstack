@@ -1,0 +1,2 @@
+python -mpip install --user sphinx
+python -mpip install --user measurement

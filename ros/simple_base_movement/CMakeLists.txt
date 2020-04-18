@@ -5,11 +5,11 @@ project(simple_base_movement)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  message_generation
   actionlib
   actionlib_msgs
   dynamic_reconfigure
   geometry_msgs
+  message_generation
   rospy
   tf
 )
@@ -148,6 +148,7 @@ install(PROGRAMS
   src/simple_base_movement/distance_controller.py
   src/simple_base_movement/velocity_profile_computation.py
   src/simple_base_movement/move_base_square.py
+  src/simple_base_movement/diff_drive_calibrator.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
