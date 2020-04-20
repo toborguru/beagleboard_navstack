@@ -76,6 +76,8 @@ class CalibrateDiffDrive(object):
         """
 
         self._is_running = False
+        self._test_log = []
+        self._test_log.append(["test_name", "reported_value", "measured_value", "correction_factor"])
 
         # create ROS node
         rospy.init_node(name)
@@ -117,8 +119,8 @@ class CalibrateDiffDrive(object):
             else :
                 correction = 0.0
 
-        print("")
-        print("------------------------------------------------")
+            print("")
+            print("------------------------------------------------")
 
         correction = 1.0
         while (correction != 0.0) :
@@ -137,9 +139,38 @@ class CalibrateDiffDrive(object):
                     run_test = True
 
             if (run_test) :
-                correction = self.spinCalibration()
+                correction = self.angleCalibration()
             else :
                 correction = 0.0
+
+            print("")
+            print("------------------------------------------------")
+
+        correction = 0.0
+        while (correction != 1.0) :
+            print("")
+            print("Would you like to test your wheel ratio calibration - spinning?")
+            test_dist = raw_input("[Y/n] ")
+            test_split = test_dist.split()
+            split_len = len(test_split)
+
+            run_test = False
+
+            if (split_len == 0) :
+                run_test = True
+            else :
+                if ( (test_dist[0] == "y") or (test_dist[0] == "Y") ) :
+                    run_test = True
+
+            if (run_test) :
+                correction = self.ratioSpinCalibration()
+            else :
+                correction = 1.0
+
+            print("")
+            print("------------------------------------------------")
+
+        self.printLogs()
 
         turn_angle = pi/2
 
@@ -175,12 +206,14 @@ class CalibrateDiffDrive(object):
             corr_factor = (meas_length / reported_length)
             print("The length needs a correction factor of %.4f applied (wheel diameter)" % corr_factor)
         else :
-            corr_factor = 0
+            corr_factor = 1.0
+
+        self._test_log.append(["distance_test", reported_length, meas_length, corr_factor])
 
         return corr_factor
 
 
-    def spinCalibration( self ) :
+    def angleCalibration( self ) :
         print("How many times would you like the robot to spin? [-]spins")
         spins = 0
 
@@ -240,7 +273,100 @@ class CalibrateDiffDrive(object):
             corr_factor = (reported_angle / meas_angle )
             print("The angle needs a correction factor of %.4f applied (wheel base)" % corr_factor)
         else :
-            corr_factor = 0
+            corr_factor = 1.0
+
+        self._test_log.append(["angle_test", reported_angle, meas_angle, corr_factor])
+
+        return corr_factor
+
+
+    def ratioSpinCalibration( self ) :
+        print("How many times would you like the robot to spin in each direction? [-]spins")
+        spins = 0
+
+        while (spins == 0) :
+            spins_txt = raw_input("[3]: ")
+
+            spins_split = spins_txt.split()
+            num_args = len(spins_split)
+
+            if (num_args == 0) :
+                spins = 3
+            elif (num_args == 1) :
+                try :
+                    spins = int(spins_split[0])
+                except :
+                    spins = 0
+
+            else:
+               spins = 0    
+                
+            if (spins == 0) :
+                print("Invalid input: %s" % spins_txt)
+
+        print("Times to spin around: %d" % spins )
+
+        turn_angle = spins * pi * 2.0
+
+        corr_factor = []
+
+        for direction in range(2) :
+            # Distance traveled as seen by the robot
+            reported_angle = self.requestMovementAction(0, turn_angle)
+
+            overshoot = math.degrees(reported_angle - turn_angle)
+
+            print("The robot thinks it completed the turn with %.2f degrees of overshoot" % (overshoot))
+                
+            print("How many degrees did the robot actually overshoot?")
+            meas_txt = raw_input("[%.4f] " % overshoot)
+            meas_split = meas_txt.split()
+            num_args = len(meas_split)
+
+            if (num_args == 0) :
+                meas_angle = reported_angle
+            elif (num_args == 1) :
+                try :
+                    meas_angle = float(meas_split[0])
+
+                    meas_angle = math.radians(meas_angle)
+
+                    meas_angle += turn_angle
+                except :
+                    meas_angle = 0.0
+            else :
+                meas_angle = 0.0
+            
+            # Distance traveled as measured by a ruler
+            print("The angle needs a correction factor of %.4f applied (wheel base)" % ( reported_angle / meas_angle ))
+            print("Reported: %f Measured: %f Requested: %f Measured Text: %s" % (reported_angle, meas_angle, turn_angle, meas_txt))
+
+            if (meas_angle != reported_angle) :
+                corr_factor.append( reported_angle / meas_angle )
+            else :
+                corr_factor.append( 1.0 )
+
+            if (direction == 0) :
+                turn_angle *= -1.0
+
+                print("Please reset the robot for the other direction")
+                raw_input("[] ")
+
+        corr_total = corr_factor[0] - corr_factor[1]
+
+        corr_total /= 2.0
+
+        corr_total += 1.0
+
+        corr_ratio = corr_total
+
+        #if (corr_factor[1] != 0.0) :
+        #    corr_ratio = corr_factor[0] / corr_factor[1]
+        #else :
+        #    corr_ratio = 0.0 # Error
+
+        print("The wheel ratio needs a correction factor of %.4f applied" % corr_ratio)
+        self._test_log.append(["ratio_spin_test", corr_factor[0], corr_factor[1], corr_ratio])
 
         return corr_factor
 
@@ -391,7 +517,21 @@ class CalibrateDiffDrive(object):
         return length, cmd_units, unit_length
 
 
-    def shutdown(self):
+    def printLogs(self) :
+        num_logs = len(self._test_log)
+
+        print("Tests Run: %d" % (num_logs - 1))
+
+        if (num_logs > 1) :
+            print("\n%s, %s, %s, %s" % ( self._test_log[0][0], self._test_log[0][1], \
+                        self._test_log[0][2], self._test_log[0][3]))
+        
+            for i in range(1, num_logs) :
+                print("%s, %.2f, %.2f, %.4f" % ( self._test_log[i][0], self._test_log[i][1], \
+                            self._test_log[i][2], self._test_log[i][3]))
+    
+
+    def shutdown(self) :
         if self._is_running:
 # SJL        rospy.loginfo("diff_drive_calibrator shutdown()...")
 # SJL                self._action_client.cancel_goal()
