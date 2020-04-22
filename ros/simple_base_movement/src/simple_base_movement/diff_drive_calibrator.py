@@ -263,7 +263,11 @@ class CalibrateDiffDrive(object):
 
                 meas_angle = math.radians(meas_angle)
 
-                meas_angle += turn_angle
+                if (turn_angle >= 0) :
+                    meas_angle += turn_angle
+                else :
+                    meas_angle -= turn_angle
+
             except :
                 meas_angle = 0.0
         else :
@@ -272,7 +276,7 @@ class CalibrateDiffDrive(object):
         # Distance traveled as measured by a ruler
 
         if (meas_angle != reported_angle) :
-            corr_factor = (reported_angle / meas_angle )
+            corr_factor = abs( reported_angle / meas_angle )
             print("The angle needs a correction factor of %.4f applied (wheel base)" % corr_factor)
         else :
             corr_factor = 1.0
@@ -333,18 +337,22 @@ class CalibrateDiffDrive(object):
 
                     meas_angle = math.radians(meas_angle)
 
-                    meas_angle += turn_angle
+                    if (turn_angle >= 0) :
+                        meas_angle += turn_angle
+                    else :
+                        meas_angle -= turn_angle
+
                 except :
                     meas_angle = 0.0
             else :
                 meas_angle = 0.0
             
             # Distance traveled as measured by a ruler
-            print("The angle needs a correction factor of %.4f applied (wheel base)" % ( reported_angle / meas_angle ))
-            print("Reported: %f Measured: %f Requested: %f Measured Text: %s" % (reported_angle, meas_angle, turn_angle, meas_txt))
+            print("The angle needs a correction factor of %.4f applied (wheel base)" % ( abs(reported_angle / meas_angle) ))
+            print("Reported: %f Measured: %f Requested: %f" % (reported_angle, meas_angle, turn_angle))
 
             if (meas_angle != reported_angle) :
-                corr_factor.append( reported_angle / meas_angle )
+                corr_factor.append( abs(reported_angle / meas_angle) )
             else :
                 corr_factor.append( 1.0 )
 
@@ -354,9 +362,7 @@ class CalibrateDiffDrive(object):
                 print("Please reset the robot for the other direction")
                 raw_input("[] ")
 
-        corr_total = corr_factor[0] - corr_factor[1]
-
-        corr_total /= 2.0
+        corr_total = corr_factor[1] - corr_factor[0]
 
         corr_total += 1.0
 
@@ -366,6 +372,8 @@ class CalibrateDiffDrive(object):
         #    corr_ratio = corr_factor[0] / corr_factor[1]
         #else :
         #    corr_ratio = 0.0 # Error
+
+        corr_ratio = corr_factor[0] / corr_factor[1]
 
         print("The wheel ratio needs a correction factor of %.4f applied" % corr_ratio)
         self._test_log.append(["ratio_spin_test", corr_factor[0], corr_factor[1], corr_ratio])
