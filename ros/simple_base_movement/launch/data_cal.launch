@@ -1,0 +1,12 @@
+<launch>
+    <node pkg="simple_base_movement" type="distance_controller.py" 
+            name="distance_controller">
+        <param name="robot_base_frame"      value="odom"/>
+        <param name="global_frame_id"       value="base_link"/>
+        <param name="normalize_angle"       value="false"/>
+        <param name="max_vel_x"             value="0.2"/>
+        <param name="acc_lim_x"             value="0.2"/>
+        <param name="max_rotational_vel"    value="1.5"/>
+        <param name="acc_lim_rotation"      value="1.0"/>
+    </node>
+</launch>

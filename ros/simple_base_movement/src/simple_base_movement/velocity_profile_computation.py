@@ -57,11 +57,6 @@ class VelocityProfileComputation(object):
             deceleration below @p accel to exactly reach the target.
         
         """
-        self.aim_short_dist = abs(aim_short_dist)
-        self.max_vel = abs(max_vel)
-        self.min_vel = abs(min_vel)
-        self.max_accel = abs(max_accel)
-        self.dt = abs(dt)
 
         if (max_vel == 0):
             raise ValueError('Max velocity cannot be 0.')
@@ -72,6 +67,13 @@ class VelocityProfileComputation(object):
         if (dt == 0):
             raise ValueError('Delta time cannot be 0.')
 
+        self._aim_short_dist = abs(aim_short_dist)
+        self._max_vel = abs(max_vel)
+        self._min_vel = abs(min_vel)
+        self._max_accel = abs(max_accel)
+        self._dt = abs(dt)
+
+
     def next_profile_step_ballistic(self, distance_left, loop_num):
         """ Needs this
 
@@ -81,14 +83,13 @@ class VelocityProfileComputation(object):
 
         if (loop_num == 0):
             # compute required profile on first run
+            profile_dist = abs(distance_left) - abs(self._aim_short_dist)
+            # compute required profile on first run
             (self._accel_cnt, self._accel, self._coast_cnt, self._coast_vel) = \
-                    self.compute_trapezoidal_profile(distance_left,
-                                                     self.max_vel, 
-                                                     self.max_accel,
-                                                     self.dt)
-
-            if (distance_left < 0):
-                self._coast_vel = -self._coast_vel
+                    self.compute_trapezoidal_profile(profile_dist,
+                                                     self._max_vel, 
+                                                     self._max_accel,
+                                                     self._dt)
 
             # CYA
             self._decel_rate = self._accel
@@ -96,7 +97,7 @@ class VelocityProfileComputation(object):
 
             # first acceleration step
             # assumes we are stopped
-            self.vel_command = self.min_vel; 
+            self._vel_command = self._min_vel; 
 
             '''
             print('Accel: %f Accel cnt: %g Coast Vel: %g Coast cnt: %g' %
@@ -106,35 +107,35 @@ class VelocityProfileComputation(object):
 
         if (loop_num < self._accel_cnt):
             # acceleration leg
-            self.vel_command = self.apply_acceleration(self.vel_command, 
+            self._vel_command = self.apply_acceleration(self._vel_command, 
                                                        self._coast_vel,
                                                        self._accel,
-                                                       self.dt)
+                                                       self._dt)
 
         elif (loop_num < (self._accel_cnt + self._coast_cnt)):
             # coast leg
-            self.vel_command = self._coast_vel
+            self._vel_command = self._coast_vel
 
         elif (loop_num < (self._accel_cnt + self._coast_cnt + self._accel_cnt)):
             # deceleration leg
-            self.vel_command = self.apply_acceleration(self.vel_command, 
+            self._vel_command = self.apply_acceleration(self._vel_command, 
                                                        0,
                                                        self._accel,
-                                                       self.dt)
-            if (self.vel_command < self.min_vel):
-                self.vel_command = self.min_vel
+                                                       self._dt)
+            if (self._vel_command < self._min_vel):
+                self._vel_command = self._min_vel
 
         else:
-            self.vel_command = 0.0
+            self._vel_command = 0.0
 
             # profile finshed
             finished = True
 
         # assumes we are stopping
-        if (self.vel_command == 0):
+        if (self._vel_command == 0):
             goal_reached = True
 
-        return (self.vel_command, finished, goal_reached)
+        return (self._vel_command, finished, goal_reached)
 
     def next_profile_step_with_feedback(self, distance_left, current_vel, 
                                         measurement_secs, loop_num):
@@ -149,12 +150,17 @@ class VelocityProfileComputation(object):
 
         if (loop_num == 0):
             # compute required profile on first run
-            profile_dist = abs(distance_left) - abs(self.aim_short_dist)
+
+            if ( abs(self._min_vel * self._dt) > abs(self._aim_short_dist) ):
+                self._aim_short_dist = self._min_vel * self._dt
+
+            profile_dist = abs(distance_left) - abs(self._aim_short_dist)
+
             (self._accel_cnt, self._accel, self._coast_cnt, self._coast_vel) = \
                     self.compute_trapezoidal_profile(profile_dist,
-                                                     self.max_vel, 
-                                                     self.max_accel,
-                                                     self.dt)
+                                                     self._max_vel, 
+                                                     self._max_accel,
+                                                     self._dt)
 
             # CYA
             self._decel_rate = self._accel
@@ -162,7 +168,7 @@ class VelocityProfileComputation(object):
 
             # first acceleration step
             # assumes we are stopped
-            self.vel_command = self.min_vel
+            self._vel_command = self._min_vel
 
             '''
             print('Accel: %f Accel cnt: %g Coast Vel: %g Coast cnt: %g' %
@@ -172,31 +178,32 @@ class VelocityProfileComputation(object):
 
         if (loop_num < self._accel_cnt):
             # acceleration leg
-            self.vel_command = self.apply_acceleration(self.vel_command, 
+            self._vel_command = self.apply_acceleration(self._vel_command, 
                                                        self._coast_vel,
                                                        self._accel,
-                                                       self.dt)
+                                                       self._dt)
 
         elif (loop_num < (self._accel_cnt + self._coast_cnt)):
             # coast leg
-            self.vel_command = self._coast_vel
+            self._vel_command = self._coast_vel
 
-        elif (self._decel_cnt > 0) and (self.vel_command != 0.0):
+        elif (self._decel_cnt > 0) and (self._vel_command != 0.0):
             # deceleration leg
             decel_loop_num = int(loop_num - (self._accel_cnt + self._coast_cnt))
-            decel_check_cnt = int((self._accel_cnt * 3) / 2)
+            decel_check_cnt = int(self._accel_cnt / 2)
             remainder = decel_loop_num % decel_check_cnt
 
             # If we are almost half-way through the calculated deceleration 
             # phase or within aim_short_dist of the goal, recalculate the 
             # required deceleration rate
-            if (remainder == (decel_check_cnt - 1)) or \
-                                (abs(distance_left) < abs(self.aim_short_dist)):
+            #if (remainder == (decel_check_cnt - 1)) or \
+            #                    (abs(distance_left) < abs(self._aim_short_dist)):
+            if (True) :
                 # compute deceleration required
                 # assumes we are stopping
                 if (measurement_secs > 0):
                     distance_estimate = abs(distance_left) - \
-                            ( (current_vel * self.dt) +
+                            ( (current_vel * self._dt) +
                             (self._decel_rate * measurement_secs * measurement_secs) )
 
                 else:
@@ -204,16 +211,14 @@ class VelocityProfileComputation(object):
 
                 self._decel_rate = self.acceleration_to_reach_distance(distance_estimate,
                                                                        current_vel,
-                                                                       self.dt)
-
-                # if (self._decel_rate > self.accel):
-                #     self._decel_rate = self.accel
+                                                                       self._dt)
 
                 if (self._decel_rate != 0.0):
+                    # Calculate number of steps to decel by counting how long it would take to get here
                     (self._decel_cnt, self._decel_rate) = \
                             self.acceleration_steps_to_reach_velocity(current_vel,
                                                                       self._decel_rate,
-                                                                      self.dt)
+                                                                      self._dt)
                 else:
                     self._decel_cnt = 0
                 
@@ -227,26 +232,26 @@ class VelocityProfileComputation(object):
 
             # deceleration leg
             # assumes we are stopping
-            self.vel_command = self.apply_acceleration(self.vel_command, 
+            self._vel_command = self.apply_acceleration(self._vel_command, 
                                                        0,
                                                        self._decel_rate,
-                                                       self.dt)
+                                                       self._dt)
 
-            if (self.vel_command < self.min_vel):
-                self.vel_command = self.min_vel
+            if ( (self._vel_command < self._min_vel) and (self._vel_command > 0.0) ) :
+                self._vel_command = self._min_vel
 
         else:
-            self.vel_command = 0.0
+            self._vel_command = 0.0
 
             # profile finshed
             finished = True
 
         # assumes we are stopping
         if (distance_left <= 0.0) :
-            self.vel_command = 0.0
+            self._vel_command = 0.0
             goal_reached = True
 
-        return (self.vel_command, finished, goal_reached)
+        return (self._vel_command, finished, goal_reached)
 
     def compute_trapezoidal_profile(self, dist, vel, accel, dt):
         """Returns a trapezoidal velocity profile with constant acceleration 
