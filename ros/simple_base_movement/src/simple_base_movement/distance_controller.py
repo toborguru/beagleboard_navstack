@@ -401,10 +401,6 @@ class DistanceController(object):
 
             rospy.logdebug('%s: Distance Left: %.2f' % (self._action_name, distance_left))
 
-            #if (goal_distance < 0):
-            #    distance_left = -distance_left
-            #    distance = -distance
-
             # call different functions here
             if self.using_distance_feedback:
                 now = rospy.Time.now() 
