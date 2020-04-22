@@ -341,7 +341,7 @@ class DistanceController(object):
         
         """
 
-        rospy.loginfo('%s: Drive Distance: %.2f' % (self._action_name, goal_distance))
+        rospy.logdebug('%s: Drive Distance: %.2f' % (self._action_name, goal_distance))
 
         goal_reached = False
 
@@ -426,13 +426,14 @@ class DistanceController(object):
 
             # needed a fudge factor for floating point aliasing, I think 0.01% is close enough
             actual_accel = (0.9999 * abs(command - base_command.linear.x))/ period
+
             last_vel = self.linear_vel
+            self.linear_vel = command
 
             if (goal_distance < 0):
                 command *= -1
 
             base_command.linear.x = command
-            self.linear_vel = command
 
             if (actual_accel > self.accel_speed):
                 rospy.logwarn('%s: Linear Acceleration limit exceeded! Limit %g, Acceleration %g, Velocity %g' % 
@@ -584,7 +585,7 @@ class DistanceController(object):
         
         """
 
-        rospy.loginfo('%s: Drive Angle: %.2f' % (self._action_name, goal_angle))
+        rospy.logdebug('%s: Drive Angle: %.2f' % (self._action_name, goal_angle))
 
         goal_reached = False
 
@@ -648,7 +649,8 @@ class DistanceController(object):
 
             angle_left = abs(goal_angle) - abs(turn_angle)
 
-            rospy.logdebug('%s: Angle Left: %.2f' % (self._action_name, angle_left))
+            rospy.logdebug('%s: Angle Delta: %.2f Turn: %.2f Left: %.2f Last %.2f' % 
+                    (self._action_name, delta_angle, turn_angle, angle_left, last_angle))
 
             # call different functions here
             if self.using_distance_feedback:
@@ -666,11 +668,13 @@ class DistanceController(object):
                 (command, finished, goal_reached) = \
                         profile.next_profile_step_ballistic(angle_left, loop_num)
 
+            last_vel = self.angular_vel
+            self.angular_vel = command;
+
             if (goal_angle < 0):
                 command *= -1
 
             actual_accel = abs(command - base_command.angular.z) / period
-            last_vel = self.angular_vel
 
             if (actual_accel > self.accel_turn):
                 rospy.logwarn('%s: Angular acceleration limit exceeded! Limit %g, Acceleration %g, Velocity %g' % 
@@ -678,7 +682,6 @@ class DistanceController(object):
                                 actual_accel, last_vel))
 
             base_command.angular.z = command;
-            self.angular_vel = command;
 
             # publish the base velocities command
             self._velocity_command.publish(base_command)
