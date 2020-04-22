@@ -539,6 +539,22 @@ double BaseModel::getRightInLeftOutCorrection() const
   return _corrections.right_in_left_out;
 }
 
+/** @returns the calculated calculated correction factor for the angle
+ *  traversed based on direction and wheel ratio.
+ */
+double BaseModel::getAnglePosInNegOutCorrection() const
+{
+  return _corrections.angle_pos_in_neg_out;
+}
+
+/** @returns the calculated calculated correction factor for the angle
+ *  traversed based on direction and wheel ratio.
+ */
+double BaseModel::getAngleNegInPosOutCorrection() const
+{
+  return _corrections.angle_neg_in_pos_out;
+}
+
 /** Accepts linear and angular velocity n SI units and returns the velocities
  *  in ticks/sec. This function does not alter the current model state.
  *
@@ -563,16 +579,30 @@ diff_drive_calibrated::TickVelocity BaseModel::velocityToTicks(  const double li
   diff_drive_calibrated::TickVelocity new_velocity;
   double linear_ticks;
   double angular_ticks;
+  double angle_corrected;
   double left_corrected;
   double right_corrected;
 
   linear_ticks = linear_vel * tick_rates.ticks_per_meter;
   angular_ticks = angular_vel * tick_rates.ticks_per_radian;
-                                            
-  left_corrected = ( linear_ticks - (angular_ticks * 0.5) )
+
+  if ( (corrections.angle_neg_in_pos_out == 1.0) || (angular_ticks == 0) )
+  {
+    angle_corrected = angular_ticks;
+  }
+  else if ( angular_ticks > 0 )
+  {
+    angle_corrected = angular_ticks * corrections.angle_neg_in_pos_out;
+  }
+  else
+  {
+    angle_corrected = angular_ticks * corrections.angle_pos_in_neg_out;
+  }
+
+  left_corrected = ( linear_ticks - (angle_corrected * 0.5) )
                     * corrections.right_in_left_out;
 
-  right_corrected = ( linear_ticks + ( angular_ticks * 0.5) )
+  right_corrected = ( linear_ticks + (angle_corrected * 0.5) )
                     * corrections.left_in_right_out;
 
   new_velocity.linear_ticks_sec = RoundToInt( (right_corrected + left_corrected) * 0.5 );
@@ -622,7 +652,9 @@ BaseDistance_T  BaseModel::countsToDistance(  diff_drive_calibrated::EncoderCoun
 
   average_distance = ( left_distance + right_distance ) * 0.5;
 
-  delta_position.theta = calculateDeltaTheta( left_distance, right_distance, geometry.wheel_base );
+  delta_position.theta = calculateDeltaTheta( left_distance, right_distance, geometry.wheel_base,
+                                              corrections.angle_pos_in_neg_out,
+                                              corrections.angle_neg_in_pos_out );
   delta_position.linear = average_distance;
   delta_position.stasis = stasis_distance;
 
@@ -740,9 +772,34 @@ double BaseModel::calculateRadiansPerTick(  double wheel_base, double meters_per
  */
 double BaseModel::calculateDeltaTheta(  double left_distance,
                                         double right_distance,
-                                        double wheel_base ) const
+                                        double wheel_base,
+                                        double correction_factor,
+                                        double inv_correction_factor ) const
 {
-  return ( right_distance - left_distance ) / wheel_base;
+  double cal_theta;
+  double ideal_theta = ( (right_distance - left_distance) / wheel_base );
+
+  if ( (correction_factor == 1.0) || (ideal_theta == 0.0) )
+  {
+    cal_theta = ideal_theta;
+  }
+  else if ( ideal_theta > 0 )
+  {
+    cal_theta = ideal_theta * correction_factor;
+  }
+  else
+  {
+    if ( inv_correction_factor == 1.0 )
+    {
+      cal_theta = ideal_theta / correction_factor;
+    }
+    else
+    {
+      cal_theta = ideal_theta * inv_correction_factor;
+    }
+  }
+
+  return cal_theta;
 }
 
 /** Returns the linear distance in meters for a given number of encoder ticks.
@@ -764,8 +821,13 @@ BaseCorrections_T BaseModel::calculateCorrections( double wheel_ratio ) const
 {
   BaseCorrections_T corrections;
 
+  // Apply 1/2 of the ratio to each wheel
   corrections.left_in_right_out = 2.0 / (( 1.0 / wheel_ratio ) + 1.0);
   corrections.right_in_left_out = 2.0 / (1.0 + wheel_ratio);
+
+  // Apply 1/2 the ratio to each direction
+  corrections.angle_pos_in_neg_out = corrections.right_in_left_out;
+  corrections.angle_neg_in_pos_out = corrections.left_in_right_out;
 
   return corrections;
 }

@@ -26,8 +26,10 @@ typedef struct
 
 typedef struct
 {
-  double left_in_right_out;  // multiplier ratio
-  double right_in_left_out;  // multiplier ratio
+  double left_in_right_out;     // multiplier ratio
+  double right_in_left_out;     // multiplier ratio
+  double angle_pos_in_neg_out;  // multiplier ratio
+  double angle_neg_in_pos_out;  // multiplier ratio
 } BaseCorrections_T;
 
 typedef struct
@@ -38,7 +40,7 @@ typedef struct
   double    wheel_ratio;    // Number of ticks in one complete wheel rotation   
   double    stasis_radius;  // Radius of the stasis wheel, if enabled.          
   int32_t   stasis_ticks;   // Number of ticks in one complete wheel rotation,  
-} BaseGeometry_T;         // negative numbers disables stasis wheel support.
+} BaseGeometry_T;           // negative numbers disables stasis wheel support.
 
 typedef struct
 {
@@ -109,6 +111,9 @@ public:
   double    getLeftInRightOutCorrection() const;
   double    getRightInLeftOutCorrection() const;
 
+  double    getAnglePosInNegOutCorrection() const;
+  double    getAngleNegInPosOutCorrection() const;
+
 private:
   diff_drive_calibrated::TickVelocity velocityToTicks( double linear_vel, 
                                                     double angular_vel,
@@ -143,7 +148,9 @@ private:
   // State Functions 
   double      calculateDeltaTheta(  double left_distance, 
                                     double right_distance, 
-                                    double wheel_base ) const;
+                                    double wheel_base,
+                                    double correction_factor = 1.0,
+                                    double inv_correction_factor = 1.0 ) const;
   
   double      calculateDeltaX(  double average_distance, 
                                 double delta_theta ) const;
