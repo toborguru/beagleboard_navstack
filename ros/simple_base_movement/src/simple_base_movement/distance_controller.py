@@ -86,10 +86,6 @@ class DistanceController(object):
         # Create ROS node
         rospy.init_node(name)
 
-        # Set rospy to exectute a shutdown function when terminating the    
-        # script
-        rospy.on_shutdown(self.shutdown)
-
         # Create a dynamic reconfigure server.
         rospy.loginfo('Starting %s Dynamic Reconfigure Server', name)
         self._reconfigure_server = DynamicReconfigureServer(ConfigType, 
@@ -108,12 +104,18 @@ class DistanceController(object):
 
         self._action_server.start()
 
+
         # create tf listener object
+        rospy.logdebug("TF Frames Base Frame: %s Global Frame: %s" % (self.base_frame, self.global_frame))
         self._tf_listener = tf.TransformListener()
 
         # create the topic publishers
         self._velocity_command = rospy.Publisher('cmd_vel', Twist)
 #         self._velocity_command = rospy.Publisher('is_moving', bool)
+
+        # Set rospy to exectute a shutdown function when terminating the
+        # script now that the velocity command publisher exists
+        rospy.on_shutdown(self.shutdown)
 
     def reconfigure(self, config, level):
         """Fill in local variables with values received from dynamic reconfigure 
@@ -720,7 +722,7 @@ class DistanceController(object):
                 self.global_frame, rospy.Time(0), rospy.Duration(1.0))
 
         except (tf.Exception, tf.ConnectivityException, tf.LookupException):
-            rospy.logerror("Cannot find transform between frames %s, %s",
+            rospy.logerr("Cannot find transform between frames %s, %s",
                           self.global_frame, self.base_frame)
             rospy.signal_shutdown("check_for_frames: TF Exception")
             return False
@@ -744,7 +746,7 @@ class DistanceController(object):
                                                             self.base_frame)
 
         except (tf.Exception, tf.ConnectivityException, tf.LookupException):
-            rospy.logerror("TF Exception")
+            rospy.logerr("TF Exception")
             rospy.signal_shutdown("get_frame_transform: TF Exception")
             return False, False, False
 
