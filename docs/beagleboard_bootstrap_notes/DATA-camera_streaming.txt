@@ -1,0 +1,17 @@
+http://www.einarsundgren.se/gstreamer-basic-real-time-streaming-tutorial/
+
+https://edu.gaitech.hk/video/video-streaming-gstreamer.html
+
+
+sudo apt install ros-melodic-video-stream-opencv
+
+roslaunch video-stream-opencv.launch
+
+sudo apt install ros-melodic-theora-image-transport
+
+$ sudo apt install ros-melodic-image-proc
+$ ROS_NAMESPACE=cv_camera rosrun image_proc image_proc
+
+
+
+$ fswebcam -r 640x480 -S 15 --jpeg 95 --save test.jpeg
