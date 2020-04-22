@@ -66,6 +66,8 @@ M_TO_FT = 3.28084
 
 YD_TO_M = 0.9144
 M_TO_YD = 1.09361
+
+
 class CalibrateDiffDrive(object):
     def __init__(self, name):
         """Creates an ROS node 
