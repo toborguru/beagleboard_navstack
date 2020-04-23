@@ -5,7 +5,7 @@
         <param name="global_frame_id"       value="base_link"/>
         <param name="normalize_angle"       value="false"/>
         <param name="max_vel_x"             value="0.2"/>
-        <param name="max_vel_x"             value="0.01"/>
+        <param name="min_vel_x"             value="0.01"/>
         <param name="acc_lim_x"             value="0.2"/>
         <param name="max_rotational_vel"    value="1.5"/>
         <param name="min_rotational_vel"    value="0.1"/>
