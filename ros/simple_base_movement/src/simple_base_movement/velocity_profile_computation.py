@@ -191,7 +191,11 @@ class VelocityProfileComputation(object):
             # deceleration leg
             decel_loop_num = int(loop_num - (self._accel_cnt + self._coast_cnt))
             decel_check_cnt = int(self._accel_cnt / 2)
-            remainder = decel_loop_num % decel_check_cnt
+            
+            if (decel_check_cnt != 0) :
+                remainder = decel_loop_num % decel_check_cnt
+            else :
+                remainder = 1
 
             # If we are almost half-way through the calculated deceleration 
             # phase or within aim_short_dist of the goal, recalculate the 
