@@ -81,6 +81,8 @@ class CalibrateDiffDrive(object):
         self._test_log = []
         self._test_log.append(["test_name", "reported_value", "measured_value", "correction_factor"])
 
+        self._timeout = 120
+
         # create ROS node
         rospy.init_node(name)
 
@@ -94,7 +96,7 @@ class CalibrateDiffDrive(object):
         self._action_client = actionlib.SimpleActionClient("distance_controller",
                                                            MoveDistanceAction)
         # wait for the server
-        self._action_client.wait_for_server(rospy.Duration(60))
+        self._action_client.wait_for_server(rospy.Duration(self._timeout))
        
         rospy.loginfo("Connected to action server")
 
@@ -449,7 +451,7 @@ class CalibrateDiffDrive(object):
         self._action_client.send_goal(movement_step)
        
         # Allow 1 minute to get there
-        finished_within_time = self._action_client.wait_for_result(rospy.Duration(60))
+        finished_within_time = self._action_client.wait_for_result(rospy.Duration(self._timeout))
        
         # If we don't get there in time, abort the goal
         if not finished_within_time:
