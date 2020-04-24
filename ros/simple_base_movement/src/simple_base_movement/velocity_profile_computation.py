@@ -188,8 +188,6 @@ class VelocityProfileComputation(object):
             # assumes we are stopped
             self._vel_command = self._min_vel
 
-            self._check_coast = self._coast_cnt / 4
-
             '''
             print('Accel: %f Accel cnt: %g Coast Vel: %g Coast cnt: %g' %
                     (self._accel, self._accel_cnt, self._coast_vel, 
@@ -204,24 +202,6 @@ class VelocityProfileComputation(object):
                                                        self._dt)
 
         elif (loop_num < (self._accel_cnt + self._coast_cnt)):
-            # Coast phase
-            # Check for update points
-            if ( ((loop_num - 1) / self._check_coast) != ( (loop_num) / self._check_coast )):
-                profile_dist = abs(distance_left) - abs(self._aim_short_dist)
-
-                (self._accel_cnt, self._accel, self._coast_cnt, self._coast_vel) = \
-                        self.compute_trapezoidal_stop(profile_dist,
-                                                        self._max_vel, 
-                                                        self._max_accel,
-                                                        self._dt)
-                
-                self._coast_cnt += loop_num
-        
-                self._decel_rate = self._accel
-                self._decel_cnt = self._accel_cnt
-
-                print("Ran new profile. Coast: %g Decel: %g" % (self._coast_cnt, self._accel_cnt))
-                
             # coast leg
             self._vel_command = self._coast_vel
 
@@ -294,52 +274,6 @@ class VelocityProfileComputation(object):
             goal_reached = True
 
         return (self._vel_command, finished, goal_reached)
-
-    def compute_trapezoidal_stop(self, dist, vel, accel, dt):
-        """Returns a trapezoidal velocity profile with constant acceleration 
-        that will end at a specified distance while stating at a given speed
-        and given distance. 
-
-        Returns:
-        accel_count
-            Number of deceleration ticks at 1/*dt* Hz to apply to reach 0
-            velocity.  
-            
-        accel_rate
-
-        coast_count
-            Number of coasting ticks at specified velocity (*vel*) before 
-            decelerating.
-
-            Note: This will be 0 if we are late given the acceleration value.
-
-        coast_vel
-
-        Usage:
-        for i in coast_count
-            keep going *vel* m/s
-            wait *dt* 
-        for i in accel_count
-            apply deceleration *accel* 
-            wait *dt* 
-
-        """
-        dist = abs(dist)
-        vel = abs(vel)
-        accel = abs(accel)
-        dt = abs(dt)
-
-        accel_dist = self.distance_to_accelerate_to_velocity(vel, accel, dt)
-        
-        # Time until we need to stop
-        coast_dist = dist - accel_dist # decel
-        (coast_count, coast_vel) = self.velocity_steps_to_reach_distance(
-                                        coast_dist, vel, dt)
-
-        (accel_count, accel) = self.acceleration_steps_to_reach_velocity(
-                                            coast_vel, accel, dt)
-
-        return (accel_count, accel, coast_count, coast_vel)
 
     def compute_trapezoidal_profile(self, dist, vel, accel, dt):
         """Returns a trapezoidal velocity profile with constant acceleration 
