@@ -81,6 +81,16 @@ class VelocityProfileComputation(object):
         finished = False
         goal_reached = False
 
+
+        # Stop if overshot
+        if (distance_left <= 0.0) :
+            self._vel_command = 0.0
+            goal_reached = True
+            finished = True
+
+            return (self._vel_command, finished, goal_reached)
+
+
         if (loop_num == 0):
             # compute required profile on first run
             profile_dist = abs(distance_left) - abs(self._aim_short_dist)
@@ -147,6 +157,14 @@ class VelocityProfileComputation(object):
         """
         finished = False
         goal_reached = False
+
+        # Stop if overshot
+        if (distance_left <= 0.0) :
+            self._vel_command = 0.0
+            goal_reached = True
+            finished = True
+
+            return (self._vel_command, finished, goal_reached)
 
         if (loop_num == 0):
             # compute required profile on first run
