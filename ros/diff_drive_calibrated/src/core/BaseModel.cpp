@@ -599,11 +599,9 @@ diff_drive_calibrated::TickVelocity BaseModel::velocityToTicks(  const double li
     angle_corrected = angular_ticks * corrections.angle_pos_in_neg_out;
   }
 
-  left_corrected = ( linear_ticks - (angle_corrected * 0.5) )
-                    * corrections.right_in_left_out;
+  left_corrected = ( (linear_ticks * corrections.right_in_left_out) - (angle_corrected * 0.5) );
 
-  right_corrected = ( linear_ticks + (angle_corrected * 0.5) )
-                    * corrections.left_in_right_out;
+  right_corrected = ( (linear_ticks * corrections.left_in_right_out) + (angle_corrected * 0.5) );
 
   new_velocity.linear_ticks_sec = RoundToInt( (right_corrected + left_corrected) * 0.5 );
   new_velocity.angular_ticks_sec = RoundToInt( right_corrected - left_corrected );
@@ -630,15 +628,21 @@ BaseDistance_T  BaseModel::countsToDistance(  diff_drive_calibrated::EncoderCoun
 {
   BaseDistance_T  delta_position;
 
-  double left_distance;
-  double right_distance;
+  double left_angular;
+  double right_angular;
+  double left_linear;
+  double right_linear;
   double stasis_distance;
   double average_distance;
 
-  left_distance = calculateDistance(  counts.left_count, rates.meters_per_tick, 
+  left_angular = calculateDistance(  counts.left_count, rates.meters_per_tick, 1.0 );
+
+  right_angular = calculateDistance( counts.right_count, rates.meters_per_tick, 1.0 );
+
+  left_linear = calculateDistance(  counts.left_count, rates.meters_per_tick, 
                                       corrections.left_in_right_out );
 
-  right_distance = calculateDistance( counts.right_count, rates.meters_per_tick, 
+  right_linear = calculateDistance( counts.right_count, rates.meters_per_tick, 
                                       corrections.right_in_left_out );
 
   if ( geometry.stasis_ticks > 0 )
@@ -650,9 +654,9 @@ BaseDistance_T  BaseModel::countsToDistance(  diff_drive_calibrated::EncoderCoun
     stasis_distance = 0.0;
   }
 
-  average_distance = ( left_distance + right_distance ) * 0.5;
+  average_distance = ( left_linear + right_linear ) * 0.5;
 
-  delta_position.theta = calculateDeltaTheta( left_distance, right_distance, geometry.wheel_base,
+  delta_position.theta = calculateDeltaTheta( left_angular, right_angular, geometry.wheel_base,
                                               corrections.angle_pos_in_neg_out,
                                               corrections.angle_neg_in_pos_out );
   delta_position.linear = average_distance;
@@ -822,12 +826,12 @@ BaseCorrections_T BaseModel::calculateCorrections( double wheel_ratio ) const
   BaseCorrections_T corrections;
 
   // Apply 1/2 of the ratio to each wheel
-  corrections.left_in_right_out = 2.0 / (( 1.0 / wheel_ratio ) + 1.0);
-  corrections.right_in_left_out = 2.0 / (1.0 + wheel_ratio);
+  corrections.left_in_right_out = 2.0 / (1.0 + wheel_ratio);
+  corrections.right_in_left_out = 2.0 / (( 1.0 / wheel_ratio ) + 1.0);
 
   // Apply 1/2 the ratio to each direction
-  corrections.angle_pos_in_neg_out = corrections.right_in_left_out;
-  corrections.angle_neg_in_pos_out = corrections.left_in_right_out;
+  corrections.angle_pos_in_neg_out = 1.0 / wheel_ratio;
+  corrections.angle_neg_in_pos_out = wheel_ratio;
 
   return corrections;
 }
