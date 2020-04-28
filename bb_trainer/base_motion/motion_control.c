@@ -62,7 +62,7 @@ void Motion_Control_Init(   void )
     Motion_Control_Set_Velocity( 0, 0 );
 
     // s15.0 -> s7.8
-    m_max_velocity = (MOTION_CONTROL_DEFAULT_MAX_VELOCITY * 256) / MOTION_CONTROL_UPDATE_RATE_HZ;
+    m_max_velocity = (uint16_t)( (uint32_t)(MOTION_CONTROL_DEFAULT_MAX_VELOCITY * 256) / MOTION_CONTROL_UPDATE_RATE_HZ );
     
     Motors_Set_Direction(MOTORS_L_INDEX, MOTORS_FORWARD);
     Motors_Set_Direction(MOTORS_R_INDEX, MOTORS_FORWARD);
@@ -77,10 +77,10 @@ void Motion_Control_Init(   void )
 void    Motion_Control_Set_Acceleration(    uint16_t linear_acceleration, 
                                             uint16_t angular_acceleration )
 {
-    // s15.0 -> s7.8 conversion also scaling for update rate
+    // u16.0 -> u8.8 conversion also scaling for update rate
     m_linear_acceleration = ( linear_acceleration * 256 ) / MOTION_CONTROL_UPDATE_RATE_HZ;
     
-    // s15.0 -> s7.8 conversion also scaling for update rate 
+    // u16.0 -> u8.8 conversion also scaling for update rate 
     m_angular_acceleration = ( angular_acceleration * 256 ) / MOTION_CONTROL_UPDATE_RATE_HZ;
 }
 
@@ -232,10 +232,12 @@ static void Motion_Control_Init_State( volatile Motion_State_t *p_state )
     p_state->encoder_setpoint = 0;
     p_state->encoder = 0;
 
-    // PID defaults
-    p_state->pid.kp = MOTION_CONTROL_KP;
-    p_state->pid.kd = MOTION_CONTROL_KD;
-    p_state->pid.ki = MOTION_CONTROL_KI;
+    // PID defaults, scaling PID defaults for float -> u8.8 conversion
+    Motion_Control_Set_PID( p_state, 
+                            (uint16_t)(MOTION_CONTROL_DEFAULT_KP * 256.0), 
+                            (uint16_t)(MOTION_CONTROL_DEFAULT_KD * 256.0), 
+                            (uint16_t)(MOTION_CONTROL_DEFAULT_KI * 256.0) );
+
     p_state->pid.max_output= MOTION_CONTROL_MAX_CORRECTION;
     p_state->pid.min_output= -1 * MOTION_CONTROL_MAX_CORRECTION;
 
@@ -392,4 +394,14 @@ static void Motion_Control_Compute_Target_Position( volatile Motion_State_t *p_m
     new_velocity = p_motion->linear_velocity + p_motion->angular_velocity;
 
     Motion_Control_Add_To_Position( new_velocity, p_motion );
+}
+
+/** Assign u8.8 PID tuning parameters.
+ */
+void Motion_Control_Set_PID( Motion_State_t *p_state, uint16_t k_p, uint16_t k_i, uint16_t k_d )
+{
+  // u8.8 -> float conversion and scaling for update rate too
+  p_state->pid.kp = k_p / ( 256.0 * MOTION_CONTROL_UPDATE_RATE_HZ );
+  p_state->pid.ki = k_i / ( 256.0 * MOTION_CONTROL_UPDATE_RATE_HZ );
+  p_state->pid.kd = k_d / ( 256.0 * MOTION_CONTROL_UPDATE_RATE_HZ );
 }

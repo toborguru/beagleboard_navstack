@@ -8,9 +8,9 @@
 
 
 // PID Parameters per second
-#define MOTION_CONTROL_KP   4.0
-#define MOTION_CONTROL_KD   0.0
-#define MOTION_CONTROL_KI   3.0 
+#define MOTION_CONTROL_DEFAULT_KP   80.0
+#define MOTION_CONTROL_DEFAULT_KD   0.0
+#define MOTION_CONTROL_DEFAULT_KI   60.0 
 #define MOTION_CONTROL_MAX_CORRECTION   0xFF
 
 #define MOTION_CONTROL_DEFAULT_MAX_VELOCITY     128 // ticks/sec
@@ -52,5 +52,10 @@ void    Motion_Control_Stop(    void );     // Decelerate
 
 void    Motion_Control_Set_Acceleration(    uint16_t linear_acceleration,       // u8.8 ticks/sec 
                                             uint16_t angular_acceleration );    // u8.8 ticks/sec
+
+void    Motion_Control_Set_PID( Motion_State_t *p_state,
+                                uint16_t k_p,   // u8.8
+                                uint16_t k_i,   // u8.8
+                                uint16_t k_d ); // u8.8
 
 #endif
