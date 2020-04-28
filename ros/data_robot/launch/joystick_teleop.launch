@@ -1,18 +1,8 @@
 <launch>
-  <!--- Teleop Joystick -->
-  <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="teleop_joystick">
-    <remap from="turtlebot_node/cmd_vel" to="cmd_vel"/>
-
-    <!-- Button Index -->
-    <param name="axis_deadman" value="3"/>
-
-    <!-- Top Speeds -->
-    <param name="scale_linear" value="0.35"/>
-    <param name="scale_angular" value="3.0"/>
+  <node pkg="joy" type="joy_node" name="joystick/>
+    <remap from="joy" to="joy_orig"/>
   </node>
 
-  <node pkg="joy" type="joy_node" name="joystick"/>
-
-  <include file="$(find data_robot)/launch/robot_base.launch" />
-
+  <node pkg="joy_teleop" type="joy_teleop.py" "joy_teleop">
+  </node>
 </launch>
