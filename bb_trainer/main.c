@@ -81,13 +81,14 @@
 #define RAMP_TEST_LOW      -64  // Min -255
 #define RAMP_TEST_HIGH     64   // Max 255 
 
-volatile I2C_REGISTERS_t* gp_commands_read;
-volatile I2C_REGISTERS_t* gp_commands_write;
+volatile I2C_REGISTERS_t* gp_commands;
+volatile I2C_REGISTERS_t* gp_telemetry;
 
-volatile I2C_REGISTERS_t* gp_telemetry_read;
-volatile I2C_REGISTERS_t* gp_telemetry_write;
+static I2C_REGISTERS_t* m_telemetry_read;
+static I2C_REGISTERS_t* m_telemetry_write;
 
 static I2C_REGISTERS_t m_commands;
+static I2C_REGISTERS_t m_telemetry; 
 static I2C_REGISTERS_t m_telemetry_a; 
 static I2C_REGISTERS_t m_telemetry_b; 
 static uint16_t m_steps_since_command = 0;
@@ -111,18 +112,19 @@ int main( void )
 {
   DISABLE_INTERRUPTS();
 
-  gp_commands_read = &m_commands;
-  gp_commands_write = &m_commands;
-  gp_TWI_receive_buf = (uint8_t*)&m_commands;
+  gp_commands = &m_commands;
+  gp_TWI_receive_buf = (uint8_t*)gp_commands;
 
-  gp_commands_read->command = INVALID_COMMAND;
-  gp_commands_read->linear_velocity = I2C_INVALID_VELOCITY;
-  gp_commands_read->angular_velocity = I2C_INVALID_VELOCITY;
+  gp_telemetry = &m_telemetry;
+
+  gp_commands->command = INVALID_COMMAND;
+  gp_commands->linear_velocity = I2C_INVALID_VELOCITY;
+  gp_commands->angular_velocity = I2C_INVALID_VELOCITY;
 
   // After this these pointers are maintained in Switch_Telemetry_Buffer()
-  gp_telemetry_read = &m_telemetry_a;
-  gp_telemetry_write = &m_telemetry_b;
-  gp_TWI_transmitBuf = (uint8_t*)gp_telemetry_read;
+  m_telemetry_read = &m_telemetry_a;
+  m_telemetry_write = &m_telemetry_b;
+  gp_TWI_transmitBuf = (uint8_t*)m_telemetry_read;
 
   // Hardware Init
   Ports_Zero();
@@ -186,7 +188,7 @@ void CheckVoltage()
       run_time &= SYSTEM_CLOCK_MASK;
     }
 
-    if ( (gp_telemetry_write->voltage > 0) && (gp_telemetry_write->voltage < VOLTAGE_CRITICAL_LIMIT) )
+    if ( (gp_telemetry->voltage > 0) && (gp_telemetry->voltage < VOLTAGE_CRITICAL_LIMIT) )
     { 
       ++limit_reached;
     }
@@ -205,23 +207,19 @@ void CheckVoltage()
 
 void UpdateTelemetry()
 {
-  gp_telemetry_write->current = g_analog_values[ ANALOG_CURRENT_INDEX ];
-  gp_telemetry_write->voltage = g_analog_values[ ANALOG_VOLTAGE_INDEX ];
+  gp_telemetry->current = g_analog_values[ ANALOG_CURRENT_INDEX ];
+  gp_telemetry->voltage = g_analog_values[ ANALOG_VOLTAGE_INDEX ];
   // TODO Remove !
-  //gp_telemetry_write->status_flag = ! READ_PIN( E_STOP_PORT, E_STOP_PIN );
+  //gp_telemetry->status_flag = ! READ_PIN( E_STOP_PORT, E_STOP_PIN );
+
+  memcpy(m_telemetry_write, gp_telemetry, sizeof(I2C_REGISTERS_t));
 }
 
 void UpdateTelemetryClock()
 {
-  if ( (uint16_t)g_system_clock != gp_telemetry_read->system_time )
+  if ( (uint16_t)g_system_clock != gp_telemetry->system_time )
   {
-    // Update both if the buffers are not active
-    gp_telemetry_write->system_time = g_system_clock;
-
-    if ( !g_TWI_readInProgress )
-    {
-      gp_telemetry_read->system_time = g_system_clock;
-    }
+    gp_telemetry->system_time = g_system_clock;
   }
 }
 
@@ -285,73 +283,73 @@ void ProcessIncomingCommands()
   // Process incoming commands
   if ( g_TWI_writeComplete )
   {
-    if ( CMD_GRP_POWER              == gp_commands_read->command_group )
+    if ( CMD_GRP_POWER              == gp_commands->command_group )
     {
       // Schedule a power down
-      if ( CMD_POWER_KILL           == gp_commands_read->command )
+      if ( CMD_POWER_KILL           == gp_commands->command )
       {
         kill_time = g_system_clock + KILL_DELAY_STEPS;
         kill_time &= SYSTEM_CLOCK_MASK;
       }
       // Cancel a power down
-      else if ( CMD_POWER_CANCEL    == gp_commands_read->command )
+      else if ( CMD_POWER_CANCEL    == gp_commands->command )
       {
         kill_time = 0;
       }
       // Power cycle the shells
-      else if ( CMD_POWER_SHELL     == gp_commands_read->command )
+      else if ( CMD_POWER_SHELL     == gp_commands->command )
       {
         BIT_CLEAR(_PORT(SHELL_POWER_PORT), SHELL_POWER_PIN); 
 
         reset_time = g_system_clock + SHELL_RESET_STEPS;
         reset_time &= SYSTEM_CLOCK_MASK;
       }
-      else if ( CMD_POWER_NO_MOTOR  == gp_commands_read->command )
+      else if ( CMD_POWER_NO_MOTOR  == gp_commands->command )
       {
         Motors_Disable();
       }
-      else if ( CMD_POWER_MOTOR     == gp_commands_read->command )
+      else if ( CMD_POWER_MOTOR     == gp_commands->command )
       {
         Motors_Enable();
       }
     }
-    else if ( CMD_GRP_BIST          == gp_commands_read->command_group )
+    else if ( CMD_GRP_BIST          == gp_commands->command_group )
     {
-      if (  CMD_BIST_NONE           == gp_commands_read->command )
+      if (  CMD_BIST_NONE           == gp_commands->command )
       {
         m_bist_running = CMD_BIST_NONE;
       } 
-      else if ( CMD_BIST_MOTOR      == gp_commands_read->command )
+      else if ( CMD_BIST_MOTOR      == gp_commands->command )
       {
         m_bist_running = CMD_BIST_MOTOR;
       }
-      else if ( CMD_BIST_PID        == gp_commands_read->command )
+      else if ( CMD_BIST_PID        == gp_commands->command )
       {
         m_bist_running = CMD_BIST_PID;
       }
-      else if ( CMD_BIST_MOTION     == gp_commands_read->command )
+      else if ( CMD_BIST_MOTION     == gp_commands->command )
       {
         m_bist_running = CMD_BIST_MOTION;
       }
-      else if ( CMD_BIST_RAMP       == gp_commands_read->command )
+      else if ( CMD_BIST_RAMP       == gp_commands->command )
       {
         m_bist_running = CMD_BIST_RAMP;
       }
     }
 
-    gp_commands_read->command_group = INVALID_COMMAND;
-    gp_commands_read->command       = INVALID_COMMAND;
+    gp_commands->command_group = INVALID_COMMAND;
+    gp_commands->command       = INVALID_COMMAND;
  
-    if ( ( gp_commands_read->linear_velocity != I2C_INVALID_VELOCITY ) &&
-        ( gp_commands_read->angular_velocity != I2C_INVALID_VELOCITY ) )
+    if ( ( gp_commands->linear_velocity != I2C_INVALID_VELOCITY ) &&
+        ( gp_commands->angular_velocity != I2C_INVALID_VELOCITY ) )
     {
       m_steps_since_command = 0;
 
-      Motion_Control_Set_Velocity( gp_commands_read->linear_velocity, 
-          gp_commands_read->angular_velocity );
+      Motion_Control_Set_Velocity( gp_commands->linear_velocity, 
+          gp_commands->angular_velocity );
 
-      gp_commands_read->linear_velocity = I2C_INVALID_VELOCITY;
-      gp_commands_read->angular_velocity = I2C_INVALID_VELOCITY;
+      gp_commands->linear_velocity = I2C_INVALID_VELOCITY;
+      gp_commands->angular_velocity = I2C_INVALID_VELOCITY;
     }
 
     g_TWI_writeComplete = false;
@@ -610,21 +608,21 @@ void Switch_Telemetry_Buffers( void )
   {
     if ( reading_telemetry_a )
     {
-      gp_telemetry_read = &m_telemetry_b;
-      gp_telemetry_write = &m_telemetry_a;
+      m_telemetry_read = &m_telemetry_b;
+      m_telemetry_write = &m_telemetry_a;
 
       reading_telemetry_a = false;
     }
     else
     {
-      gp_telemetry_read = &m_telemetry_a;
-      gp_telemetry_write = &m_telemetry_b;
+      m_telemetry_read = &m_telemetry_a;
+      m_telemetry_write = &m_telemetry_b;
 
       reading_telemetry_a = true;
     }
 
     // Do this here because of the interrupt wrappers
-    gp_TWI_transmitBuf = (uint8_t*)gp_telemetry_read;
+    gp_TWI_transmitBuf = (uint8_t*)m_telemetry_read;
   }
 
   ENABLE_INTERRUPTS();

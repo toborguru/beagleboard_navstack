@@ -32,10 +32,7 @@ typedef struct __attribute__((__packed__))
   int32_t     right_i_term;       // R    s23.8 (ticks * ki) /update
 } I2C_REGISTERS_t;
 
-extern volatile I2C_REGISTERS_t* gp_commands_read;
-extern volatile I2C_REGISTERS_t* gp_commands_write;
-
-extern volatile I2C_REGISTERS_t* gp_telemetry_read;
-extern volatile I2C_REGISTERS_t* gp_telemetry_write;
+extern volatile I2C_REGISTERS_t* gp_commands;
+extern volatile I2C_REGISTERS_t* gp_telemetry;
 
 #endif

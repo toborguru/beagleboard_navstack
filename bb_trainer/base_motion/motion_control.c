@@ -135,11 +135,11 @@ void Motion_Control_Run_Step(   void )
         {
             Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_FORWARD );
         }
-	else
-	{
+        else
+        {
             Motors_Set_Direction(   MOTORS_L_INDEX, MOTORS_COAST );
-	}
-     
+        }
+         
         if (right_power < 0)
         {
             right_power *= -1;
@@ -149,24 +149,20 @@ void Motion_Control_Run_Step(   void )
         {
             Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_FORWARD );
         }
-	else
-	{
+        else
+        {
             Motors_Set_Direction(   MOTORS_R_INDEX, MOTORS_COAST );
-	}
+        }
 
         Motors_Set_Power(   MOTORS_L_INDEX, left_power & 0xFF  );
         Motors_Set_Power(   MOTORS_R_INDEX, right_power & 0xFF );
     }
 
     // Update telemetry registers
-    DISABLE_INTERRUPTS();
-
-    gp_telemetry_write->left_encoder = (int16_t)(p_l_wheel->encoder);
-    gp_telemetry_write->right_encoder = (int16_t)(p_r_wheel->encoder);
-    gp_telemetry_write->stasis_encoder = stasis_total;
-    gp_telemetry_write->encoder_time = measurement_time;
-
-    ENABLE_INTERRUPTS();
+    gp_telemetry->left_encoder = (int16_t)(p_l_wheel->encoder);
+    gp_telemetry->right_encoder = (int16_t)(p_r_wheel->encoder);
+    gp_telemetry->stasis_encoder = stasis_total;
+    gp_telemetry->encoder_time = measurement_time;
 } 
 
 /** Set left and right motion structures up for the new velocities.
@@ -183,7 +179,7 @@ void Motion_Control_Set_Velocity(   int16_t linear_velocity, int16_t angular_vel
     // Each wheel gets 1/2 the angular rate
     new_angular_velocity =  ( (int32_t)angular_velocity * 256 ) / ( MOTION_CONTROL_UPDATE_RATE_HZ * 2 );
 
-    total_velocity = abs( linear_velocity ) + abs( angular_velocity / 2 );
+    total_velocity = abs( linear_velocity ) + abs( angular_velocity );
 
     if ( total_velocity > m_max_velocity )  // Exceeding wheel speed limits
     {
@@ -197,8 +193,8 @@ void Motion_Control_Set_Velocity(   int16_t linear_velocity, int16_t angular_vel
     Motion_Control_Set_Update_Velocity( (int16_t)new_linear_velocity, new_angular_velocity, &g_right_wheel_motion );
 
     // Copy data to outgoing telemetry
-    gp_telemetry_write->linear_velocity = linear_velocity;
-    gp_telemetry_write->angular_velocity = angular_velocity;
+    gp_telemetry->linear_velocity = new_linear_velocity;
+    gp_telemetry->angular_velocity = new_angular_velocity;
 }
 
 void  Motion_Control_EStop( void )
