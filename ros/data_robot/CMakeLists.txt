@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 	message_generation
   diff_drive_calibrated
+  tf
 )
 
 ## Generate messages in the 'msg' folder
@@ -82,6 +83,11 @@ add_executable(
   src/ui/StaticCommand.cpp
 )
 
+add_executable(
+  figure_eights
+  src/ui/FigureEights.cpp
+)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -92,6 +98,7 @@ add_executable(
 ## same as for the library above
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(bumper_wander ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(figure_eights ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
@@ -104,22 +111,17 @@ target_link_libraries(${PROJECT_NAME}_node
 )
 
 target_link_libraries(bumper_wander
-  data_robot_application_services
-  data_robot_data_repositories
-  data_robot_message_endpoints
-  # Important that core comes after application_services due to direction of dependencies
-  data_robot_core
   ${catkin_LIBRARIES}
 )
 
 target_link_libraries(static_command
-  data_robot_application_services
-  data_robot_data_repositories
-  data_robot_message_endpoints
-  # Important that core comes after application_services due to direction of dependencies
-  data_robot_core
   ${catkin_LIBRARIES}
 )
+
+target_link_libraries(figure_eights
+  ${catkin_LIBRARIES}
+)
+
 
 #############
 ## Install ##
@@ -132,6 +134,14 @@ install(TARGETS ${PROJECT_NAME}_node
 )
 
 install(TARGETS bumper_wander
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS static_command
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS figure_eights
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
