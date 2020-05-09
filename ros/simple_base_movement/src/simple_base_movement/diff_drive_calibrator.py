@@ -454,10 +454,11 @@ class CalibrateDiffDrive(object):
         # If we don't get there in time, abort the goal
         if not finished_within_time:
             self._action_client.cancel_goal()
-            rospy.loginfo("Timed out achieving goal:\tDistance %f, Angle %f (Degrees %f)" %
-                            (result.final_distance,
-                            result.final_angle,
-                            math.degrees(result.final_angle)))
+# no result if no finish             rospy.loginfo("Timed out achieving goal:\tDistance %f, Angle %f (Degrees %f)" %
+# no result if no finish                             (result.final_distance,
+# no result if no finish                             result.final_angle,
+# no result if no finish                             math.degrees(result.final_angle)))
+            rospy.loginfo("Timed out achieving goal.")
         else:
             # We made it!
             # state = self._action_client.get_state()
