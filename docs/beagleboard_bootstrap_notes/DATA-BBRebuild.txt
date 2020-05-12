@@ -1,0 +1,279 @@
+$ cd ubuntu-18.04.4-console-armhf-2020-03-12
+$ sudo ./setup_sdcard.sh --mmc /dev/sdb --dtb omap3-beagle-xm
+
+$ sudo adduser tobor
+$ sudo vi /etc/group
+:%s/ubuntu/tobor/gc
+
+# 4GB swap
+$ sudo mkdir -p /var/cache/swap/   
+$ sudo dd if=/dev/zero of=/var/cache/swap/swapfile bs=1M count=4096
+$ sudo chmod 0600 /var/cache/swap/swapfile 
+$ sudo mkswap /var/cache/swap/swapfile 
+$ sudo swapon /var/cache/swap/swapfile 
+
+$ sudo bash -c 'echo "/var/cache/swap/swapfile swap swap defaults 0 0" >> /etc/fstab'
+
+Disable connman for wlan0:
+$ sudo vi /etc/connman/main.conf
+NetworkInterfaceBlacklist=SoftAp0,usb0,usb1,wlan0
+
+Configure Networks:
+$ sudo vi /etc/network/interfaces
+# The USB (RNDIS) Ethernet interface
+auto usb0
+iface usb0 inet static
+        address 192.168.7.1
+        netmask 255.255.255.0
+        
+# Home Wifi
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+        wpa-ssid "Mysterious"
+        wpa-psk  "qwertyuiop"
+        
+
+$ sudo rm /etc/resolv.conf
+$ sudo vi /etc/resolv.conf
+nameserver 8.8.4.4
+nameserver 8.8.8.8
+
+$ sudo reboot
+
+$ sudo timedatectl set-timezone America/Denver
+
+$ sudo apt update
+
+
+# ALL NETWORKING Borked after upgrade here (April 2020) - various linux things and firmware get updated - so don't
+
+
+$ sudo apt install vim screen software-properties-common
+
+$ sudo apt-add-repository universe
+$ sudo apt-add-repository multiverse
+$ sudo apt-add-repository restricted
+
+$ sudo shutdown -h now
+
+# Laptop
+$ sudo dd if=/dev/sdb bs=4M status=progress | gzip > user_wifi_no_update-64GB.img.gz
+64021856256 bytes (64 GB, 60 GiB) copied, 1034.66 s, 61.9 MB/s
+
+$ apt list --upgradable | wc
+     64     379    5914
+     
+
+# Upgrade packages because can't upgrade everything
+$ sudo apt install bluez bluetooth
+$ sudo apt install bluez-tools bridge-utils isc-dhcp-server   
+     
+     
+# Restore BT files: etc/bluetooth/* etc/dhcp/dhcpd.conf etc/systemd/system/bt-network.service
+/etc/bluetooth/main.conf
+[General]
+
+# Default adaper name
+# Defaults to 'BlueZ X.YZ'
+Name = DATA-robot
+
+# Default device class. Only the major and minor device class bits are
+# considered. Defaults to '0x000000'.
+Class = 0x020300
+
+...
+
+
+/etc/bluetooth/network.conf
+[General]
+
+[PANU Role]
+Script=dhclient
+
+[GN Role]
+Interface=br0
+
+[NAP Role]
+Interface=br0
+
+
+/etc/dhcp/dhcpd.conf
+...
+
+# Bluetooth
+subnet 192.168.66.0 netmask 255.255.255.0 {
+        option subnet-mask      255.255.255.0;
+        range 192.168.66.10     192.168.66.20;
+}
+
+# USB
+subnet 192.168.7.0 netmask 255.255.255.0 {
+        option subnet-mask      255.255.255.0;
+        range 192.168.7.10      192.168.7.20;
+}
+
+...
+
+
+/etc/systemd/system/bt-network.service
+[Unit]
+Description=bt-network Daemon - for bluetooth PAN
+Requires=bluetooth.service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/bt-network -s gn br0
+
+[Install]
+WantedBy=multi-user.target
+
+
+/etc/network/interfaces
+...
+
+# Bluetooth Bridge
+auto br0
+iface br0 inet static
+  address 192.168.66.1
+  netmask 255.255.255.0
+  bridge_ports none
+  bridge_fd 5
+  bridge_stp no
+
+
+$ sudo systemctl enable bt-network.service
+$ sudo systemctl status bt-network.service
+
+$ sudo systemctl enable isc-dhcp-server.service     
+
+sudo bluetoothctl
+    default-agent
+
+# laptop 
+sudo bluetoothctl
+    default-agent
+    
+# Discover, pair, trust
+
+sudo reboot
+
+sudo shutdown -h now
+
+# Laptop
+$ sudo dd if=/dev/sdb bs=4M status=progress | gzip > all_networking_up-64GB.img.gz
+
+$ sudo apt install git
+
+# Get data scripts
+$ git clone https://github.com/toborguru/beagleboard_navstack.git
+$ cd ~/beagleboard_navstack/beagle_board/scripts
+$ source data_env_vars
+$ ./data_read_voltage
+
+
+# Package investigation
+
+$ sudo apt install binutils
+$ apt list --upgradable | wc
+     57     337    5262
+$ sudo reboot
+
+$ sudo apt install python3.6-dev python2.7-dev
+$ apt list --upgradable | wc
+     43     253    3972
+$ sudo reboot
+
+$ sudo apt install libasound2
+$ sudo apt install xxd
+$ sudo apt install bsdutils
+$ sudo apt install libgcc1
+$ apt list --upgradable | wc
+     33     193    3057
+$ sudo reboot
+
+
+$ sudo apt install fdisk mount linux-base
+$ sudo apt install rfkill linux-libc-dev util-linux libfdisk1 libmount1
+$ sudo apt install grub-common
+$ sudo apt install libglib2.0-0 libglib2.0-data
+
+$ apt list --upgradable | wc
+     19     109    1818
+$ sudo reboot
+
+$ sudo shutdown -h now
+
+# Laptop
+$ sudo dd if=/dev/sdb bs=4M status=progress | gzip > mostly_updated-64GB.img.gz
+64021856256 bytes (64 GB, 60 GiB) copied, 1045.48 s, 61.2 MB/s
+
+
+# ROS or nail down package issues
+# ROS
+$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+$ sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+$ sudo apt update
+
+$ sudo apt install ros-melodic-ros-base
+$ echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+$ source ~/.bashrc
+$ sudo apt install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
+$ sudo rosdep init
+$ rosdep update
+$ mkdir -p catkin_ws/src
+$ cd catkin_ws/
+$ catkin_make
+$ echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+$ source ~/.bashrc
+$ rospack find roscpp
+
+$ sudo apt install ros-melodic-tf
+
+$ ln -sf ~/beagleboard_navstack/ros/* src/
+$ rm src/ros.config
+
+$ catkin_make
+
+$ echo "export ROS_HOSTNAME=192.168.0.25" >> ~/.bashrc
+$ echo "export ROS_MASTER_URI=http://192.168.0.25:11311" >> ~/.bashrc
+
+$ sudo apt-get install gcc-avr avr-libc
+$ echo "export PATH=$PATH:~/beagleboard_navstack/beagle_board/scripts/:~/bin" >> ~/.bashrc
+$ echo "source ~/beagleboard_navstack/beagle_board/scripts/data_setup.bash" >> ~/.bashrc
+
+$ git config --global user.email "github@toborguru.net"
+$ git config --global user.name "Sawyer Larkin"
+
+$ cd ~/beagleboard_navstack/i2c_bootloader/linux/
+$ make twiboot
+$ cp twiboot ~/bin
+
+$ echo "export VISUAL=vim" >> ~/.bashrc
+$ echo "export EDITOR=$VISUAL" >> ~/.bashrc
+
+$ sudo shutdown -h now
+
+# Laptop
+$ sudo dd if=/dev/sdb bs=4M status=progress | gzip > DATA_robot-beagleboard-64GB.img.gz
+
+# Ooooopps
+$ vi .ros/rosconsole.config
+
+#   rosconsole will find this file by default at $ROS_ROOT/config/rosconsole.config
+#
+#   You can define your own by e.g. copying this file and setting
+#   ROSCONSOLE_CONFIG_FILE (in your environment) to point to the new file
+#
+log4j.logger.ros=INFO
+log4j.logger.ros.roscpp.superdebug=WARN
+
+# Override my package to output everything
+#log4j.logger.ros.data_robot=DEBUG
+#log4j.logger.ros.distance_controller=DEBUG
+
+$ echo "export ROSCONSOLE_CONFIG_FILE=~/.ros/rosconsole.config" >> ~/.bashrc
+
+# Upgradeable
+  bb-bbai-firmware bb-cape-overlays bb-customizations bb-usb-gadgets bb-wl18xx-firmware device-tree-compiler distro-info-data git-man
+  ipumm-dra7xx-installer kmod libblkid1 libgd3 libkmod2 libldap-2.4-2 libldap-common libldap2-dev libmysqlclient-dev libmysqlclient20
+  libsmartcols1 linux-firmware python-catkin-pkg python-catkin-pkg-modules python-rospkg python-rospkg-modules vpdma-dra7xx-installer
